@@ -33,7 +33,7 @@ Uses for claiming reward
 
 * StakingRecords: `0x03 | DelAddr -> store(StakingRecords)`
 
-##
+## 
 
 
 ---

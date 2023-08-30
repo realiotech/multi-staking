@@ -41,15 +41,16 @@ This message is expected to fail if:
 ## MsgDelegate
 
 Within this message the delegator locked up coins in the `multi-staking` module account. 
-The `multi-staking` inturns mint a calculated amount of `sdkstaking.bondtoken` to delegate
-on behalf on the delegator.
+The `multi-staking` inturns mint a calculated amount of `sdkstaking.bondtoken` and
+create an `IntermediaryAccount` to delegate on behalf of the delegator.
+
 
 Logic flow:
 
 * Send delegated coins from user to `multi-staking` module account
 
 * Caculate the `sdktaking.bondtoken` to be minted using `BondTokenWeight`.
-amountMinted = delegatedCoins * 
+amountMinted = delegatedCoins * bondTokenWeight
 
 * Create `IntermediaryAccount` for the delegation
 
