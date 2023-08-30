@@ -1,3 +1,12 @@
 
 
-## BondDenom 
+## BondDenom Selection Logic
+
+
+
+
+
+
+
+
+## Validator Creation

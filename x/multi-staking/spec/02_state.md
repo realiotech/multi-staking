@@ -15,7 +15,7 @@ order: 2
 
 * ValidatorBondDenom: `0x01 | ValOperatorAddr -> BondDenom`
 
-## 
+## Delegation 
 
 
 
