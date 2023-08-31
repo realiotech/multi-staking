@@ -44,17 +44,25 @@ Within this message the delegator locked up coins in the `multi-staking` module 
 The `multi-staking` inturns mint a calculated amount of `sdkstaking.bondtoken` and
 create an `IntermediaryAccount` to delegate on behalf of the delegator.
 
-
 Logic flow:
 
-* Send delegated coins from user to `multi-staking` module account
+* Send delegated coins from user to `multi-staking` module account.
 
 * Caculate the `sdktaking.bondtoken` to be minted using `BondTokenWeight`.
 amountMinted = delegatedCoins * bondTokenWeight
 
-* Create `IntermediaryAccount` for the delegation
+* Create `IntermediaryAccount` for the delegation.
 
 * 
+
+
+
+
+
+
+
+
+
 
 
 
