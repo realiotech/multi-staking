@@ -21,11 +21,11 @@ Since there're many bond denom/token stake-able via the multi-staking module but
 
 ### Sdk delegate
 
-`sdk delegation` refers to the actual delegation happened at the sdk staking module layer. 
+Each delegation made by `delegator A` to `validator B` is reprensented by a `sdk delegation` refers to the actual delegation happened at the sdk staking module layer. 
 
 ### Intermediary Account
 
-For delegating, users won't `sdk delegate` directly with their account but through accounts called Intermediary Accounts which is managed by the multi-staking module. Each delegation made by `delegator A` to `validator B` will be created and managed by an unique `Intermediary Account C`. Everytime `delegator A` delegate to `validator B`, their delegation tokens will be locked by sending to the `Intermediary Account C`, then the multi-staking module will mint a calculated amount of `sdkbond token/denom` to the `Intermediary Account C` so that it can `sdk delegate` on `delegator A` behalf. The multi-staking module interior logic allows `delegator A` to dictate actions (such as unbonding or withdrawing reward) involving delegations made by `Intermediary Account C` so that `delegator A` still get full control of the delegation.
+For delegating, users won't `sdk delegate` directly with their account but through accounts called Intermediary Accounts which is managed by the multi-staking module. Each delegation made by `delegator A` to `validator B` will be represented in the form of a  created and managed by an unique `Intermediary Account C`. Everytime `delegator A` delegate to `validator B`, their delegation tokens will be locked by sending to the `Intermediary Account C`, then the multi-staking module will mint a calculated amount of `sdkbond token/denom` to the `Intermediary Account C` so that it can `sdk delegate` on `delegator A` behalf. The multi-staking module interior logic allows `delegator A` to dictate actions (such as unbonding or withdrawing reward) involving delegations made by `Intermediary Account C` so that `delegator A` still get full control of the delegation.
 
 ### Bond Token Weight
 
