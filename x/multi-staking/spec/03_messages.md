@@ -46,12 +46,12 @@ create an `IntermediaryAccount` to delegate on behalf of the delegator.
 
 Logic flow:
 
-* Send delegated coins from user to `multi-staking` module account.
+* Create/Get `IntermediaryAccount` for the delegation.
+
+* Send delegated coins from user to `IntermediaryAccount`.
 
 * Caculate the `sdktaking.bondtoken` to be minted using `BondTokenWeight`.
 amountMinted = delegatedCoins * bondTokenWeight
-
-* Create `IntermediaryAccount` for the delegation.
 
 * 
 
