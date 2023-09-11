@@ -15,10 +15,10 @@ The Initial delegation token must match the `bond denom` specified in `MsgCreate
 
 Logic flow:
 
-1. Setting `ValidatorBondDenom` in state with key/value:  `ValOperatorAddr`/`bond denom`.
+1. Setting `ValidatorBondDenom` in state.
 
-2. Use `SdkCreateValidator()` to create `stakingtypes.MsgCreateValidator`, 
-calling `stakingkeeper.CreateValidator()` with the created `stakingtypes.MsgCreateValidator`.
+2. Converting `MsgCreateValidator` to `stakingtypes.MsgCreateValidator` and
+calling `stakingkeeper.CreateValidator()`.
 
 This message is expected to fail if:
 
