@@ -22,6 +22,10 @@ order: 1
 
 * DVPairSDKBondToken: `0x03 | DVPair -> SDKBondTokens`
 
+### DelegatorTotalSDKBondToken
+
+* DelegatorTotalSDKBondToken; `0x04 | Delegator -> TotalSDKBondToken`
+
 ## MemStore
 
 ### CompletedDelegations
