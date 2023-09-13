@@ -27,7 +27,7 @@ Each delegation from a `delegator A` is actually reprensented in the form of a `
 
 ### Intermediary Account
 
-For each delegation from a `delegator A`, the underlying `sdk delegation` will be created and managed DIRECTLY by an unique `intermediary account C` instead of the `delegator A`, meaning that the `sdk delegation` will have the `intermediary account` as its delegator. The `delegator A` though, can still dictate what `intermediary account C` on what to do with the `sdk delegation` so that `delegator A` still have full controll over the delegation.
+For each delegation from a `delegator A`, the underlying `sdk delegation` will be created and managed DIRECTLY by an unique `intermediary account C` instead of the `delegator A`, meaning that the `sdk delegation` will have the `intermediary account` as its delegator. The `delegator A` though, via messages of the multi-staking module can still dictate what `intermediary account C` on what to do with the `sdk delegation` so that `delegator A` still have full controll over the delegation.
 
 The `intermediary account` is also where the `bond token` from `delegator` is locked and the `sdkbond token` is minted to, the minted `sdkbond token` will then be used to create the `sdk delegation`.
 

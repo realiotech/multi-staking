@@ -20,11 +20,35 @@ order: 1
 
 ### DV Pair SDK Bond Tokens
 
+del a -> val b 100 ario -> 100 stake
+
+a | b -> 100 stake
+
+used to calculate the unlocked bond token when undbonding
+
+sdk bond token -> bond token
+
+
+500 stake
+
+`sdk undelegate` 250 stake
+
+50% off
+
+`bond token` 50% off
+
+a | b -> 500 stake
+
+100 -> 5
+
+
+unbonding amount bond token 100 ario
+
 * DVPairSDKBondToken: `0x03 | DVPair -> SDKBondTokens`
 
 ### DelegatorTotalSDKBondToken
 
-* DelegatorTotalSDKBondToken; `0x04 | Delegator -> TotalSDKBondToken`
+* DelegatorTotalSDKBondToken: `0x04 | Delegator -> TotalSDKBondToken`
 
 ## MemStore
 
