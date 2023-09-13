@@ -57,7 +57,7 @@ Logic flow:
 
 * Mint `sdkbond token` to `IntermediaryAccount`
 
-* Update `DVPairMintedCoins`.
+* Update `DVPairSDKBondCoins`.
 
 * Create `sdk delegation` with `IntermediaryAccount` using the minted `sdkbond token`
 
@@ -96,4 +96,4 @@ Logic flow:
 
 * Call `stakingkeeper.BeginRedelegate()` with the calculated amount of `sdkbond token`
 
-* Update `DV Pair Minted Tokens`
+* Update `DVPairSDKBondTokens`

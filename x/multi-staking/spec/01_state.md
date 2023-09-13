@@ -18,9 +18,9 @@ order: 1
 
 * IntermediaryAccountDelegator: `0x02 | IntermediaryAccount -> DelegatorAddr`
 
-### DV Pair Minted Tokens
+### DV Pair SDK Bond Tokens
 
-* DVPairMintedToken: `0x03 | DVPair -> MintedTokens`
+* DVPairSDKBondToken: `0x03 | DVPair -> SDKBondTokens`
 
 ## MemStore
 

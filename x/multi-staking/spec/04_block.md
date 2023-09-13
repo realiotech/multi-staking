@@ -20,6 +20,6 @@ If so, for each entry:
 
 * Send the calculated amount of `bond token` from `IntermediaryAccount` to `delegator`
 
-* Update `DVPairMintedCoins`.
+* Update `DVPairSDKBondCoins`.
 
 * Delete the entry in `CompletetedDelegations`.
