@@ -23,3 +23,10 @@ If so, for each entry:
 * Update `DVPairSDKBondCoins`.
 
 * Delete the entry in `CompletetedDelegations`.
+
+
+block 10 : an unbonding completed
+
+begin block : marker unbonding completed
+
+end block: staking moudle endblock finish -> end block
