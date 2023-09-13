@@ -2,14 +2,16 @@
 
 The multi-staking-module is a module that allows the cosmos-sdk staking system to support many types of token 
 
+## Features
+
+- Staking with many diffrent type of tokens
+- Bond denom selection via Gov proposal
+- A validator can only be delegated using its bonded denom
+- All user usecases of the sdk staking module
+
 ## Multi staking design
 
 Given the fact that several core sdk modules such as distribution or slashing is dependent on the sdk staking module, we design the multi staking module as a wrapper around the sdk staking module so that there's no need to replace the sdk staking module and its related modules.
-
-The multi staking module has the following features:
-- Staking with many diffrent type of tokens
-- Bond denom selection via Gov proposal
-- A validator's delegations can only be in one denom
 
 The mechanism of this module is that it still uses the sdk staking module for all the logic related to staking. But since the sdk staking module doesn't allow multiple bond token/denom, in order to support such feature, the multi-staking module will convert (lock and mint) those different bond token/denom into the one token/denom that is used by the sdk staking module and then stake with the converted token/denom. 
 
@@ -21,17 +23,17 @@ Since there're many bond denom/token stake-able via the multi-staking module but
 
 ### Delegation
 
-Each delegation from a `delegator A` to a `validator B` is actually reprensented in the form of a `sdk delegation` which refers to the delegation happened at the sdk staking module layer. In other words, there's little to no logic related to delegation happens at the `multi-staking module` layer as well as delegation data being stored at `multi-staking module` store.
+Each delegation from a `delegator A` is actually reprensented in the form of a `sdk delegation` which refers to the delegation happened at the sdk staking module layer. In other words, there's little to no logic related to the actual delegation system (validator power distr, slashing, distributing rewards...) happens at the `multi-staking module` layer as well as delegation data being stored at `multi-staking module` store.
 
 ### Intermediary Account
 
-For each delegation from a `delegator A` to a `validator B`, the underlying `sdk delegation` will be managed DIRECTLY by an unique `intermediary account C` instead of the `delegator A`, meaning that the `sdk delegator` has the `intermediary account` as its delegator. The `delegator A` though, can still d
+For each delegation from a `delegator A`, the underlying `sdk delegation` will be created and managed DIRECTLY by an unique `intermediary account C` instead of the `delegator A`, meaning that the `sdk delegation` will have the `intermediary account` as its delegator. The `delegator A` though, can still dictate what `intermediary account C` on what to do with the `sdk delegation` so that `delegator A` still have full controll over the delegation.
 
-Each delegation made by `delegator A` to a validator (who hasn't been delegated by `delegator A` before) will trigger 
-For delegating, users won't `sdk delegate` directly with their account but through accounts called Intermediary Accounts which is managed by the multi-staking module. Each delegation made by `delegator A` to `validator B` will be represented in the form of a  created and managed by an unique `Intermediary Account C`. Everytime `delegator A` delegate to `validator B`, their delegation tokens will be locked by sending to the `Intermediary Account C`, then the multi-staking module will mint a calculated amount of `sdkbond token/denom` to the `Intermediary Account C` so that it can `sdk delegate` on `delegator A` behalf. The multi-staking module interior logic allows `delegator A` to dictate actions (such as unbonding or withdrawing reward) involving delegations made by `Intermediary Account C` so that `delegator A` still get full control of the delegation.
+The `intermediary account` is also where the `bond token` from `delegator` is locked and the `sdkbond token` is minted to, the minted `sdkbond token` will then be used to create the `sdk delegation`.
 
 ### Bond Token Weight
 
 Each `bond token` is associated with a `bond token weight`. This `bond token weight` is specified via the gov proposal in which the `bond token` is accepted.
-We mentioned above that for each delegation the multi-staking will lock the `bond token` and mint a calculated ammount of `sdkbond token`. The calculation is a multiplication : minted sdkbond token ammount = bond token amount * bond token weight.
+
+We mentioned above that for each delegation the multi-staking will lock the `bond token` and mint a calculated ammount of `sdkbond token`. The calculation here is a multiplication : minted sdkbond token ammount = bond token amount * bond token weight.
 

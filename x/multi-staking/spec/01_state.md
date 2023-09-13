@@ -4,8 +4,6 @@ order: 1
 
 # State
 
-## Data Structure
-
 ## Store
 
 ### Bond Token Weight
@@ -15,3 +13,17 @@ order: 1
 ### Validator Bond Denom
 
 * ValidatorBondDenom: `0x01 | ValOperatorAddr -> BondDenom (string)`
+
+### Intermediary Account Delegator
+
+* IntermediaryAccountDelegator: `0x02 | IntermediaryAccount -> DelegatorAddr`
+
+### DV Pair Minted Tokens
+
+* DVPairMintedToken: `0x03 | DVPair -> MintedTokens`
+
+## MemStore
+
+### CompletedDelegations
+
+* CompletedDelegations :`0x04 -> store(delegations)`
