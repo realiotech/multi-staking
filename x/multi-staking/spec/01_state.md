@@ -26,8 +26,6 @@ order: 1
 
 * DVPairBondToken: `0x04 | DVPair -> BondTokens`
 
-### 
-
 ## MemStore
 
 ### CompletedDelegations
