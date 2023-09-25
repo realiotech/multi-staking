@@ -57,9 +57,9 @@ Logic flow:
 
 * Mint `sdkbond token` to `IntermediaryAccount`
 
-* Update `DVPairSDKBondCoins`.
+* Update `DVPairSDKBondTokens`.
 
-* Update `DelegatorTotalSDKBondToken`.
+* Update `DVPairBondTokens`.
 
 * Create `sdk delegation` with `IntermediaryAccount` using the minted `sdkbond token`
 
@@ -74,8 +74,6 @@ Logic flow:
 
 * Call `stakingkeeper.Undelegate()` with the calculated amount of `sdkbond token`
 
-* Update `DelegatorTotalSDKBondToken`.
-
 The rest of the unbonding logic such as sending locked coins back to user will happens at `EndBlock()`
 
 ## MsgCancelUnbondingDelegation 
@@ -87,8 +85,6 @@ Logic flow:
 * Calculate amount of `sdkbond token` need to be `sdk cancel undelegation`
 
 * Call `stakingkeeper.CancelUnbondingDelegation()` with the calculated amount of `sdkbond token`
-
-* Update `DelegatorTotalSDKBondToken`.
 
 ## MsgBeginRedelegate
 
