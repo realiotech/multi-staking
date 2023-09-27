@@ -12,7 +12,22 @@ const (
 
 	// QuerierRoute defines the module's query routing key
 	QuerierRoute = ModuleName
+
+	// MemStoreKey defines the in-memory store key
+	MemStoreKey = "memory:capability"
 )
 
 // KVStore keys
-var ()
+var (
+	BondTokenWeightKey    = []byte{0x00}
+	ValidatorBondDenomKey = []byte{0x01}
+
+	IntermediaryAccountDelegator = []byte{0x02}
+
+	DVPairSDKBondTokens = []byte{0x03}
+
+	DVPairBondTokens = []byte{0x04}
+
+	// mem store key
+	CompletedDelegationsPrefix = []byte{0x00}
+)
