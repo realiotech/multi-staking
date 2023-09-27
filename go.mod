@@ -1,6 +1,6 @@
 go 1.19
 
-module github.com/notional-labs/multi-staking-module
+module github.com/realio-tech/multi-staking-module
 
 require (
 	cosmossdk.io/math v1.0.0-beta.3
