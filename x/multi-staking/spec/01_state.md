@@ -30,4 +30,4 @@ order: 1
 
 ### CompletedDelegations
 
-* CompletedDelegations :`0x04 -> store(delegations)`
+* CompletedDelegations :`0x00 -> store(delegations)`
