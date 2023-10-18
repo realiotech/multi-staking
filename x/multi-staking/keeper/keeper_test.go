@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-	"github.com/cosmos/cosmos-sdk/testutil"
+	"github.com/realio-tech/multi-staking-module/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/realio-tech/multi-staking-module/testing/simapp"
 	multistakingkeeper "github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
@@ -25,7 +25,7 @@ func (suite *KeeperTestSuite) SetupTest() {
 	storeKey := storetypes.NewKVStoreKey(multistakingtypes.StoreKey)
 	memKey := storetypes.NewMemoryStoreKey(multistakingtypes.MemStoreKey)
 	encCfg := simapp.MakeTestEncodingConfig()
-	testCtx := testutil.DefaultContext(storeKey, storetypes.NewTransientStoreKey("transient_test"))
+	testCtx := testutil.DefaultContext(storeKey, memKey, storetypes.NewTransientStoreKey("transient_test"))
 
 	msKeeper := multistakingkeeper.NewKeeper(
 		encCfg.Marshaler,
