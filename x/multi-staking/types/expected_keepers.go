@@ -9,4 +9,5 @@ import (
 
 type StakingKeeper interface {
 	DequeueAllMatureUBDQueue(ctx sdk.Context, currTime time.Time) (matureUnbonds []stakingtypes.DVPair)
+	BondDenom(ctx sdk.Context) (res string)
 }
