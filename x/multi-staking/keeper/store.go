@@ -41,6 +41,10 @@ func (k Keeper) GetValidatorBondDenom(ctx sdk.Context, operatorAddr sdk.ValAddre
 }
 
 func (k Keeper) SetValidatorBondDenom(ctx sdk.Context, operatorAddr sdk.ValAddress, bondDenom string) {
+	if k.GetValidatorBondDenom(ctx, operatorAddr) != "" {
+		panic("validator denom already set")
+	}
+
 	store := ctx.KVStore(k.storeKey)
 
 	store.Set(types.GetValidatorBondDenomKey(operatorAddr), []byte(bondDenom))
@@ -54,6 +58,10 @@ func (k Keeper) GetIntermediaryAccountDelegator(ctx sdk.Context, intermediaryAcc
 }
 
 func (k Keeper) SetIntermediaryAccountDelegator(ctx sdk.Context, intermediaryAccount sdk.AccAddress, delegator sdk.AccAddress) {
+	if k.GetIntermediaryAccountDelegator(ctx, intermediaryAccount) != nil {
+		panic("intermediary account for delegator already set")
+	}
+
 	store := ctx.KVStore(k.storeKey)
 
 	store.Set(types.GetIntermediaryAccountDelegatorKey(intermediaryAccount), delegator)
@@ -70,6 +78,9 @@ func (k Keeper) GetDVPairSDKBondTokens(ctx sdk.Context, delAddr sdk.AccAddress, 
 }
 
 func (k Keeper) SetDVPairSDKBondTokens(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress, sdkBondTokens sdk.Coin) {
+	if sdkBondTokens.Denom != k.stakingKeeper.BondDenom(ctx) {
+		panic("input token is not sdk bond token")
+	}
 	store := ctx.KVStore(k.storeKey)
 
 	bz := k.cdc.MustMarshal(&sdkBondTokens)

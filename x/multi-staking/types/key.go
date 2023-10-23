@@ -34,7 +34,7 @@ var (
 	DVPairBondTokens = []byte{0x04}
 
 	// mem store key
-	CompletedDelegationsPrefix = []byte{0x00}
+	CompletedDelegationsPrefix = []byte{0x05}
 )
 
 // GetBondTokenWeightKeyKey returns a key for an index containing the bond token weight
