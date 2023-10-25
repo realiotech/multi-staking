@@ -4,12 +4,10 @@ import (
 	"github.com/stretchr/testify/suite"
 	"testing"
 
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-	"github.com/realio-tech/multi-staking-module/testutil"
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/realio-tech/multi-staking-module/testing/simapp"
 	multistakingkeeper "github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
-	multistakingtypes "github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
 
 type KeeperTestSuite struct {
@@ -21,20 +19,9 @@ type KeeperTestSuite struct {
 
 func (suite *KeeperTestSuite) SetupTest() {
 	app := simapp.Setup(false)
+	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
-	storeKey := storetypes.NewKVStoreKey(multistakingtypes.StoreKey)
-	memKey := storetypes.NewMemoryStoreKey(multistakingtypes.MemStoreKey)
-	encCfg := simapp.MakeTestEncodingConfig()
-	testCtx := testutil.DefaultContext(storeKey, memKey, storetypes.NewTransientStoreKey("transient_test"))
-
-	msKeeper := multistakingkeeper.NewKeeper(
-		encCfg.Marshaler,
-		app.StakingKeeper,
-		storeKey,
-		memKey,
-	)
-
-	suite.ctx, suite.msKeeper = testCtx, msKeeper
+	suite.ctx, suite.msKeeper = ctx, &app.MultiStakingKeeper
 }
 
 func TestKeeperTestSuite(t *testing.T) {
