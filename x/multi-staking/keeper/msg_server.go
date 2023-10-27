@@ -2,7 +2,10 @@ package keeper
 
 import (
 	"context"
+	"cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
@@ -24,22 +27,26 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	intermediaryAccount := types.GetIntermediaryAccount(msg.DelegatorAddress)
-	
-	// TODO: validate denom is supported
 
 	bondDenomWeight := k.GetBondTokenWeight(ctx, msg.Value.Denom)
+	if !bondDenomWeight.IsPositive() {
+		return nil, errors.Wrapf(
+			sdkerrors.ErrInvalidRequest, "invalid coin denomination weight: got %s", msg.Value.Denom,
+		)
+	}
+
 	exactDelegateValue := bondDenomWeight.MulInt(msg.Value.Amount).RoundInt()
 	sdkBondAmount := sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), exactDelegateValue)
 	sdkMsg := stakingtypes.MsgCreateValidator{
-		Description: msg.Description,
-		Commission: msg.Commission,
+		Description:       msg.Description,
+		Commission:        msg.Commission,
 		MinSelfDelegation: msg.MinSelfDelegation,
-		DelegatorAddress: intermediaryAccount.String(),
-		ValidatorAddress: msg.ValidatorAddress,
-		Pubkey: msg.Pubkey,
-		Value: sdkBondAmount,
+		DelegatorAddress:  intermediaryAccount.String(),
+		ValidatorAddress:  msg.ValidatorAddress,
+		Pubkey:            msg.Pubkey,
+		Value:             sdkBondAmount,
 	}
-	
+
 	_, err := k.stakingMsgServer.CreateValidator(ctx, &sdkMsg)
 
 	if err != nil {
