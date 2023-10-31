@@ -8,9 +8,12 @@ import (
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
 
-func (k Keeper) GetBondTokenWeight(ctx sdk.Context, tokenDenom string) math.LegacyDec {
+func (k Keeper) GetBondTokenWeight(ctx sdk.Context, tokenDenom string) (math.LegacyDec, bool) {
 	store := ctx.KVStore(k.storeKey)
 	bz := store.Get(types.GetBondTokenWeightKey(tokenDenom))
+	if bz == nil {
+		return math.LegacyZeroDec(), false
+	}
 
 	bondTokenWeight := &math.LegacyDec{}
 	err := bondTokenWeight.Unmarshal(bz)
@@ -18,8 +21,7 @@ func (k Keeper) GetBondTokenWeight(ctx sdk.Context, tokenDenom string) math.Lega
 		panic(fmt.Errorf("unable to unmarshal bond token weight %v", err))
 
 	}
-
-	return *bondTokenWeight
+	return *bondTokenWeight, true
 }
 
 func (k Keeper) SetBondTokenWeight(ctx sdk.Context, tokenDenom string, tokenWeight math.LegacyDec) {
@@ -67,39 +69,61 @@ func (k Keeper) SetIntermediaryAccountDelegator(ctx sdk.Context, intermediaryAcc
 	store.Set(types.GetIntermediaryAccountDelegatorKey(intermediaryAccount), delegator)
 }
 
-func (k Keeper) GetDVPairSDKBondTokens(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) sdk.Coin {
+func (k Keeper) GetDVPairSDKBondAmount(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) math.Int {
 	store := ctx.KVStore(k.storeKey)
 
-	bz := store.Get(types.GetDVPairSDKBondTokensKey(delAddr, valAddr))
-	var sdkBondTokens sdk.Coin
-	k.cdc.MustUnmarshal(bz, &sdkBondTokens)
-
-	return sdkBondTokens
-}
-
-func (k Keeper) SetDVPairSDKBondTokens(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress, sdkBondTokens sdk.Coin) {
-	if sdkBondTokens.Denom != k.stakingKeeper.BondDenom(ctx) {
-		panic("input token is not sdk bond token")
+	bz := store.Get(types.GetDVPairSDKBondAmountKey(delAddr, valAddr))
+	if bz == nil {
+		return math.ZeroInt()
 	}
-	store := ctx.KVStore(k.storeKey)
 
-	bz := k.cdc.MustMarshal(&sdkBondTokens)
-	store.Set(types.GetDVPairSDKBondTokensKey(delAddr, valAddr), bz)
+	sdkBondAmount := &math.Int{}
+	err := sdkBondAmount.Unmarshal(bz)
+	if err != nil {
+		panic(fmt.Errorf("unable to unmarshal sdk bond amount %v", err))
+	}
+
+	return *sdkBondAmount
 }
 
-func (k Keeper) GetDVPairBondTokens(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) sdk.Coin {
+func (k Keeper) SetDVPairSDKBondAmount(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress, sdkBondAmount math.Int) {
 	store := ctx.KVStore(k.storeKey)
 
-	bz := store.Get(types.GetDVPairBondTokensKey(delAddr, valAddr))
-	var bondTokens sdk.Coin
-	k.cdc.MustUnmarshal(bz, &bondTokens)
+	bz, err := sdkBondAmount.Marshal()
 
-	return bondTokens
+	if err != nil {
+		panic(fmt.Errorf("unable to marshal sdk bond amount %v", err))
+	}
+
+	store.Set(types.GetDVPairSDKBondAmountKey(delAddr, valAddr), bz)
 }
 
-func (k Keeper) SetDVPairBondTokens(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress, bondTokens sdk.Coin) {
+func (k Keeper) GetDVPairBondAmount(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) math.Int {
 	store := ctx.KVStore(k.storeKey)
 
-	bz := k.cdc.MustMarshal(&bondTokens)
-	store.Set(types.GetDVPairBondTokensKey(delAddr, valAddr), bz)
+	bz := store.Get(types.GetDVPairBondAmountKey(delAddr, valAddr))
+	if bz == nil {
+		return sdk.ZeroInt()
+	}
+
+	bondAmount := &math.Int{}
+	err := bondAmount.Unmarshal(bz)
+
+	if err != nil {
+		panic(fmt.Errorf("unable to unmarshal bond amount %v", err))
+	}
+
+	return *bondAmount
+}
+
+func (k Keeper) SetDVPairBondAmount(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress, bondAmount math.Int) {
+	store := ctx.KVStore(k.storeKey)
+
+	bz, err := bondAmount.Marshal()
+
+	if err != nil {
+		panic(fmt.Errorf("unable to marshal bond amount %v", err))
+	}
+
+	store.Set(types.GetDVPairBondAmountKey(delAddr, valAddr), bz)
 }

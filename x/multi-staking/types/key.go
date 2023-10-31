@@ -29,9 +29,9 @@ var (
 
 	IntermediaryAccountDelegator = []byte{0x02}
 
-	DVPairSDKBondTokens = []byte{0x03}
+	DVPairSDKBondAmount = []byte{0x03}
 
-	DVPairBondTokens = []byte{0x04}
+	DVPairBondAmount = []byte{0x04}
 
 	// mem store key
 	CompletedDelegationsPrefix = []byte{0x05}
@@ -52,12 +52,12 @@ func GetIntermediaryAccountDelegatorKey(intermediaryAccount sdk.AccAddress) []by
 	return append(IntermediaryAccountDelegator, intermediaryAccount...)
 }
 
-func GetDVPairSDKBondTokensKey(delAddr sdk.AccAddress, valAddr sdk.ValAddress) []byte {
+func GetDVPairSDKBondAmountKey(delAddr sdk.AccAddress, valAddr sdk.ValAddress) []byte {
 	DVPair := append(delAddr, address.MustLengthPrefix(valAddr)...)
-	return append(DVPairSDKBondTokens, DVPair...)
+	return append(DVPairSDKBondAmount, DVPair...)
 }
 
-func GetDVPairBondTokensKey(delAddr sdk.AccAddress, valAddr sdk.ValAddress) []byte {
+func GetDVPairBondAmountKey(delAddr sdk.AccAddress, valAddr sdk.ValAddress) []byte {
 	DVPair := append(delAddr, address.MustLengthPrefix(valAddr)...)
-	return append(DVPairBondTokens, DVPair...)
+	return append(DVPairBondAmount, DVPair...)
 }

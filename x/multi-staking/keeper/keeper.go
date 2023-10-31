@@ -17,11 +17,13 @@ type Keeper struct {
 	cdc              codec.BinaryCodec
 	stakingKeeper    types.StakingKeeper
 	stakingMsgServer stakingtypes.MsgServer
+	bankKeeper       types.BankKeeper
 }
 
 func NewKeeper(
 	cdc codec.BinaryCodec,
 	stakingKeeper stakingkeeper.Keeper,
+	bankKeeper types.BankKeeper,
 	key storetypes.StoreKey,
 	memKey storetypes.StoreKey,
 ) *Keeper {
@@ -31,6 +33,7 @@ func NewKeeper(
 		memKey:           memKey,
 		stakingKeeper:    stakingKeeper,
 		stakingMsgServer: stakingkeeper.NewMsgServerImpl(stakingKeeper),
+		bankKeeper:       bankKeeper,
 	}
 }
 
