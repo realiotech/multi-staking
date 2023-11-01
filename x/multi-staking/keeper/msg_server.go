@@ -130,5 +130,33 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (
 // CancelUnbondingDelegation defines a method for canceling the unbonding delegation
 // and delegate back to the validator.
 func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.MsgCancelUnbondingDelegation) (*types.MsgCancelUnbondingDelegationResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	intermediaryAccount := types.GetIntermediaryAccount(msg.DelegatorAddress, msg.ValidatorAddress)
+
+	valAcc, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
+	if err != nil {
+		return nil, err
+	}
+	delAcc := sdk.MustAccAddressFromBech32(msg.DelegatorAddress)
+
+	exactDelegateValue, err := k.CalSDKBondToken(ctx, msg.Amount)
+	if err != nil {
+		return nil, err
+	}
+	sdkMsg := stakingtypes.MsgDelegate{
+		DelegatorAddress: intermediaryAccount.String(),
+		ValidatorAddress: msg.ValidatorAddress,
+		Amount:           exactDelegateValue,
+	}
+
+	k.Keeper.PreDelegate(ctx, delAcc, valAcc, msg.Amount)
+
+	_, err = k.stakingMsgServer.Delegate(ctx, &sdkMsg)
+
+	if err != nil {
+		return nil, err
+	}
+
 	return &types.MsgCancelUnbondingDelegationResponse{}, nil
 }
