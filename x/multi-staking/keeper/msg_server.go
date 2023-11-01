@@ -60,6 +60,19 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 
 // EditValidator defines a method for editing an existing validator
 func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValidator) (*types.MsgEditValidatorResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	
+	sdkMsg := stakingtypes.MsgEditValidator{
+		Description:       msg.Description,
+		CommissionRate:    msg.CommissionRate,
+		MinSelfDelegation: msg.MinSelfDelegation,
+		ValidatorAddress:  msg.ValidatorAddress,
+	}
+
+	_, err := k.stakingMsgServer.EditValidator(ctx, &sdkMsg)
+	if err != nil {
+		return nil, err
+	}
 	return &types.MsgEditValidatorResponse{}, nil
 }
 
