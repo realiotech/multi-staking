@@ -3,8 +3,10 @@ package keeper
 import (
 	"fmt"
 
+	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
 
@@ -13,8 +15,8 @@ func (k Keeper) PreDelegate(
 	bondToken sdk.Coin,
 ) error {
 	valAccAddr, err := sdk.ValAddressFromBech32(valAddress)
-	if err == nil {
-		panic(err)
+	if err != nil {
+		return err
 	}
 	delAcc := sdk.MustAccAddressFromBech32(delAddress)
 
@@ -56,7 +58,7 @@ func (k Keeper) UpdateDVPairBondAmount(ctx sdk.Context, delAcc sdk.AccAddress, v
 }
 
 func (k Keeper) UpdateDVPairSDKBondAmount(ctx sdk.Context, delAcc sdk.AccAddress, valAcc sdk.ValAddress, updateAmount math.Int) {
-	existingSDKBondAmount := k.GetDVPairBondAmount(ctx, delAcc, valAcc)
+	existingSDKBondAmount := k.GetDVPairSDKBondAmount(ctx, delAcc, valAcc)
 	if existingSDKBondAmount.IsZero() {
 		k.SetDVPairSDKBondAmount(ctx, delAcc, valAcc, updateAmount)
 	} else {
@@ -65,10 +67,11 @@ func (k Keeper) UpdateDVPairSDKBondAmount(ctx sdk.Context, delAcc sdk.AccAddress
 }
 
 func (k Keeper) CalSDKBondToken(ctx sdk.Context, bondToken sdk.Coin) (sdk.Coin, error) {
-
 	bondDenomWeight, isBondToken := k.GetBondTokenWeight(ctx, bondToken.Denom)
 	if !isBondToken {
-		return sdk.Coin{}, fmt.Errorf("invalid bond token %s", bondToken.Denom)
+		return sdk.Coin{}, errors.Wrapf(
+			sdkerrors.ErrInvalidRequest, "invalid coin denomination: got %s", bondToken.Denom,
+		)
 	}
 	sdkBondAmount := bondDenomWeight.MulInt(bondToken.Amount).RoundInt()
 	sdkBondToken := sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), sdkBondAmount)

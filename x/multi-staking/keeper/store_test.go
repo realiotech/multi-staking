@@ -150,104 +150,104 @@ func (suite *KeeperTestSuite) TestSetIntermediaryAccountDelegator() {
 	}
 }
 
-// func (suite *KeeperTestSuite) TestSetDVPairSDKBondAmount() {
-// 	delA := testutil.GenAddress()
-// 	delB := testutil.GenAddress()
-// 	valA := testutil.GenValAddress()
-// 	valB := testutil.GenValAddress()
+func (suite *KeeperTestSuite) TestSetDVPairSDKBondAmount() {
+	delA := testutil.GenAddress()
+	delB := testutil.GenAddress()
+	valA := testutil.GenValAddress()
+	valB := testutil.GenValAddress()
 
-// 	bondSDKAmountA := sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(100))
-// 	bondSDKAmountB := sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(200))
+	bondSDKAmountA := sdk.NewInt(100)
+	bondSDKAmountB := sdk.NewInt(200)
 
-// 	testCases := []struct {
-// 		name     string
-// 		malleate func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []sdk.Coin
-// 		dels     []sdk.AccAddress
-// 		vals     []sdk.ValAddress
-// 		expPanic bool
-// 	}{
-// 		{
-// 			name: "1 delegator, 1 validator, success",
-// 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []sdk.Coin {
-// 				msKeeper.SetDVPairSDKBondAmount(ctx, delA, valA, bondSDKAmountA)
-// 				return []sdk.Coin{bondSDKAmountA}
-// 			},
-// 			dels:     []sdk.AccAddress{delA},
-// 			vals:     []sdk.ValAddress{valA},
-// 			expPanic: false,
-// 		},
-// 		{
-// 			name: "2 delegator, 2 validator, success",
-// 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []sdk.Coin {
-// 				msKeeper.SetDVPairSDKBondAmount(ctx, delA, valA, bondSDKAmountA)
-// 				msKeeper.SetDVPairSDKBondAmount(ctx, delB, valB, bondSDKAmountB)
-// 				return []sdk.Coin{bondSDKAmountA, bondSDKAmountB}
-// 			},
-// 			dels:     []sdk.AccAddress{delA, delB},
-// 			vals:     []sdk.ValAddress{valA, valB},
-// 			expPanic: false,
-// 		},
-// 		{
-// 			name: "1 delegator, 2 validator, success",
-// 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []sdk.Coin {
-// 				msKeeper.SetDVPairSDKBondAmount(ctx, delA, valA, bondSDKAmountA)
-// 				msKeeper.SetDVPairSDKBondAmount(ctx, delA, valB, bondSDKAmountB)
-// 				return []sdk.Coin{bondSDKAmountA, bondSDKAmountB}
-// 			},
-// 			dels:     []sdk.AccAddress{delA, delA},
-// 			vals:     []sdk.ValAddress{valA, valB},
-// 			expPanic: false,
-// 		},
-// 		{
-// 			name: "1 delegator, 1 validator, 2 bond amounts failed",
-// 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []sdk.Coin {
-// 				msKeeper.SetDVPairSDKBondAmount(ctx, delA, valA, bondSDKAmountA)
-// 				msKeeper.SetDVPairSDKBondAmount(ctx, delA, valA, bondSDKAmountB)
-// 				return []sdk.Coin{bondSDKAmountB}
-// 			},
-// 			dels:     []sdk.AccAddress{delA},
-// 			vals:     []sdk.ValAddress{valA},
-// 			expPanic: false,
-// 		},
-// 	}
+	testCases := []struct {
+		name     string
+		malleate func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []math.Int
+		dels     []sdk.AccAddress
+		vals     []sdk.ValAddress
+		expPanic bool
+	}{
+		{
+			name: "1 delegator, 1 validator, success",
+			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []math.Int {
+				msKeeper.SetDVPairSDKBondAmount(ctx, delA, valA, bondSDKAmountA)
+				return []math.Int{bondSDKAmountA}
+			},
+			dels:     []sdk.AccAddress{delA},
+			vals:     []sdk.ValAddress{valA},
+			expPanic: false,
+		},
+		{
+			name: "2 delegator, 2 validator, success",
+			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []math.Int {
+				msKeeper.SetDVPairSDKBondAmount(ctx, delA, valA, bondSDKAmountA)
+				msKeeper.SetDVPairSDKBondAmount(ctx, delB, valB, bondSDKAmountB)
+				return []math.Int{bondSDKAmountA, bondSDKAmountB}
+			},
+			dels:     []sdk.AccAddress{delA, delB},
+			vals:     []sdk.ValAddress{valA, valB},
+			expPanic: false,
+		},
+		{
+			name: "1 delegator, 2 validator, success",
+			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []math.Int {
+				msKeeper.SetDVPairSDKBondAmount(ctx, delA, valA, bondSDKAmountA)
+				msKeeper.SetDVPairSDKBondAmount(ctx, delA, valB, bondSDKAmountB)
+				return []math.Int{bondSDKAmountA, bondSDKAmountB}
+			},
+			dels:     []sdk.AccAddress{delA, delA},
+			vals:     []sdk.ValAddress{valA, valB},
+			expPanic: false,
+		},
+		{
+			name: "1 delegator, 1 validator, 2 bond amounts",
+			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []math.Int {
+				msKeeper.SetDVPairSDKBondAmount(ctx, delA, valA, bondSDKAmountA)
+				msKeeper.SetDVPairSDKBondAmount(ctx, delA, valA, bondSDKAmountB)
+				return []math.Int{bondSDKAmountB}
+			},
+			dels:     []sdk.AccAddress{delA},
+			vals:     []sdk.ValAddress{valA},
+			expPanic: false,
+		},
+	}
 
-// 	for _, tc := range testCases {
-// 		tc := tc
-// 		suite.Run(tc.name, func() {
-// 			suite.SetupTest()
+	for _, tc := range testCases {
+		tc := tc
+		suite.Run(tc.name, func() {
+			suite.SetupTest()
 
-// 			if tc.expPanic {
-// 				suite.Require().PanicsWithValue("input token is not sdk bond token", func() {
-// 					tc.malleate(suite.ctx, suite.msKeeper)
-// 				})
-// 			} else {
-// 				inputs := tc.malleate(suite.ctx, suite.msKeeper)
-// 				for idx, expOut := range inputs {
-// 					actualCoin := suite.msKeeper.GetDVPairSDKBondAmount(suite.ctx, tc.dels[idx], tc.vals[idx])
-// 					suite.Require().Equal(expOut, actualCoin)
-// 				}
-// 			}
-// 		})
-// 	}
-// }
+			if tc.expPanic {
+				suite.Require().PanicsWithValue("input token is not sdk bond token", func() {
+					tc.malleate(suite.ctx, suite.msKeeper)
+				})
+			} else {
+				inputs := tc.malleate(suite.ctx, suite.msKeeper)
+				for idx, expOut := range inputs {
+					actualCoin := suite.msKeeper.GetDVPairSDKBondAmount(suite.ctx, tc.dels[idx], tc.vals[idx])
+					suite.Require().Equal(expOut, actualCoin)
+				}
+			}
+		})
+	}
+}
 
-// func (suite *KeeperTestSuite) TestSetDVPairBondAmount() {
-// 	suite.SetupTest()
+func (suite *KeeperTestSuite) TestSetDVPairBondAmount() {
+	suite.SetupTest()
 
-// 	delA := testutil.GenAddress()
-// 	delB := testutil.GenAddress()
-// 	valA := testutil.GenValAddress()
-// 	valB := testutil.GenValAddress()
+	delA := testutil.GenAddress()
+	delB := testutil.GenAddress()
+	valA := testutil.GenValAddress()
+	valB := testutil.GenValAddress()
 
-// 	bondAmountA := sdk.NewCoin("ario", sdk.NewInt(100))
-// 	bondAmountB := sdk.NewCoin("arst", sdk.NewInt(200))
+	bondAmountA := sdk.NewInt(100)
+	bondAmountB := sdk.NewInt(200)
 
-// 	suite.msKeeper.SetDVPairBondAmount(suite.ctx, delA, valA, bondAmountA)
-// 	suite.msKeeper.SetDVPairBondAmount(suite.ctx, delB, valB, bondAmountB)
+	suite.msKeeper.SetDVPairBondAmount(suite.ctx, delA, valA, bondAmountA)
+	suite.msKeeper.SetDVPairBondAmount(suite.ctx, delB, valB, bondAmountB)
 
-// 	suite.Equal(bondAmountA, suite.msKeeper.GetDVPairBondAmount(suite.ctx, delA, valA))
-// 	suite.Equal(bondAmountB, suite.msKeeper.GetDVPairBondAmount(suite.ctx, delB, valB))
+	suite.Equal(bondAmountA, suite.msKeeper.GetDVPairBondAmount(suite.ctx, delA, valA))
+	suite.Equal(bondAmountB, suite.msKeeper.GetDVPairBondAmount(suite.ctx, delB, valB))
 
-// 	suite.msKeeper.SetDVPairBondAmount(suite.ctx, delA, valB, bondAmountB)
-// 	suite.Equal(bondAmountB, suite.msKeeper.GetDVPairBondAmount(suite.ctx, delA, valB))
-// }
+	suite.msKeeper.SetDVPairBondAmount(suite.ctx, delA, valB, bondAmountB)
+	suite.Equal(bondAmountB, suite.msKeeper.GetDVPairBondAmount(suite.ctx, delA, valB))
+}
