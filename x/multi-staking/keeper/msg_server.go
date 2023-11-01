@@ -26,6 +26,16 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 
 	intermediaryAccount := types.GetIntermediaryAccount(msg.DelegatorAddress, msg.ValidatorAddress)
 
+	valAcc, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
+	if err != nil {
+		return nil, err
+	}
+	delAcc := sdk.MustAccAddressFromBech32(msg.DelegatorAddress)
+
+	if k.GetIntermediaryAccountDelegator(ctx, intermediaryAccount) == nil {
+		k.SetIntermediaryAccountDelegator(ctx, intermediaryAccount, delAcc)
+	}
+
 	exactDelegateValue, err := k.CalSDKBondToken(ctx, msg.Value)
 	if err != nil {
 		return nil, err
@@ -40,14 +50,9 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 		Value:             exactDelegateValue,
 	}
 
-	valAcc, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
-	if err != nil {
-		return nil, err
-	}
-
 	k.SetValidatorBondDenom(ctx, valAcc, msg.Value.Denom)
 
-	k.Keeper.PreDelegate(ctx, msg.DelegatorAddress, msg.ValidatorAddress, msg.Value)
+	k.Keeper.PreDelegate(ctx, delAcc, valAcc, msg.Value)
 
 	_, err = k.stakingMsgServer.CreateValidator(ctx, &sdkMsg)
 
@@ -61,7 +66,7 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 // EditValidator defines a method for editing an existing validator
 func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValidator) (*types.MsgEditValidatorResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	
+
 	sdkMsg := stakingtypes.MsgEditValidator{
 		Description:       msg.Description,
 		CommissionRate:    msg.CommissionRate,
@@ -78,6 +83,37 @@ func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValida
 
 // Delegate defines a method for performing a delegation of coins from a delegator to a validator
 func (k msgServer) Delegate(goCtx context.Context, msg *types.MsgDelegate) (*types.MsgDelegateResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	intermediaryAccount := types.GetIntermediaryAccount(msg.DelegatorAddress, msg.ValidatorAddress)
+
+	valAcc, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
+	if err != nil {
+		return nil, err
+	}
+	delAcc := sdk.MustAccAddressFromBech32(msg.DelegatorAddress)
+
+	if k.GetIntermediaryAccountDelegator(ctx, intermediaryAccount) == nil {
+		k.SetIntermediaryAccountDelegator(ctx, intermediaryAccount, delAcc)
+	}
+
+	exactDelegateValue, err := k.CalSDKBondToken(ctx, msg.Amount)
+	if err != nil {
+		return nil, err
+	}
+	sdkMsg := stakingtypes.MsgDelegate{
+		DelegatorAddress: intermediaryAccount.String(),
+		ValidatorAddress: msg.ValidatorAddress,
+		Amount:           exactDelegateValue,
+	}
+
+	k.Keeper.PreDelegate(ctx, delAcc, valAcc, msg.Amount)
+
+	_, err = k.stakingMsgServer.Delegate(ctx, &sdkMsg)
+
+	if err != nil {
+		return nil, err
+	}
 	return &types.MsgDelegateResponse{}, nil
 }
 

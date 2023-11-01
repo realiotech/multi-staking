@@ -223,7 +223,7 @@ func (suite *KeeperTestSuite) TestPreDelegate() {
 				msKeeper.SetBondTokenWeight(ctx, gasDenom, math.LegacyMustNewDecFromStr("0.3"))
 				msKeeper.SetValidatorBondDenom(ctx, valAddr, gasDenom)
 				bondAmount := sdk.NewCoin(gasDenom, sdk.NewInt(3001))
-				err := msKeeper.PreDelegate(ctx, delAddr.String(), valAddr.String(), bondAmount)
+				err := msKeeper.PreDelegate(ctx, delAddr, valAddr, bondAmount)
 				return bondAmount, err
 			},
 			expOut: sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(900)),
@@ -235,7 +235,7 @@ func (suite *KeeperTestSuite) TestPreDelegate() {
 				msKeeper.SetBondTokenWeight(ctx, govDenom, math.LegacyMustNewDecFromStr("0.5"))
 				msKeeper.SetValidatorBondDenom(ctx, valAddr, govDenom)
 				bondAmount := sdk.NewCoin(govDenom, sdk.NewInt(25))
-				err := msKeeper.PreDelegate(ctx,  delAddr.String(), valAddr.String(), bondAmount)
+				err := msKeeper.PreDelegate(ctx, delAddr, valAddr, bondAmount)
 				return bondAmount, err
 			},
 			expOut: sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(12)),
@@ -246,7 +246,7 @@ func (suite *KeeperTestSuite) TestPreDelegate() {
 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) (sdk.Coin, error) {
 				msKeeper.SetValidatorBondDenom(ctx, valAddr, gasDenom)
 				bondAmount := sdk.NewCoin(govDenom, sdk.NewInt(25))
-				err := msKeeper.PreDelegate(ctx,  delAddr.String(), valAddr.String(), bondAmount)
+				err := msKeeper.PreDelegate(ctx, delAddr, valAddr, bondAmount)
 				return bondAmount, err
 			},
 			expOut: sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(12)),
@@ -256,7 +256,7 @@ func (suite *KeeperTestSuite) TestPreDelegate() {
 			name: "invalid val address",
 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) (sdk.Coin, error) {
 				bondAmount := sdk.NewCoin(govDenom, sdk.NewInt(25))
-				err := msKeeper.PreDelegate(ctx,  delAddr.String(), "", bondAmount)
+				err := msKeeper.PreDelegate(ctx, delAddr, []byte{}, bondAmount)
 				return bondAmount, err
 			},
 			expOut: sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(12)),
@@ -267,7 +267,7 @@ func (suite *KeeperTestSuite) TestPreDelegate() {
 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) (sdk.Coin, error) {
 				msKeeper.SetValidatorBondDenom(ctx, valAddr, gasDenom)
 				bondAmount := sdk.NewCoin(govDenom, sdk.NewInt(25))
-				err := msKeeper.PreDelegate(ctx,  delAddr.String(), valAddr.String(), bondAmount)
+				err := msKeeper.PreDelegate(ctx, delAddr, valAddr, bondAmount)
 				return bondAmount, err
 			},
 			expOut: sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(12)),

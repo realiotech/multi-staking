@@ -11,17 +11,11 @@ import (
 )
 
 func (k Keeper) PreDelegate(
-	ctx sdk.Context, delAddress string, valAddress string,
+	ctx sdk.Context, delAcc sdk.AccAddress, valAcc sdk.ValAddress,
 	bondToken sdk.Coin,
 ) error {
-	valAccAddr, err := sdk.ValAddressFromBech32(valAddress)
-	if err != nil {
-		return err
-	}
-	delAcc := sdk.MustAccAddressFromBech32(delAddress)
-
 	// check if bond denom match val's bond denom
-	valBondDenom := k.GetValidatorBondDenom(ctx, valAccAddr)
+	valBondDenom := k.GetValidatorBondDenom(ctx, valAcc)
 	if bondToken.Denom != valBondDenom {
 		return fmt.Errorf("mismatch bond token; expect %s got %s", valBondDenom, bondToken.Denom)
 	}
@@ -32,7 +26,7 @@ func (k Keeper) PreDelegate(
 		return err
 	}
 
-	intermediaryAcc := types.GetIntermediaryAccount(delAddress, valAddress)
+	intermediaryAcc := types.GetIntermediaryAccount(delAcc.String(), valAcc.String())
 
 	k.bankKeeper.MintCoins(ctx, types.ModuleName, sdk.NewCoins(sdkBondToken))
 
@@ -42,9 +36,9 @@ func (k Keeper) PreDelegate(
 		k.SetIntermediaryAccountDelegator(ctx, intermediaryAcc, delAcc)
 	}
 
-	k.UpdateDVPairBondAmount(ctx, delAcc, valAccAddr, bondToken.Amount)
+	k.UpdateDVPairBondAmount(ctx, delAcc, valAcc, bondToken.Amount)
 
-	k.UpdateDVPairSDKBondAmount(ctx, delAcc, valAccAddr, sdkBondToken.Amount)
+	k.UpdateDVPairSDKBondAmount(ctx, delAcc, valAcc, sdkBondToken.Amount)
 	return nil
 }
 
