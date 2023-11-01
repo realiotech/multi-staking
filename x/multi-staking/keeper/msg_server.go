@@ -144,7 +144,7 @@ func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.M
 	if err != nil {
 		return nil, err
 	}
-	sdkMsg := stakingtypes.MsgDelegate{
+	sdkMsg := stakingtypes.MsgCancelUnbondingDelegation{
 		DelegatorAddress: intermediaryAccount.String(),
 		ValidatorAddress: msg.ValidatorAddress,
 		Amount:           exactDelegateValue,
@@ -152,7 +152,7 @@ func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.M
 
 	k.Keeper.PreDelegate(ctx, delAcc, valAcc, msg.Amount)
 
-	_, err = k.stakingMsgServer.Delegate(ctx, &sdkMsg)
+	_, err = k.stakingMsgServer.CancelUnbondingDelegation(ctx, &sdkMsg)
 
 	if err != nil {
 		return nil, err
