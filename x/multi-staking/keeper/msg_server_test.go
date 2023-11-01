@@ -210,13 +210,13 @@ func (suite *KeeperTestSuite) TestEditValidator() {
 			name: "success",
 			malleate: func(ctx sdk.Context, msgServer multistakingtypes.MsgServer) (multistakingtypes.MsgEditValidator, error) {
 				newRate := sdk.MustNewDecFromStr("0.03")
-				newMinSelfDelegation := sdk.NewInt(100)
+				newMinSelfDelegation := sdk.NewInt(300)
 				editMsg := multistakingtypes.NewMsgEditValidator(valAddr, stakingtypes.Description{
 					Moniker:         "test 1",
 					Identity:        "test 1",
 					Website:         "test 1",
 					SecurityContact: "test 1",
-					Details:         "test 1 ",
+					Details:         "test 1",
 				},
 					&newRate,
 					&newMinSelfDelegation,
@@ -226,15 +226,138 @@ func (suite *KeeperTestSuite) TestEditValidator() {
 			},
 			expErr: false,
 		},
+		{
+			name: "not found validator",
+			malleate: func(ctx sdk.Context, msgServer multistakingtypes.MsgServer) (multistakingtypes.MsgEditValidator, error) {
+				newRate := sdk.MustNewDecFromStr("0.03")
+				newMinSelfDelegation := sdk.NewInt(300)
+				editMsg := multistakingtypes.NewMsgEditValidator(testutil.GenValAddress(), stakingtypes.Description{
+					Moniker:         "test",
+					Identity:        "test",
+					Website:         "test",
+					SecurityContact: "test",
+					Details:         "test",
+				},
+					&newRate,
+					&newMinSelfDelegation,
+				)
+				_, err := msgServer.EditValidator(ctx, editMsg)
+				return *editMsg, err
+			},
+			expErr: true,
+		},
+		{
+			name: "negative rate",
+			malleate: func(ctx sdk.Context, msgServer multistakingtypes.MsgServer) (multistakingtypes.MsgEditValidator, error) {
+				newRate := sdk.MustNewDecFromStr("-0.01")
+				newMinSelfDelegation := sdk.NewInt(300)
+				editMsg := multistakingtypes.NewMsgEditValidator(valAddr, stakingtypes.Description{
+					Moniker:         "test 1",
+					Identity:        "test 1",
+					Website:         "test 1",
+					SecurityContact: "test 1",
+					Details:         "test 1",
+				},
+					&newRate,
+					&newMinSelfDelegation,
+				)
+				_, err := msgServer.EditValidator(ctx, editMsg)
+				return *editMsg, err
+			},
+			expErr: true,
+		},
+		{
+			name: "less than minimum rate",
+			malleate: func(ctx sdk.Context, msgServer multistakingtypes.MsgServer) (multistakingtypes.MsgEditValidator, error) {
+				newRate := sdk.MustNewDecFromStr("0.01")
+				newMinSelfDelegation := sdk.NewInt(300)
+				editMsg := multistakingtypes.NewMsgEditValidator(valAddr, stakingtypes.Description{
+					Moniker:         "test 1",
+					Identity:        "test 1",
+					Website:         "test 1",
+					SecurityContact: "test 1",
+					Details:         "test 1",
+				},
+					&newRate,
+					&newMinSelfDelegation,
+				)
+				_, err := msgServer.EditValidator(ctx, editMsg)
+				return *editMsg, err
+			},
+			expErr: true,
+		},
+		{
+			name: "more than max rate",
+			malleate: func(ctx sdk.Context, msgServer multistakingtypes.MsgServer) (multistakingtypes.MsgEditValidator, error) {
+				newRate := sdk.MustNewDecFromStr("0.11")
+				newMinSelfDelegation := sdk.NewInt(300)
+				editMsg := multistakingtypes.NewMsgEditValidator(valAddr, stakingtypes.Description{
+					Moniker:         "test 1",
+					Identity:        "test 1",
+					Website:         "test 1",
+					SecurityContact: "test 1",
+					Details:         "test 1",
+				},
+					&newRate,
+					&newMinSelfDelegation,
+				)
+				_, err := msgServer.EditValidator(ctx, editMsg)
+				return *editMsg, err
+			},
+			expErr: true,
+		},
+		{
+			name: "min self delegation more than validator tokens",
+			malleate: func(ctx sdk.Context, msgServer multistakingtypes.MsgServer) (multistakingtypes.MsgEditValidator, error) {
+				newRate := sdk.MustNewDecFromStr("0.03")
+				newMinSelfDelegation := sdk.NewInt(10000)
+				editMsg := multistakingtypes.NewMsgEditValidator(valAddr, stakingtypes.Description{
+					Moniker:         "test 1",
+					Identity:        "test 1",
+					Website:         "test 1",
+					SecurityContact: "test 1",
+					Details:         "test 1",
+				},
+					&newRate,
+					&newMinSelfDelegation,
+				)
+				_, err := msgServer.EditValidator(ctx, editMsg)
+				return *editMsg, err
+			},
+			expErr: true,
+		},
+		{
+			name: "min self delegation more than old min delegation value",
+			malleate: func(ctx sdk.Context, msgServer multistakingtypes.MsgServer) (multistakingtypes.MsgEditValidator, error) {
+				newRate := sdk.MustNewDecFromStr("0.03")
+				newMinSelfDelegation := sdk.NewInt(100)
+				editMsg := multistakingtypes.NewMsgEditValidator(valAddr, stakingtypes.Description{
+					Moniker:         "test 1",
+					Identity:        "test 1",
+					Website:         "test 1",
+					SecurityContact: "test 1",
+					Details:         "test 1",
+				},
+					&newRate,
+					&newMinSelfDelegation,
+				)
+				_, err := msgServer.EditValidator(ctx, editMsg)
+				return *editMsg, err
+			},
+			expErr: true,
+		},
 	}
 
 	for _, tc := range testCases {
 		tc := tc
 		suite.Run(tc.name, func() {
 			suite.SetupTest()
+			newParam := stakingtypes.DefaultParams()
+			newParam.MinCommissionRate = sdk.MustNewDecFromStr("0.02")
+			suite.stakingKeeper.SetParams(suite.ctx, newParam)
 			msgServer := multistakingkeeper.NewMsgServerImpl(*suite.msKeeper)
-			suite.msKeeper.SetBondTokenWeight(suite.ctx, gasDenom, math.LegacyMustNewDecFromStr("0.3"))
-			bondAmount := sdk.NewCoin(gasDenom, sdk.NewInt(3001))
+			suite.msKeeper.SetBondTokenWeight(suite.ctx, gasDenom, math.LegacyOneDec())
+			bondAmount := sdk.NewCoin(gasDenom, sdk.NewInt(1000))
 
 			createMsg := multistakingtypes.MsgCreateValidator{
 				Description: stakingtypes.Description{
@@ -249,7 +372,7 @@ func (suite *KeeperTestSuite) TestEditValidator() {
 					MaxRate:       sdk.MustNewDecFromStr("0.1"),
 					MaxChangeRate: sdk.MustNewDecFromStr("0.05"),
 				},
-				MinSelfDelegation: sdk.NewInt(1),
+				MinSelfDelegation: sdk.NewInt(200),
 				DelegatorAddress:  delAddr.String(),
 				ValidatorAddress:  valAddr.String(),
 				Pubkey:            codectypes.UnsafePackAny(valPubKey),
@@ -269,7 +392,6 @@ func (suite *KeeperTestSuite) TestEditValidator() {
 					suite.Require().Equal(validatorInfo.Description, originMsg.Description)
 					suite.Require().Equal(validatorInfo.MinSelfDelegation, &originMsg.MinSelfDelegation)
 					suite.Require().Equal(validatorInfo.Commission.CommissionRates.Rate, &originMsg.CommissionRate)
-
 				}
 			}
 		})
