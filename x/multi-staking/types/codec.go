@@ -19,7 +19,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	legacy.RegisterAminoMsg(cdc, &MsgDelegate{}, "multi-staking/MsgDelegate")
 	legacy.RegisterAminoMsg(cdc, &MsgUndelegate{}, "multi-staking/MsgUndelegate")
 	legacy.RegisterAminoMsg(cdc, &MsgBeginRedelegate{}, "multi-staking/MsgBeginRedelegate")
-	legacy.RegisterAminoMsg(cdc, &MsgCancelUnbondingDelegation{}, "multi-staking/MsgCancelUnbondingDelegation")
+	legacy.RegisterAminoMsg(cdc, &MsgCancelUnbondingDelegation{}, "multi-staking/MsgCancelUnbondDelegation")
 }
 
 // RegisterInterfaces registers the x/staking interfaces types with the interface registry
