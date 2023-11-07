@@ -36,10 +36,11 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 		k.SetIntermediaryAccountDelegator(ctx, intermediaryAccount, delAcc)
 	}
 
-	exactDelegateValue, err := k.CalSDKBondToken(ctx, msg.Value)
+	sdkBondToken, err := k.Keeper.PreDelegate(ctx, delAcc, valAcc, msg.Value)
 	if err != nil {
 		return nil, err
 	}
+
 	sdkMsg := stakingtypes.MsgCreateValidator{
 		Description:       msg.Description,
 		Commission:        msg.Commission,
@@ -47,12 +48,10 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 		DelegatorAddress:  intermediaryAccount.String(),
 		ValidatorAddress:  msg.ValidatorAddress,
 		Pubkey:            msg.Pubkey,
-		Value:             exactDelegateValue,
+		Value:             sdkBondToken,
 	}
 
 	k.SetValidatorBondDenom(ctx, valAcc, msg.Value.Denom)
-
-	k.Keeper.PreDelegate(ctx, delAcc, valAcc, msg.Value)
 
 	_, err = k.stakingMsgServer.CreateValidator(ctx, &sdkMsg)
 
@@ -97,17 +96,16 @@ func (k msgServer) Delegate(goCtx context.Context, msg *types.MsgDelegate) (*typ
 		k.SetIntermediaryAccountDelegator(ctx, intermediaryAccount, delAcc)
 	}
 
-	exactDelegateValue, err := k.CalSDKBondToken(ctx, msg.Amount)
+	sdkBondToken, err := k.Keeper.PreDelegate(ctx, delAcc, valAcc, msg.Amount)
 	if err != nil {
 		return nil, err
 	}
+
 	sdkMsg := stakingtypes.MsgDelegate{
 		DelegatorAddress: intermediaryAccount.String(),
 		ValidatorAddress: msg.ValidatorAddress,
-		Amount:           exactDelegateValue,
+		Amount:           sdkBondToken,
 	}
-
-	k.Keeper.PreDelegate(ctx, delAcc, valAcc, msg.Amount)
 
 	_, err = k.stakingMsgServer.Delegate(ctx, &sdkMsg)
 
@@ -119,6 +117,15 @@ func (k msgServer) Delegate(goCtx context.Context, msg *types.MsgDelegate) (*typ
 
 // BeginRedelegate defines a method for performing a redelegation of coins from a delegator and source validator to a destination validator
 func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRedelegate) (*types.MsgBeginRedelegateResponse, error) {
+	msg.
+
+
+	sdkMsg := stakingtypes.MsgBeginRedelegate{
+		DelegatorAddress: msg.DelegatorAddress,
+		ValidatorSrcAddress: msg.ValidatorSrcAddress,
+		ValidatorDstAddress: msg.ValidatorDstAddress,
+		Amount: ,
+	}
 	return &types.MsgBeginRedelegateResponse{}, nil
 }
 
@@ -140,10 +147,6 @@ func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.M
 	}
 	delAcc := sdk.MustAccAddressFromBech32(msg.DelegatorAddress)
 
-	exactDelegateValue, err := k.CalSDKBondToken(ctx, msg.Amount)
-	if err != nil {
-		return nil, err
-	}
 	sdkMsg := stakingtypes.MsgCancelUnbondingDelegation{
 		DelegatorAddress: intermediaryAccount.String(),
 		ValidatorAddress: msg.ValidatorAddress,

@@ -13,18 +13,19 @@ import (
 func (k Keeper) PreDelegate(
 	ctx sdk.Context, delAcc sdk.AccAddress, valAcc sdk.ValAddress,
 	bondToken sdk.Coin,
-) error {
+) (sdk.Coin, error) {
 	// check if bond denom match val's bond denom
 	valBondDenom := k.GetValidatorBondDenom(ctx, valAcc)
 	if bondToken.Denom != valBondDenom {
-		return fmt.Errorf("mismatch bond token; expect %s got %s", valBondDenom, bondToken.Denom)
+		return sdk.Coin{}, fmt.Errorf("mismatch bond token; expect %s got %s", valBondDenom, bondToken.Denom)
 	}
 
 	// calculate converted sdk bond token
-	sdkBondToken, err := k.CalSDKBondToken(ctx, bondToken)
+	sdkBondAmount, err := k.CalSDKBondAmount(ctx, bondToken)
 	if err != nil {
-		return err
+		return sdk.Coin{}, err
 	}
+	sdkBondToken := sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), sdkBondAmount)
 
 	intermediaryAcc := types.GetIntermediaryAccount(delAcc.String(), valAcc.String())
 
@@ -38,8 +39,8 @@ func (k Keeper) PreDelegate(
 
 	k.UpdateDVPairBondAmount(ctx, delAcc, valAcc, bondToken.Amount)
 
-	k.UpdateDVPairSDKBondAmount(ctx, delAcc, valAcc, sdkBondToken.Amount)
-	return nil
+	k.UpdateDVPairSDKBondAmount(ctx, delAcc, valAcc, sdkBondAmount)
+	return sdkBondToken, nil
 }
 
 func (k Keeper) UpdateDVPairBondAmount(ctx sdk.Context, delAcc sdk.AccAddress, valAcc sdk.ValAddress, updateAmount math.Int) {
@@ -60,17 +61,16 @@ func (k Keeper) UpdateDVPairSDKBondAmount(ctx sdk.Context, delAcc sdk.AccAddress
 	}
 }
 
-func (k Keeper) CalSDKBondToken(ctx sdk.Context, bondToken sdk.Coin) (sdk.Coin, error) {
+func (k Keeper) CalSDKBondAmount(ctx sdk.Context, bondToken sdk.Coin) (math.Int, error) {
 	bondDenomWeight, isBondToken := k.GetBondTokenWeight(ctx, bondToken.Denom)
 	if !isBondToken {
-		return sdk.Coin{}, errors.Wrapf(
+		return math.Int{}, errors.Wrapf(
 			sdkerrors.ErrInvalidRequest, "invalid coin denomination: got %s", bondToken.Denom,
 		)
 	}
 	sdkBondAmount := bondDenomWeight.MulInt(bondToken.Amount).RoundInt()
-	sdkBondToken := sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), sdkBondAmount)
 
-	return sdkBondToken, nil
+	return sdkBondAmount, nil
 }
 
 // func (k Keeper) MintSDKBondTo
