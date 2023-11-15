@@ -117,15 +117,30 @@ func (k msgServer) Delegate(goCtx context.Context, msg *types.MsgDelegate) (*typ
 
 // BeginRedelegate defines a method for performing a redelegation of coins from a delegator and source validator to a destination validator
 func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRedelegate) (*types.MsgBeginRedelegateResponse, error) {
-	msg.
+	ctx := sdk.UnwrapSDKContext(goCtx)
 
+	delAcc := sdk.MustAccAddressFromBech32(msg.DelegatorAddress)
 
-	sdkMsg := stakingtypes.MsgBeginRedelegate{
-		DelegatorAddress: msg.DelegatorAddress,
+	srcValAcc, err := sdk.ValAddressFromBech32(msg.ValidatorSrcAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	sdkBondAmount, err := k.CalSDKUnbondAmount(ctx, delAcc, srcValAcc, msg.GetAmount())
+	if err != nil {
+		return nil, err
+	}
+	sdkBondCoin := sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), sdkBondAmount)
+
+	sdkMsg := &stakingtypes.MsgBeginRedelegate{
+		DelegatorAddress:    msg.DelegatorAddress,
 		ValidatorSrcAddress: msg.ValidatorSrcAddress,
 		ValidatorDstAddress: msg.ValidatorDstAddress,
-		Amount: ,
+		Amount:              sdkBondCoin,
 	}
+
+	_, err = k.stakingMsgServer.BeginRedelegate(goCtx, sdkMsg)
+
 	return &types.MsgBeginRedelegateResponse{}, nil
 }
 
