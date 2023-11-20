@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -126,7 +127,13 @@ func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRed
 		return nil, err
 	}
 
-	sdkBondAmount, err := k.CalSDKUnbondAmount(ctx, delAcc, srcValAcc, msg.GetAmount())
+	sdkDelegation, found := k.GetSDKDelegation(ctx, delAcc, srcValAcc)
+	if !found {
+
+		return nil, fmt.Errorf("sdk delegation not found")
+	}
+
+	sdkBondAmount, err := k.CalSDKUnbondAmount(ctx, sdkDelegation, msg.GetAmount())
 	if err != nil {
 		return nil, err
 	}
@@ -141,12 +148,41 @@ func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRed
 
 	_, err = k.stakingMsgServer.BeginRedelegate(goCtx, sdkMsg)
 
-	return &types.MsgBeginRedelegateResponse{}, nil
+	return &types.MsgBeginRedelegateResponse{}, err
 }
 
 // Undelegate defines a method for performing an undelegation from a delegate and a validator
 func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (*types.MsgUndelegateResponse, error) {
-	return &types.MsgUndelegateResponse{}, nil
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	delAcc := sdk.MustAccAddressFromBech32(msg.DelegatorAddress)
+
+	valAcc, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	sdkDelegation, found := k.GetSDKDelegation(ctx, delAcc, valAcc)
+	if !found {
+
+		return nil, fmt.Errorf("sdk delegation not found")
+	}
+
+	sdkBondAmount, err := k.CalSDKUnbondAmount(ctx, sdkDelegation, msg.GetAmount())
+	if err != nil {
+		return nil, err
+	}
+	sdkBondCoin := sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), sdkBondAmount)
+
+	sdkMsg := &stakingtypes.MsgUndelegate{
+		DelegatorAddress: msg.DelegatorAddress,
+		ValidatorAddress: msg.ValidatorAddress,
+		Amount:           sdkBondCoin,
+	}
+
+	_, err = k.stakingMsgServer.Undelegate(goCtx, sdkMsg)
+
+	return &types.MsgUndelegateResponse{}, err
 }
 
 // CancelUnbondingDelegation defines a method for canceling the unbonding delegation
