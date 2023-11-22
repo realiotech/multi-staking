@@ -3,19 +3,18 @@ package keeper
 import (
 	"fmt"
 
-	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
 
-func (k Keeper) GetBondTokenWeight(ctx sdk.Context, tokenDenom string) (math.LegacyDec, bool) {
+func (k Keeper) GetBondTokenWeight(ctx sdk.Context, tokenDenom string) (sdk.Dec, bool) {
 	store := ctx.KVStore(k.storeKey)
 	bz := store.Get(types.GetBondTokenWeightKey(tokenDenom))
 	if bz == nil {
-		return math.LegacyZeroDec(), false
+		return sdk.Dec{}, false
 	}
 
-	bondTokenWeight := &math.LegacyDec{}
+	bondTokenWeight := &sdk.Dec{}
 	err := bondTokenWeight.Unmarshal(bz)
 	if err != nil {
 		panic(fmt.Errorf("unable to unmarshal bond token weight %v", err))
@@ -24,7 +23,7 @@ func (k Keeper) GetBondTokenWeight(ctx sdk.Context, tokenDenom string) (math.Leg
 	return *bondTokenWeight, true
 }
 
-func (k Keeper) SetBondTokenWeight(ctx sdk.Context, tokenDenom string, tokenWeight math.LegacyDec) {
+func (k Keeper) SetBondTokenWeight(ctx sdk.Context, tokenDenom string, tokenWeight sdk.Dec) {
 	store := ctx.KVStore(k.storeKey)
 	bz, err := tokenWeight.Marshal()
 
@@ -69,61 +68,29 @@ func (k Keeper) SetIntermediaryAccountDelegator(ctx sdk.Context, intermediaryAcc
 	store.Set(types.GetIntermediaryAccountDelegatorKey(intermediaryAccount), delegator)
 }
 
-func (k Keeper) GetDVPairSDKBondAmount(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) math.Int {
+func (k Keeper) GetMultiStakingLock(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) (types.MultiStakingLock, bool) {
 	store := ctx.KVStore(k.storeKey)
 
-	bz := store.Get(types.GetDVPairSDKBondAmountKey(delAddr, valAddr))
+	bz := store.Get(types.GetMultiStakingLockKey(delAddr, valAddr))
 	if bz == nil {
-		return math.ZeroInt()
+		return types.MultiStakingLock{}, false
 	}
 
-	sdkBondAmount := &math.Int{}
-	err := sdkBondAmount.Unmarshal(bz)
-	if err != nil {
-		panic(fmt.Errorf("unable to unmarshal sdk bond amount %v", err))
-	}
-
-	return *sdkBondAmount
+	multiStakingLock := &types.MultiStakingLock{}
+	k.cdc.MustUnmarshal(bz, multiStakingLock)
+	return *multiStakingLock, true
 }
 
-func (k Keeper) SetDVPairSDKBondAmount(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress, sdkBondAmount math.Int) {
+func (k Keeper) SetMultiStakingLock(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress, multiStakingLock types.MultiStakingLock) {
 	store := ctx.KVStore(k.storeKey)
 
-	bz, err := sdkBondAmount.Marshal()
+	bz := k.cdc.MustMarshal(&multiStakingLock)
 
-	if err != nil {
-		panic(fmt.Errorf("unable to marshal sdk bond amount %v", err))
-	}
-
-	store.Set(types.GetDVPairSDKBondAmountKey(delAddr, valAddr), bz)
+	store.Set(types.GetMultiStakingLockKey(delAddr, valAddr), bz)
 }
 
-func (k Keeper) GetDVPairBondAmount(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) math.Int {
+func (k Keeper) RemoveMultiStakingLock(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) {
 	store := ctx.KVStore(k.storeKey)
 
-	bz := store.Get(types.GetDVPairBondAmountKey(delAddr, valAddr))
-	if bz == nil {
-		return sdk.ZeroInt()
-	}
-
-	bondAmount := &math.Int{}
-	err := bondAmount.Unmarshal(bz)
-
-	if err != nil {
-		panic(fmt.Errorf("unable to unmarshal bond amount %v", err))
-	}
-
-	return *bondAmount
-}
-
-func (k Keeper) SetDVPairBondAmount(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress, bondAmount math.Int) {
-	store := ctx.KVStore(k.storeKey)
-
-	bz, err := bondAmount.Marshal()
-
-	if err != nil {
-		panic(fmt.Errorf("unable to marshal bond amount %v", err))
-	}
-
-	store.Set(types.GetDVPairBondAmountKey(delAddr, valAddr), bz)
+	store.Delete(types.GetMultiStakingLockKey(delAddr, valAddr))
 }

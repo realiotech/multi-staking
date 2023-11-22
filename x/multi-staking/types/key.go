@@ -61,3 +61,8 @@ func GetDVPairBondAmountKey(delAddr sdk.AccAddress, valAddr sdk.ValAddress) []by
 	DVPair := append(delAddr, address.MustLengthPrefix(valAddr)...)
 	return append(DVPairBondAmount, DVPair...)
 }
+
+func GetMultiStakingLockKey(delAddr sdk.AccAddress, valAddr sdk.ValAddress) []byte {
+	DVPair := append(delAddr, address.MustLengthPrefix(valAddr)...)
+	return append(DVPairBondAmount, DVPair...)
+}

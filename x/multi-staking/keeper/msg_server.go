@@ -23,9 +23,8 @@ var _ types.MsgServer = msgServer{}
 
 // CreateValidator defines a method for creating a new validator
 func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateValidator) (*types.MsgCreateValidatorResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	intermediaryAccount := types.GetIntermediaryAccount(msg.DelegatorAddress, msg.ValidatorAddress)
+	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	valAcc, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
 	if err != nil {
@@ -33,11 +32,17 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 	}
 	delAcc := sdk.MustAccAddressFromBech32(msg.DelegatorAddress)
 
+	if !k.IsAllowedToken(ctx, valAcc, msg.Value) {
+		return nil, fmt.Errorf("not allowed token")
+	}
+
+	intermediaryAccount := types.GetIntermediaryAccount(msg.DelegatorAddress, msg.ValidatorAddress)
+
 	if k.GetIntermediaryAccountDelegator(ctx, intermediaryAccount) == nil {
 		k.SetIntermediaryAccountDelegator(ctx, intermediaryAccount, delAcc)
 	}
 
-	sdkBondToken, err := k.Keeper.PreDelegate(ctx, delAcc, valAcc, msg.Value)
+	sdkBondToken, err := k.Keeper.LockMultiStakingTokenAndMintBondToken(ctx, delAcc, valAcc, msg.Value)
 	if err != nil {
 		return nil, err
 	}
@@ -85,19 +90,23 @@ func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValida
 func (k msgServer) Delegate(goCtx context.Context, msg *types.MsgDelegate) (*types.MsgDelegateResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	intermediaryAccount := types.GetIntermediaryAccount(msg.DelegatorAddress, msg.ValidatorAddress)
-
 	valAcc, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
 	if err != nil {
 		return nil, err
 	}
 	delAcc := sdk.MustAccAddressFromBech32(msg.DelegatorAddress)
 
+	if !k.IsAllowedToken(ctx, valAcc, msg.Amount) {
+		return nil, fmt.Errorf("not allowed token")
+	}
+
+	intermediaryAccount := types.GetIntermediaryAccount(msg.DelegatorAddress, msg.ValidatorAddress)
+
 	if k.GetIntermediaryAccountDelegator(ctx, intermediaryAccount) == nil {
 		k.SetIntermediaryAccountDelegator(ctx, intermediaryAccount, delAcc)
 	}
 
-	sdkBondToken, err := k.Keeper.PreDelegate(ctx, delAcc, valAcc, msg.Amount)
+	sdkBondToken, err := k.Keeper.LockMultiStakingTokenAndMintBondToken(ctx, delAcc, valAcc, msg.Amount)
 	if err != nil {
 		return nil, err
 	}
@@ -126,18 +135,27 @@ func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRed
 	if err != nil {
 		return nil, err
 	}
-
-	sdkDelegation, found := k.GetSDKDelegation(ctx, delAcc, srcValAcc)
-	if !found {
-
-		return nil, fmt.Errorf("sdk delegation not found")
-	}
-
-	sdkBondAmount, err := k.CalSDKUnbondAmount(ctx, sdkDelegation, msg.GetAmount())
+	dstValAcc, err := sdk.ValAddressFromBech32(msg.ValidatorDstAddress)
 	if err != nil {
 		return nil, err
 	}
-	sdkBondCoin := sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), sdkBondAmount)
+
+	if !k.IsAllowedToken(ctx, srcValAcc, msg.Amount) || !k.IsAllowedToken(ctx, dstValAcc, msg.Amount) {
+		return nil, fmt.Errorf("not allowed Token")
+	}
+
+	srcLock, found := k.GetMultiStakingLock(ctx, delAcc, srcValAcc)
+	if !found {
+		return nil, fmt.Errorf("can't find multi staking lock")
+	}
+	srcLock, err = srcLock.RemoveTokenFromMultiStakingLock(msg.Amount.Amount)
+	if err != nil {
+		return nil, err
+	}
+
+	bondAmount := srcLock.LockedAmountToBondAmount(msg.Amount.Amount)
+
+	sdkBondCoin := sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), bondAmount.RoundInt())
 
 	sdkMsg := &stakingtypes.MsgBeginRedelegate{
 		DelegatorAddress:    msg.DelegatorAddress,
@@ -147,6 +165,25 @@ func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRed
 	}
 
 	_, err = k.stakingMsgServer.BeginRedelegate(goCtx, sdkMsg)
+	if err != nil {
+		return nil, err
+	}
+
+	tokenConversionRate, found := k.GetBondTokenWeight(ctx, msg.Amount.Denom)
+	if !found {
+		return nil, fmt.Errorf("token is not multistaking token")
+	}
+
+	dstLock, found := k.GetMultiStakingLock(ctx, delAcc, dstValAcc)
+	if !found {
+		dstIntermediaryAcc := types.GetIntermediaryAccount(delAcc.String(), dstValAcc.String())
+		dstLock = types.NewMultiStakingLock(msg.Amount.Amount, tokenConversionRate, dstIntermediaryAcc.String())
+		k.SetMultiStakingLock(ctx, delAcc, dstValAcc, dstLock)
+	} else {
+		dstLock = dstLock.AddTokenToMultiStakingLock(msg.Amount.Amount, tokenConversionRate)
+	}
+
+	k.SetMultiStakingLock(ctx, delAcc, srcValAcc, srcLock)
 
 	return &types.MsgBeginRedelegateResponse{}, err
 }
