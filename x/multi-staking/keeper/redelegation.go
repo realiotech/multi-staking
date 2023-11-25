@@ -15,3 +15,8 @@ func (k Keeper) GetSDKDelegation(ctx sdk.Context, delAcc sdk.AccAddress, valAcc 
 func (k Keeper) IsAllowedToken(ctx sdk.Context, valAcc sdk.ValAddress, lockedToken sdk.Coin) bool {
 	return lockedToken.Denom == k.GetValidatorBondDenom(ctx, valAcc)
 }
+
+func (k Keeper) MoveLockedTokenAndRedelegate(ctx sdk.Context, delAcc sdk.AccAddress, srcValAcc sdk.ValAddress, dstValAcc sdk.ValAddress) {
+	intermediaryAccount := k.GetIntermediaryAccountDelegator(ctx, delAcc)
+
+}

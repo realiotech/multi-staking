@@ -51,9 +51,9 @@ func (k Keeper) SetValidatorBondDenom(ctx sdk.Context, operatorAddr sdk.ValAddre
 	store.Set(types.GetValidatorBondDenomKey(operatorAddr), []byte(bondDenom))
 }
 
-func (k Keeper) GetIntermediaryAccountDelegator(ctx sdk.Context, intermediaryAccount sdk.AccAddress) sdk.AccAddress {
+func (k Keeper) GetIntermediaryAccountDelegator(ctx sdk.Context, delAcc sdk.AccAddress) sdk.AccAddress {
 	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.GetIntermediaryAccountDelegatorKey(intermediaryAccount))
+	bz := store.Get(types.GetIntermediaryAccountDelegatorKey(delAcc))
 
 	return bz
 }

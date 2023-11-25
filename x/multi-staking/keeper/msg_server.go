@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
@@ -36,10 +37,9 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 		return nil, fmt.Errorf("not allowed token")
 	}
 
-	intermediaryAccount := types.GetIntermediaryAccount(msg.DelegatorAddress, msg.ValidatorAddress)
-
-	if k.GetIntermediaryAccountDelegator(ctx, intermediaryAccount) == nil {
-		k.SetIntermediaryAccountDelegator(ctx, intermediaryAccount, delAcc)
+	intermediaryAccount := k.GetIntermediaryAccountDelegator(ctx, delAcc)
+	if intermediaryAccount == nil {
+		k.SetIntermediaryAccountDelegator(ctx, types.IntermediaryAccount(msg.DelegatorAddress), delAcc)
 	}
 
 	sdkBondToken, err := k.Keeper.LockMultiStakingTokenAndMintBondToken(ctx, delAcc, valAcc, msg.Value)
@@ -100,13 +100,12 @@ func (k msgServer) Delegate(goCtx context.Context, msg *types.MsgDelegate) (*typ
 		return nil, fmt.Errorf("not allowed token")
 	}
 
-	intermediaryAccount := types.GetIntermediaryAccount(msg.DelegatorAddress, msg.ValidatorAddress)
-
-	if k.GetIntermediaryAccountDelegator(ctx, intermediaryAccount) == nil {
-		k.SetIntermediaryAccountDelegator(ctx, intermediaryAccount, delAcc)
+	intermediaryAccount := k.GetIntermediaryAccountDelegator(ctx, delAcc)
+	if intermediaryAccount == nil {
+		k.SetIntermediaryAccountDelegator(ctx, types.IntermediaryAccount(msg.DelegatorAddress), delAcc)
 	}
 
-	sdkBondToken, err := k.Keeper.LockMultiStakingTokenAndMintBondToken(ctx, delAcc, valAcc, msg.Amount)
+	mintedBondToken, err := k.Keeper.LockMultiStakingTokenAndMintBondToken(ctx, delAcc, valAcc, msg.Amount)
 	if err != nil {
 		return nil, err
 	}
@@ -114,15 +113,62 @@ func (k msgServer) Delegate(goCtx context.Context, msg *types.MsgDelegate) (*typ
 	sdkMsg := stakingtypes.MsgDelegate{
 		DelegatorAddress: intermediaryAccount.String(),
 		ValidatorAddress: msg.ValidatorAddress,
-		Amount:           sdkBondToken,
+		Amount:           mintedBondToken,
 	}
 
 	_, err = k.stakingMsgServer.Delegate(ctx, &sdkMsg)
-
 	if err != nil {
 		return nil, err
 	}
+
 	return &types.MsgDelegateResponse{}, nil
+}
+
+func (k Keeper) MoveLockedMultistakingToken(ctx sdk.Context, delAcc sdk.AccAddress, srcValAcc sdk.ValAddress, dstValAcc sdk.ValAddress, lockedToken sdk.Coin) (err error) {
+	// get lock on source val
+	srcLock, found := k.GetMultiStakingLock(ctx, delAcc, srcValAcc)
+	if !found {
+		return fmt.Errorf("can't find multi staking lock")
+	}
+
+	// remove token from lock on source val
+	srcLock, err = srcLock.RemoveTokenFromMultiStakingLock(lockedToken.Amount)
+	if err != nil {
+		return err
+	}
+
+	// update lock on source val
+	k.SetMultiStakingLock(ctx, delAcc, srcValAcc, srcLock)
+
+	tokenConversionRate, found := k.GetBondTokenWeight(ctx, lockedToken.Denom)
+	if !found {
+		return fmt.Errorf("token is not multistaking token")
+	}
+
+	// get lock on destination val
+	dstLock, found := k.GetMultiStakingLock(ctx, delAcc, dstValAcc)
+	if !found {
+		dstIntermediaryAcc := types.IntermediaryAccount(delAcc.String())
+		dstLock = types.NewMultiStakingLock(lockedToken.Amount, tokenConversionRate, dstIntermediaryAcc.String())
+		k.SetMultiStakingLock(ctx, delAcc, dstValAcc, dstLock)
+	} else {
+		dstLock = dstLock.AddTokenToMultiStakingLock(lockedToken.Amount, tokenConversionRate)
+	}
+
+	// update lock on destination val
+	k.SetMultiStakingLock(ctx, delAcc, dstValAcc, dstLock)
+
+	return err
+}
+
+func (k Keeper) LockedAmountToBondAmount(ctx sdk.Context, delAcc sdk.AccAddress, valAcc sdk.ValAddress, lockedAmount math.Int) (math.Int, error) {
+	// get lock on source val
+	lock, found := k.GetMultiStakingLock(ctx, delAcc, valAcc)
+	if !found {
+		return math.Int{}, fmt.Errorf("can't find multi staking lock")
+	}
+
+	return lock.LockedAmountToBondAmount(lockedAmount).RoundInt(), nil
 }
 
 // BeginRedelegate defines a method for performing a redelegation of coins from a delegator and source validator to a destination validator
@@ -144,46 +190,27 @@ func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRed
 		return nil, fmt.Errorf("not allowed Token")
 	}
 
-	srcLock, found := k.GetMultiStakingLock(ctx, delAcc, srcValAcc)
-	if !found {
-		return nil, fmt.Errorf("can't find multi staking lock")
-	}
-	srcLock, err = srcLock.RemoveTokenFromMultiStakingLock(msg.Amount.Amount)
+	bondAmount, err := k.LockedAmountToBondAmount(ctx, delAcc, srcValAcc, msg.Amount.Amount)
 	if err != nil {
 		return nil, err
 	}
 
-	bondAmount := srcLock.LockedAmountToBondAmount(msg.Amount.Amount)
-
-	sdkBondCoin := sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), bondAmount.RoundInt())
-
+	sdkBondCoin := sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), bondAmount)
 	sdkMsg := &stakingtypes.MsgBeginRedelegate{
 		DelegatorAddress:    msg.DelegatorAddress,
 		ValidatorSrcAddress: msg.ValidatorSrcAddress,
 		ValidatorDstAddress: msg.ValidatorDstAddress,
 		Amount:              sdkBondCoin,
 	}
-
 	_, err = k.stakingMsgServer.BeginRedelegate(goCtx, sdkMsg)
 	if err != nil {
 		return nil, err
 	}
 
-	tokenConversionRate, found := k.GetBondTokenWeight(ctx, msg.Amount.Denom)
-	if !found {
-		return nil, fmt.Errorf("token is not multistaking token")
+	err = k.MoveLockedMultistakingToken(ctx, delAcc, srcValAcc, dstValAcc, msg.Amount)
+	if err != nil {
+		return nil, err
 	}
-
-	dstLock, found := k.GetMultiStakingLock(ctx, delAcc, dstValAcc)
-	if !found {
-		dstIntermediaryAcc := types.GetIntermediaryAccount(delAcc.String(), dstValAcc.String())
-		dstLock = types.NewMultiStakingLock(msg.Amount.Amount, tokenConversionRate, dstIntermediaryAcc.String())
-		k.SetMultiStakingLock(ctx, delAcc, dstValAcc, dstLock)
-	} else {
-		dstLock = dstLock.AddTokenToMultiStakingLock(msg.Amount.Amount, tokenConversionRate)
-	}
-
-	k.SetMultiStakingLock(ctx, delAcc, srcValAcc, srcLock)
 
 	return &types.MsgBeginRedelegateResponse{}, err
 }

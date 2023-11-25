@@ -5,8 +5,8 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 )
 
-func GetIntermediaryAccount(delAddr string, valAddr string) sdk.AccAddress {
+func IntermediaryAccount(delAddr string) sdk.AccAddress {
 	// TODO: Make this better namespaced.
 	// Following Osmosis Superfluid in the future to resolve this comment
-	return authtypes.NewModuleAddress(delAddr + valAddr)
+	return authtypes.NewModuleAddress(delAddr)
 }

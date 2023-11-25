@@ -8,56 +8,42 @@ import (
 )
 
 func (k Keeper) LockMultiStakingTokenAndMintBondToken(
-	ctx sdk.Context, delAcc sdk.AccAddress, valAcc sdk.ValAddress, intermediaryAcc sdk.AccAddress,
-	bondToken sdk.Coin,
-) (sdk.Coin, error) {
-	bondDenomWeight, isBondToken := k.GetBondTokenWeight(ctx, bondToken.Denom)
+	ctx sdk.Context, delAcc sdk.AccAddress, valAcc sdk.ValAddress,
+	multiStakingToken sdk.Coin,
+) (mintedBondToken sdk.Coin, err error) {
+	intermediaryAcc := k.GetIntermediaryAccountDelegator(ctx, delAcc)
+
+	// get bond denom weight
+	bondDenomWeight, isBondToken := k.GetBondTokenWeight(ctx, multiStakingToken.Denom)
 	if !isBondToken {
 		return sdk.Coin{}, errors.Wrapf(
-			sdkerrors.ErrInvalidRequest, "invalid coin denomination: got %s", bondToken.Denom,
+			sdkerrors.ErrInvalidRequest, "invalid coin denomination: got %s", multiStakingToken.Denom,
 		)
 	}
-	sdkBondAmount := bondDenomWeight.MulInt(bondToken.Amount).RoundInt()
 
-	sdkBondToken := sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), sdkBondAmount)
-
-	k.bankKeeper.MintCoins(ctx, types.ModuleName, sdk.NewCoins(sdkBondToken))
-
-	k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, intermediaryAcc, sdk.NewCoins(sdkBondToken))
-
-	if k.GetIntermediaryAccountDelegator(ctx, intermediaryAcc) == nil {
-		k.SetIntermediaryAccountDelegator(ctx, intermediaryAcc, delAcc)
-	}
-
-
-
-	return sdkBondToken, nil
-}
-
-func (k Keeper) LockMultiStakingToken(ctx sdk.Context, delAcc sdk.AccAddress, valAcc sdk.ValAddress, intermediaryAcc sdk.AccAddress, lockedCoin sdk.Coin, currentConversionRatio sdk.Dec) error {
-	err := k.bankKeeper.SendCoins(ctx, delAcc, intermediaryAcc, sdk.NewCoins(lockedCoin))
+	// lock coin in intermediary account
+	err = k.bankKeeper.SendCoins(ctx, delAcc, intermediaryAcc, sdk.NewCoins(multiStakingToken))
 	if err != nil {
-		return err
+		return sdk.Coin{}, err
 	}
 
-
+	// update multistaking lock
 	multiStakingLock, found := k.GetMultiStakingLock(ctx, delAcc, valAcc)
 	if !found {
-		multiStakingLock = types.NewMultiStakingLock(lockedCoin.Amount, multiStakingLock.ConversionRatio, intermediaryAcc.String())
+		multiStakingLock = types.NewMultiStakingLock(multiStakingToken.Amount, multiStakingLock.ConversionRatio, intermediaryAcc.String())
 	} else {
-		multiStakingLock = multiStakingLock.AddTokenToMultiStakingLock(lockedCoin.Amount, currentConversionRatio)
+		multiStakingLock = multiStakingLock.AddTokenToMultiStakingLock(multiStakingToken.Amount, bondDenomWeight)
 	}
 	k.SetMultiStakingLock(ctx, delAcc, valAcc, multiStakingLock)
 
+	// Calculate the amount of bond denom to be minted
+	// minted bond amount = multistaking token * bond token weight
+	mintedBondAmount := bondDenomWeight.MulInt(multiStakingToken.Amount).RoundInt()
+	mintedBondToken = sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), mintedBondAmount)
 
+	// mint bond token to intermediary account
+	k.bankKeeper.MintCoins(ctx, types.ModuleName, sdk.NewCoins(mintedBondToken))
+	k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, intermediaryAcc, sdk.NewCoins(mintedBondToken))
 
-
-
+	return mintedBondToken, nil
 }
-
-informal-system
-binary-builder
-decentr-ware
-
-block-gang
-
