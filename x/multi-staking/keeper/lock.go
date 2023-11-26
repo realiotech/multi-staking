@@ -28,13 +28,14 @@ func (k Keeper) LockMultiStakingTokenAndMintBondToken(
 	}
 
 	// update multistaking lock
-	multiStakingLock, found := k.GetMultiStakingLock(ctx, delAcc, valAcc)
+	multiStakingLockKey := types.MultiStakingLockID(delAcc, valAcc)
+	multiStakingLock, found := k.GetMultiStakingLock(ctx, multiStakingLockKey)
 	if !found {
 		multiStakingLock = types.NewMultiStakingLock(multiStakingToken.Amount, multiStakingLock.ConversionRatio, intermediaryAcc.String())
 	} else {
 		multiStakingLock = multiStakingLock.AddTokenToMultiStakingLock(multiStakingToken.Amount, bondDenomWeight)
 	}
-	k.SetMultiStakingLock(ctx, delAcc, valAcc, multiStakingLock)
+	k.SetMultiStakingLock(ctx, multiStakingLockKey, multiStakingLock)
 
 	// Calculate the amount of bond denom to be minted
 	// minted bond amount = multistaking token * bond token weight

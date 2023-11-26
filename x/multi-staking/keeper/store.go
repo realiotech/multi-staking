@@ -68,10 +68,10 @@ func (k Keeper) SetIntermediaryAccountDelegator(ctx sdk.Context, intermediaryAcc
 	store.Set(types.GetIntermediaryAccountDelegatorKey(intermediaryAccount), delegator)
 }
 
-func (k Keeper) GetMultiStakingLock(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) (types.MultiStakingLock, bool) {
+func (k Keeper) GetMultiStakingLock(ctx sdk.Context, multiStakingLockID []byte) (types.MultiStakingLock, bool) {
 	store := ctx.KVStore(k.storeKey)
 
-	bz := store.Get(types.GetMultiStakingLockKey(delAddr, valAddr))
+	bz := store.Get(multiStakingLockID)
 	if bz == nil {
 		return types.MultiStakingLock{}, false
 	}
@@ -81,16 +81,16 @@ func (k Keeper) GetMultiStakingLock(ctx sdk.Context, delAddr sdk.AccAddress, val
 	return *multiStakingLock, true
 }
 
-func (k Keeper) SetMultiStakingLock(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress, multiStakingLock types.MultiStakingLock) {
+func (k Keeper) SetMultiStakingLock(ctx sdk.Context, multiStakingLockID []byte, multiStakingLock types.MultiStakingLock) {
 	store := ctx.KVStore(k.storeKey)
 
 	bz := k.cdc.MustMarshal(&multiStakingLock)
 
-	store.Set(types.GetMultiStakingLockKey(delAddr, valAddr), bz)
+	store.Set(multiStakingLockID, bz)
 }
 
 func (k Keeper) RemoveMultiStakingLock(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) {
 	store := ctx.KVStore(k.storeKey)
 
-	store.Delete(types.GetMultiStakingLockKey(delAddr, valAddr))
+	store.Delete(types.MultiStakingLockID(delAddr, valAddr))
 }
