@@ -34,21 +34,21 @@ func (k Keeper) SetBondTokenWeight(ctx sdk.Context, tokenDenom string, tokenWeig
 	store.Set(types.GetBondTokenWeightKey(tokenDenom), bz)
 }
 
-func (k Keeper) GetValidatorBondDenom(ctx sdk.Context, operatorAddr sdk.ValAddress) string {
+func (k Keeper) GetValidatorAllowedToken(ctx sdk.Context, operatorAddr sdk.ValAddress) string {
 	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.GetValidatorBondDenomKey(operatorAddr))
+	bz := store.Get(types.GetValidatorAllowedTokenKey(operatorAddr))
 
 	return string(bz)
 }
 
-func (k Keeper) SetValidatorBondDenom(ctx sdk.Context, operatorAddr sdk.ValAddress, bondDenom string) {
-	if k.GetValidatorBondDenom(ctx, operatorAddr) != "" {
+func (k Keeper) SetValidatorAllowedToken(ctx sdk.Context, operatorAddr sdk.ValAddress, bondDenom string) {
+	if k.GetValidatorAllowedToken(ctx, operatorAddr) != "" {
 		panic("validator denom already set")
 	}
 
 	store := ctx.KVStore(k.storeKey)
 
-	store.Set(types.GetValidatorBondDenomKey(operatorAddr), []byte(bondDenom))
+	store.Set(types.GetValidatorAllowedTokenKey(operatorAddr), []byte(bondDenom))
 }
 
 func (k Keeper) GetIntermediaryAccountDelegator(ctx sdk.Context, delAcc sdk.AccAddress) sdk.AccAddress {

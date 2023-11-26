@@ -25,7 +25,7 @@ package keeper_test
 // 	suite.Equal(govWeight, btw)
 // }
 
-// func (suite *KeeperTestSuite) TestSetValidatorBondDenom() {
+// func (suite *KeeperTestSuite) TestSetValidatorAllowedToken() {
 // 	valA := testutil.GenValAddress()
 // 	valB := testutil.GenValAddress()
 // 	gasDenom := "ario"
@@ -39,7 +39,7 @@ package keeper_test
 // 		{
 // 			name: "1 val, 1 denom, success",
 // 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []string {
-// 				msKeeper.SetValidatorBondDenom(ctx, valA, gasDenom)
+// 				msKeeper.SetValidatorAllowedToken(ctx, valA, gasDenom)
 // 				return []string{gasDenom}
 // 			},
 // 			vals:     []sdk.ValAddress{valA},
@@ -48,8 +48,8 @@ package keeper_test
 // 		{
 // 			name: "2 val, 2 denom, success",
 // 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []string {
-// 				msKeeper.SetValidatorBondDenom(ctx, valA, gasDenom)
-// 				msKeeper.SetValidatorBondDenom(ctx, valB, govDenom)
+// 				msKeeper.SetValidatorAllowedToken(ctx, valA, gasDenom)
+// 				msKeeper.SetValidatorAllowedToken(ctx, valB, govDenom)
 // 				return []string{gasDenom, govDenom}
 // 			},
 // 			vals:     []sdk.ValAddress{valA, valB},
@@ -58,8 +58,8 @@ package keeper_test
 // 		{
 // 			name: "1 val, 2 denom, failed",
 // 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []string {
-// 				msKeeper.SetValidatorBondDenom(ctx, valA, gasDenom)
-// 				msKeeper.SetValidatorBondDenom(ctx, valA, govDenom)
+// 				msKeeper.SetValidatorAllowedToken(ctx, valA, gasDenom)
+// 				msKeeper.SetValidatorAllowedToken(ctx, valA, govDenom)
 // 				return []string{gasDenom, govDenom}
 // 			},
 // 			vals:     []sdk.ValAddress{valA, valB},
@@ -79,7 +79,7 @@ package keeper_test
 // 			} else {
 // 				inputs := tc.malleate(suite.ctx, suite.msKeeper)
 // 				for idx, val := range tc.vals {
-// 					actualDenom := suite.msKeeper.GetValidatorBondDenom(suite.ctx, val)
+// 					actualDenom := suite.msKeeper.GetValidatorAllowedToken(suite.ctx, val)
 // 					suite.Require().Equal(inputs[idx], actualDenom)
 // 				}
 // 			}

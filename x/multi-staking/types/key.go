@@ -24,8 +24,8 @@ const (
 
 // KVStore keys
 var (
-	BondTokenWeightKey    = []byte{0x00}
-	ValidatorBondDenomKey = []byte{0x01}
+	BondTokenWeightKey       = []byte{0x00}
+	ValidatorAllowedTokenKey = []byte{0x01}
 
 	IntermediaryAccountDelegator = []byte{0x02}
 
@@ -42,9 +42,9 @@ func GetBondTokenWeightKey(tokenDenom string) []byte {
 	return append(BondTokenWeightKey, []byte(tokenDenom)...)
 }
 
-// GetValidatorBondDenomKey returns a key for an index containing the bond denom of a validator
-func GetValidatorBondDenomKey(operatorAddr sdk.ValAddress) []byte {
-	return append(ValidatorBondDenomKey, address.MustLengthPrefix(operatorAddr)...)
+// GetValidatorAllowedTokenKey returns a key for an index containing the bond denom of a validator
+func GetValidatorAllowedTokenKey(operatorAddr sdk.ValAddress) []byte {
+	return append(ValidatorAllowedTokenKey, address.MustLengthPrefix(operatorAddr)...)
 }
 
 // GetIntermediaryAccountDelegatorKey returns a key for an index containing the delegator of an intermediary account

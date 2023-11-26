@@ -5,5 +5,5 @@ import (
 )
 
 func (k Keeper) IsAllowedToken(ctx sdk.Context, valAcc sdk.ValAddress, lockedToken sdk.Coin) bool {
-	return lockedToken.Denom == k.GetValidatorBondDenom(ctx, valAcc)
+	return lockedToken.Denom == k.GetValidatorAllowedToken(ctx, valAcc)
 }
