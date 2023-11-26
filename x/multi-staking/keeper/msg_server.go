@@ -42,7 +42,13 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 		k.SetIntermediaryAccountDelegator(ctx, types.IntermediaryAccount(msg.DelegatorAddress), delAcc)
 	}
 
-	sdkBondToken, err := k.Keeper.LockMultiStakingTokenAndMintBondToken(ctx, delAcc, valAcc, msg.Value)
+	lockID := types.MultiStakingLockID(delAcc, valAcc)
+	_, found := k.GetMultiStakingLock(ctx, lockID)
+	if found {
+		return nil, fmt.Errorf("lockID exists when create validator")
+	}
+
+	sdkBondToken, err := k.Keeper.LockMultiStakingTokenAndMintBondToken(ctx, delAcc, lockID, msg.Value)
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +111,8 @@ func (k msgServer) Delegate(goCtx context.Context, msg *types.MsgDelegate) (*typ
 		k.SetIntermediaryAccountDelegator(ctx, types.IntermediaryAccount(msg.DelegatorAddress), delAcc)
 	}
 
-	mintedBondToken, err := k.Keeper.LockMultiStakingTokenAndMintBondToken(ctx, delAcc, valAcc, msg.Amount)
+	lockID := types.MultiStakingLockID(delAcc, valAcc)
+	mintedBondToken, err := k.Keeper.LockMultiStakingTokenAndMintBondToken(ctx, delAcc, lockID, msg.Amount)
 	if err != nil {
 		return nil, err
 	}
