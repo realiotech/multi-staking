@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"fmt"
+
 	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -8,7 +10,17 @@ import (
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
 
-func (k Keeper) AddTokenToLock(ctx sdk.Context, lockID []byte, amountAdded math.Int, conversionRatio sdk.Dec) {
+func (k Keeper) LockedAmountToBondAmount(ctx sdk.Context, multiStakingLockID []byte, lockedAmount math.Int) (math.Int, error) {
+	// get lock on source val
+	lock, found := k.GetMultiStakingLock(ctx, multiStakingLockID)
+	if !found {
+		return math.Int{}, fmt.Errorf("can't find multi staking lock")
+	}
+
+	return lock.LockedAmountToBondAmount(lockedAmount).RoundInt(), nil
+}
+
+func (k Keeper) AddTokenToLock(ctx sdk.Context, lockID []byte, amountAdded math.Int, conversionRatio sdk.Dec) types.MultiStakingLock {
 	multiStakingLock, found := k.GetMultiStakingLock(ctx, lockID)
 	if !found {
 		multiStakingLock = types.NewMultiStakingLock(amountAdded, conversionRatio)
@@ -16,6 +28,39 @@ func (k Keeper) AddTokenToLock(ctx sdk.Context, lockID []byte, amountAdded math.
 		multiStakingLock = multiStakingLock.AddTokenToMultiStakingLock(amountAdded, conversionRatio)
 	}
 	k.SetMultiStakingLock(ctx, lockID, multiStakingLock)
+	return multiStakingLock
+}
+
+// removing token from lock won't change the conversion ratio of the lock
+func (k Keeper) RemoveTokenFromLock(ctx sdk.Context, lockID []byte, amountRemoved math.Int) (types.MultiStakingLock, error) {
+	// get lock on source val
+	lock, found := k.GetMultiStakingLock(ctx, lockID)
+	if !found {
+		return types.MultiStakingLock{}, fmt.Errorf("can't find multi staking lock")
+	}
+
+	// remove token from lock on source val
+	lock, err := lock.RemoveTokenFromMultiStakingLock(amountRemoved)
+	if err != nil {
+		return types.MultiStakingLock{}, err
+	}
+
+	// update lock on source val
+	k.SetMultiStakingLock(ctx, lockID, lock)
+	return lock, nil
+}
+
+func (k Keeper) MoveLockedMultistakingToken(ctx sdk.Context, srcLockID []byte, dstLockID []byte, lockedToken sdk.Coin) (err error) {
+	// get lock on source val
+	srcLock, err := k.RemoveTokenFromLock(ctx, srcLockID, lockedToken.Amount)
+	if err != nil {
+		return err
+	}
+
+	// get lock on destination val
+	k.AddTokenToLock(ctx, dstLockID, lockedToken.Amount, srcLock.ConversionRatio)
+
+	return err
 }
 
 func (k Keeper) LockMultiStakingTokenAndMintBondToken(
@@ -39,13 +84,7 @@ func (k Keeper) LockMultiStakingTokenAndMintBondToken(
 	}
 
 	// update multistaking lock
-	multiStakingLock, found := k.GetMultiStakingLock(ctx, lockID)
-	if !found {
-		multiStakingLock = types.NewMultiStakingLock(multiStakingToken.Amount, multiStakingLock.ConversionRatio)
-	} else {
-		multiStakingLock = multiStakingLock.AddTokenToMultiStakingLock(multiStakingToken.Amount, bondDenomWeight)
-	}
-	k.SetMultiStakingLock(ctx, lockID, multiStakingLock)
+	k.AddTokenToLock(ctx, lockID, multiStakingToken.Amount, bondDenomWeight)
 
 	// Calculate the amount of bond denom to be minted
 	// minted bond amount = multistaking token * bond token weight
