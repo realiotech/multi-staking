@@ -4,7 +4,7 @@ package multistaking.v1;
 import "gogoproto/gogo.proto";
 import "cosmos_proto/cosmos.proto";
 
-option go_package = "x/multi-staking/types";
+option go_package = "github.com/realiotech/multi-staking/x/multi-staking/types";
 
 message MultiStakingLock {
   option (gogoproto.equal) = false;
