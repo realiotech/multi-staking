@@ -4,7 +4,7 @@ package multistaking.v1;
 import "gogoproto/gogo.proto";
 import "cosmos_proto/cosmos.proto";
 
-option go_package = "github.com/realiotech/multi-staking/x/multi-staking/types";
+option go_package = "x/multi-staking/types";
 
 message MultiStakingLock {
   option (gogoproto.equal) = false;
@@ -21,4 +21,6 @@ message MultiStakingLock {
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
     (gogoproto.nullable) = false
   ];
+  string delegator_address = 3;
+  string validator_address = 4;
 };
