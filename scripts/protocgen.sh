@@ -31,5 +31,5 @@ cd ..
 # (cd tests/integration/tx/internal; make codegen)
 
 # move proto files to the right places
-# cp -r github.com/realiotech/multi-staking/* ./
-# rm -rf github.com
+cp -r github.com/realiotech/multi-staking/* ./
+rm -rf github.com
