@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
@@ -124,47 +123,6 @@ func (k msgServer) Delegate(goCtx context.Context, msg *types.MsgDelegate) (*typ
 	return &types.MsgDelegateResponse{}, nil
 }
 
-func (k Keeper) MoveLockedMultistakingToken(ctx sdk.Context, srcLockID []byte, dstLockID []byte, lockedToken sdk.Coin) (err error) {
-	// get lock on source val
-	srcLock, found := k.GetMultiStakingLock(ctx, srcLockID)
-	if !found {
-		return fmt.Errorf("can't find multi staking lock")
-	}
-
-	// remove token from lock on source val
-	srcLock, err = srcLock.RemoveTokenFromMultiStakingLock(lockedToken.Amount)
-	if err != nil {
-		return err
-	}
-
-	// update lock on source val
-	k.SetMultiStakingLock(ctx, srcLockID, srcLock)
-
-	// get lock on destination val
-	dstLock, found := k.GetMultiStakingLock(ctx, dstLockID)
-	if !found {
-		dstLock = types.NewMultiStakingLock(lockedToken.Amount, srcLock.ConversionRatio)
-		k.SetMultiStakingLock(ctx, dstLockID, dstLock)
-	} else {
-		dstLock = dstLock.AddTokenToMultiStakingLock(lockedToken.Amount, srcLock.ConversionRatio)
-	}
-
-	// update lock on destination val
-	k.SetMultiStakingLock(ctx, dstLockID, dstLock)
-
-	return err
-}
-
-func (k Keeper) LockedAmountToBondAmount(ctx sdk.Context, multiStakingLockID []byte, lockedAmount math.Int) (math.Int, error) {
-	// get lock on source val
-	lock, found := k.GetMultiStakingLock(ctx, multiStakingLockID)
-	if !found {
-		return math.Int{}, fmt.Errorf("can't find multi staking lock")
-	}
-
-	return lock.LockedAmountToBondAmount(lockedAmount).RoundInt(), nil
-}
-
 // BeginRedelegate defines a method for performing a redelegation of coins from a delegator and source validator to a destination validator
 func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRedelegate) (*types.MsgBeginRedelegateResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
@@ -202,8 +160,7 @@ func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRed
 		return nil, err
 	}
 
-	dstLockID := types.MultiStakingLockID(delAcc, dstValAcc)
-	err = k.MoveLockedMultistakingToken(ctx, srcLockID, dstLockID, msg.Amount)
+	err = k.MoveLockedMultistakingToken(ctx, delAcc, srcValAcc, dstValAcc, msg.Amount)
 	if err != nil {
 		return nil, err
 	}

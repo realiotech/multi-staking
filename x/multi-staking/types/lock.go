@@ -7,10 +7,17 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func NewMultiStakingLock(lockedAmount math.Int, conversionRatio sdk.Dec) MultiStakingLock {
+func NewMultiStakingLock(
+	lockedAmount math.Int,
+	conversionRatio sdk.Dec,
+	delAddr sdk.AccAddress,
+	valAddr sdk.ValAddress,
+) MultiStakingLock {
 	return MultiStakingLock{
-		LockedAmount:    lockedAmount,
-		ConversionRatio: conversionRatio,
+		LockedAmount:     lockedAmount,
+		ConversionRatio:  conversionRatio,
+		DelegatorAddress: delAddr.String(),
+		ValidatorAddress: valAddr.String(),
 	}
 }
 
