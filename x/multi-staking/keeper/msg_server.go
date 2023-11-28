@@ -39,7 +39,9 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 
 	intermediaryAccount := k.GetIntermediaryAccountDelegator(ctx, delAcc)
 	if intermediaryAccount == nil {
-		k.SetIntermediaryAccountDelegator(ctx, types.IntermediaryAccount(msg.DelegatorAddress), delAcc)
+		intermediaryAccount = types.IntermediaryAccount(msg.DelegatorAddress)
+		k.SetIntermediaryAccountDelegator(ctx, intermediaryAccount, delAcc)
+		k.SetDelAddrByKeyIntermediaryAccount(ctx, intermediaryAccount, delAcc)
 	}
 
 	sdkBondToken, err := k.Keeper.LockMultiStakingTokenAndMintBondToken(ctx, delAcc, valAcc, msg.Value)
@@ -102,7 +104,9 @@ func (k msgServer) Delegate(goCtx context.Context, msg *types.MsgDelegate) (*typ
 
 	intermediaryAccount := k.GetIntermediaryAccountDelegator(ctx, delAcc)
 	if intermediaryAccount == nil {
-		k.SetIntermediaryAccountDelegator(ctx, types.IntermediaryAccount(msg.DelegatorAddress), delAcc)
+		intermediaryAccount = types.IntermediaryAccount(msg.DelegatorAddress)
+		k.SetIntermediaryAccountDelegator(ctx, intermediaryAccount, delAcc)
+		k.SetDelAddrByKeyIntermediaryAccount(ctx, intermediaryAccount, delAcc)
 	}
 
 	mintedBondToken, err := k.Keeper.LockMultiStakingTokenAndMintBondToken(ctx, delAcc, valAcc, msg.Amount)
