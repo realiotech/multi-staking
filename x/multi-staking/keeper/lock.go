@@ -97,3 +97,53 @@ func (k Keeper) LockMultiStakingTokenAndMintBondToken(
 
 	return mintedBondToken, nil
 }
+
+func (k Keeper) BurnBondTokenAndUnlockMultiStakingToken(
+	ctx sdk.Context,
+	intermediaryAcc sdk.AccAddress,
+	valAddr sdk.ValAddress,
+	unbondTokenAmount sdk.Coin,
+) (unlockedAmount sdk.Coins, err error) {
+	// get delAddr
+	delAddr := k.GetDelAddrByKeyIntermediaryAccount(ctx, intermediaryAcc)
+	if delAddr.Empty() {
+		return unlockedAmount, fmt.Errorf("Unknown delegator address")
+	}
+
+	// get Lock
+	lockID := types.MultiStakingLockID(delAddr, valAddr)
+	multiStakingLock, found := k.GetMultiStakingLock(ctx, lockID)
+	if !found {
+		return unlockedAmount, fmt.Errorf("StakingLock not exists")
+	}
+
+	// unlock amount
+	// unlockMultiStakingAmount = unbondTokenAmount/multiStakingLock.ConversionRatio
+	unlockDenom := k.GetValidatorAllowedToken(ctx, valAddr)
+	unlockMultiStakingAmount := sdk.NewDecFromInt(unbondTokenAmount.Amount).Quo(multiStakingLock.ConversionRatio).RoundInt()
+
+	// check amount
+	if unlockMultiStakingAmount.GT(multiStakingLock.LockedAmount) {
+		return unlockedAmount, fmt.Errorf("unlock amount greater than lock amount")
+	}
+
+	// burn bonded token
+	burnAmount := sdk.NewCoins(unbondTokenAmount)
+	err = k.bankKeeper.SendCoinsFromAccountToModule(ctx, intermediaryAcc, types.ModuleName, burnAmount)
+	if err != nil {
+		return unlockedAmount, err
+	}
+	err = k.bankKeeper.BurnCoins(ctx, types.ModuleName, burnAmount)
+	if err != nil {
+		return unlockedAmount, err
+	}
+
+	// unlock coin
+	unlockedAmount = sdk.NewCoins(sdk.NewCoin(unlockDenom, unlockMultiStakingAmount))
+	err = k.bankKeeper.SendCoins(ctx, intermediaryAcc, delAddr, unlockedAmount)
+	if err != nil {
+		return unlockedAmount, err
+	}
+
+	return unlockedAmount, nil
+}

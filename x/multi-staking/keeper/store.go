@@ -59,6 +59,23 @@ func (k Keeper) GetIntermediaryAccountDelegator(ctx sdk.Context, delAcc sdk.AccA
 }
 
 func (k Keeper) SetIntermediaryAccountDelegator(ctx sdk.Context, intermediaryAccount sdk.AccAddress, delegator sdk.AccAddress) {
+	if k.GetIntermediaryAccountDelegator(ctx, delegator) != nil {
+		panic("intermediary account for delegator already set")
+	}
+
+	store := ctx.KVStore(k.storeKey)
+
+	store.Set(types.GetIntermediaryAccountDelegatorKey(delegator), intermediaryAccount)
+}
+
+func (k Keeper) GetDelAddrByKeyIntermediaryAccount(ctx sdk.Context, intermediaryAccount sdk.AccAddress) sdk.AccAddress {
+	store := ctx.KVStore(k.storeKey)
+	bz := store.Get(types.GetIntermediaryAccountDelegatorKey(intermediaryAccount))
+
+	return bz
+}
+
+func (k Keeper) SetDelAddrByKeyIntermediaryAccount(ctx sdk.Context, intermediaryAccount sdk.AccAddress, delegator sdk.AccAddress) {
 	if k.GetIntermediaryAccountDelegator(ctx, intermediaryAccount) != nil {
 		panic("intermediary account for delegator already set")
 	}
