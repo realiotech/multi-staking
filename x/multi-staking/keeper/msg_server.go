@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
@@ -231,3 +232,42 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (
 
 // 	return &types.MsgCancelUnbondingDelegationResponse{}, nil
 // }
+
+// SetWithdrawAddress defines a method for performing an undelegation from a delegate and a validator
+func (k msgServer) SetWithdrawAddress(goCtx context.Context, msg *types.MsgSetWithdrawAddress) (*types.MsgSetWithdrawAddressResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	sdkMsg := distrtypes.MsgSetWithdrawAddress{
+		DelegatorAddress: msg.DelegatorAddress,
+		WithdrawAddress:  msg.WithdrawAddress,
+	}
+
+	_, err := k.distrMsgServer.SetWithdrawAddress(ctx, &sdkMsg)
+	if err != nil {
+		return nil, err
+	}
+	return &types.MsgSetWithdrawAddressResponse{}, nil
+}
+
+func (k msgServer) WithdrawDelegatorReward(goCtx context.Context, msg *types.MsgWithdrawDelegatorReward) (*types.MsgWithdrawDelegatorRewardResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	sdkMsg := distrtypes.MsgWithdrawDelegatorReward{
+		DelegatorAddress: msg.DelegatorAddress,
+		ValidatorAddress: msg.ValidatorAddress,
+	}
+
+	resp, err := k.distrMsgServer.WithdrawDelegatorReward(ctx, &sdkMsg)
+	if err != nil {
+		return nil, err
+	}
+	delAcc, err := sdk.AccAddressFromBech32(msg.DelegatorAddress)
+	intermediateAcc := k.GetIntermediaryAccountDelegator(ctx, delAcc)
+	if err != nil {
+		return nil, err
+	}
+	err = k.bankKeeper.SendCoins(ctx, intermediateAcc, delAcc, resp.Amount)
+	if err != nil {
+		return nil, err
+	}
+	return &types.MsgWithdrawDelegatorRewardResponse{Amount: resp.Amount}, nil
+}
