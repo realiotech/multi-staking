@@ -67,7 +67,7 @@ func (k Keeper) LockMultiStakingTokenAndMintBondToken(
 	ctx sdk.Context, delAcc sdk.AccAddress, lockID []byte,
 	multiStakingToken sdk.Coin,
 ) (mintedBondToken sdk.Coin, err error) {
-	intermediaryAcc := k.GetIntermediaryAccountDelegator(ctx, delAcc)
+	intermediaryAcc := types.IntermediaryAccount(delAcc)
 
 	// get bond denom weight
 	bondDenomWeight, isBondToken := k.GetBondTokenWeight(ctx, multiStakingToken.Denom)

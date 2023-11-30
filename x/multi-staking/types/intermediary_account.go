@@ -1,12 +1,18 @@
 package types
 
 import (
+	"bytes"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 )
 
-func IntermediaryAccount(delAddr string) sdk.AccAddress {
-	// TODO: Make this better namespaced.
-	// Following Osmosis Superfluid in the future to resolve this comment
-	return authtypes.NewModuleAddress(delAddr)
+// TODO: make unit test for this
+// this is against cosmos convention, doing this for more performance and less storage
+func IntermediaryAccount(delAddr sdk.AccAddress) sdk.AccAddress {
+	return append(delAddr, 0x0)
+}
+
+func DelegatorAccount(intermediaryAcc sdk.AccAddress) sdk.AccAddress {
+	return bytes.Clone(intermediaryAcc[:len(intermediaryAcc)-1])
+
 }

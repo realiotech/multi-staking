@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -37,11 +38,9 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 		return nil, fmt.Errorf("not allowed token")
 	}
 
-	intermediaryAccount := k.GetIntermediaryAccountDelegator(ctx, delAcc)
-	if intermediaryAccount == nil {
-		intermediaryAccount = types.IntermediaryAccount(msg.DelegatorAddress)
-		k.SetIntermediaryAccountDelegator(ctx, intermediaryAccount, delAcc)
-		k.SetDelAddrByKeyIntermediaryAccount(ctx, intermediaryAccount, delAcc)
+	intermediaryAccount := types.IntermediaryAccount(delAcc)
+	if !k.IsIntermediaryAccount(ctx, intermediaryAccount) {
+		k.SetIntermediaryAccount(ctx, intermediaryAccount)
 	}
 
 	sdkBondToken, err := k.Keeper.LockMultiStakingTokenAndMintBondToken(ctx, delAcc, valAcc, msg.Value)
@@ -102,11 +101,9 @@ func (k msgServer) Delegate(goCtx context.Context, msg *types.MsgDelegate) (*typ
 		return nil, fmt.Errorf("not allowed token")
 	}
 
-	intermediaryAccount := k.GetIntermediaryAccountDelegator(ctx, delAcc)
-	if intermediaryAccount == nil {
-		intermediaryAccount = types.IntermediaryAccount(msg.DelegatorAddress)
-		k.SetIntermediaryAccountDelegator(ctx, intermediaryAccount, delAcc)
-		k.SetDelAddrByKeyIntermediaryAccount(ctx, intermediaryAccount, delAcc)
+	intermediaryAccount := types.IntermediaryAccount(delAcc)
+	if !k.IsIntermediaryAccount(ctx, intermediaryAccount) {
+		k.SetIntermediaryAccount(ctx, intermediaryAccount)
 	}
 
 	mintedBondToken, err := k.Keeper.LockMultiStakingTokenAndMintBondToken(ctx, delAcc, valAcc, msg.Amount)
@@ -174,6 +171,37 @@ func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRed
 	return &types.MsgBeginRedelegateResponse{}, err
 }
 
+func (k Keeper) GetDelegation(ctx sdk.Context, delAcc sdk.AccAddress, val sdk.ValAddress) (stakingtypes.Delegation, bool) {
+	return k.stakingKeeper.GetDelegation(ctx, types.IntermediaryAccount(delAcc), val)
+}
+
+func (k Keeper) AdjustUnbondAmount(ctx sdk.Context, delAcc sdk.AccAddress, valAcc sdk.ValAddress, amount math.Int) (adjustedAmount math.Int, err error) {
+	delegation, found := k.GetDelegation(ctx, delAcc, valAcc)
+	if !found {
+		return math.Int{}, fmt.Errorf("delegation not found")
+	}
+	validator, found := k.stakingKeeper.GetValidator(ctx, valAcc)
+	if !found {
+		return math.Int{}, fmt.Errorf("validator not found")
+	}
+
+	shares, err := validator.SharesFromTokens(amount)
+	if err != nil {
+		return math.Int{}, err
+	}
+
+	delShares := delegation.GetShares()
+	// Cap the shares at the delegation's shares. Shares being greater could occur
+	// due to rounding, however we don't want to truncate the shares or take the
+	// minimum because we want to allow for the full withdraw of shares from a
+	// delegation.
+	if shares.GT(delShares) {
+		shares = delShares
+	}
+
+	return validator.TokensFromShares(shares).RoundInt(), nil
+}
+
 // Undelegate defines a method for performing an undelegation from a delegate and a validator
 func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (*types.MsgUndelegateResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
@@ -190,6 +218,7 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (
 	if err != nil {
 		return nil, err
 	}
+
 	unbondCoin := sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), unbondAmount)
 
 	sdkMsg := &stakingtypes.MsgUndelegate{
@@ -261,11 +290,13 @@ func (k msgServer) WithdrawDelegatorReward(goCtx context.Context, msg *types.Msg
 		return nil, err
 	}
 	delAcc, err := sdk.AccAddressFromBech32(msg.DelegatorAddress)
-	intermediateAcc := k.GetIntermediaryAccountDelegator(ctx, delAcc)
-	if err != nil {
-		return nil, err
+
+	intermediaryAccount := types.IntermediaryAccount(delAcc)
+	if !k.IsIntermediaryAccount(ctx, intermediaryAccount) {
+		k.SetIntermediaryAccount(ctx, intermediaryAccount)
 	}
-	err = k.bankKeeper.SendCoins(ctx, intermediateAcc, delAcc, resp.Amount)
+
+	err = k.bankKeeper.SendCoins(ctx, intermediaryAccount, delAcc, resp.Amount)
 	if err != nil {
 		return nil, err
 	}

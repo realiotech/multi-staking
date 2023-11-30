@@ -51,38 +51,25 @@ func (k Keeper) SetValidatorAllowedToken(ctx sdk.Context, operatorAddr sdk.ValAd
 	store.Set(types.GetValidatorAllowedTokenKey(operatorAddr), []byte(bondDenom))
 }
 
-func (k Keeper) GetIntermediaryAccountDelegator(ctx sdk.Context, delAcc sdk.AccAddress) sdk.AccAddress {
+func (k Keeper) GetIntermediaryAccountKey(ctx sdk.Context, delAcc sdk.AccAddress) sdk.AccAddress {
 	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.GetIntermediaryAccountDelegatorKey(delAcc))
+	bz := store.Get(types.GetIntermediaryAccountKey(delAcc))
 
 	return bz
 }
 
-func (k Keeper) SetIntermediaryAccountDelegator(ctx sdk.Context, intermediaryAccount sdk.AccAddress, delegator sdk.AccAddress) {
-	if k.GetIntermediaryAccountDelegator(ctx, delegator) != nil {
-		panic("intermediary account for delegator already set")
-	}
-
+func (k Keeper) IsIntermediaryAccount(ctx sdk.Context, intermediaryAccount sdk.AccAddress) bool {
 	store := ctx.KVStore(k.storeKey)
 
-	store.Set(types.GetIntermediaryAccountDelegatorKey(delegator), intermediaryAccount)
+	bz := store.Get(types.GetIntermediaryAccountKey(intermediaryAccount))
+
+	return bz != nil
 }
 
-func (k Keeper) GetDelAddrByKeyIntermediaryAccount(ctx sdk.Context, intermediaryAccount sdk.AccAddress) sdk.AccAddress {
-	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.GetIntermediaryAccountDelegatorKey(intermediaryAccount))
-
-	return bz
-}
-
-func (k Keeper) SetDelAddrByKeyIntermediaryAccount(ctx sdk.Context, intermediaryAccount sdk.AccAddress, delegator sdk.AccAddress) {
-	if k.GetIntermediaryAccountDelegator(ctx, intermediaryAccount) != nil {
-		panic("intermediary account for delegator already set")
-	}
-
+func (k Keeper) SetIntermediaryAccount(ctx sdk.Context, intermediaryAccount sdk.AccAddress) {
 	store := ctx.KVStore(k.storeKey)
 
-	store.Set(types.GetIntermediaryAccountDelegatorKey(intermediaryAccount), delegator)
+	store.Set(types.GetIntermediaryAccountKey(intermediaryAccount), []byte{0x1})
 }
 
 func (k Keeper) GetMultiStakingLock(ctx sdk.Context, multiStakingLockID []byte) (types.MultiStakingLock, bool) {
