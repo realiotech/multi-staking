@@ -90,11 +90,12 @@ type AppModule struct {
 func NewAppModule(cdc codec.Codec, keeper keeper.Keeper, sk stakingkeeper.Keeper, ak stakingtypes.AccountKeeper, bk stakingtypes.BankKeeper) AppModule {
 	stakingAppMod := staking.NewAppModule(cdc, sk, ak, bk)
 	return AppModule{
-		skAppModule: stakingAppMod,
-		keeper:      keeper,
-		sk:          sk,
-		ak:          ak,
-		bk:          bk,
+		AppModuleBasic: AppModuleBasic{cdc: cdc},
+		skAppModule:    stakingAppMod,
+		keeper:         keeper,
+		sk:             sk,
+		ak:             ak,
+		bk:             bk,
 	}
 }
 
