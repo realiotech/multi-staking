@@ -306,15 +306,20 @@ func (k msgServer) WithdrawDelegatorReward(goCtx context.Context, msg *types.Msg
 
 func (k msgServer) Vote(goCtx context.Context, msg *types.MsgVote) (*types.MsgVoteResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-
+	accAddr, err := sdk.AccAddressFromBech32(msg.Voter)	
+	if err != nil {
+		return nil, err
+	}
+	intermediaryAcc := k.GetIntermediaryAccountKey(ctx, accAddr)
+	
 	sdkMsg := govv1.MsgVote{
 		ProposalId: msg.ProposalId,
-		Voter:      msg.Voter,
+		Voter:      intermediaryAcc.String(),
 		Option:     msg.Option,
 		Metadata:   msg.Metadata,
 	}
 
-	_, err := k.govMsgServer.Vote(ctx, &sdkMsg)
+	_, err = k.govMsgServer.Vote(ctx, &sdkMsg)
 	if err != nil {
 		return nil, err
 	}
@@ -323,15 +328,20 @@ func (k msgServer) Vote(goCtx context.Context, msg *types.MsgVote) (*types.MsgVo
 
 func (k msgServer) VoteWeighted(goCtx context.Context, msg *types.MsgVoteWeighted) (*types.MsgVoteWeightedResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+	accAddr, err := sdk.AccAddressFromBech32(msg.Voter)	
+	if err != nil {
+		return nil, err
+	}
+	intermediaryAcc := k.GetIntermediaryAccountKey(ctx, accAddr)
 
 	sdkMsg := govv1.MsgVoteWeighted{
 		ProposalId: msg.ProposalId,
-		Voter:      msg.Voter,
+		Voter:      intermediaryAcc.String(),
 		Options:    msg.Options,
 		Metadata:   msg.Metadata,
 	}
 
-	_, err := k.govMsgServer.VoteWeighted(ctx, &sdkMsg)
+	_, err = k.govMsgServer.VoteWeighted(ctx, &sdkMsg)
 	if err != nil {
 		return nil, err
 	}
