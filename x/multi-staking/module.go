@@ -129,7 +129,7 @@ func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sd
 // module-specific GRPC queries.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
-
+	// TODO: add query server
 	// types.RegisterQueryServer(cfg.QueryServer(), keeper.NewQuerier(am.keeper))
 }
 
@@ -156,7 +156,14 @@ func (am AppModule) BeginBlock(ctx sdk.Context, requestBeginBlock abci.RequestBe
 // EndBlock returns the end blocker for the feeabs module. It returns no validator
 // updates.
 func (am AppModule) EndBlock(ctx sdk.Context, requestEndBlock abci.RequestEndBlock) []abci.ValidatorUpdate {
-	return am.skAppModule.EndBlock(ctx, requestEndBlock)
+	// calculate the amount of token
+	unbondedStakings := am.keeper.BeforeUnbondedHandle(ctx)
+	// staking endblock
+	valUpdates := am.skAppModule.EndBlock(ctx, requestEndBlock)
+	// update endblock multi-staking
+	am.keeper.EndBlocker(ctx, unbondedStakings)
+
+	return valUpdates
 }
 
 // ConsensusVersion return module consensus version
