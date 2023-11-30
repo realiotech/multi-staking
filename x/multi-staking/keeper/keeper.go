@@ -9,18 +9,16 @@ import (
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
 
 type Keeper struct {
-	storeKey         storetypes.StoreKey
-	memKey           storetypes.StoreKey
-	cdc              codec.BinaryCodec
-	stakingKeeper    types.StakingKeeper
-	stakingMsgServer stakingtypes.MsgServer
-	distrMsgServer   distrtypes.MsgServer
-	bankKeeper       types.BankKeeper
+	storeKey       storetypes.StoreKey
+	memKey         storetypes.StoreKey
+	cdc            codec.BinaryCodec
+	stakingKeeper  stakingkeeper.Keeper
+	distrMsgServer distrtypes.MsgServer
+	bankKeeper     types.BankKeeper
 }
 
 func NewKeeper(
@@ -32,13 +30,12 @@ func NewKeeper(
 	memKey storetypes.StoreKey,
 ) *Keeper {
 	return &Keeper{
-		cdc:              cdc,
-		storeKey:         key,
-		memKey:           memKey,
-		stakingKeeper:    stakingKeeper,
-		stakingMsgServer: stakingkeeper.NewMsgServerImpl(stakingKeeper),
-		distrMsgServer:   distrkeeper.NewMsgServerImpl(distrKeeper),
-		bankKeeper:       bankKeeper,
+		cdc:            cdc,
+		storeKey:       key,
+		memKey:         memKey,
+		stakingKeeper:  stakingKeeper,
+		distrMsgServer: distrkeeper.NewMsgServerImpl(distrKeeper),
+		bankKeeper:     bankKeeper,
 	}
 }
 
