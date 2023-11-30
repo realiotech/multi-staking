@@ -105,10 +105,7 @@ func (k Keeper) BurnBondTokenAndUnlockMultiStakingToken(
 	unbondTokenAmount sdk.Coin,
 ) (unlockedAmount sdk.Coins, err error) {
 	// get delAddr
-	delAddr := k.GetDelAddrByKeyIntermediaryAccount(ctx, intermediaryAcc)
-	if delAddr.Empty() {
-		return unlockedAmount, fmt.Errorf("Unknown delegator address")
-	}
+	delAddr := types.DelegatorAccount(intermediaryAcc)
 
 	// get Lock
 	lockID := types.MultiStakingLockID(delAddr, valAddr)
