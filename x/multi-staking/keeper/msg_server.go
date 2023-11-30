@@ -266,13 +266,18 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (
 // SetWithdrawAddress defines a method for performing an undelegation from a delegate and a validator
 func (k msgServer) SetWithdrawAddress(goCtx context.Context, msg *types.MsgSetWithdrawAddress) (*types.MsgSetWithdrawAddressResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+	delAcc, err := sdk.AccAddressFromBech32(msg.DelegatorAddress)
+	if err != nil {
+		return nil, err
+	}
+	intermediaryAccount := types.IntermediaryAccount(delAcc)
 
 	sdkMsg := distrtypes.MsgSetWithdrawAddress{
-		DelegatorAddress: msg.DelegatorAddress,
+		DelegatorAddress: intermediaryAccount.String(),
 		WithdrawAddress:  msg.WithdrawAddress,
 	}
 
-	_, err := k.distrMsgServer.SetWithdrawAddress(ctx, &sdkMsg)
+	_, err = k.distrMsgServer.SetWithdrawAddress(ctx, &sdkMsg)
 	if err != nil {
 		return nil, err
 	}
@@ -281,20 +286,25 @@ func (k msgServer) SetWithdrawAddress(goCtx context.Context, msg *types.MsgSetWi
 
 func (k msgServer) WithdrawDelegatorReward(goCtx context.Context, msg *types.MsgWithdrawDelegatorReward) (*types.MsgWithdrawDelegatorRewardResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+	delAcc, err := sdk.AccAddressFromBech32(msg.DelegatorAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	intermediaryAccount := types.IntermediaryAccount(delAcc)
+
+	if !k.IsIntermediaryAccount(ctx, intermediaryAccount) {
+		k.SetIntermediaryAccount(ctx, intermediaryAccount)
+	}
+
 	sdkMsg := distrtypes.MsgWithdrawDelegatorReward{
-		DelegatorAddress: msg.DelegatorAddress,
+		DelegatorAddress: intermediaryAccount.String(),
 		ValidatorAddress: msg.ValidatorAddress,
 	}
 
 	resp, err := k.distrMsgServer.WithdrawDelegatorReward(ctx, &sdkMsg)
 	if err != nil {
 		return nil, err
-	}
-	delAcc, err := sdk.AccAddressFromBech32(msg.DelegatorAddress)
-
-	intermediaryAccount := types.IntermediaryAccount(delAcc)
-	if !k.IsIntermediaryAccount(ctx, intermediaryAccount) {
-		k.SetIntermediaryAccount(ctx, intermediaryAccount)
 	}
 
 	err = k.bankKeeper.SendCoins(ctx, intermediaryAccount, delAcc, resp.Amount)
@@ -306,12 +316,15 @@ func (k msgServer) WithdrawDelegatorReward(goCtx context.Context, msg *types.Msg
 
 func (k msgServer) Vote(goCtx context.Context, msg *types.MsgVote) (*types.MsgVoteResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	accAddr, err := sdk.AccAddressFromBech32(msg.Voter)	
+	delAcc, err := sdk.AccAddressFromBech32(msg.Voter)	
 	if err != nil {
 		return nil, err
 	}
-	intermediaryAcc := k.GetIntermediaryAccountKey(ctx, accAddr)
-	
+	intermediaryAcc := types.IntermediaryAccount(delAcc)
+	if !k.IsIntermediaryAccount(ctx, intermediaryAcc) {
+		k.SetIntermediaryAccount(ctx, intermediaryAcc)
+	}
+
 	sdkMsg := govv1.MsgVote{
 		ProposalId: msg.ProposalId,
 		Voter:      intermediaryAcc.String(),
@@ -328,11 +341,15 @@ func (k msgServer) Vote(goCtx context.Context, msg *types.MsgVote) (*types.MsgVo
 
 func (k msgServer) VoteWeighted(goCtx context.Context, msg *types.MsgVoteWeighted) (*types.MsgVoteWeightedResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	accAddr, err := sdk.AccAddressFromBech32(msg.Voter)	
+	delAcc, err := sdk.AccAddressFromBech32(msg.Voter)	
 	if err != nil {
 		return nil, err
 	}
-	intermediaryAcc := k.GetIntermediaryAccountKey(ctx, accAddr)
+	
+	intermediaryAcc := types.IntermediaryAccount(delAcc)
+	if !k.IsIntermediaryAccount(ctx, intermediaryAcc) {
+		k.SetIntermediaryAccount(ctx, intermediaryAcc)
+	}
 
 	sdkMsg := govv1.MsgVoteWeighted{
 		ProposalId: msg.ProposalId,
