@@ -8,6 +8,8 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
@@ -20,6 +22,7 @@ type Keeper struct {
 	stakingKeeper    types.StakingKeeper
 	stakingMsgServer stakingtypes.MsgServer
 	distrMsgServer   distrtypes.MsgServer
+	govMsgServer     govtypes.MsgServer
 	bankKeeper       types.BankKeeper
 }
 
@@ -27,6 +30,7 @@ func NewKeeper(
 	cdc codec.BinaryCodec,
 	stakingKeeper stakingkeeper.Keeper,
 	distrKeeper distrkeeper.Keeper,
+	govKeeper govkeeper.Keeper,
 	bankKeeper types.BankKeeper,
 	key storetypes.StoreKey,
 	memKey storetypes.StoreKey,
@@ -38,6 +42,7 @@ func NewKeeper(
 		stakingKeeper:    stakingKeeper,
 		stakingMsgServer: stakingkeeper.NewMsgServerImpl(stakingKeeper),
 		distrMsgServer:   distrkeeper.NewMsgServerImpl(distrKeeper),
+		govMsgServer:     govkeeper.NewMsgServerImpl(govKeeper),
 		bankKeeper:       bankKeeper,
 	}
 }

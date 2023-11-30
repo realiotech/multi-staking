@@ -7,6 +7,7 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
@@ -301,4 +302,38 @@ func (k msgServer) WithdrawDelegatorReward(goCtx context.Context, msg *types.Msg
 		return nil, err
 	}
 	return &types.MsgWithdrawDelegatorRewardResponse{Amount: resp.Amount}, nil
+}
+
+func (k msgServer) Vote(goCtx context.Context, msg *types.MsgVote) (*types.MsgVoteResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	sdkMsg := govv1.MsgVote{
+		ProposalId: msg.ProposalId,
+		Voter:      msg.Voter,
+		Option:     msg.Option,
+		Metadata:   msg.Metadata,
+	}
+
+	_, err := k.govMsgServer.Vote(ctx, &sdkMsg)
+	if err != nil {
+		return nil, err
+	}
+	return &types.MsgVoteResponse{}, nil
+}
+
+func (k msgServer) VoteWeighted(goCtx context.Context, msg *types.MsgVoteWeighted) (*types.MsgVoteWeightedResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	sdkMsg := govv1.MsgVoteWeighted{
+		ProposalId: msg.ProposalId,
+		Voter:      msg.Voter,
+		Options:    msg.Options,
+		Metadata:   msg.Metadata,
+	}
+
+	_, err := k.govMsgServer.VoteWeighted(ctx, &sdkMsg)
+	if err != nil {
+		return nil, err
+	}
+	return &types.MsgVoteWeightedResponse{}, nil
 }
