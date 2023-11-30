@@ -12,6 +12,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	gwruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/client/cli"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
@@ -26,7 +27,12 @@ var (
 
 // AppModule embeds the Cosmos SDK's x/staking AppModuleBasic.
 type AppModuleBasic struct {
-	staking.AppModuleBasic
+	cdc codec.Codec
+}
+
+// Name returns the staking module's name.
+func (AppModuleBasic) Name() string {
+	return types.ModuleName
 }
 
 // RegisterLegacyAminoCodec register module codec
@@ -53,6 +59,9 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncod
 	return genState.Validate()
 }
 
+// RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the staking module.
+func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *gwruntime.ServeMux) {}
+
 // GetTxCmd returns the feeabs module's root tx command.
 func (AppModuleBasic) GetTxCmd() *cobra.Command {
 	return cli.NewTxCmd()
@@ -66,6 +75,7 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 // AppModule embeds the Cosmos SDK's x/staking AppModule where we only override
 // specific methods.
 type AppModule struct {
+	AppModuleBasic
 	// embed the Cosmos SDK's x/staking AppModule
 	skAppModule staking.AppModule
 
@@ -86,6 +96,32 @@ func NewAppModule(cdc codec.Codec, keeper keeper.Keeper, sk stakingkeeper.Keeper
 		ak:          ak,
 		bk:          bk,
 	}
+}
+
+// Name returns the staking module's name.
+func (AppModule) Name() string {
+	return types.ModuleName
+}
+
+// RegisterInvariants registers the staking module invariants.
+// TODO: Need to implement invariants
+func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
+}
+
+// Deprecated: Route returns the message routing key for the staking module.
+func (am AppModule) Route() sdk.Route {
+	return sdk.Route{}
+}
+
+// QuerierRoute returns the staking module's querier route name.
+func (AppModule) QuerierRoute() string {
+	return types.QuerierRoute
+}
+
+// LegacyQuerierHandler returns the staking module sdk.Querier.
+// TODO: add legacy querier
+func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
+	return nil
 }
 
 // RegisterServices registers a GRPC query service to respond to the
