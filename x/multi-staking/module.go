@@ -7,6 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
@@ -15,6 +16,7 @@ import (
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	"github.com/spf13/cobra"
+	abci "github.com/tendermint/tendermint/abci/types"
 )
 
 var (
@@ -65,7 +67,7 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 // specific methods.
 type AppModule struct {
 	// embed the Cosmos SDK's x/staking AppModule
-	staking.AppModule
+	skAppModule staking.AppModule
 
 	keeper keeper.Keeper
 	sk     stakingkeeper.Keeper
@@ -78,11 +80,11 @@ type AppModule struct {
 func NewAppModule(cdc codec.Codec, keeper keeper.Keeper, sk stakingkeeper.Keeper, ak stakingtypes.AccountKeeper, bk stakingtypes.BankKeeper) AppModule {
 	stakingAppMod := staking.NewAppModule(cdc, sk, ak, bk)
 	return AppModule{
-		AppModule: stakingAppMod,
-		keeper:    keeper,
-		sk:        sk,
-		ak:        ak,
-		bk:        bk,
+		skAppModule: stakingAppMod,
+		keeper:      keeper,
+		sk:          sk,
+		ak:          ak,
+		bk:          bk,
 	}
 }
 
@@ -93,3 +95,32 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 
 	// types.RegisterQueryServer(cfg.QueryServer(), keeper.NewQuerier(am.keeper))
 }
+
+// InitGenesis initial genesis state for feeabs module
+func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {
+	var genesisState types.GenesisState
+	cdc.MustUnmarshalJSON(data, &genesisState)
+	am.keeper.InitGenesis(ctx, genesisState)
+
+	return []abci.ValidatorUpdate{}
+}
+
+// ExportGenesis export feeabs state as raw message for feeabs module
+func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
+	gs := am.keeper.ExportGenesis(ctx)
+	return cdc.MustMarshalJSON(gs)
+}
+
+// BeginBlock returns the begin blocker for the feeabs module.
+func (am AppModule) BeginBlock(ctx sdk.Context, requestBeginBlock abci.RequestBeginBlock) {
+	am.skAppModule.BeginBlock(ctx, requestBeginBlock)
+}
+
+// EndBlock returns the end blocker for the feeabs module. It returns no validator
+// updates.
+func (am AppModule) EndBlock(ctx sdk.Context, requestEndBlock abci.RequestEndBlock) []abci.ValidatorUpdate {
+	return am.skAppModule.EndBlock(ctx, requestEndBlock)
+}
+
+// ConsensusVersion return module consensus version
+func (AppModule) ConsensusVersion() uint64 { return 1 }
