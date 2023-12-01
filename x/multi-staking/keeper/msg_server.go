@@ -7,6 +7,7 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
@@ -14,15 +15,19 @@ import (
 
 type msgServer struct {
 	Keeper
+	stakingMsgServer stakingtypes.MsgServer
 }
 
 // NewMsgServerImpl returns an implementation of the bank MsgServer interface
 // for the provided Keeper.
-// func NewMsgServerImpl(keeper Keeper) types.MsgServer {
-// 	return &msgServer{Keeper: keeper}
-// }
+func NewMsgServerImpl(keeper Keeper) types.MsgServer {
+	return &msgServer{
+		Keeper:           keeper,
+		stakingMsgServer: stakingkeeper.NewMsgServerImpl(keeper.stakingKeeper),
+	}
+}
 
-// var _ types.MsgServer = msgServer{}
+var _ types.MsgServer = msgServer{}
 
 // CreateValidator defines a method for creating a new validator
 func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateValidator) (*types.MsgCreateValidatorResponse, error) {
@@ -235,33 +240,33 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (
 
 // // CancelUnbondingDelegation defines a method for canceling the unbonding delegation
 // // and delegate back to the validator.
-// func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.MsgCancelUnbondingDelegation) (*types.MsgCancelUnbondingDelegationResponse, error) {
-// 	ctx := sdk.UnwrapSDKContext(goCtx)
+func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.MsgCancelUnbondingDelegation) (*types.MsgCancelUnbondingDelegationResponse, error) {
+	// 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-// 	intermediaryAccount := types.GetIntermediaryAccount(msg.DelegatorAddress, msg.ValidatorAddress)
+	// 	intermediaryAccount := types.GetIntermediaryAccount(msg.DelegatorAddress, msg.ValidatorAddress)
 
-// 	valAcc, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	delAcc := sdk.MustAccAddressFromBech32(msg.DelegatorAddress)
+	// 	valAcc, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// 	delAcc := sdk.MustAccAddressFromBech32(msg.DelegatorAddress)
 
-// 	sdkMsg := stakingtypes.MsgCancelUnbondingDelegation{
-// 		DelegatorAddress: intermediaryAccount.String(),
-// 		ValidatorAddress: msg.ValidatorAddress,
-// 		Amount:           exactDelegateValue,
-// 	}
+	// 	sdkMsg := stakingtypes.MsgCancelUnbondingDelegation{
+	// 		DelegatorAddress: intermediaryAccount.String(),
+	// 		ValidatorAddress: msg.ValidatorAddress,
+	// 		Amount:           exactDelegateValue,
+	// 	}
 
-// 	k.Keeper.PreDelegate(ctx, delAcc, valAcc, msg.Amount)
+	// 	k.Keeper.PreDelegate(ctx, delAcc, valAcc, msg.Amount)
 
-// 	_, err = k.stakingMsgServer.CancelUnbondingDelegation(ctx, &sdkMsg)
+	// 	_, err = k.stakingMsgServer.CancelUnbondingDelegation(ctx, &sdkMsg)
 
-// 	if err != nil {
-// 		return nil, err
-// 	}
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
 
-// 	return &types.MsgCancelUnbondingDelegationResponse{}, nil
-// }
+	return &types.MsgCancelUnbondingDelegationResponse{}, nil
+}
 
 // SetWithdrawAddress defines a method for performing an undelegation from a delegate and a validator
 func (k msgServer) SetWithdrawAddress(goCtx context.Context, msg *types.MsgSetWithdrawAddress) (*types.MsgSetWithdrawAddressResponse, error) {

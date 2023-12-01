@@ -1,0 +1,18 @@
+syntax = "proto3";
+package multistaking.v1;
+
+import "google/protobuf/any.proto";
+import "google/protobuf/timestamp.proto";
+import "gogoproto/gogo.proto";
+
+import "cosmos_proto/cosmos.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "cosmos/staking/v1beta1/genesis.proto";
+
+import "cosmos/msg/v1/msg.proto";
+
+option go_package = "github.com/realiotech/multi-staking/x/multi-staking/types";
+
+message GenesisState {
+  cosmos.staking.v1beta1.GenesisState staking_genesis_state = 1;
+}
