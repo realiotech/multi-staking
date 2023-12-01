@@ -356,6 +356,7 @@ func NewSimApp(
 		appCodec,
 		app.StakingKeeper,
 		app.DistrKeeper,
+		app.GovKeeper,
 		app.BankKeeper,
 		keys[multistakingtypes.StoreKey],
 		tkeys[multistakingtypes.MemStoreKey],

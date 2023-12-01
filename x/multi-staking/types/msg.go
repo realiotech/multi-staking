@@ -1,13 +1,16 @@
 package types
 
 import (
-	"cosmossdk.io/math"
 	"cosmossdk.io/errors"
+	"cosmossdk.io/math"
+
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 // staking message types
@@ -18,6 +21,10 @@ const (
 	TypeMsgCreateValidator           = "create_validator"
 	TypeMsgDelegate                  = "delegate"
 	TypeMsgBeginRedelegate           = "begin_redelegate"
+	TypeMsgVote                      = "vote"
+	TypeMsgVoteWeighted              = "weighted_vote"
+	TypeMsgSetWithdrawAddress        = "set_withdraw_address"
+	TypeMsgWithdrawDelegatorReward   = "withdraw_delegator_reward"
 )
 
 var (
@@ -29,6 +36,10 @@ var (
 	_ sdk.Msg                            = &MsgUndelegate{}
 	_ sdk.Msg                            = &MsgBeginRedelegate{}
 	_ sdk.Msg                            = &MsgCancelUnbondingDelegation{}
+	_ sdk.Msg                            = &MsgVote{}
+	_ sdk.Msg                            = &MsgVoteWeighted{}
+	_ sdk.Msg                            = &MsgSetWithdrawAddress{}
+	_ sdk.Msg                            = &MsgWithdrawDelegatorReward{}
 )
 
 // NewMsgCreateValidator creates a new MsgCreateValidator instance.
@@ -398,5 +409,171 @@ func (msg MsgCancelUnbondingDelegation) ValidateBasic() error {
 		)
 	}
 
+	return nil
+}
+
+// NewMsgVote creates a message to cast a vote on an active proposal
+//
+//nolint:interfacer
+func NewMsgVote(voter sdk.AccAddress, proposalID uint64, option govv1.VoteOption, metadata string) *MsgVote {
+	return &MsgVote{proposalID, voter.String(), option, metadata}
+}
+
+// Route implements Msg
+func (msg MsgVote) Route() string { return RouterKey }
+
+// Type implements Msg
+func (msg MsgVote) Type() string { return sdk.MsgTypeURL(&msg) }
+
+// ValidateBasic implements Msg
+func (msg MsgVote) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Voter); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid voter address: %s", err)
+	}
+	if !govv1.ValidVoteOption(msg.Option) {
+		return sdkerrors.Wrap(govtypes.ErrInvalidVote, msg.Option.String())
+	}
+
+	return nil
+}
+
+// GetSignBytes implements Msg
+func (msg MsgVote) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(&msg)
+	return sdk.MustSortJSON(bz)
+}
+
+// GetSigners implements Msg
+func (msg MsgVote) GetSigners() []sdk.AccAddress {
+	voter, _ := sdk.AccAddressFromBech32(msg.Voter)
+	return []sdk.AccAddress{voter}
+}
+
+// NewMsgVoteWeighted creates a message to cast a vote on an active proposal
+//
+//nolint:interfacer
+func NewMsgVoteWeighted(voter sdk.AccAddress, proposalID uint64, options govv1.WeightedVoteOptions, metadata string) *MsgVoteWeighted {
+	return &MsgVoteWeighted{proposalID, voter.String(), options, metadata}
+}
+
+// Route implements Msg
+func (msg MsgVoteWeighted) Route() string { return RouterKey }
+
+// Type implements Msg
+func (msg MsgVoteWeighted) Type() string { return sdk.MsgTypeURL(&msg) }
+
+// ValidateBasic implements Msg
+func (msg MsgVoteWeighted) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Voter); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid voter address: %s", err)
+	}
+	if len(msg.Options) == 0 {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, govv1.WeightedVoteOptions(msg.Options).String())
+	}
+
+	totalWeight := sdk.NewDec(0)
+	usedOptions := make(map[govv1.VoteOption]bool)
+	for _, option := range msg.Options {
+		if !option.IsValid() {
+			return sdkerrors.Wrap(govtypes.ErrInvalidVote, option.String())
+		}
+		weight, err := sdk.NewDecFromStr(option.Weight)
+		if err != nil {
+			return sdkerrors.Wrapf(govtypes.ErrInvalidVote, "Invalid weight: %s", err)
+		}
+		totalWeight = totalWeight.Add(weight)
+		if usedOptions[option.Option] {
+			return sdkerrors.Wrap(govtypes.ErrInvalidVote, "Duplicated vote option")
+		}
+		usedOptions[option.Option] = true
+	}
+
+	if totalWeight.GT(sdk.NewDec(1)) {
+		return sdkerrors.Wrap(govtypes.ErrInvalidVote, "Total weight overflow 1.00")
+	}
+
+	if totalWeight.LT(sdk.NewDec(1)) {
+		return sdkerrors.Wrap(govtypes.ErrInvalidVote, "Total weight lower than 1.00")
+	}
+
+	return nil
+}
+
+// GetSignBytes implements Msg
+func (msg MsgVoteWeighted) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(&msg)
+	return sdk.MustSortJSON(bz)
+}
+
+// GetSigners implements Msg
+func (msg MsgVoteWeighted) GetSigners() []sdk.AccAddress {
+	voter, _ := sdk.AccAddressFromBech32(msg.Voter)
+	return []sdk.AccAddress{voter}
+}
+
+func NewMsgSetWithdrawAddress(delAddr, withdrawAddr sdk.AccAddress) *MsgSetWithdrawAddress {
+	return &MsgSetWithdrawAddress{
+		DelegatorAddress: delAddr.String(),
+		WithdrawAddress:  withdrawAddr.String(),
+	}
+}
+
+func (msg MsgSetWithdrawAddress) Route() string { return ModuleName }
+func (msg MsgSetWithdrawAddress) Type() string  { return TypeMsgSetWithdrawAddress }
+
+// Return address that must sign over msg.GetSignBytes()
+func (msg MsgSetWithdrawAddress) GetSigners() []sdk.AccAddress {
+	delegator, _ := sdk.AccAddressFromBech32(msg.DelegatorAddress)
+	return []sdk.AccAddress{delegator}
+}
+
+// get the bytes for the message signer to sign on
+func (msg MsgSetWithdrawAddress) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(&msg)
+	return sdk.MustSortJSON(bz)
+}
+
+// quick validity check
+func (msg MsgSetWithdrawAddress) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.DelegatorAddress); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid delegator address: %s", err)
+	}
+	if _, err := sdk.AccAddressFromBech32(msg.WithdrawAddress); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid withdraw address: %s", err)
+	}
+
+	return nil
+}
+
+func NewMsgWithdrawDelegatorReward(delAddr sdk.AccAddress, valAddr sdk.ValAddress) *MsgWithdrawDelegatorReward {
+	return &MsgWithdrawDelegatorReward{
+		DelegatorAddress: delAddr.String(),
+		ValidatorAddress: valAddr.String(),
+	}
+}
+
+func (msg MsgWithdrawDelegatorReward) Route() string { return ModuleName }
+func (msg MsgWithdrawDelegatorReward) Type() string  { return TypeMsgWithdrawDelegatorReward }
+
+// Return address that must sign over msg.GetSignBytes()
+func (msg MsgWithdrawDelegatorReward) GetSigners() []sdk.AccAddress {
+	delegator, _ := sdk.AccAddressFromBech32(msg.DelegatorAddress)
+	return []sdk.AccAddress{delegator}
+}
+
+// get the bytes for the message signer to sign on
+func (msg MsgWithdrawDelegatorReward) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(&msg)
+	return sdk.MustSortJSON(bz)
+}
+
+// quick validity check
+func (msg MsgWithdrawDelegatorReward) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.DelegatorAddress); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid delegator address: %s", err)
+	}
+	if _, err := sdk.ValAddressFromBech32(msg.ValidatorAddress); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid validator address: %s", err)
+	}
 	return nil
 }
