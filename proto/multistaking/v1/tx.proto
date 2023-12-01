@@ -8,6 +8,7 @@ import "gogoproto/gogo.proto";
 import "cosmos_proto/cosmos.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/staking/v1beta1/staking.proto";
+import "cosmos/gov/v1/gov.proto";
 
 import "cosmos/msg/v1/msg.proto";
 
@@ -49,6 +50,13 @@ service Msg {
   // from a single validator.
   rpc WithdrawDelegatorReward(MsgWithdrawDelegatorReward)
       returns (MsgWithdrawDelegatorRewardResponse);
+
+  // Vote defines a method to add a vote on a specific proposal.
+  rpc Vote(MsgVote) returns (MsgVoteResponse);
+
+  // VoteWeighted defines a method to add a weighted vote on a specific
+  // proposal.
+  rpc VoteWeighted(MsgVoteWeighted) returns (MsgVoteWeightedResponse);
 }
 
 // MsgCreateValidator defines a SDK message for creating a new validator.
@@ -235,3 +243,29 @@ message MsgWithdrawDelegatorRewardResponse {
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
   ];
 }
+
+// MsgVote defines a message to cast a vote.
+message MsgVote {
+  option (cosmos.msg.v1.signer) = "voter";
+
+  uint64 proposal_id = 1 [ (gogoproto.jsontag) = "proposal_id" ];
+  string voter = 2 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  cosmos.gov.v1.VoteOption option = 3;
+  string metadata = 4;
+}
+
+// MsgVoteResponse defines the Msg/Vote response type.
+message MsgVoteResponse {}
+
+// MsgVoteWeighted defines a message to cast a vote.
+message MsgVoteWeighted {
+  option (cosmos.msg.v1.signer) = "voter";
+
+  uint64 proposal_id = 1 [ (gogoproto.jsontag) = "proposal_id" ];
+  string voter = 2 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  repeated cosmos.gov.v1.WeightedVoteOption options = 3;
+  string metadata = 4;
+}
+
+// MsgVoteWeightedResponse defines the Msg/VoteWeighted response type.
+message MsgVoteWeightedResponse {}

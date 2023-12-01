@@ -8,6 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
@@ -270,13 +271,18 @@ func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.M
 // SetWithdrawAddress defines a method for performing an undelegation from a delegate and a validator
 func (k msgServer) SetWithdrawAddress(goCtx context.Context, msg *types.MsgSetWithdrawAddress) (*types.MsgSetWithdrawAddressResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+	delAcc, err := sdk.AccAddressFromBech32(msg.DelegatorAddress)
+	if err != nil {
+		return nil, err
+	}
+	intermediaryAccount := types.IntermediaryAccount(delAcc)
 
 	sdkMsg := distrtypes.MsgSetWithdrawAddress{
-		DelegatorAddress: msg.DelegatorAddress,
+		DelegatorAddress: intermediaryAccount.String(),
 		WithdrawAddress:  msg.WithdrawAddress,
 	}
 
-	_, err := k.distrMsgServer.SetWithdrawAddress(ctx, &sdkMsg)
+	_, err = k.distrMsgServer.SetWithdrawAddress(ctx, &sdkMsg)
 	if err != nil {
 		return nil, err
 	}
@@ -285,8 +291,19 @@ func (k msgServer) SetWithdrawAddress(goCtx context.Context, msg *types.MsgSetWi
 
 func (k msgServer) WithdrawDelegatorReward(goCtx context.Context, msg *types.MsgWithdrawDelegatorReward) (*types.MsgWithdrawDelegatorRewardResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+	delAcc, err := sdk.AccAddressFromBech32(msg.DelegatorAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	intermediaryAccount := types.IntermediaryAccount(delAcc)
+
+	if !k.IsIntermediaryAccount(ctx, intermediaryAccount) {
+		k.SetIntermediaryAccount(ctx, intermediaryAccount)
+	}
+
 	sdkMsg := distrtypes.MsgWithdrawDelegatorReward{
-		DelegatorAddress: msg.DelegatorAddress,
+		DelegatorAddress: intermediaryAccount.String(),
 		ValidatorAddress: msg.ValidatorAddress,
 	}
 
@@ -294,16 +311,61 @@ func (k msgServer) WithdrawDelegatorReward(goCtx context.Context, msg *types.Msg
 	if err != nil {
 		return nil, err
 	}
-	delAcc, err := sdk.AccAddressFromBech32(msg.DelegatorAddress)
-
-	intermediaryAccount := types.IntermediaryAccount(delAcc)
-	if !k.IsIntermediaryAccount(ctx, intermediaryAccount) {
-		k.SetIntermediaryAccount(ctx, intermediaryAccount)
-	}
 
 	err = k.bankKeeper.SendCoins(ctx, intermediaryAccount, delAcc, resp.Amount)
 	if err != nil {
 		return nil, err
 	}
 	return &types.MsgWithdrawDelegatorRewardResponse{Amount: resp.Amount}, nil
+}
+
+func (k msgServer) Vote(goCtx context.Context, msg *types.MsgVote) (*types.MsgVoteResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	delAcc, err := sdk.AccAddressFromBech32(msg.Voter)	
+	if err != nil {
+		return nil, err
+	}
+	intermediaryAcc := types.IntermediaryAccount(delAcc)
+	if !k.IsIntermediaryAccount(ctx, intermediaryAcc) {
+		k.SetIntermediaryAccount(ctx, intermediaryAcc)
+	}
+
+	sdkMsg := govv1.MsgVote{
+		ProposalId: msg.ProposalId,
+		Voter:      intermediaryAcc.String(),
+		Option:     msg.Option,
+		Metadata:   msg.Metadata,
+	}
+
+	_, err = k.govMsgServer.Vote(ctx, &sdkMsg)
+	if err != nil {
+		return nil, err
+	}
+	return &types.MsgVoteResponse{}, nil
+}
+
+func (k msgServer) VoteWeighted(goCtx context.Context, msg *types.MsgVoteWeighted) (*types.MsgVoteWeightedResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	delAcc, err := sdk.AccAddressFromBech32(msg.Voter)	
+	if err != nil {
+		return nil, err
+	}
+	
+	intermediaryAcc := types.IntermediaryAccount(delAcc)
+	if !k.IsIntermediaryAccount(ctx, intermediaryAcc) {
+		k.SetIntermediaryAccount(ctx, intermediaryAcc)
+	}
+
+	sdkMsg := govv1.MsgVoteWeighted{
+		ProposalId: msg.ProposalId,
+		Voter:      intermediaryAcc.String(),
+		Options:    msg.Options,
+		Metadata:   msg.Metadata,
+	}
+
+	_, err = k.govMsgServer.VoteWeighted(ctx, &sdkMsg)
+	if err != nil {
+		return nil, err
+	}
+	return &types.MsgVoteWeightedResponse{}, nil
 }
