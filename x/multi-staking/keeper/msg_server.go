@@ -7,7 +7,6 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
@@ -15,15 +14,13 @@ import (
 
 type msgServer struct {
 	Keeper
-	stakingMsgServer stakingtypes.MsgServer
 }
 
 // NewMsgServerImpl returns an implementation of the bank MsgServer interface
 // for the provided Keeper.
 func NewMsgServerImpl(keeper Keeper) types.MsgServer {
 	return &msgServer{
-		Keeper:           keeper,
-		stakingMsgServer: stakingkeeper.NewMsgServerImpl(keeper.stakingKeeper),
+		Keeper: keeper,
 	}
 }
 
@@ -321,7 +318,7 @@ func (k msgServer) WithdrawDelegatorReward(goCtx context.Context, msg *types.Msg
 
 func (k msgServer) Vote(goCtx context.Context, msg *types.MsgVote) (*types.MsgVoteResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	delAcc, err := sdk.AccAddressFromBech32(msg.Voter)	
+	delAcc, err := sdk.AccAddressFromBech32(msg.Voter)
 	if err != nil {
 		return nil, err
 	}
@@ -346,11 +343,11 @@ func (k msgServer) Vote(goCtx context.Context, msg *types.MsgVote) (*types.MsgVo
 
 func (k msgServer) VoteWeighted(goCtx context.Context, msg *types.MsgVoteWeighted) (*types.MsgVoteWeightedResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	delAcc, err := sdk.AccAddressFromBech32(msg.Voter)	
+	delAcc, err := sdk.AccAddressFromBech32(msg.Voter)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	intermediaryAcc := types.IntermediaryAccount(delAcc)
 	if !k.IsIntermediaryAccount(ctx, intermediaryAcc) {
 		k.SetIntermediaryAccount(ctx, intermediaryAcc)
