@@ -7,6 +7,8 @@ import (
 )
 
 func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) (res []abci.ValidatorUpdate) {
+	// multi-staking state
+
 	return k.stakingKeeper.InitGenesis(ctx, data.StakingGenesisState)
 }
 
