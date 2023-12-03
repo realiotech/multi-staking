@@ -117,3 +117,19 @@ func (k Keeper) RemoveMultiStakingLock(ctx sdk.Context, delAddr sdk.AccAddress, 
 
 	prefixStore.Delete(types.MultiStakingLockID(delAddr, valAddr))
 }
+
+func (k Keeper) MultiStakingLockIterator(ctx sdk.Context, cb func(stakingLock types.MultiStakingLock) (stop bool)) {
+	store := ctx.KVStore(k.storeKey)
+	prefixStore := prefix.NewStore(store, types.MultiStakingLockPrefix)
+	iterator := sdk.KVStorePrefixIterator(prefixStore, nil)
+
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		var multiStakingLock types.MultiStakingLock
+		k.cdc.MustUnmarshal(iterator.Value(), &multiStakingLock)
+		if cb(multiStakingLock) {
+			break
+		}
+	}
+
+}
