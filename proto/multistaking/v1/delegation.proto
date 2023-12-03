@@ -26,6 +26,11 @@ message MultiStakingLock {
   string val_addr = 4;
 };
 
+message ValidatorAllowedToken {
+  string val_addr = 1;
+  string token_denom = 2;
+}
+
 message UnbondedMultiStakings {
   repeated UnbonedMultiStaking unbonded_multi_stakings = 1
       [ (gogoproto.nullable) = false ];

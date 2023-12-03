@@ -17,5 +17,7 @@ option go_package = "github.com/realiotech/multi-staking/x/multi-staking/types";
 message GenesisState {
   repeated MultiStakingLock multi_staking_locks = 1
       [ (gogoproto.nullable) = false ];
-  cosmos.staking.v1beta1.GenesisState staking_genesis_state = 2;
+  repeated ValidatorAllowedToken validator_allowed_token = 2
+      [ (gogoproto.nullable) = false ];
+  cosmos.staking.v1beta1.GenesisState staking_genesis_state = 3;
 }

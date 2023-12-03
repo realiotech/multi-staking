@@ -3,6 +3,7 @@ package keeper
 import (
 	"fmt"
 
+	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
@@ -36,7 +37,7 @@ func (k Keeper) SetBondTokenWeight(ctx sdk.Context, tokenDenom string, tokenWeig
 
 func (k Keeper) GetValidatorAllowedToken(ctx sdk.Context, operatorAddr sdk.ValAddress) string {
 	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.GetValidatorAllowedTokenKey(operatorAddr))
+	bz := store.Get(types.GetValidatorAllowedTokenKey(operatorAddr.String()))
 
 	return string(bz)
 }
@@ -48,7 +49,22 @@ func (k Keeper) SetValidatorAllowedToken(ctx sdk.Context, operatorAddr sdk.ValAd
 
 	store := ctx.KVStore(k.storeKey)
 
-	store.Set(types.GetValidatorAllowedTokenKey(operatorAddr), []byte(bondDenom))
+	store.Set(types.GetValidatorAllowedTokenKey(operatorAddr.String()), []byte(bondDenom))
+}
+
+func (k Keeper) ValidatorAllowedTokenIterator(ctx sdk.Context, cb func(valAddr string, denom string) (stop bool)) {
+	store := ctx.KVStore(k.storeKey)
+	prefixStore := prefix.NewStore(store, types.ValidatorAllowedTokenKey)
+	iterator := sdk.KVStorePrefixIterator(prefixStore, nil)
+
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		valAddr := string(iterator.Key())
+		denom := string(iterator.Value())
+		if cb(valAddr, denom) {
+			break
+		}
+	}
 }
 
 func (k Keeper) GetIntermediaryAccountKey(ctx sdk.Context, delAcc sdk.AccAddress) sdk.AccAddress {
@@ -74,27 +90,30 @@ func (k Keeper) SetIntermediaryAccount(ctx sdk.Context, intermediaryAccount sdk.
 
 func (k Keeper) GetMultiStakingLock(ctx sdk.Context, multiStakingLockID []byte) (types.MultiStakingLock, bool) {
 	store := ctx.KVStore(k.storeKey)
+	prefixStore := prefix.NewStore(store, types.MultiStakingLockPrefix)
 
-	bz := store.Get(multiStakingLockID)
+	bz := prefixStore.Get(multiStakingLockID)
 	if bz == nil {
 		return types.MultiStakingLock{}, false
 	}
 
-	multiStakingLock := &types.MultiStakingLock{}
-	k.cdc.MustUnmarshal(bz, multiStakingLock)
-	return *multiStakingLock, true
+	multiStakingLock := types.MultiStakingLock{}
+	k.cdc.MustUnmarshal(bz, &multiStakingLock)
+	return multiStakingLock, true
 }
 
 func (k Keeper) SetMultiStakingLock(ctx sdk.Context, multiStakingLockID []byte, multiStakingLock types.MultiStakingLock) {
 	store := ctx.KVStore(k.storeKey)
+	prefixStore := prefix.NewStore(store, types.MultiStakingLockPrefix)
 
 	bz := k.cdc.MustMarshal(&multiStakingLock)
 
-	store.Set(multiStakingLockID, bz)
+	prefixStore.Set(multiStakingLockID, bz)
 }
 
 func (k Keeper) RemoveMultiStakingLock(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) {
 	store := ctx.KVStore(k.storeKey)
+	prefixStore := prefix.NewStore(store, types.MultiStakingLockPrefix)
 
-	store.Delete(types.MultiStakingLockID(delAddr, valAddr))
+	prefixStore.Delete(types.MultiStakingLockID(delAddr, valAddr))
 }
