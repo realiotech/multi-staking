@@ -154,8 +154,10 @@ func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRed
 	}
 
 	sdkBondCoin := sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), bondAmount)
+	intermediaryAccount := types.IntermediaryAccount(delAcc)
+
 	sdkMsg := &stakingtypes.MsgBeginRedelegate{
-		DelegatorAddress:    msg.DelegatorAddress,
+		DelegatorAddress:    intermediaryAccount.String(),
 		ValidatorSrcAddress: msg.ValidatorSrcAddress,
 		ValidatorDstAddress: msg.ValidatorDstAddress,
 		Amount:              sdkBondCoin,
@@ -223,9 +225,10 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (
 	}
 
 	unbondCoin := sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), unbondAmount)
+	intermediaryAccount := types.IntermediaryAccount(delAcc)
 
 	sdkMsg := &stakingtypes.MsgUndelegate{
-		DelegatorAddress: msg.DelegatorAddress,
+		DelegatorAddress: intermediaryAccount.String(),
 		ValidatorAddress: msg.ValidatorAddress,
 		Amount:           unbondCoin,
 	}
@@ -238,29 +241,34 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (
 // // CancelUnbondingDelegation defines a method for canceling the unbonding delegation
 // // and delegate back to the validator.
 func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.MsgCancelUnbondingDelegation) (*types.MsgCancelUnbondingDelegationResponse, error) {
-	// 	ctx := sdk.UnwrapSDKContext(goCtx)
+	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// 	intermediaryAccount := types.GetIntermediaryAccount(msg.DelegatorAddress, msg.ValidatorAddress)
+	delAcc := sdk.MustAccAddressFromBech32(msg.DelegatorAddress)
 
-	// 	valAcc, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	// 	delAcc := sdk.MustAccAddressFromBech32(msg.DelegatorAddress)
+	valAcc, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
+	if err != nil {
+		return nil, err
+	}
 
-	// 	sdkMsg := stakingtypes.MsgCancelUnbondingDelegation{
-	// 		DelegatorAddress: intermediaryAccount.String(),
-	// 		ValidatorAddress: msg.ValidatorAddress,
-	// 		Amount:           exactDelegateValue,
-	// 	}
+	lockID := types.MultiStakingLockID(delAcc, valAcc)
+	cancelAmt, err := k.LockedAmountToBondAmount(ctx, lockID, msg.Amount.Amount)
+	if err != nil {
+		return nil, err
+	}
 
-	// 	k.Keeper.PreDelegate(ctx, delAcc, valAcc, msg.Amount)
+	cancelCoin := sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), cancelAmt)
 
-	// 	_, err = k.stakingMsgServer.CancelUnbondingDelegation(ctx, &sdkMsg)
+	sdkMsg := &stakingtypes.MsgCancelUnbondingDelegation{
+		DelegatorAddress: msg.DelegatorAddress,
+		ValidatorAddress: msg.ValidatorAddress,
+		Amount:           cancelCoin,
+	}
 
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
+	_, err = k.stakingMsgServer.CancelUnbondingDelegation(goCtx, sdkMsg)
+
+	if err != nil {
+		return nil, err
+	}
 
 	return &types.MsgCancelUnbondingDelegationResponse{}, nil
 }
