@@ -247,8 +247,7 @@ func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.M
 		return nil, err
 	}
 
-	lockID := types.MultiStakingLockID(delAcc, valAcc)
-	cancelAmt, err := k.LockedAmountToBondAmount(ctx, lockID, msg.Amount.Amount)
+	cancelAmt, err := k.LockedAmountToBondAmount(ctx, delAcc, valAcc, msg.Amount.Amount)
 	if err != nil {
 		return nil, err
 	}
