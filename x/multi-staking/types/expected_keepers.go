@@ -5,6 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	abci "github.com/tendermint/tendermint/abci/types"
 )
 
 type StakingKeeper interface {
@@ -13,6 +14,9 @@ type StakingKeeper interface {
 	GetDelegation(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) (delegation stakingtypes.Delegation, found bool)
 	GetValidator(ctx sdk.Context, addr sdk.ValAddress) (validator stakingtypes.Validator, found bool)
 	GetUnbondingDelegation(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) (ubd stakingtypes.UnbondingDelegation, found bool)
+	InitGenesis(ctx sdk.Context, data *stakingtypes.GenesisState) (res []abci.ValidatorUpdate)
+	ExportGenesis(ctx sdk.Context) *stakingtypes.GenesisState
+	GetParams(ctx sdk.Context) stakingtypes.Params
 }
 
 type BankKeeper interface {

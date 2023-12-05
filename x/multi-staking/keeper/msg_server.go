@@ -147,8 +147,7 @@ func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRed
 		return nil, fmt.Errorf("not allowed Token")
 	}
 
-	srcLockID := types.MultiStakingLockID(delAcc, srcValAcc)
-	bondAmount, err := k.LockedAmountToBondAmount(ctx, srcLockID, msg.Amount.Amount)
+	bondAmount, err := k.LockedAmountToBondAmount(ctx, delAcc, srcValAcc, msg.Amount.Amount)
 	if err != nil {
 		return nil, err
 	}
@@ -165,8 +164,7 @@ func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRed
 		return nil, err
 	}
 
-	dstLockID := types.MultiStakingLockID(delAcc, dstValAcc)
-	err = k.MoveLockedMultistakingToken(ctx, srcLockID, dstLockID, msg.Amount)
+	err = k.MoveLockedMultistakingToken(ctx, delAcc, srcValAcc, dstValAcc, msg.Amount)
 	if err != nil {
 		return nil, err
 	}
@@ -216,8 +214,7 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (
 		return nil, err
 	}
 
-	lockID := types.MultiStakingLockID(delAcc, valAcc)
-	unbondAmount, err := k.LockedAmountToBondAmount(ctx, lockID, msg.Amount.Amount)
+	unbondAmount, err := k.LockedAmountToBondAmount(ctx, delAcc, valAcc, msg.Amount.Amount)
 	if err != nil {
 		return nil, err
 	}

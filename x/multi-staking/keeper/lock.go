@@ -10,9 +10,15 @@ import (
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
 
-func (k Keeper) LockedAmountToBondAmount(ctx sdk.Context, multiStakingLockID []byte, lockedAmount math.Int) (math.Int, error) {
+func (k Keeper) LockedAmountToBondAmount(
+	ctx sdk.Context,
+	delAddr sdk.AccAddress,
+	valAddr sdk.ValAddress,
+	lockedAmount math.Int,
+) (math.Int, error) {
+	lockID := types.MultiStakingLockID(delAddr, valAddr)
 	// get lock on source val
-	lock, found := k.GetMultiStakingLock(ctx, multiStakingLockID)
+	lock, found := k.GetMultiStakingLock(ctx, lockID)
 	if !found {
 		return math.Int{}, fmt.Errorf("can't find multi staking lock")
 	}
@@ -20,10 +26,17 @@ func (k Keeper) LockedAmountToBondAmount(ctx sdk.Context, multiStakingLockID []b
 	return lock.LockedAmountToBondAmount(lockedAmount).RoundInt(), nil
 }
 
-func (k Keeper) AddTokenToLock(ctx sdk.Context, lockID []byte, amountAdded math.Int, conversionRatio sdk.Dec) types.MultiStakingLock {
+func (k Keeper) AddTokenToLock(
+	ctx sdk.Context,
+	delAddr sdk.AccAddress,
+	valAddr sdk.ValAddress,
+	amountAdded math.Int,
+	conversionRatio sdk.Dec,
+) types.MultiStakingLock {
+	lockID := types.MultiStakingLockID(delAddr, valAddr)
 	multiStakingLock, found := k.GetMultiStakingLock(ctx, lockID)
 	if !found {
-		multiStakingLock = types.NewMultiStakingLock(amountAdded, conversionRatio)
+		multiStakingLock = types.NewMultiStakingLock(amountAdded, conversionRatio, delAddr, valAddr)
 	} else {
 		multiStakingLock = multiStakingLock.AddTokenToMultiStakingLock(amountAdded, conversionRatio)
 	}
@@ -32,8 +45,14 @@ func (k Keeper) AddTokenToLock(ctx sdk.Context, lockID []byte, amountAdded math.
 }
 
 // removing token from lock won't change the conversion ratio of the lock
-func (k Keeper) RemoveTokenFromLock(ctx sdk.Context, lockID []byte, amountRemoved math.Int) (types.MultiStakingLock, error) {
+func (k Keeper) RemoveTokenFromLock(
+	ctx sdk.Context,
+	delAddr sdk.AccAddress,
+	valAddr sdk.ValAddress,
+	amountRemoved math.Int,
+) (types.MultiStakingLock, error) {
 	// get lock on source val
+	lockID := types.MultiStakingLockID(delAddr, valAddr)
 	lock, found := k.GetMultiStakingLock(ctx, lockID)
 	if !found {
 		return types.MultiStakingLock{}, fmt.Errorf("can't find multi staking lock")
@@ -50,24 +69,32 @@ func (k Keeper) RemoveTokenFromLock(ctx sdk.Context, lockID []byte, amountRemove
 	return lock, nil
 }
 
-func (k Keeper) MoveLockedMultistakingToken(ctx sdk.Context, srcLockID []byte, dstLockID []byte, lockedToken sdk.Coin) (err error) {
+func (k Keeper) MoveLockedMultistakingToken(
+	ctx sdk.Context,
+	delAddr sdk.AccAddress,
+	srcValAddr sdk.ValAddress,
+	dstValAddr sdk.ValAddress,
+	lockedToken sdk.Coin,
+) (err error) {
 	// get lock on source val
-	srcLock, err := k.RemoveTokenFromLock(ctx, srcLockID, lockedToken.Amount)
+	srcLock, err := k.RemoveTokenFromLock(ctx, delAddr, srcValAddr, lockedToken.Amount)
 	if err != nil {
 		return err
 	}
 
 	// get lock on destination val
-	k.AddTokenToLock(ctx, dstLockID, lockedToken.Amount, srcLock.ConversionRatio)
+	k.AddTokenToLock(ctx, delAddr, dstValAddr, lockedToken.Amount, srcLock.ConversionRatio)
 
 	return err
 }
 
 func (k Keeper) LockMultiStakingTokenAndMintBondToken(
-	ctx sdk.Context, delAcc sdk.AccAddress, lockID []byte,
+	ctx sdk.Context,
+	delAddr sdk.AccAddress,
+	valAddr sdk.ValAddress,
 	multiStakingToken sdk.Coin,
 ) (mintedBondToken sdk.Coin, err error) {
-	intermediaryAcc := types.IntermediaryAccount(delAcc)
+	intermediaryAcc := types.IntermediaryAccount(delAddr)
 
 	// get bond denom weight
 	bondDenomWeight, isBondToken := k.GetBondTokenWeight(ctx, multiStakingToken.Denom)
@@ -78,13 +105,13 @@ func (k Keeper) LockMultiStakingTokenAndMintBondToken(
 	}
 
 	// lock coin in intermediary account
-	err = k.bankKeeper.SendCoins(ctx, delAcc, intermediaryAcc, sdk.NewCoins(multiStakingToken))
+	err = k.bankKeeper.SendCoins(ctx, delAddr, intermediaryAcc, sdk.NewCoins(multiStakingToken))
 	if err != nil {
 		return sdk.Coin{}, err
 	}
 
 	// update multistaking lock
-	k.AddTokenToLock(ctx, lockID, multiStakingToken.Amount, bondDenomWeight)
+	k.AddTokenToLock(ctx, delAddr, valAddr, multiStakingToken.Amount, bondDenomWeight)
 
 	// Calculate the amount of bond denom to be minted
 	// minted bond amount = multistaking token * bond token weight
