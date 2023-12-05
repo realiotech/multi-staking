@@ -22,7 +22,14 @@ message MultiStakingLock {
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
     (gogoproto.nullable) = false
   ];
+  string del_addr = 3;
+  string val_addr = 4;
 };
+
+message ValidatorAllowedToken {
+  string val_addr = 1;
+  string token_denom = 2;
+}
 
 message UnbondedMultiStakings {
   repeated UnbonedMultiStaking unbonded_multi_stakings = 1

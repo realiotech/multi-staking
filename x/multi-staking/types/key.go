@@ -35,7 +35,14 @@ var (
 
 	// mem store key
 	CompletedDelegationsPrefix = []byte{0x05}
+
+	// key prefix
+	MultiStakingLockPrefix = KeyPrefix("multi-staking-lock")
 )
+
+func KeyPrefix(key string) []byte {
+	return []byte(key)
+}
 
 // GetBondTokenWeightKeyKey returns a key for an index containing the bond token weight
 func GetBondTokenWeightKey(tokenDenom string) []byte {
@@ -43,8 +50,8 @@ func GetBondTokenWeightKey(tokenDenom string) []byte {
 }
 
 // GetValidatorAllowedTokenKey returns a key for an index containing the bond denom of a validator
-func GetValidatorAllowedTokenKey(operatorAddr sdk.ValAddress) []byte {
-	return append(ValidatorAllowedTokenKey, address.MustLengthPrefix(operatorAddr)...)
+func GetValidatorAllowedTokenKey(valAddr string) []byte {
+	return append(ValidatorAllowedTokenKey, []byte(valAddr)...)
 }
 
 // GetIntermediaryAccountDelegatorKey returns a key for an index containing the delegator of an intermediary account
