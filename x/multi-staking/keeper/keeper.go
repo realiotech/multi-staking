@@ -52,36 +52,36 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", "x/"+types.ModuleName)
 }
 
-func (k Keeper) BeforeUnbondedHandle(ctx sdk.Context) types.UnbondedMultiStakings {
-	var unbondedStakingLists []types.UnbonedMultiStaking
-	matureUnbonds := k.stakingKeeper.DequeueAllMatureUBDQueue(ctx, ctx.BlockHeader().Time)
-	for _, dvPair := range matureUnbonds {
-		valAddr, err := sdk.ValAddressFromBech32(dvPair.ValidatorAddress)
-		if err != nil {
-			panic(err)
-		}
-		delAddr := sdk.MustAccAddressFromBech32(dvPair.DelegatorAddress)
+// func (k Keeper) BeforeUnbondedHandle(ctx sdk.Context) types.UnbondedMultiStakings {
+// 	var unbondedStakingLists []types.UnbonedMultiStaking
+// 	matureUnbonds := k.stakingKeeper.DequeueAllMatureUBDQueue(ctx, ctx.BlockHeader().Time)
+// 	for _, dvPair := range matureUnbonds {
+// 		valAddr, err := sdk.ValAddressFromBech32(dvPair.ValidatorAddress)
+// 		if err != nil {
+// 			panic(err)
+// 		}
+// 		delAddr := sdk.MustAccAddressFromBech32(dvPair.DelegatorAddress)
 
-		balances, err := k.GetUnbondedAmount(ctx, delAddr, valAddr)
-		if err != nil {
-			continue
-		}
+// 		balances, err := k.GetUnbondedAmount(ctx, delAddr, valAddr)
+// 		if err != nil {
+// 			continue
+// 		}
 
-		unbondedStaking := types.UnbonedMultiStaking{
-			DelAddr: delAddr.String(),
-			ValAddr: valAddr.String(),
-			Amount:  balances,
-		}
+// 		unbondedStaking := types.UnbonedMultiStaking{
+// 			DelAddr: delAddr.String(),
+// 			ValAddr: valAddr.String(),
+// 			Amount:  balances,
+// 		}
 
-		unbondedStakingLists = append(unbondedStakingLists, unbondedStaking)
-	}
+// 		unbondedStakingLists = append(unbondedStakingLists, unbondedStaking)
+// 	}
 
-	unbondedStakings := types.UnbondedMultiStakings{
-		UnbondedMultiStakings: unbondedStakingLists,
-	}
+// 	unbondedStakings := types.UnbondedMultiStakings{
+// 		UnbondedMultiStakings: unbondedStakingLists,
+// 	}
 
-	return unbondedStakings
-}
+// 	return unbondedStakings
+// }
 
 func (k Keeper) GetUnbondedAmount(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) (sdk.Coins, error) {
 	ubd, found := k.stakingKeeper.GetUnbondingDelegation(ctx, delAddr, valAddr)

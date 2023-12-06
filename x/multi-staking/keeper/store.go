@@ -2,7 +2,9 @@ package keeper
 
 import (
 	"fmt"
+	"time"
 
+	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
@@ -132,4 +134,62 @@ func (k Keeper) MultiStakingLockIterator(ctx sdk.Context, cb func(stakingLock ty
 		}
 	}
 
+}
+
+func (k Keeper) GetUnbondedMultiStaking(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) (ubd types.UnbondedMultiStaking, found bool) {
+	store := ctx.KVStore(k.storeKey)
+	key := types.GetUBDKey(delAddr, valAddr)
+	value := store.Get(key)
+
+	if value == nil {
+		return ubd, false
+	}
+
+	ubd = types.MustUnmarshalUBD(k.cdc, value)
+
+	return ubd, true
+}
+
+// SetUnbondedMultiStaking sets the unbonding delegation and associated index.
+func (k Keeper) SetUnbondedMultiStaking(ctx sdk.Context, ubd types.UnbondedMultiStaking) {
+	delAddr := sdk.MustAccAddressFromBech32(ubd.DelegatorAddress)
+
+	store := ctx.KVStore(k.storeKey)
+	bz := types.MustMarshalUBD(k.cdc, ubd)
+	valAddr, err := sdk.ValAddressFromBech32(ubd.ValidatorAddress)
+	if err != nil {
+		panic(err)
+	}
+	key := types.GetUBDKey(delAddr, valAddr)
+	store.Set(key, bz)
+}
+
+// RemoveUnbondedMultiStaking removes the unbonding delegation object and associated index.
+func (k Keeper) RemoveUnbondedMultiStaking(ctx sdk.Context, ubd types.UnbondedMultiStaking) {
+	delegatorAddress := sdk.MustAccAddressFromBech32(ubd.DelegatorAddress)
+
+	store := ctx.KVStore(k.storeKey)
+	addr, err := sdk.ValAddressFromBech32(ubd.ValidatorAddress)
+	if err != nil {
+		panic(err)
+	}
+	key := types.GetUBDKey(delegatorAddress, addr)
+	store.Delete(key)
+}
+
+// SetUnbondedMultiStakingEntry adds an entry to the unbonding delegation at
+// the given addresses. It creates the unbonding delegation if it does not exist.
+func (k Keeper) SetUnbondedMultiStakingEntry(
+	ctx sdk.Context, delegatorAddr sdk.AccAddress, validatorAddr sdk.ValAddress,
+	creationHeight int64, rate sdk.Dec, minTime time.Time, balance math.Int,
+) types.UnbondedMultiStaking {
+	ubd, found := k.GetUnbondedMultiStaking(ctx, delegatorAddr, validatorAddr)
+	if found {
+		ubd.AddEntry(creationHeight, minTime,rate, balance)
+	} else {
+		ubd = types.NewUnbondedMultiStaking(delegatorAddr, validatorAddr, creationHeight, rate, minTime, balance)
+	}
+
+	k.SetUnbondedMultiStaking(ctx, ubd)
+	return ubd
 }

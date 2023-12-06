@@ -5,10 +5,12 @@ import (
 	"fmt"
 
 	"cosmossdk.io/math"
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
 
@@ -216,10 +218,13 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (
 		return nil, err
 	}
 
-	unbondAmount, err := k.LockedAmountToBondAmount(ctx, delAcc, valAcc, msg.Amount.Amount)
-	if err != nil {
-		return nil, err
+	lockID := types.MultiStakingLockID(delAcc, valAcc)
+	lock, found := k.GetMultiStakingLock(ctx, lockID)
+	if !found {
+		return nil, fmt.Errorf("can't find multi staking lock")
 	}
+
+	unbondAmount := lock.LockedAmountToBondAmount(msg.Amount.Amount).RoundInt()
 
 	unbondCoin := sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), unbondAmount)
 	intermediaryAccount := types.IntermediaryAccount(delAcc)
@@ -230,8 +235,10 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (
 		Amount:           unbondCoin,
 	}
 
-	_, err = k.stakingMsgServer.Undelegate(goCtx, sdkMsg)
+	resp, err := k.stakingMsgServer.Undelegate(goCtx, sdkMsg)
 
+	k.SetUnbondedMultiStakingEntry(ctx, delAcc, valAcc, ctx.BlockHeight(), lock.ConversionRatio, resp.CompletionTime, msg.Amount.Amount)
+	
 	return &types.MsgUndelegateResponse{}, err
 }
 
@@ -247,7 +254,51 @@ func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.M
 		return nil, err
 	}
 
-	cancelAmt, err := k.LockedAmountToBondAmount(ctx, delAcc, valAcc, msg.Amount.Amount)
+	valDenom := k.GetValidatorAllowedToken(ctx, valAcc)
+
+	if msg.Amount.Denom != valDenom {
+		return nil, errorsmod.Wrapf(
+			sdkerrors.ErrInvalidRequest, "invalid coin denomination: got %s, expected %s", msg.Amount.Denom, valDenom,
+		)
+	}
+
+	ubd, found := k.GetUnbondedMultiStaking(ctx, delAcc, valAcc)
+
+	if !found {
+		return nil, fmt.Errorf("not found unbonding recored")
+	}
+
+	var (
+		unbondEntry      types.UnbonedMultiStakingEntry
+		unbondEntryIndex int64 = -1
+	)
+
+	for i, entry := range ubd.Entries {
+		if entry.CreationHeight == msg.CreationHeight {
+			unbondEntry = entry
+			unbondEntryIndex = int64(i)
+			break
+		}
+	}
+	if unbondEntryIndex == -1 {
+		return nil, sdkerrors.ErrNotFound.Wrapf("unbonding delegation entry is not found at block height %d", msg.CreationHeight)
+	}
+
+	if unbondEntry.Balance.LT(msg.Amount.Amount) {
+		return nil, sdkerrors.ErrInvalidRequest.Wrap("amount is greater than the unbonding delegation entry balance")
+	}
+
+	if unbondEntry.CompletionTime.Before(ctx.BlockTime()) {
+		return nil, sdkerrors.ErrInvalidRequest.Wrap("unbonding delegation is already processed")
+	}
+
+	// delegate back the unbonding delegation amount to the validator
+	// _, err = k.Keeper.Delegate(ctx, delegatorAddress, msg.Amount.Amount, types.Unbonding, validator, false)
+	if err != nil {
+		return nil, err
+	}
+
+	cancelAmt := unbondEntry.ConversionRatio.MulInt(msg.Amount.Amount).RoundInt()
 	if err != nil {
 		return nil, err
 	}
@@ -261,11 +312,27 @@ func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.M
 	}
 
 	_, err = k.stakingMsgServer.CancelUnbondingDelegation(goCtx, sdkMsg)
-
 	if err != nil {
 		return nil, err
 	}
+	
+	amount := unbondEntry.Balance.Sub(msg.Amount.Amount)
+	if amount.IsZero() {
+		ubd.RemoveEntry(unbondEntryIndex)
+	} else {
+		// update the unbondingDelegationEntryBalance and InitialBalance for ubd entry
+		unbondEntry.Balance = amount
+		unbondEntry.InitialBalance = unbondEntry.InitialBalance.Sub(msg.Amount.Amount)
+		ubd.Entries[unbondEntryIndex] = unbondEntry
+	}
 
+	// set the unbonding delegation or remove it if there are no more entries
+	if len(ubd.Entries) == 0 {
+		k.RemoveUnbondedMultiStaking(ctx, ubd)
+	} else {
+		k.SetUnbondedMultiStaking(ctx, ubd)
+	}
+	
 	return &types.MsgCancelUnbondingDelegationResponse{}, nil
 }
 
