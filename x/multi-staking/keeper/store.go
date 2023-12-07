@@ -35,6 +35,12 @@ func (k Keeper) SetBondTokenWeight(ctx sdk.Context, tokenDenom string, tokenWeig
 	store.Set(types.GetBondTokenWeightKey(tokenDenom), bz)
 }
 
+func (k Keeper) RemoveBondTokenWeight(ctx sdk.Context, tokenDenom string) {
+	store := ctx.KVStore(k.storeKey)
+
+	store.Delete(types.GetBondTokenWeightKey(tokenDenom))
+}
+
 func (k Keeper) GetValidatorAllowedToken(ctx sdk.Context, operatorAddr sdk.ValAddress) string {
 	store := ctx.KVStore(k.storeKey)
 	bz := store.Get(types.GetValidatorAllowedTokenKey(operatorAddr.String()))
