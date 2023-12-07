@@ -38,6 +38,9 @@ var (
 
 	// key prefix
 	MultiStakingLockPrefix = KeyPrefix("multi-staking-lock")
+
+	UnbondDelKey    = []byte{0x11} // key for an unbonding-delegation
+	UnbondQueueKey         = []byte{0x16} // prefix for the timestamps in unbonding queue
 )
 
 func KeyPrefix(key string) []byte {
@@ -72,4 +75,15 @@ func GetDVPairBondAmountKey(delAddr sdk.AccAddress, valAddr sdk.ValAddress) []by
 func MultiStakingLockID(delAddr sdk.AccAddress, valAddr sdk.ValAddress) []byte {
 	DVPair := append(delAddr, address.MustLengthPrefix(valAddr)...)
 	return append(DVPairBondAmount, DVPair...)
+}
+
+// GetUBDsKey creates the prefix for all unbonding delegations from a delegator
+func GetUBDsKey(delAddr sdk.AccAddress) []byte {
+	return append(UnbondDelKey, address.MustLengthPrefix(delAddr)...)
+}
+
+// GetUBDKey creates the key for an unbonding delegation by delegator and validator addr
+// VALUE: multi-staking/UnbondedMultiStaking
+func GetUBDKey(delAddr sdk.AccAddress, valAddr sdk.ValAddress) []byte {
+	return append(GetUBDsKey(delAddr.Bytes()), address.MustLengthPrefix(valAddr)...)
 }

@@ -53,7 +53,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 func (k Keeper) BeforeUnbondedHandle(ctx sdk.Context) types.UnbondedMultiStakings {
-	var unbondedStakingLists []types.UnbonedMultiStaking
+	var unbondedStakingLists types.UnbondedMultiStakings
 	matureUnbonds := k.stakingKeeper.DequeueAllMatureUBDQueue(ctx, ctx.BlockHeader().Time)
 	for _, dvPair := range matureUnbonds {
 		valAddr, err := sdk.ValAddressFromBech32(dvPair.ValidatorAddress)
@@ -62,50 +62,53 @@ func (k Keeper) BeforeUnbondedHandle(ctx sdk.Context) types.UnbondedMultiStaking
 		}
 		delAddr := sdk.MustAccAddressFromBech32(dvPair.DelegatorAddress)
 
-		balances, err := k.GetUnbondedAmount(ctx, delAddr, valAddr)
+		ubdListByDelVal, err := k.GetUnbondedAmount(ctx, delAddr, valAddr)
 		if err != nil {
 			continue
 		}
 
-		unbondedStaking := types.UnbonedMultiStaking{
-			DelAddr: delAddr.String(),
-			ValAddr: valAddr.String(),
-			Amount:  balances,
-		}
-
-		unbondedStakingLists = append(unbondedStakingLists, unbondedStaking)
+		unbondedStakingLists = append(unbondedStakingLists, ubdListByDelVal...)
 	}
 
-	unbondedStakings := types.UnbondedMultiStakings{
-		UnbondedMultiStakings: unbondedStakingLists,
-	}
-
-	return unbondedStakings
+	return unbondedStakingLists
 }
 
-func (k Keeper) GetUnbondedAmount(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) (sdk.Coins, error) {
+func (k Keeper) GetUnbondedAmount(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) (types.UnbondedMultiStakings, error) {
+	var unbondedStakingLists []types.UnbonedMultiStakingRecord
+
 	ubd, found := k.stakingKeeper.GetUnbondingDelegation(ctx, delAddr, valAddr)
 	if !found {
 		return nil, stakingtypes.ErrNoUnbondingDelegation
 	}
 
-	bondDenom := k.stakingKeeper.GetParams(ctx).BondDenom
-	balances := sdk.NewCoins()
 	ctxTime := ctx.BlockHeader().Time
+	heightSumMap := make(map[int64]types.UnbonedMultiStakingRecord)
 
 	// loop through all the entries and complete unbonding mature entries
 	for i := 0; i < len(ubd.Entries); i++ {
 		entry := ubd.Entries[i]
-		if entry.IsMature(ctxTime) {
-			ubd.RemoveEntry(int64(i))
-			i--
-			// track undelegation only when remaining or truncated shares are non-zero
-			if !entry.Balance.IsZero() {
-				amt := sdk.NewCoin(bondDenom, entry.Balance)
-				balances = balances.Add(amt)
+		if entry.IsMature(ctxTime) && !entry.Balance.IsZero()  {
+			ubdr := types.NewUnbonedMultiStakingRecord(
+				delAddr,
+				valAddr,
+				entry.CreationHeight,
+				entry.CompletionTime,
+				sdk.OneDec(),
+				entry.Balance,
+			)
+			existingItem, exists := heightSumMap[entry.CreationHeight]
+			if exists {
+				existingItem.Balance = entry.Balance.Add(existingItem.Balance)
+				heightSumMap[entry.CreationHeight] = existingItem
+			} else {
+				heightSumMap[entry.CreationHeight] = ubdr
 			}
+
 		}
 	}
 
-	return balances, nil
+	for _, ubdr := range heightSumMap {
+		unbondedStakingLists = append(unbondedStakingLists, ubdr)
+	}
+	return unbondedStakingLists, nil
 }

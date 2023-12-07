@@ -20,6 +20,7 @@ require (
 	github.com/tendermint/tm-db v0.6.7
 	google.golang.org/grpc v1.57.0
 	google.golang.org/protobuf v1.31.0
+	sigs.k8s.io/yaml v1.3.0
 )
 
 require (
@@ -159,7 +160,6 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	nhooyr.io/websocket v1.8.6 // indirect
-	sigs.k8s.io/yaml v1.3.0 // indirect
 )
 
 replace (
