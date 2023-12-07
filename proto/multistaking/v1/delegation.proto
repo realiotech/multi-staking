@@ -53,23 +53,48 @@ message UnbonedMultiStakingEntry {
 
   // creation_height is the height which the unbonding took place.
   int64 creation_height = 1;
-  // completion_time is the unix time for unbonding completion.
-  google.protobuf.Timestamp completion_time = 2
-      [ (gogoproto.nullable) = false, (gogoproto.stdtime) = true ];
 
-  string conversion_ratio = 3 [
+  string conversion_ratio = 2 [
     (cosmos_proto.scalar) = "cosmos.Dec",
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable) = false
   ];
 
-  string initial_balance = 4 [
+  string balance = 3 [
+    (cosmos_proto.scalar) = "cosmos.Int",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message UnbonedMultiStakingRecord {
+  option (gogoproto.equal) = true;
+  option (gogoproto.goproto_stringer) = false;
+
+  string delegator_address = 1
+      [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  // validator_address is the bech32-encoded address of the validator.
+  string validator_address = 2
+      [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  // creation_height is the height which the unbonding took place.
+  int64 creation_height = 3;
+  // completion_time is the unix time for unbonding completion.
+  google.protobuf.Timestamp completion_time = 4
+      [ (gogoproto.nullable) = false, (gogoproto.stdtime) = true ];
+
+  string conversion_ratio = 5 [
+    (cosmos_proto.scalar) = "cosmos.Dec",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+
+  string initial_balance = 6 [
     (cosmos_proto.scalar) = "cosmos.Int",
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
     (gogoproto.nullable) = false
   ];
 
-  string balance = 5 [
+  string balance = 7 [
     (cosmos_proto.scalar) = "cosmos.Int",
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
     (gogoproto.nullable) = false

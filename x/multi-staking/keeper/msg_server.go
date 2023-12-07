@@ -288,10 +288,6 @@ func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.M
 		return nil, sdkerrors.ErrInvalidRequest.Wrap("amount is greater than the unbonding delegation entry balance")
 	}
 
-	if unbondEntry.CompletionTime.Before(ctx.BlockTime()) {
-		return nil, sdkerrors.ErrInvalidRequest.Wrap("unbonding delegation is already processed")
-	}
-
 	// delegate back the unbonding delegation amount to the validator
 	// _, err = k.Keeper.Delegate(ctx, delegatorAddress, msg.Amount.Amount, types.Unbonding, validator, false)
 	if err != nil {
@@ -322,7 +318,6 @@ func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.M
 	} else {
 		// update the unbondingDelegationEntryBalance and InitialBalance for ubd entry
 		unbondEntry.Balance = amount
-		unbondEntry.InitialBalance = unbondEntry.InitialBalance.Sub(msg.Amount.Amount)
 		ubd.Entries[unbondEntryIndex] = unbondEntry
 	}
 

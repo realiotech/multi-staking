@@ -157,11 +157,11 @@ func (am AppModule) BeginBlock(ctx sdk.Context, requestBeginBlock abci.RequestBe
 // updates.
 func (am AppModule) EndBlock(ctx sdk.Context, requestEndBlock abci.RequestEndBlock) []abci.ValidatorUpdate {
 	// calculate the amount of token
-	// unbondedStakings := am.keeper.BeforeUnbondedHandle(ctx)
+	unbondedStakings := am.keeper.BeforeUnbondedHandle(ctx)
 	// staking endblock
 	valUpdates := am.skAppModule.EndBlock(ctx, requestEndBlock)
 	// update endblock multi-staking
-	// am.keeper.EndBlocker(ctx, unbondedStakings)
+	am.keeper.EndBlocker(ctx, unbondedStakings)
 
 	return valUpdates
 }

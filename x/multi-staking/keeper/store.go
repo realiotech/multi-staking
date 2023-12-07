@@ -185,9 +185,9 @@ func (k Keeper) SetUnbondedMultiStakingEntry(
 ) types.UnbondedMultiStaking {
 	ubd, found := k.GetUnbondedMultiStaking(ctx, delegatorAddr, validatorAddr)
 	if found {
-		ubd.AddEntry(creationHeight, minTime,rate, balance)
+		ubd.AddEntry(creationHeight, rate, balance)
 	} else {
-		ubd = types.NewUnbondedMultiStaking(delegatorAddr, validatorAddr, creationHeight, rate, minTime, balance)
+		ubd = types.NewUnbondedMultiStaking(delegatorAddr, validatorAddr, creationHeight, rate, balance)
 	}
 
 	k.SetUnbondedMultiStaking(ctx, ubd)

@@ -9,8 +9,8 @@ func (k Keeper) BeginBlocker(ctx sdk.Context) {
 
 }
 
-func (k Keeper) EndBlocker(ctx sdk.Context, unbondedStakings types.UnbondedMultiStaking) {
-	// for _, unbondedStaking := range unbondedStakings.Entries {
-	// 	// k.BurnBondTokenAndUnlockMultiStakingToken(ctx, sdk.AccAddress(unbondedStaking.), sdk.ValAddress(unbondedStaking.ValAddr), unbondedStaking.Amount[0])
-	// }
+func (k Keeper) EndBlocker(ctx sdk.Context, unbondedStakings types.UnbondedMultiStakings) {
+	for _, ubd := range unbondedStakings {
+		k.CompleteUnbonding(ctx, sdk.AccAddress(ubd.DelegatorAddress), sdk.ValAddress(ubd.ValidatorAddress), ubd.CreationHeight, ubd.InitialBalance, ubd.Balance)
+	}
 }
