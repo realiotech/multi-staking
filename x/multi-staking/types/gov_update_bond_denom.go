@@ -18,6 +18,15 @@ var (
 	_ govtypes.Content = &UpdateBondTokenWeightProposals{}
 )
 
+func NewUpdateBondDenomProposal(title, description, bondDenom string, bondDenomWeight sdk.Dec) govtypes.Content {
+	return &UpdateBondTokenWeightProposals{
+		Title:                 title,
+		Description:           description,
+		BondDenomChange:       bondDenom,
+		BondTokenWeightChange: &bondDenomWeight,
+	}
+}
+
 func (p *UpdateBondTokenWeightProposals) ProposalRoute() string { return RouterKey }
 
 func (p *UpdateBondTokenWeightProposals) ProposalType() string {

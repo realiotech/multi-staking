@@ -13,6 +13,14 @@ func init() {
 	govtypes.RegisterProposalType(ProposalTypeRemoveBondDenom)
 }
 
+func NewRemoveBondDenomProposal(title, description, bondDenom string) govtypes.Content {
+	return &RemoveBondTokenProposal{
+		Title:           title,
+		Description:     description,
+		BondTokenRemove: bondDenom,
+	}
+}
+
 var (
 	_ govtypes.Content = &RemoveBondTokenProposal{}
 )

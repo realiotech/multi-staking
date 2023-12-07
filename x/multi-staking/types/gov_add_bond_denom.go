@@ -18,6 +18,15 @@ var (
 	_ govtypes.Content = &AddBondDenomProposal{}
 )
 
+func NewAddBondDenomProposal(title, description, bondDenom string, bondDenomWeight sdk.Dec) govtypes.Content {
+	return &AddBondDenomProposal{
+		Title:              title,
+		Description:        description,
+		BondTokenAdd:       bondDenom,
+		BondTokenWeightAdd: &bondDenomWeight,
+	}
+}
+
 func (p *AddBondDenomProposal) ProposalRoute() string { return RouterKey }
 
 func (p *AddBondDenomProposal) ProposalType() string {
