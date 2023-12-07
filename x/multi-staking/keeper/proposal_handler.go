@@ -7,7 +7,7 @@ import (
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
 
-func HandlerAddBondDenomProposal(ctx sdk.Context, k *Keeper, p types.AddBondDenomProposal) error {
+func HandlerAddBondDenomProposal(ctx sdk.Context, k *Keeper, p *types.AddBondDenomProposal) error {
 	_, found := k.GetBondTokenWeight(ctx, p.BondTokenAdd)
 	if found {
 		return fmt.Errorf("denom %s already exists", p.BondTokenAdd)
@@ -17,7 +17,7 @@ func HandlerAddBondDenomProposal(ctx sdk.Context, k *Keeper, p types.AddBondDeno
 	return nil
 }
 
-func HandlerChangeBondTokenWeightProposals(ctx sdk.Context, k *Keeper, p types.ChangeBondTokenWeightProposals) error {
+func HandlerUpdateBondTokenWeightProposals(ctx sdk.Context, k *Keeper, p *types.UpdateBondTokenWeightProposals) error {
 	_, found := k.GetBondTokenWeight(ctx, p.BondDenomChange)
 	if !found {
 		return fmt.Errorf("denom %s does not exist", p.BondDenomChange)
@@ -28,7 +28,7 @@ func HandlerChangeBondTokenWeightProposals(ctx sdk.Context, k *Keeper, p types.C
 	return nil
 }
 
-func HandlerRemoveBondTokenProposal(ctx sdk.Context, k *Keeper, p types.RemoveBondTokenProposal) {
+func HandlerRemoveBondTokenProposal(ctx sdk.Context, k *Keeper, p *types.RemoveBondTokenProposal) {
 	_, found := k.GetBondTokenWeight(ctx, p.BondTokenRemove)
 	if !found {
 		return

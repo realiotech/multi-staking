@@ -9,7 +9,7 @@ import (
 func (suite *KeeperTestSuite) TestHandleAddBondDenomProposal() {
 	tests := []struct {
 		name    string
-		p       types.AddBondDenomProposal
+		p       *types.AddBondDenomProposal
 		wantErr bool
 	}{
 		{},
@@ -30,7 +30,7 @@ func (suite *KeeperTestSuite) TestHandleAddBondDenomProposal() {
 func (suite *KeeperTestSuite) TestHandleChangeBondDenomProposal() {
 	tests := []struct {
 		name    string
-		p       types.ChangeBondTokenWeightProposals
+		p       *types.UpdateBondTokenWeightProposals
 		wantErr bool
 	}{
 		{},
@@ -38,7 +38,7 @@ func (suite *KeeperTestSuite) TestHandleChangeBondDenomProposal() {
 	for _, test := range tests {
 		suite.Run(test.name, func() {
 			suite.SetupTest()
-			err := keeper.HandlerChangeBondTokenWeightProposals(suite.ctx, suite.msKeeper, test.p)
+			err := keeper.HandlerUpdateBondTokenWeightProposals(suite.ctx, suite.msKeeper, test.p)
 			if test.wantErr {
 				suite.Require().Error(err)
 				return
@@ -51,7 +51,7 @@ func (suite *KeeperTestSuite) TestHandleChangeBondDenomProposal() {
 func (suite *KeeperTestSuite) TestHandleRemoveBondDenomProposal() {
 	tests := []struct {
 		name    string
-		p       types.RemoveBondTokenProposal
+		p       *types.RemoveBondTokenProposal
 		wantErr bool
 	}{
 		{},
