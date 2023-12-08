@@ -248,6 +248,7 @@ func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.M
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	delAcc := sdk.MustAccAddressFromBech32(msg.DelegatorAddress)
+	intermediaryAccount := types.IntermediaryAccount(delAcc)
 
 	valAcc, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
 	if err != nil {
@@ -302,7 +303,7 @@ func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.M
 	cancelCoin := sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), cancelAmt)
 
 	sdkMsg := &stakingtypes.MsgCancelUnbondingDelegation{
-		DelegatorAddress: msg.DelegatorAddress,
+		DelegatorAddress: intermediaryAccount.String(),
 		ValidatorAddress: msg.ValidatorAddress,
 		Amount:           cancelCoin,
 	}
@@ -326,6 +327,22 @@ func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.M
 		k.RemoveUnbondedMultiStaking(ctx, ubd)
 	} else {
 		k.SetUnbondedMultiStaking(ctx, ubd)
+	}
+
+	mintedBondToken, err := k.Keeper.LockMultiStakingTokenAndMintBondToken(ctx, delAcc, valAcc, msg.Amount)
+	if err != nil {
+		return nil, err
+	}
+
+	delegateMsg := stakingtypes.MsgDelegate{
+		DelegatorAddress: intermediaryAccount.String(),
+		ValidatorAddress: msg.ValidatorAddress,
+		Amount:           mintedBondToken,
+	}
+
+	_, err = k.stakingMsgServer.Delegate(ctx, &delegateMsg)
+	if err != nil {
+		return nil, err
 	}
 	
 	return &types.MsgCancelUnbondingDelegationResponse{}, nil
