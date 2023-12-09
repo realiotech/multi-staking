@@ -39,10 +39,6 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 	}
 	delAcc := sdk.MustAccAddressFromBech32(msg.DelegatorAddress)
 
-	if !k.IsAllowedToken(ctx, valAcc, msg.Value) {
-		return nil, fmt.Errorf("not allowed token")
-	}
-
 	intermediaryAccount := types.IntermediaryAccount(delAcc)
 	if !k.IsIntermediaryAccount(ctx, intermediaryAccount) {
 		k.SetIntermediaryAccount(ctx, intermediaryAccount)
