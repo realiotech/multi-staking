@@ -30,7 +30,6 @@ var _ types.MsgServer = msgServer{}
 
 // CreateValidator defines a method for creating a new validator
 func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateValidator) (*types.MsgCreateValidatorResponse, error) {
-
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	valAcc, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
@@ -214,6 +213,10 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (
 		return nil, err
 	}
 
+	if !k.IsAllowedToken(ctx, valAcc, msg.Amount) {
+		return nil, fmt.Errorf("not allowed token")
+	}
+
 	lockID := types.MultiStakingLockID(delAcc, valAcc)
 	lock, found := k.GetMultiStakingLock(ctx, lockID)
 	if !found {
@@ -233,6 +236,7 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (
 
 	resp, err := k.stakingMsgServer.Undelegate(goCtx, sdkMsg)
 
+	k.RemoveTokenFromLock(ctx, delAcc, valAcc, msg.Amount.Amount)
 	k.SetUnbondedMultiStakingEntry(ctx, delAcc, valAcc, ctx.BlockHeight(), lock.ConversionRatio, resp.CompletionTime, msg.Amount.Amount)
 	
 	return &types.MsgUndelegateResponse{}, err
