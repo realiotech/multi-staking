@@ -31,11 +31,6 @@ var (
 
 	MultiStakingLockPrefix = []byte{0x03}
 
-	// mem store key
-	CompletedDelegationsPrefix = []byte{0x05}
-
-	// key prefix
-
 	UnbondDelKey = []byte{0x11} // key for an unbonding-delegation
 )
 
