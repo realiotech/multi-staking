@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 
-	"cosmossdk.io/math"
 	errorsmod "cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
 
@@ -237,8 +237,8 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (
 
 	resp, err := k.stakingMsgServer.Undelegate(goCtx, sdkMsg)
 
-	k.SetUnbondedMultiStakingEntry(ctx, delAcc, valAcc, ctx.BlockHeight(), lock.ConversionRatio, resp.CompletionTime, msg.Amount.Amount)
-	
+	k.SetMultiStakingUnlockEntry(ctx, delAcc, valAcc, ctx.BlockHeight(), lock.ConversionRatio, resp.CompletionTime, msg.Amount.Amount)
+
 	return &types.MsgUndelegateResponse{}, err
 }
 
@@ -262,14 +262,14 @@ func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.M
 		)
 	}
 
-	ubd, found := k.GetUnbondedMultiStaking(ctx, delAcc, valAcc)
+	ubd, found := k.GetMultiStakingUnlock(ctx, delAcc, valAcc)
 
 	if !found {
 		return nil, fmt.Errorf("not found unbonding recored")
 	}
 
 	var (
-		unbondEntry      types.UnbonedMultiStakingEntry
+		unbondEntry      types.UnlockEntry
 		unbondEntryIndex int64 = -1
 	)
 
@@ -311,7 +311,7 @@ func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.M
 	if err != nil {
 		return nil, err
 	}
-	
+
 	amount := unbondEntry.Balance.Sub(msg.Amount.Amount)
 	if amount.IsZero() {
 		ubd.RemoveEntry(unbondEntryIndex)
@@ -323,11 +323,11 @@ func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.M
 
 	// set the unbonding delegation or remove it if there are no more entries
 	if len(ubd.Entries) == 0 {
-		k.RemoveUnbondedMultiStaking(ctx, ubd)
+		k.RemoveMultiStakingUnlock(ctx, ubd)
 	} else {
-		k.SetUnbondedMultiStaking(ctx, ubd)
+		k.SetMultiStakingUnlock(ctx, ubd)
 	}
-	
+
 	return &types.MsgCancelUnbondingDelegationResponse{}, nil
 }
 

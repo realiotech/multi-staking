@@ -142,7 +142,7 @@ func (k Keeper) MultiStakingLockIterator(ctx sdk.Context, cb func(stakingLock ty
 
 }
 
-func (k Keeper) GetUnbondedMultiStaking(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) (ubd types.UnbondedMultiStaking, found bool) {
+func (k Keeper) GetMultiStakingUnlock(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) (ubd types.MultiStakingUnlock, found bool) {
 	store := ctx.KVStore(k.storeKey)
 	key := types.GetUBDKey(delAddr, valAddr)
 	value := store.Get(key)
@@ -156,8 +156,8 @@ func (k Keeper) GetUnbondedMultiStaking(ctx sdk.Context, delAddr sdk.AccAddress,
 	return ubd, true
 }
 
-// SetUnbondedMultiStaking sets the unbonding delegation and associated index.
-func (k Keeper) SetUnbondedMultiStaking(ctx sdk.Context, ubd types.UnbondedMultiStaking) {
+// SetMultiStakingUnlock sets the unbonding delegation and associated index.
+func (k Keeper) SetMultiStakingUnlock(ctx sdk.Context, ubd types.MultiStakingUnlock) {
 	delAddr := sdk.MustAccAddressFromBech32(ubd.DelegatorAddress)
 
 	store := ctx.KVStore(k.storeKey)
@@ -170,8 +170,8 @@ func (k Keeper) SetUnbondedMultiStaking(ctx sdk.Context, ubd types.UnbondedMulti
 	store.Set(key, bz)
 }
 
-// RemoveUnbondedMultiStaking removes the unbonding delegation object and associated index.
-func (k Keeper) RemoveUnbondedMultiStaking(ctx sdk.Context, ubd types.UnbondedMultiStaking) {
+// RemoveMultiStakingUnlock removes the unbonding delegation object and associated index.
+func (k Keeper) RemoveMultiStakingUnlock(ctx sdk.Context, ubd types.MultiStakingUnlock) {
 	delegatorAddress := sdk.MustAccAddressFromBech32(ubd.DelegatorAddress)
 
 	store := ctx.KVStore(k.storeKey)
@@ -183,19 +183,19 @@ func (k Keeper) RemoveUnbondedMultiStaking(ctx sdk.Context, ubd types.UnbondedMu
 	store.Delete(key)
 }
 
-// SetUnbondedMultiStakingEntry adds an entry to the unbonding delegation at
+// SetMultiStakingUnlockEntry adds an entry to the unbonding delegation at
 // the given addresses. It creates the unbonding delegation if it does not exist.
-func (k Keeper) SetUnbondedMultiStakingEntry(
+func (k Keeper) SetMultiStakingUnlockEntry(
 	ctx sdk.Context, delegatorAddr sdk.AccAddress, validatorAddr sdk.ValAddress,
 	creationHeight int64, rate sdk.Dec, minTime time.Time, balance math.Int,
-) types.UnbondedMultiStaking {
-	ubd, found := k.GetUnbondedMultiStaking(ctx, delegatorAddr, validatorAddr)
+) types.MultiStakingUnlock {
+	ubd, found := k.GetMultiStakingUnlock(ctx, delegatorAddr, validatorAddr)
 	if found {
 		ubd.AddEntry(creationHeight, rate, balance)
 	} else {
-		ubd = types.NewUnbondedMultiStaking(delegatorAddr, validatorAddr, creationHeight, rate, balance)
+		ubd = types.NewMultiStakingUnlock(delegatorAddr, validatorAddr, creationHeight, rate, balance)
 	}
 
-	k.SetUnbondedMultiStaking(ctx, ubd)
+	k.SetMultiStakingUnlock(ctx, ubd)
 	return ubd
 }

@@ -1,48 +1,49 @@
 package types
 
 import (
-	"cosmossdk.io/math"
 	"fmt"
-	"sigs.k8s.io/yaml"
 	"strings"
 	"time"
+
+	"cosmossdk.io/math"
+	"sigs.k8s.io/yaml"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func NewUnbonedMultiStakingEntry(creationHeight int64, rate sdk.Dec, balance math.Int) UnbonedMultiStakingEntry {
-	return UnbonedMultiStakingEntry{
+func NewUnlockEntry(creationHeight int64, rate sdk.Dec, balance math.Int) UnlockEntry {
+	return UnlockEntry{
 		CreationHeight:  creationHeight,
 		ConversionRatio: rate,
 		Balance:         balance,
 	}
 }
 
-// String implements the stringer interface for a UnbonedMultiStakingEntry.
-func (e UnbonedMultiStakingEntry) String() string {
+// String implements the stringer interface for a UnlockEntry.
+func (e UnlockEntry) String() string {
 	out, _ := yaml.Marshal(e)
 	return string(out)
 }
 
-// NewUnbondedMultiStaking - create a new unbonding delegation object
+// NewMultiStakingUnlock - create a new unbonding delegation object
 //
 //nolint:interfacer
-func NewUnbondedMultiStaking(
+func NewMultiStakingUnlock(
 	delegatorAddr sdk.AccAddress, validatorAddr sdk.ValAddress,
 	creationHeight int64, conversionRatio sdk.Dec, balance math.Int,
-) UnbondedMultiStaking {
-	return UnbondedMultiStaking{
+) MultiStakingUnlock {
+	return MultiStakingUnlock{
 		DelegatorAddress: delegatorAddr.String(),
 		ValidatorAddress: validatorAddr.String(),
-		Entries: []UnbonedMultiStakingEntry{
-			NewUnbonedMultiStakingEntry(creationHeight, conversionRatio, balance),
+		Entries: []UnlockEntry{
+			NewUnlockEntry(creationHeight, conversionRatio, balance),
 		},
 	}
 }
 
 // AddEntry - append entry to the unbonding delegation
-func (ubd *UnbondedMultiStaking) AddEntry(creationHeight int64, rate sdk.Dec, balance math.Int) {
+func (ubd *MultiStakingUnlock) AddEntry(creationHeight int64, rate sdk.Dec, balance math.Int) {
 	// Check the entries exists with creation_height and complete_time
 	entryIndex := -1
 	for index, ubdEntry := range ubd.Entries {
@@ -60,23 +61,23 @@ func (ubd *UnbondedMultiStaking) AddEntry(creationHeight int64, rate sdk.Dec, ba
 		ubd.Entries[entryIndex] = ubdEntry
 	} else {
 		// append the new unbond delegation entry
-		entry := NewUnbonedMultiStakingEntry(creationHeight, rate, balance)
+		entry := NewUnlockEntry(creationHeight, rate, balance)
 		ubd.Entries = append(ubd.Entries, entry)
 	}
 }
 
 // RemoveEntry - remove entry at index i to the unbonding delegation
-func (ubd *UnbondedMultiStaking) RemoveEntry(i int64) {
+func (ubd *MultiStakingUnlock) RemoveEntry(i int64) {
 	ubd.Entries = append(ubd.Entries[:i], ubd.Entries[i+1:]...)
 }
 
 // return the unbonding delegation
-func MustMarshalUBD(cdc codec.BinaryCodec, ubd UnbondedMultiStaking) []byte {
+func MustMarshalUBD(cdc codec.BinaryCodec, ubd MultiStakingUnlock) []byte {
 	return cdc.MustMarshal(&ubd)
 }
 
 // unmarshal a unbonding delegation from a store value
-func MustUnmarshalUBD(cdc codec.BinaryCodec, value []byte) UnbondedMultiStaking {
+func MustUnmarshalUBD(cdc codec.BinaryCodec, value []byte) MultiStakingUnlock {
 	ubd, err := UnmarshalUBD(cdc, value)
 	if err != nil {
 		panic(err)
@@ -86,13 +87,13 @@ func MustUnmarshalUBD(cdc codec.BinaryCodec, value []byte) UnbondedMultiStaking 
 }
 
 // unmarshal a unbonding delegation from a store value
-func UnmarshalUBD(cdc codec.BinaryCodec, value []byte) (ubd UnbondedMultiStaking, err error) {
+func UnmarshalUBD(cdc codec.BinaryCodec, value []byte) (ubd MultiStakingUnlock, err error) {
 	err = cdc.Unmarshal(value, &ubd)
 	return ubd, err
 }
 
-// String returns a human readable string representation of an UnbondedMultiStaking.
-func (ubd UnbondedMultiStaking) String() string {
+// String returns a human readable string representation of an MultiStakingUnlock.
+func (ubd MultiStakingUnlock) String() string {
 	out := fmt.Sprintf(`Unbonding Delegations between:
   Delegator:                 %s
   Validator:                 %s
@@ -107,10 +108,10 @@ func (ubd UnbondedMultiStaking) String() string {
 	return out
 }
 
-// UnbondedMultiStakings is a collection of UnbondedMultiStaking
-type UnbondedMultiStakings []UnbonedMultiStakingRecord
+// MultiStakingUnlocks is a collection of MultiStakingUnlock
+type MultiStakingUnlocks []UnbonedMultiStakingRecord
 
-func (ubds UnbondedMultiStakings) String() (out string) {
+func (ubds MultiStakingUnlocks) String() (out string) {
 	for _, u := range ubds {
 		out += u.String() + "\n"
 	}
@@ -118,7 +119,7 @@ func (ubds UnbondedMultiStakings) String() (out string) {
 	return strings.TrimSpace(out)
 }
 
-func NewUnbonedMultiStakingRecord(
+func NewUnbonedMultiStakingRecord( // ?
 	delegatorAddr sdk.AccAddress, validatorAddr sdk.ValAddress, creationHeight int64,
 	completionTime time.Time, rate sdk.Dec, balance math.Int,
 ) UnbonedMultiStakingRecord {
@@ -131,7 +132,7 @@ func NewUnbonedMultiStakingRecord(
 	}
 }
 
-// String implements the stringer interface for a UnbonedMultiStakingEntry.
+// String implements the stringer interface for a UnlockEntry.
 func (e UnbonedMultiStakingRecord) String() string {
 	out, _ := yaml.Marshal(e)
 	return string(out)

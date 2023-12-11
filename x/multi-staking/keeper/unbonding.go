@@ -13,32 +13,31 @@ func (k Keeper) CompleteUnbonding(
 	ctx sdk.Context,
 	intermediaryAcc sdk.AccAddress,
 	valAddr sdk.ValAddress,
-	creationHeight int64,
-	initialBalance math.Int,
+	unbondingHeight int64,
 	balance math.Int,
 ) (unlockedAmount sdk.Coins, err error) {
 	// get delAddr
 	delAddr := types.DelegatorAccount(intermediaryAcc)
 
 	// get unbonded record
-	ubd, found := k.GetUnbondedMultiStaking(ctx, delAddr, valAddr)
+	ubd, found := k.GetMultiStakingUnlock(ctx, delAddr, valAddr)
 	if !found {
 		return unlockedAmount, fmt.Errorf("unbonded record not exists")
 	}
 	var (
-		unbondEntry      types.UnbonedMultiStakingEntry
+		unbondEntry      types.UnlockEntry
 		unbondEntryIndex int64 = -1
 	)
 
 	for i, entry := range ubd.Entries {
-		if entry.CreationHeight == creationHeight {
+		if entry.CreationHeight == unbondingHeight {
 			unbondEntry = entry
 			unbondEntryIndex = int64(i)
 			break
 		}
 	}
 	if unbondEntryIndex == -1 {
-		return nil, sdkerrors.ErrNotFound.Wrapf("unbonding delegation entry is not found at block height %d", creationHeight)
+		return nil, sdkerrors.ErrNotFound.Wrapf("unbonding delegation entry is not found at block height %d", unbondingHeight)
 	}
 
 	unlockDenom := k.GetValidatorAllowedToken(ctx, valAddr)

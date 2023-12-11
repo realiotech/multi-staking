@@ -32,7 +32,7 @@ message ValidatorAllowedToken {
   string token_denom = 2;
 }
 
-message UnbondedMultiStaking {
+message MultiStakingUnlock {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (gogoproto.goproto_stringer) = false;
@@ -43,11 +43,11 @@ message UnbondedMultiStaking {
   // validator_address is the bech32-encoded address of the validator.
   string validator_address = 2
       [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
-  repeated UnbonedMultiStakingEntry entries = 3
+  repeated UnlockEntry entries = 3
       [ (gogoproto.nullable) = false ];
 }
 
-message UnbonedMultiStakingEntry {
+message UnlockEntry {
   option (gogoproto.equal) = true;
   option (gogoproto.goproto_stringer) = false;
 

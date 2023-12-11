@@ -64,7 +64,7 @@ func GetUBDsKey(delAddr sdk.AccAddress) []byte {
 }
 
 // GetUBDKey creates the key for an unbonding delegation by delegator and validator addr
-// VALUE: multi-staking/UnbondedMultiStaking
+// VALUE: multi-staking/MultiStakingUnlock
 func GetUBDKey(delAddr sdk.AccAddress, valAddr sdk.ValAddress) []byte {
 	return append(GetUBDsKey(delAddr.Bytes()), address.MustLengthPrefix(valAddr)...)
 }

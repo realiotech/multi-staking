@@ -122,25 +122,25 @@ func (m *ValidatorAllowedToken) GetTokenDenom() string {
 	return ""
 }
 
-type UnbondedMultiStaking struct {
+type MultiStakingUnlock struct {
 	// delegator_address is the bech32-encoded address of the delegator.
 	DelegatorAddress string `protobuf:"bytes,1,opt,name=delegator_address,json=delegatorAddress,proto3" json:"delegator_address,omitempty"`
 	// validator_address is the bech32-encoded address of the validator.
 	ValidatorAddress string                     `protobuf:"bytes,2,opt,name=validator_address,json=validatorAddress,proto3" json:"validator_address,omitempty"`
-	Entries          []UnbonedMultiStakingEntry `protobuf:"bytes,3,rep,name=entries,proto3" json:"entries"`
+	Entries          []UnlockEntry `protobuf:"bytes,3,rep,name=entries,proto3" json:"entries"`
 }
 
-func (m *UnbondedMultiStaking) Reset()      { *m = UnbondedMultiStaking{} }
-func (*UnbondedMultiStaking) ProtoMessage() {}
-func (*UnbondedMultiStaking) Descriptor() ([]byte, []int) {
+func (m *MultiStakingUnlock) Reset()      { *m = MultiStakingUnlock{} }
+func (*MultiStakingUnlock) ProtoMessage() {}
+func (*MultiStakingUnlock) Descriptor() ([]byte, []int) {
 	return fileDescriptor_e9dade11e2944357, []int{2}
 }
-func (m *UnbondedMultiStaking) XXX_Unmarshal(b []byte) error {
+func (m *MultiStakingUnlock) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *UnbondedMultiStaking) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MultiStakingUnlock) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_UnbondedMultiStaking.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MultiStakingUnlock.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -150,36 +150,36 @@ func (m *UnbondedMultiStaking) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return b[:n], nil
 	}
 }
-func (m *UnbondedMultiStaking) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_UnbondedMultiStaking.Merge(m, src)
+func (m *MultiStakingUnlock) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MultiStakingUnlock.Merge(m, src)
 }
-func (m *UnbondedMultiStaking) XXX_Size() int {
+func (m *MultiStakingUnlock) XXX_Size() int {
 	return m.Size()
 }
-func (m *UnbondedMultiStaking) XXX_DiscardUnknown() {
-	xxx_messageInfo_UnbondedMultiStaking.DiscardUnknown(m)
+func (m *MultiStakingUnlock) XXX_DiscardUnknown() {
+	xxx_messageInfo_MultiStakingUnlock.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_UnbondedMultiStaking proto.InternalMessageInfo
+var xxx_messageInfo_MultiStakingUnlock proto.InternalMessageInfo
 
-type UnbonedMultiStakingEntry struct {
+type UnlockEntry struct {
 	// creation_height is the height which the unbonding took place.
 	CreationHeight  int64                                  `protobuf:"varint,1,opt,name=creation_height,json=creationHeight,proto3" json:"creation_height,omitempty"`
 	ConversionRatio github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,2,opt,name=conversion_ratio,json=conversionRatio,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"conversion_ratio"`
 	Balance         github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,3,opt,name=balance,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"balance"`
 }
 
-func (m *UnbonedMultiStakingEntry) Reset()      { *m = UnbonedMultiStakingEntry{} }
-func (*UnbonedMultiStakingEntry) ProtoMessage() {}
-func (*UnbonedMultiStakingEntry) Descriptor() ([]byte, []int) {
+func (m *UnlockEntry) Reset()      { *m = UnlockEntry{} }
+func (*UnlockEntry) ProtoMessage() {}
+func (*UnlockEntry) Descriptor() ([]byte, []int) {
 	return fileDescriptor_e9dade11e2944357, []int{3}
 }
-func (m *UnbonedMultiStakingEntry) XXX_Unmarshal(b []byte) error {
+func (m *UnlockEntry) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *UnbonedMultiStakingEntry) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *UnlockEntry) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_UnbonedMultiStakingEntry.Marshal(b, m, deterministic)
+		return xxx_messageInfo_UnlockEntry.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -189,19 +189,19 @@ func (m *UnbonedMultiStakingEntry) XXX_Marshal(b []byte, deterministic bool) ([]
 		return b[:n], nil
 	}
 }
-func (m *UnbonedMultiStakingEntry) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_UnbonedMultiStakingEntry.Merge(m, src)
+func (m *UnlockEntry) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UnlockEntry.Merge(m, src)
 }
-func (m *UnbonedMultiStakingEntry) XXX_Size() int {
+func (m *UnlockEntry) XXX_Size() int {
 	return m.Size()
 }
-func (m *UnbonedMultiStakingEntry) XXX_DiscardUnknown() {
-	xxx_messageInfo_UnbonedMultiStakingEntry.DiscardUnknown(m)
+func (m *UnlockEntry) XXX_DiscardUnknown() {
+	xxx_messageInfo_UnlockEntry.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_UnbonedMultiStakingEntry proto.InternalMessageInfo
+var xxx_messageInfo_UnlockEntry proto.InternalMessageInfo
 
-func (m *UnbonedMultiStakingEntry) GetCreationHeight() int64 {
+func (m *UnlockEntry) GetCreationHeight() int64 {
 	if m != nil {
 		return m.CreationHeight
 	}
@@ -284,8 +284,8 @@ func (m *UnbonedMultiStakingRecord) GetCompletionTime() time.Time {
 func init() {
 	proto.RegisterType((*MultiStakingLock)(nil), "multistaking.v1.MultiStakingLock")
 	proto.RegisterType((*ValidatorAllowedToken)(nil), "multistaking.v1.ValidatorAllowedToken")
-	proto.RegisterType((*UnbondedMultiStaking)(nil), "multistaking.v1.UnbondedMultiStaking")
-	proto.RegisterType((*UnbonedMultiStakingEntry)(nil), "multistaking.v1.UnbonedMultiStakingEntry")
+	proto.RegisterType((*MultiStakingUnlock)(nil), "multistaking.v1.MultiStakingUnlock")
+	proto.RegisterType((*UnlockEntry)(nil), "multistaking.v1.UnlockEntry")
 	proto.RegisterType((*UnbonedMultiStakingRecord)(nil), "multistaking.v1.UnbonedMultiStakingRecord")
 }
 
@@ -338,14 +338,14 @@ var fileDescriptor_e9dade11e2944357 = []byte{
 	0x00,
 }
 
-func (this *UnbonedMultiStakingEntry) Equal(that interface{}) bool {
+func (this *UnlockEntry) Equal(that interface{}) bool {
 	if that == nil {
 		return this == nil
 	}
 
-	that1, ok := that.(*UnbonedMultiStakingEntry)
+	that1, ok := that.(*UnlockEntry)
 	if !ok {
-		that2, ok := that.(UnbonedMultiStakingEntry)
+		that2, ok := that.(UnlockEntry)
 		if ok {
 			that1 = &that2
 		} else {
@@ -504,7 +504,7 @@ func (m *ValidatorAllowedToken) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *UnbondedMultiStaking) Marshal() (dAtA []byte, err error) {
+func (m *MultiStakingUnlock) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -514,12 +514,12 @@ func (m *UnbondedMultiStaking) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *UnbondedMultiStaking) MarshalTo(dAtA []byte) (int, error) {
+func (m *MultiStakingUnlock) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *UnbondedMultiStaking) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MultiStakingUnlock) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -555,7 +555,7 @@ func (m *UnbondedMultiStaking) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *UnbonedMultiStakingEntry) Marshal() (dAtA []byte, err error) {
+func (m *UnlockEntry) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -565,12 +565,12 @@ func (m *UnbonedMultiStakingEntry) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *UnbonedMultiStakingEntry) MarshalTo(dAtA []byte) (int, error) {
+func (m *UnlockEntry) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *UnbonedMultiStakingEntry) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *UnlockEntry) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -732,7 +732,7 @@ func (m *ValidatorAllowedToken) Size() (n int) {
 	return n
 }
 
-func (m *UnbondedMultiStaking) Size() (n int) {
+func (m *MultiStakingUnlock) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -755,7 +755,7 @@ func (m *UnbondedMultiStaking) Size() (n int) {
 	return n
 }
 
-func (m *UnbonedMultiStakingEntry) Size() (n int) {
+func (m *UnlockEntry) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1101,7 +1101,7 @@ func (m *ValidatorAllowedToken) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *UnbondedMultiStaking) Unmarshal(dAtA []byte) error {
+func (m *MultiStakingUnlock) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1124,10 +1124,10 @@ func (m *UnbondedMultiStaking) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: UnbondedMultiStaking: wiretype end group for non-group")
+			return fmt.Errorf("proto: MultiStakingUnlock: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: UnbondedMultiStaking: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MultiStakingUnlock: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -1223,7 +1223,7 @@ func (m *UnbondedMultiStaking) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Entries = append(m.Entries, UnbonedMultiStakingEntry{})
+			m.Entries = append(m.Entries, UnlockEntry{})
 			if err := m.Entries[len(m.Entries)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -1249,7 +1249,7 @@ func (m *UnbondedMultiStaking) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *UnbonedMultiStakingEntry) Unmarshal(dAtA []byte) error {
+func (m *UnlockEntry) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1272,10 +1272,10 @@ func (m *UnbonedMultiStakingEntry) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: UnbonedMultiStakingEntry: wiretype end group for non-group")
+			return fmt.Errorf("proto: UnlockEntry: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: UnbonedMultiStakingEntry: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: UnlockEntry: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
