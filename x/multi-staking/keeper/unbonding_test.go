@@ -27,7 +27,7 @@ func (suite *KeeperTestSuite) TestCompleteUnbonding() {
 		expErr   bool
 	}{
 		{
-			name: "lock 3001 token, rate 0.3, expect unlock full",
+			name: "lock 3001 token, rate 0.3, expect unlock 3000",
 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) (math.Int, error) {
 				unbondAmt := sdk.NewInt(3001)
 				weight := sdk.MustNewDecFromStr("0.3")
@@ -36,11 +36,11 @@ func (suite *KeeperTestSuite) TestCompleteUnbonding() {
 
 				return unlockAmt[0].Amount, err
 			},
-			expOut: sdk.NewInt(3001),
+			expOut: sdk.NewInt(3000),
 			expErr: false,
 		},
 		{
-			name: "lock 25 token, weight 0.5, expect unlock full",
+			name: "lock 25 token, weight 0.5, expect unlock 24",
 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) (math.Int, error) {
 				unbondAmt := sdk.NewInt(25)
 				weight := sdk.MustNewDecFromStr("0.5")
@@ -49,7 +49,7 @@ func (suite *KeeperTestSuite) TestCompleteUnbonding() {
 
 				return unlockAmt[0].Amount, err
 			},
-			expOut: sdk.NewInt(25),
+			expOut: sdk.NewInt(24),
 			expErr: false,
 		},
 		{
