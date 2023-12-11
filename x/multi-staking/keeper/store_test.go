@@ -1,253 +1,201 @@
 package keeper_test
 
-// import (
-// 	"cosmossdk.io/math"
-// 	sdk "github.com/cosmos/cosmos-sdk/types"
-// 	"github.com/realio-tech/multi-staking-module/testutil"
-// 	multistakingkeeper "github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
-// )
+import (
+	"time"
 
-// func (suite *KeeperTestSuite) TestSetBondTokenWeight() {
-// 	suite.SetupTest()
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/realio-tech/multi-staking-module/testutil"
+	multistakingkeeper "github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
+	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
+)
 
-// 	gasDenom := "ario"
-// 	govDenom := "arst"
-// 	gasWeight := math.LegacyNewDec(1)
-// 	govWeight := math.LegacyNewDecWithPrec(2, 4)
+func (suite *KeeperTestSuite) TestSetBondTokenWeight() {
+	suite.SetupTest()
 
-// 	suite.msKeeper.SetBondTokenWeight(suite.ctx, gasDenom, gasWeight)
-// 	suite.msKeeper.SetBondTokenWeight(suite.ctx, govDenom, govWeight)
+	gasDenom := "ario"
+	govDenom := "arst"
+	gasWeight := sdk.NewDec(1)
+	govWeight := sdk.MustNewDecFromStr("0.5")
 
-// 	btw, _ := suite.msKeeper.GetBondTokenWeight(suite.ctx, gasDenom)
-// 	suite.Equal(gasWeight, btw)
+	suite.msKeeper.SetBondTokenWeight(suite.ctx, gasDenom, gasWeight)
+	suite.msKeeper.SetBondTokenWeight(suite.ctx, govDenom, govWeight)
 
-// 	btw, _ = suite.msKeeper.GetBondTokenWeight(suite.ctx, govDenom)
-// 	suite.Equal(govWeight, btw)
-// }
+	btw, _ := suite.msKeeper.GetBondTokenWeight(suite.ctx, gasDenom)
+	suite.Equal(gasWeight, btw)
 
-// func (suite *KeeperTestSuite) TestSetValidatorAllowedToken() {
-// 	valA := testutil.GenValAddress()
-// 	valB := testutil.GenValAddress()
-// 	gasDenom := "ario"
-// 	govDenom := "arst"
-// 	testCases := []struct {
-// 		name     string
-// 		malleate func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []string
-// 		vals     []sdk.ValAddress
-// 		expPanic bool
-// 	}{
-// 		{
-// 			name: "1 val, 1 denom, success",
-// 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []string {
-// 				msKeeper.SetValidatorAllowedToken(ctx, valA, gasDenom)
-// 				return []string{gasDenom}
-// 			},
-// 			vals:     []sdk.ValAddress{valA},
-// 			expPanic: false,
-// 		},
-// 		{
-// 			name: "2 val, 2 denom, success",
-// 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []string {
-// 				msKeeper.SetValidatorAllowedToken(ctx, valA, gasDenom)
-// 				msKeeper.SetValidatorAllowedToken(ctx, valB, govDenom)
-// 				return []string{gasDenom, govDenom}
-// 			},
-// 			vals:     []sdk.ValAddress{valA, valB},
-// 			expPanic: false,
-// 		},
-// 		{
-// 			name: "1 val, 2 denom, failed",
-// 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []string {
-// 				msKeeper.SetValidatorAllowedToken(ctx, valA, gasDenom)
-// 				msKeeper.SetValidatorAllowedToken(ctx, valA, govDenom)
-// 				return []string{gasDenom, govDenom}
-// 			},
-// 			vals:     []sdk.ValAddress{valA, valB},
-// 			expPanic: true,
-// 		},
-// 	}
+	btw, _ = suite.msKeeper.GetBondTokenWeight(suite.ctx, govDenom)
+	suite.Equal(govWeight, btw)
+}
 
-// 	for _, tc := range testCases {
-// 		tc := tc
-// 		suite.Run(tc.name, func() {
-// 			suite.SetupTest()
+func (suite *KeeperTestSuite) TestSetValidatorAllowedToken() {
+	valA := testutil.GenValAddress()
+	valB := testutil.GenValAddress()
+	gasDenom := "ario"
+	govDenom := "arst"
+	testCases := []struct {
+		name     string
+		malleate func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []string
+		vals     []sdk.ValAddress
+		expPanic bool
+	}{
+		{
+			name: "1 val, 1 denom, success",
+			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []string {
+				msKeeper.SetValidatorAllowedToken(ctx, valA, gasDenom)
+				return []string{gasDenom}
+			},
+			vals:     []sdk.ValAddress{valA},
+			expPanic: false,
+		},
+		{
+			name: "2 val, 2 denom, success",
+			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []string {
+				msKeeper.SetValidatorAllowedToken(ctx, valA, gasDenom)
+				msKeeper.SetValidatorAllowedToken(ctx, valB, govDenom)
+				return []string{gasDenom, govDenom}
+			},
+			vals:     []sdk.ValAddress{valA, valB},
+			expPanic: false,
+		},
+		{
+			name: "1 val, 2 denom, failed",
+			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []string {
+				msKeeper.SetValidatorAllowedToken(ctx, valA, gasDenom)
+				msKeeper.SetValidatorAllowedToken(ctx, valA, govDenom)
+				return []string{gasDenom, govDenom}
+			},
+			vals:     []sdk.ValAddress{valA, valB},
+			expPanic: true,
+		},
+	}
 
-// 			if tc.expPanic {
-// 				suite.Require().PanicsWithValue("validator denom already set", func() {
-// 					tc.malleate(suite.ctx, suite.msKeeper)
-// 				})
-// 			} else {
-// 				inputs := tc.malleate(suite.ctx, suite.msKeeper)
-// 				for idx, val := range tc.vals {
-// 					actualDenom := suite.msKeeper.GetValidatorAllowedToken(suite.ctx, val)
-// 					suite.Require().Equal(inputs[idx], actualDenom)
-// 				}
-// 			}
-// 		})
-// 	}
-// }
+	for _, tc := range testCases {
+		tc := tc
+		suite.Run(tc.name, func() {
+			suite.SetupTest()
 
-// func (suite *KeeperTestSuite) TestSetIntermediaryAccountDelegator() {
-// 	delA := testutil.GenAddress()
-// 	delB := testutil.GenAddress()
-// 	imAddrressA := testutil.GenAddress()
-// 	imAddrressB := testutil.GenAddress()
+			if tc.expPanic {
+				suite.Require().PanicsWithValue("validator denom already set", func() {
+					tc.malleate(suite.ctx, suite.msKeeper)
+				})
+			} else {
+				inputs := tc.malleate(suite.ctx, suite.msKeeper)
+				for idx, val := range tc.vals {
+					actualDenom := suite.msKeeper.GetValidatorAllowedToken(suite.ctx, val)
+					suite.Require().Equal(inputs[idx], actualDenom)
+				}
+			}
+		})
+	}
+}
 
-// 	testCases := []struct {
-// 		name     string
-// 		malleate func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []sdk.AccAddress
-// 		imAccs   []sdk.AccAddress
-// 		expPanic bool
-// 	}{
-// 		{
-// 			name: "1 delegator, 1 intermediary account, success",
-// 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []sdk.AccAddress {
-// 				msKeeper.SetIntermediaryAccountDelegator(ctx, imAddrressA, delA)
-// 				return []sdk.AccAddress{delA}
-// 			},
-// 			imAccs:   []sdk.AccAddress{imAddrressA},
-// 			expPanic: false,
-// 		},
-// 		{
-// 			name: "2 delegator, 2 intermediary account, success",
-// 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []sdk.AccAddress {
-// 				msKeeper.SetIntermediaryAccountDelegator(ctx, imAddrressA, delA)
-// 				msKeeper.SetIntermediaryAccountDelegator(ctx, imAddrressB, delB)
-// 				return []sdk.AccAddress{delA, delB}
-// 			},
-// 			imAccs:   []sdk.AccAddress{imAddrressA, imAddrressB},
-// 			expPanic: false,
-// 		},
-// 		{
-// 			name: "2 delegator, 2 intermediary account, failed",
-// 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []sdk.AccAddress {
-// 				msKeeper.SetIntermediaryAccountDelegator(ctx, imAddrressA, delA)
-// 				msKeeper.SetIntermediaryAccountDelegator(ctx, imAddrressA, delA)
-// 				return []sdk.AccAddress{delA, delB}
-// 			},
-// 			imAccs:   []sdk.AccAddress{imAddrressA, imAddrressB},
-// 			expPanic: true,
-// 		},
-// 	}
+func (suite *KeeperTestSuite) TestSetMultiStakingLock() {
+	suite.SetupTest()
+	delAddr := testutil.GenAddress()
+	valAddr := testutil.GenValAddress()
 
-// 	for _, tc := range testCases {
-// 		tc := tc
-// 		suite.Run(tc.name, func() {
-// 			suite.SetupTest()
+	lockAmt := sdk.NewInt(3001)
+	weight := sdk.MustNewDecFromStr("0.3")
+	lockRecord := types.NewMultiStakingLock(lockAmt, weight, delAddr, valAddr)
+	suite.msKeeper.SetMultiStakingLock(suite.ctx, types.MultiStakingLockID(delAddr, valAddr), lockRecord)
 
-// 			if tc.expPanic {
-// 				suite.Require().PanicsWithValue("intermediary account for delegator already set", func() {
-// 					tc.malleate(suite.ctx, suite.msKeeper)
-// 				})
-// 			} else {
-// 				inputs := tc.malleate(suite.ctx, suite.msKeeper)
-// 				for idx, imAcc := range tc.imAccs {
-// 					actualDel := suite.msKeeper.GetIntermediaryAccountDelegator(suite.ctx, imAcc)
-// 					suite.Require().Equal(inputs[idx], actualDel)
-// 				}
-// 			}
-// 		})
-// 	}
-// }
+	actualLockRecord, found := suite.msKeeper.GetMultiStakingLock(suite.ctx, types.MultiStakingLockID(delAddr, valAddr))
+	suite.Require().True(found)
+	suite.Equal(actualLockRecord.ConversionRatio, weight)
+	suite.Equal(actualLockRecord.LockedAmount, lockAmt)
+	suite.Equal(actualLockRecord.DelAddr, delAddr.String())
+	suite.Equal(actualLockRecord.ValAddr, valAddr.String())
+}
 
-// func (suite *KeeperTestSuite) TestSetDVPairSDKBondAmount() {
-// 	delA := testutil.GenAddress()
-// 	delB := testutil.GenAddress()
-// 	valA := testutil.GenValAddress()
-// 	valB := testutil.GenValAddress()
+func (suite *KeeperTestSuite) TestRemoveMultiStakingLock() {
+	suite.SetupTest()
+	delAddr := testutil.GenAddress()
+	valAddr := testutil.GenValAddress()
 
-// 	bondSDKAmountA := sdk.NewInt(100)
-// 	bondSDKAmountB := sdk.NewInt(200)
+	lockAmt := sdk.NewInt(3001)
+	weight := sdk.MustNewDecFromStr("0.3")
+	lockRecord := types.NewMultiStakingLock(lockAmt, weight, delAddr, valAddr)
+	suite.msKeeper.SetMultiStakingLock(suite.ctx, types.MultiStakingLockID(delAddr, valAddr), lockRecord)
 
-// 	testCases := []struct {
-// 		name     string
-// 		malleate func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []math.Int
-// 		dels     []sdk.AccAddress
-// 		vals     []sdk.ValAddress
-// 		expPanic bool
-// 	}{
-// 		{
-// 			name: "1 delegator, 1 validator, success",
-// 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []math.Int {
-// 				msKeeper.SetDVPairSDKBondAmount(ctx, delA, valA, bondSDKAmountA)
-// 				return []math.Int{bondSDKAmountA}
-// 			},
-// 			dels:     []sdk.AccAddress{delA},
-// 			vals:     []sdk.ValAddress{valA},
-// 			expPanic: false,
-// 		},
-// 		{
-// 			name: "2 delegator, 2 validator, success",
-// 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []math.Int {
-// 				msKeeper.SetDVPairSDKBondAmount(ctx, delA, valA, bondSDKAmountA)
-// 				msKeeper.SetDVPairSDKBondAmount(ctx, delB, valB, bondSDKAmountB)
-// 				return []math.Int{bondSDKAmountA, bondSDKAmountB}
-// 			},
-// 			dels:     []sdk.AccAddress{delA, delB},
-// 			vals:     []sdk.ValAddress{valA, valB},
-// 			expPanic: false,
-// 		},
-// 		{
-// 			name: "1 delegator, 2 validator, success",
-// 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []math.Int {
-// 				msKeeper.SetDVPairSDKBondAmount(ctx, delA, valA, bondSDKAmountA)
-// 				msKeeper.SetDVPairSDKBondAmount(ctx, delA, valB, bondSDKAmountB)
-// 				return []math.Int{bondSDKAmountA, bondSDKAmountB}
-// 			},
-// 			dels:     []sdk.AccAddress{delA, delA},
-// 			vals:     []sdk.ValAddress{valA, valB},
-// 			expPanic: false,
-// 		},
-// 		{
-// 			name: "1 delegator, 1 validator, 2 bond amounts",
-// 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []math.Int {
-// 				msKeeper.SetDVPairSDKBondAmount(ctx, delA, valA, bondSDKAmountA)
-// 				msKeeper.SetDVPairSDKBondAmount(ctx, delA, valA, bondSDKAmountB)
-// 				return []math.Int{bondSDKAmountB}
-// 			},
-// 			dels:     []sdk.AccAddress{delA},
-// 			vals:     []sdk.ValAddress{valA},
-// 			expPanic: false,
-// 		},
-// 	}
+	actualLockRecord, found := suite.msKeeper.GetMultiStakingLock(suite.ctx, types.MultiStakingLockID(delAddr, valAddr))
+	suite.Require().True(found)
+	suite.Equal(actualLockRecord.ConversionRatio, weight)
+	suite.Equal(actualLockRecord.LockedAmount, lockAmt)
+	suite.Equal(actualLockRecord.DelAddr, delAddr.String())
+	suite.Equal(actualLockRecord.ValAddr, valAddr.String())
 
-// 	for _, tc := range testCases {
-// 		tc := tc
-// 		suite.Run(tc.name, func() {
-// 			suite.SetupTest()
+	suite.msKeeper.RemoveMultiStakingLock(suite.ctx, delAddr, valAddr)
 
-// 			if tc.expPanic {
-// 				suite.Require().PanicsWithValue("input token is not sdk bond token", func() {
-// 					tc.malleate(suite.ctx, suite.msKeeper)
-// 				})
-// 			} else {
-// 				inputs := tc.malleate(suite.ctx, suite.msKeeper)
-// 				for idx, expOut := range inputs {
-// 					actualCoin := suite.msKeeper.GetDVPairSDKBondAmount(suite.ctx, tc.dels[idx], tc.vals[idx])
-// 					suite.Require().Equal(expOut, actualCoin)
-// 				}
-// 			}
-// 		})
-// 	}
-// }
+	_, found = suite.msKeeper.GetMultiStakingLock(suite.ctx, types.MultiStakingLockID(delAddr, valAddr))
+	suite.Require().False(found)
+}
 
-// func (suite *KeeperTestSuite) TestSetDVPairBondAmount() {
-// 	suite.SetupTest()
+func (suite *KeeperTestSuite) TestSetUnbondMultiStaking() {
+	suite.SetupTest()
+	delAddr := testutil.GenAddress()
+	valAddr := testutil.GenValAddress()
 
-// 	delA := testutil.GenAddress()
-// 	delB := testutil.GenAddress()
-// 	valA := testutil.GenValAddress()
-// 	valB := testutil.GenValAddress()
+	unbondAmt := sdk.NewInt(3001)
+	weight := sdk.MustNewDecFromStr("0.3")
+	unbondRecord := types.NewMultiStakingUnlock(delAddr, valAddr, 1, weight, unbondAmt)
+	suite.msKeeper.SetMultiStakingUnlock(suite.ctx, unbondRecord)
 
-// 	bondAmountA := sdk.NewInt(100)
-// 	bondAmountB := sdk.NewInt(200)
+	actualUnbondRecord, found := suite.msKeeper.GetMultiStakingUnlock(suite.ctx, delAddr, valAddr)
+	suite.Require().True(found)
+	suite.Equal(actualUnbondRecord.Entries[0].ConversionRatio, weight)
+	suite.Equal(actualUnbondRecord.Entries[0].Balance, unbondAmt)
+	suite.Equal(actualUnbondRecord.DelegatorAddress, delAddr.String())
+	suite.Equal(actualUnbondRecord.ValidatorAddress, valAddr.String())
+}
 
-// 	suite.msKeeper.SetDVPairBondAmount(suite.ctx, delA, valA, bondAmountA)
-// 	suite.msKeeper.SetDVPairBondAmount(suite.ctx, delB, valB, bondAmountB)
+func (suite *KeeperTestSuite) TestRemoveUnbondMultiStaking() {
+	suite.SetupTest()
+	delAddr := testutil.GenAddress()
+	valAddr := testutil.GenValAddress()
 
-// 	suite.Equal(bondAmountA, suite.msKeeper.GetDVPairBondAmount(suite.ctx, delA, valA))
-// 	suite.Equal(bondAmountB, suite.msKeeper.GetDVPairBondAmount(suite.ctx, delB, valB))
+	unbondAmt := sdk.NewInt(3001)
+	weight := sdk.MustNewDecFromStr("0.3")
+	unbondRecord := types.NewMultiStakingUnlock(delAddr, valAddr, 1, weight, unbondAmt)
+	suite.msKeeper.SetMultiStakingUnlock(suite.ctx, unbondRecord)
 
-// 	suite.msKeeper.SetDVPairBondAmount(suite.ctx, delA, valB, bondAmountB)
-// 	suite.Equal(bondAmountB, suite.msKeeper.GetDVPairBondAmount(suite.ctx, delA, valB))
-// }
+	actualUnbondRecord, found := suite.msKeeper.GetMultiStakingUnlock(suite.ctx, delAddr, valAddr)
+	suite.Require().True(found)
+	suite.Equal(actualUnbondRecord.Entries[0].ConversionRatio, weight)
+	suite.Equal(actualUnbondRecord.Entries[0].Balance, unbondAmt)
+	suite.Equal(actualUnbondRecord.DelegatorAddress, delAddr.String())
+	suite.Equal(actualUnbondRecord.ValidatorAddress, valAddr.String())
+
+	suite.msKeeper.RemoveMultiStakingUnlock(suite.ctx, actualUnbondRecord)
+
+	_, found = suite.msKeeper.GetMultiStakingUnlock(suite.ctx, delAddr, valAddr)
+	suite.Require().False(found)
+}
+
+func (suite *KeeperTestSuite) TestSetUnbondMultiStakingEntry() {
+	suite.SetupTest()
+	delAddr := testutil.GenAddress()
+	valAddr := testutil.GenValAddress()
+	minTime := time.Now()
+	unbondAmt := sdk.NewInt(3001)
+	weight := sdk.MustNewDecFromStr("0.3")
+	suite.msKeeper.SetMultiStakingUnlockEntry(suite.ctx, delAddr, valAddr, 1, weight, minTime, unbondAmt)
+
+	actualUnbondRecord, found := suite.msKeeper.GetMultiStakingUnlock(suite.ctx, delAddr, valAddr)
+	suite.Require().True(found)
+	suite.Equal(actualUnbondRecord.Entries[0].ConversionRatio, weight)
+	suite.Equal(actualUnbondRecord.Entries[0].Balance, unbondAmt)
+	suite.Equal(actualUnbondRecord.DelegatorAddress, delAddr.String())
+	suite.Equal(actualUnbondRecord.ValidatorAddress, valAddr.String())
+
+	suite.msKeeper.SetMultiStakingUnlockEntry(suite.ctx, delAddr, valAddr, 2, weight, minTime, unbondAmt)
+	actualUnbondRecordAfter, found := suite.msKeeper.GetMultiStakingUnlock(suite.ctx, delAddr, valAddr)
+	suite.Require().True(found)
+	suite.Equal(actualUnbondRecordAfter.Entries[1].ConversionRatio, weight)
+	suite.Equal(actualUnbondRecordAfter.Entries[1].Balance, unbondAmt)
+
+	suite.msKeeper.SetMultiStakingUnlockEntry(suite.ctx, delAddr, valAddr, 1, weight, minTime, unbondAmt)
+	actualUnbondRecordAfter1, found := suite.msKeeper.GetMultiStakingUnlock(suite.ctx, delAddr, valAddr)
+	suite.Require().True(found)
+	suite.Equal(actualUnbondRecordAfter1.Entries[0].ConversionRatio, weight)
+	suite.Equal(actualUnbondRecordAfter1.Entries[0].Balance, unbondAmt.Add(unbondAmt))
+}

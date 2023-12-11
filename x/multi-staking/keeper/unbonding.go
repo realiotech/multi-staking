@@ -60,11 +60,15 @@ func (k Keeper) CompleteUnbonding(
 	}
 
 	// check unbond amount has been slashed or not
-	if !initialBalance.Equal(balance) && unbondEntry.Balance.GT(unlockMultiStakingAmount) {
+	if unbondEntry.Balance.GT(unlockMultiStakingAmount) {
 		unlockedAmount = sdk.NewCoins(sdk.NewCoin(unlockDenom, unlockMultiStakingAmount))
 
 		// Slash user amount
 		burnUserAmount := sdk.NewCoins(sdk.NewCoin(unlockDenom, unbondEntry.Balance.Sub(unlockMultiStakingAmount)))
+		err = k.bankKeeper.SendCoinsFromAccountToModule(ctx, intermediaryAcc, types.ModuleName, burnUserAmount)
+		if err != nil {
+			return unlockedAmount, err
+		}
 		err = k.bankKeeper.BurnCoins(ctx, types.ModuleName, burnUserAmount)
 		if err != nil {
 			return unlockedAmount, err
