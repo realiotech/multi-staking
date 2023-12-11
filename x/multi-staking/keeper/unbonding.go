@@ -23,7 +23,7 @@ func (k Keeper) CompleteUnbonding(
 	// get unbonded record
 	ubd, found := k.GetUnbondedMultiStaking(ctx, delAddr, valAddr)
 	if !found {
-		return unlockedAmount, fmt.Errorf("Unbonded record not exists")
+		return unlockedAmount, fmt.Errorf("unbonded record not exists")
 	}
 	var (
 		unbondEntry      types.UnbonedMultiStakingEntry
@@ -63,7 +63,7 @@ func (k Keeper) CompleteUnbonding(
 	// check unbond amount has been slashed or not
 	if !initialBalance.Equal(balance) && unbondEntry.Balance.GT(unlockMultiStakingAmount) {
 		unlockedAmount = sdk.NewCoins(sdk.NewCoin(unlockDenom, unlockMultiStakingAmount))
-	
+
 		// Slash user amount
 		burnUserAmount := sdk.NewCoins(sdk.NewCoin(unlockDenom, unbondEntry.Balance.Sub(unlockMultiStakingAmount)))
 		err = k.bankKeeper.BurnCoins(ctx, types.ModuleName, burnUserAmount)
