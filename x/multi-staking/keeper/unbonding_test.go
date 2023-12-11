@@ -31,8 +31,8 @@ func (suite *KeeperTestSuite) TestCompleteUnbonding() {
 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) (math.Int, error) {
 				unbondAmt := sdk.NewInt(3001)
 				weight := sdk.MustNewDecFromStr("0.3")
-				msKeeper.SetUnbondedMultiStakingEntry(ctx, delAddr, valAddr, 1, weight, minTime, unbondAmt)
-				unlockAmt, err := msKeeper.CompleteUnbonding(ctx, imAddr, valAddr, 1, sdk.NewInt(900), sdk.NewInt(900))
+				msKeeper.SetMultiStakingUnlockEntry(ctx, delAddr, valAddr, 1, weight, minTime, unbondAmt)
+				unlockAmt, err := msKeeper.CompleteUnbonding(ctx, imAddr, valAddr, 1, sdk.NewInt(900))
 
 				return unlockAmt[0].Amount, err
 			},
@@ -44,8 +44,8 @@ func (suite *KeeperTestSuite) TestCompleteUnbonding() {
 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) (math.Int, error) {
 				unbondAmt := sdk.NewInt(25)
 				weight := sdk.MustNewDecFromStr("0.5")
-				msKeeper.SetUnbondedMultiStakingEntry(ctx, delAddr, valAddr, 1, weight, minTime, unbondAmt)
-				unlockAmt, err := msKeeper.CompleteUnbonding(ctx, imAddr, valAddr, 1, sdk.NewInt(12), sdk.NewInt(12))
+				msKeeper.SetMultiStakingUnlockEntry(ctx, delAddr, valAddr, 1, weight, minTime, unbondAmt)
+				unlockAmt, err := msKeeper.CompleteUnbonding(ctx, imAddr, valAddr, 1, sdk.NewInt(12))
 
 				return unlockAmt[0].Amount, err
 			},
@@ -57,8 +57,8 @@ func (suite *KeeperTestSuite) TestCompleteUnbonding() {
 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) (math.Int, error) {
 				unbondAmt := sdk.NewInt(25)
 				weight := sdk.MustNewDecFromStr("0.5")
-				msKeeper.SetUnbondedMultiStakingEntry(ctx, delAddr, valAddr, 1, weight, minTime, unbondAmt)
-				unlockAmt, err := msKeeper.CompleteUnbonding(ctx, imAddr, valAddr, 1, sdk.NewInt(12), sdk.NewInt(11))
+				msKeeper.SetMultiStakingUnlockEntry(ctx, delAddr, valAddr, 1, weight, minTime, unbondAmt)
+				unlockAmt, err := msKeeper.CompleteUnbonding(ctx, imAddr, valAddr, 1, sdk.NewInt(11))
 
 				return unlockAmt[0].Amount, err
 			},
@@ -68,7 +68,7 @@ func (suite *KeeperTestSuite) TestCompleteUnbonding() {
 		{
 			name: "unbond record not exist",
 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) (math.Int, error) {
-				_, err := msKeeper.CompleteUnbonding(ctx, imAddr, valAddr, 1, sdk.NewInt(12), sdk.NewInt(11))
+				_, err := msKeeper.CompleteUnbonding(ctx, imAddr, valAddr, 1, sdk.NewInt(11))
 
 				return sdk.NewInt(0), err
 			},
@@ -79,8 +79,8 @@ func (suite *KeeperTestSuite) TestCompleteUnbonding() {
 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) (math.Int, error) {
 				unbondAmt := sdk.NewInt(25)
 				weight := sdk.MustNewDecFromStr("0.5")
-				msKeeper.SetUnbondedMultiStakingEntry(ctx, delAddr, valAddr, 1, weight, minTime, unbondAmt)
-				_, err := msKeeper.CompleteUnbonding(ctx, imAddr, valAddr, 4, sdk.NewInt(12), sdk.NewInt(11))
+				msKeeper.SetMultiStakingUnlockEntry(ctx, delAddr, valAddr, 1, weight, minTime, unbondAmt)
+				_, err := msKeeper.CompleteUnbonding(ctx, imAddr, valAddr, 4, sdk.NewInt(11))
 
 				return sdk.NewInt(0), err
 			},
@@ -91,8 +91,8 @@ func (suite *KeeperTestSuite) TestCompleteUnbonding() {
 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) (math.Int, error) {
 				unbondAmt := sdk.NewInt(25)
 				weight := sdk.MustNewDecFromStr("0.5")
-				msKeeper.SetUnbondedMultiStakingEntry(ctx, delAddr, valAddr, 1, weight, minTime, unbondAmt)
-				_, err := msKeeper.CompleteUnbonding(ctx, imAddr, valAddr, 1, sdk.NewInt(13), sdk.NewInt(13))
+				msKeeper.SetMultiStakingUnlockEntry(ctx, delAddr, valAddr, 1, weight, minTime, unbondAmt)
+				_, err := msKeeper.CompleteUnbonding(ctx, imAddr, valAddr, 1, sdk.NewInt(13))
 
 				return sdk.NewInt(0), err
 			},

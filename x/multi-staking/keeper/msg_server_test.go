@@ -817,7 +817,7 @@ func (suite *KeeperTestSuite) TestUndelegate() {
 				suite.Require().True(found)
 				suite.Require().Equal(tc.expLock, lockRecord1.LockedAmount)
 
-				unbondRecord, found := suite.msKeeper.GetUnbondedMultiStaking(suite.ctx, delAddr, valAddr1)
+				unbondRecord, found := suite.msKeeper.GetMultiStakingUnlock(suite.ctx, delAddr, valAddr1)
 				suite.Require().True(found)
 				suite.Require().Equal(tc.expUnlock, unbondRecord.Entries[0].Balance)
 			}
@@ -953,7 +953,7 @@ func (suite *KeeperTestSuite) TestCancelUnbondingDelegation() {
 				suite.Require().True(found)
 				suite.Require().Equal(tc.expLock, lockRecord1.LockedAmount)
 
-				unbondRecord, found := suite.msKeeper.GetUnbondedMultiStaking(suite.ctx, delAddr, valAddr1)
+				unbondRecord, found := suite.msKeeper.GetMultiStakingUnlock(suite.ctx, delAddr, valAddr1)
 				suite.Require().True(found)
 				suite.Require().Equal(tc.expUnlock, unbondRecord.Entries[0].Balance)
 			}

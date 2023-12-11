@@ -60,7 +60,7 @@ func (k Keeper) CompleteUnbonding(
 	}
 
 	// check unbond amount has been slashed or not
-	if !initialBalance.Equal(balance) && unbondEntry.Balance.GT(unlockMultiStakingAmount) {
+	if unbondEntry.Balance.GT(unlockMultiStakingAmount) {
 		unlockedAmount = sdk.NewCoins(sdk.NewCoin(unlockDenom, unlockMultiStakingAmount))
 
 		// Slash user amount

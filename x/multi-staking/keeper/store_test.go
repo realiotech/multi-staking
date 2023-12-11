@@ -137,10 +137,10 @@ func (suite *KeeperTestSuite) TestSetUnbondMultiStaking() {
 
 	unbondAmt := sdk.NewInt(3001)
 	weight := sdk.MustNewDecFromStr("0.3")
-	unbondRecord := types.NewUnbondedMultiStaking(delAddr, valAddr, 1, weight, unbondAmt)
-	suite.msKeeper.SetUnbondedMultiStaking(suite.ctx, unbondRecord)
+	unbondRecord := types.NewMultiStakingUnlock(delAddr, valAddr, 1, weight, unbondAmt)
+	suite.msKeeper.SetMultiStakingUnlock(suite.ctx, unbondRecord)
 
-	actualUnbondRecord, found := suite.msKeeper.GetUnbondedMultiStaking(suite.ctx, delAddr, valAddr)
+	actualUnbondRecord, found := suite.msKeeper.GetMultiStakingUnlock(suite.ctx, delAddr, valAddr)
 	suite.Require().True(found)
 	suite.Equal(actualUnbondRecord.Entries[0].ConversionRatio, weight)
 	suite.Equal(actualUnbondRecord.Entries[0].Balance, unbondAmt)
@@ -155,19 +155,19 @@ func (suite *KeeperTestSuite) TestRemoveUnbondMultiStaking() {
 
 	unbondAmt := sdk.NewInt(3001)
 	weight := sdk.MustNewDecFromStr("0.3")
-	unbondRecord := types.NewUnbondedMultiStaking(delAddr, valAddr, 1, weight, unbondAmt)
-	suite.msKeeper.SetUnbondedMultiStaking(suite.ctx, unbondRecord)
+	unbondRecord := types.NewMultiStakingUnlock(delAddr, valAddr, 1, weight, unbondAmt)
+	suite.msKeeper.SetMultiStakingUnlock(suite.ctx, unbondRecord)
 
-	actualUnbondRecord, found := suite.msKeeper.GetUnbondedMultiStaking(suite.ctx, delAddr, valAddr)
+	actualUnbondRecord, found := suite.msKeeper.GetMultiStakingUnlock(suite.ctx, delAddr, valAddr)
 	suite.Require().True(found)
 	suite.Equal(actualUnbondRecord.Entries[0].ConversionRatio, weight)
 	suite.Equal(actualUnbondRecord.Entries[0].Balance, unbondAmt)
 	suite.Equal(actualUnbondRecord.DelegatorAddress, delAddr.String())
 	suite.Equal(actualUnbondRecord.ValidatorAddress, valAddr.String())
 
-	suite.msKeeper.RemoveUnbondedMultiStaking(suite.ctx, actualUnbondRecord)
+	suite.msKeeper.RemoveMultiStakingUnlock(suite.ctx, actualUnbondRecord)
 
-	_, found = suite.msKeeper.GetUnbondedMultiStaking(suite.ctx, delAddr, valAddr)
+	_, found = suite.msKeeper.GetMultiStakingUnlock(suite.ctx, delAddr, valAddr)
 	suite.Require().False(found)
 }
 
@@ -178,23 +178,23 @@ func (suite *KeeperTestSuite) TestSetUnbondMultiStakingEntry() {
 	minTime := time.Now()
 	unbondAmt := sdk.NewInt(3001)
 	weight := sdk.MustNewDecFromStr("0.3")
-	suite.msKeeper.SetUnbondedMultiStakingEntry(suite.ctx, delAddr, valAddr, 1, weight, minTime, unbondAmt)
+	suite.msKeeper.SetMultiStakingUnlockEntry(suite.ctx, delAddr, valAddr, 1, weight, minTime, unbondAmt)
 
-	actualUnbondRecord, found := suite.msKeeper.GetUnbondedMultiStaking(suite.ctx, delAddr, valAddr)
+	actualUnbondRecord, found := suite.msKeeper.GetMultiStakingUnlock(suite.ctx, delAddr, valAddr)
 	suite.Require().True(found)
 	suite.Equal(actualUnbondRecord.Entries[0].ConversionRatio, weight)
 	suite.Equal(actualUnbondRecord.Entries[0].Balance, unbondAmt)
 	suite.Equal(actualUnbondRecord.DelegatorAddress, delAddr.String())
 	suite.Equal(actualUnbondRecord.ValidatorAddress, valAddr.String())
 
-	suite.msKeeper.SetUnbondedMultiStakingEntry(suite.ctx, delAddr, valAddr, 2, weight, minTime, unbondAmt)
-	actualUnbondRecordAfter, found := suite.msKeeper.GetUnbondedMultiStaking(suite.ctx, delAddr, valAddr)
+	suite.msKeeper.SetMultiStakingUnlockEntry(suite.ctx, delAddr, valAddr, 2, weight, minTime, unbondAmt)
+	actualUnbondRecordAfter, found := suite.msKeeper.GetMultiStakingUnlock(suite.ctx, delAddr, valAddr)
 	suite.Require().True(found)
 	suite.Equal(actualUnbondRecordAfter.Entries[1].ConversionRatio, weight)
 	suite.Equal(actualUnbondRecordAfter.Entries[1].Balance, unbondAmt)
 
-	suite.msKeeper.SetUnbondedMultiStakingEntry(suite.ctx, delAddr, valAddr, 1, weight, minTime, unbondAmt)
-	actualUnbondRecordAfter1, found := suite.msKeeper.GetUnbondedMultiStaking(suite.ctx, delAddr, valAddr)
+	suite.msKeeper.SetMultiStakingUnlockEntry(suite.ctx, delAddr, valAddr, 1, weight, minTime, unbondAmt)
+	actualUnbondRecordAfter1, found := suite.msKeeper.GetMultiStakingUnlock(suite.ctx, delAddr, valAddr)
 	suite.Require().True(found)
 	suite.Equal(actualUnbondRecordAfter1.Entries[0].ConversionRatio, weight)
 	suite.Equal(actualUnbondRecordAfter1.Entries[0].Balance, unbondAmt.Add(unbondAmt))
