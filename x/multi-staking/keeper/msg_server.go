@@ -32,11 +32,10 @@ var _ types.MsgServer = msgServer{}
 func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateValidator) (*types.MsgCreateValidatorResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	valAcc, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
+	delAcc, valAcc, err := types.DelAccAndValAccFromStrings(msg.DelegatorAddress, msg.ValidatorAddress)
 	if err != nil {
 		return nil, err
 	}
-	delAcc := sdk.MustAccAddressFromBech32(msg.DelegatorAddress)
 
 	intermediaryAccount := types.IntermediaryAccount(delAcc)
 	if !k.IsIntermediaryAccount(ctx, intermediaryAccount) {
@@ -91,11 +90,10 @@ func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValida
 func (k msgServer) Delegate(goCtx context.Context, msg *types.MsgDelegate) (*types.MsgDelegateResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	valAcc, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
+	delAcc, valAcc, err := types.DelAccAndValAccFromStrings(msg.DelegatorAddress, msg.ValidatorAddress)
 	if err != nil {
 		return nil, err
 	}
-	delAcc := sdk.MustAccAddressFromBech32(msg.DelegatorAddress)
 
 	if !k.IsAllowedToken(ctx, valAcc, msg.Amount) {
 		return nil, fmt.Errorf("not allowed token")
@@ -208,7 +206,7 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (
 
 	delAcc := sdk.MustAccAddressFromBech32(msg.DelegatorAddress)
 
-	valAcc, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
+	delAcc, valAcc, err := types.DelAccAndValAccFromStrings(msg.DelegatorAddress, msg.ValidatorAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -237,7 +235,7 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (
 	resp, err := k.stakingMsgServer.Undelegate(goCtx, sdkMsg)
 
 	k.RemoveTokenFromLock(ctx, delAcc, valAcc, msg.Amount.Amount)
-	
+
 	k.SetMultiStakingUnlockEntry(ctx, delAcc, valAcc, ctx.BlockHeight(), lock.ConversionRatio, resp.CompletionTime, msg.Amount.Amount)
 
 	return &types.MsgUndelegateResponse{}, err
@@ -248,13 +246,12 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (
 func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.MsgCancelUnbondingDelegation) (*types.MsgCancelUnbondingDelegationResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	delAcc := sdk.MustAccAddressFromBech32(msg.DelegatorAddress)
-	intermediaryAccount := types.IntermediaryAccount(delAcc)
-
-	valAcc, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
+	delAcc, valAcc, err := types.DelAccAndValAccFromStrings(msg.DelegatorAddress, msg.ValidatorAddress)
 	if err != nil {
 		return nil, err
 	}
+
+	intermediaryAccount := types.IntermediaryAccount(delAcc)
 
 	valDenom := k.GetValidatorAllowedToken(ctx, valAcc)
 
@@ -345,7 +342,7 @@ func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.M
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return &types.MsgCancelUnbondingDelegationResponse{}, nil
 }
 

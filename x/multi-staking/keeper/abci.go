@@ -5,6 +5,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
 
 func (k Keeper) BeginBlocker(ctx sdk.Context) {
@@ -36,7 +37,7 @@ func (k Keeper) EndBlocker(ctx sdk.Context, matureUnbondingDelegations []staking
 
 		delAcc := sdk.MustAccAddressFromBech32(ubd.DelegatorAddress)
 
-		valAcc, err := sdk.ValAddressFromBech32(ubd.ValidatorAddress)
+		delAcc, valAcc, err := types.DelAccAndValAccFromStrings(ubd.DelegatorAddress, ubd.ValidatorAddress)
 		if err != nil {
 			panic(err)
 		}

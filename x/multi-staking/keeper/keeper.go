@@ -56,11 +56,10 @@ func (k Keeper) GetMatureUnbondingDelegations(ctx sdk.Context) []stakingtypes.Un
 	var matureUnbondingDelegations []stakingtypes.UnbondingDelegation
 	matureUnbonds := k.stakingKeeper.DequeueAllMatureUBDQueue(ctx, ctx.BlockHeader().Time)
 	for _, dvPair := range matureUnbonds {
-		valAddr, err := sdk.ValAddressFromBech32(dvPair.ValidatorAddress)
+		delAddr, valAddr, err := types.DelAccAndValAccFromStrings(dvPair.DelegatorAddress, dvPair.ValidatorAddress)
 		if err != nil {
 			panic(err)
 		}
-		delAddr := sdk.MustAccAddressFromBech32(dvPair.DelegatorAddress)
 
 		unbondingDelegation, found := k.stakingKeeper.GetUnbondingDelegation(ctx, delAddr, valAddr) // ??
 		if !found {
