@@ -29,18 +29,9 @@ var (
 
 	IntermediaryAccountKey = []byte{0x02}
 
-	DVPairSDKBondAmount = []byte{0x03}
+	MultiStakingLockPrefix = []byte{0x03}
 
-	DVPairBondAmount = []byte{0x04}
-
-	// mem store key
-	CompletedDelegationsPrefix = []byte{0x05}
-
-	// key prefix
-	MultiStakingLockPrefix = KeyPrefix("multi-staking-lock")
-
-	UnbondDelKey    = []byte{0x11} // key for an unbonding-delegation
-	UnbondQueueKey         = []byte{0x16} // prefix for the timestamps in unbonding queue
+	UnbondDelKey = []byte{0x11} // key for an unbonding-delegation
 )
 
 func KeyPrefix(key string) []byte {
@@ -62,19 +53,9 @@ func GetIntermediaryAccountKey(intermediaryAccount sdk.AccAddress) []byte {
 	return append(IntermediaryAccountKey, intermediaryAccount...)
 }
 
-func GetDVPairSDKBondAmountKey(delAddr sdk.AccAddress, valAddr sdk.ValAddress) []byte {
-	DVPair := append(delAddr, address.MustLengthPrefix(valAddr)...)
-	return append(DVPairSDKBondAmount, DVPair...)
-}
-
-func GetDVPairBondAmountKey(delAddr sdk.AccAddress, valAddr sdk.ValAddress) []byte {
-	DVPair := append(delAddr, address.MustLengthPrefix(valAddr)...)
-	return append(DVPairBondAmount, DVPair...)
-}
-
 func MultiStakingLockID(delAddr sdk.AccAddress, valAddr sdk.ValAddress) []byte {
 	DVPair := append(delAddr, address.MustLengthPrefix(valAddr)...)
-	return append(DVPairBondAmount, DVPair...)
+	return append(MultiStakingLockPrefix, DVPair...)
 }
 
 // GetUBDsKey creates the prefix for all unbonding delegations from a delegator
@@ -83,7 +64,7 @@ func GetUBDsKey(delAddr sdk.AccAddress) []byte {
 }
 
 // GetUBDKey creates the key for an unbonding delegation by delegator and validator addr
-// VALUE: multi-staking/UnbondedMultiStaking
+// VALUE: multi-staking/MultiStakingUnlock
 func GetUBDKey(delAddr sdk.AccAddress, valAddr sdk.ValAddress) []byte {
 	return append(GetUBDsKey(delAddr.Bytes()), address.MustLengthPrefix(valAddr)...)
 }
