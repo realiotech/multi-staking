@@ -92,10 +92,75 @@ func (suite *KeeperTestSuite) TestCreateValidator() {
 			expErr: false,
 		},
 		{
+			name: "101 token, weight 12.4, expect 1252",
+			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper, msgServer multistakingtypes.MsgServer) (sdk.Coin, error) {
+				msKeeper.SetBondTokenWeight(ctx, govDenom, sdk.MustNewDecFromStr("12.4"))
+				bondAmount := sdk.NewCoin(govDenom, sdk.NewInt(101))
+
+				msg := multistakingtypes.MsgCreateValidator{
+					Description: stakingtypes.Description{
+						Moniker:         "test",
+						Identity:        "test",
+						Website:         "test",
+						SecurityContact: "test",
+						Details:         "test",
+					},
+					Commission: stakingtypes.CommissionRates{
+						Rate:          sdk.MustNewDecFromStr("0.05"),
+						MaxRate:       sdk.MustNewDecFromStr("0.1"),
+						MaxChangeRate: sdk.MustNewDecFromStr("0.05"),
+					},
+					MinSelfDelegation: sdk.NewInt(1),
+					DelegatorAddress:  delAddr.String(),
+					ValidatorAddress:  valAddr.String(),
+					Pubkey:            codectypes.UnsafePackAny(valPubKey),
+					Value:             bondAmount,
+				}
+
+				_, err := msgServer.CreateValidator(ctx, &msg)
+				return bondAmount, err
+			},
+			expOut: sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(1252)),
+			expErr: false,
+		},
+		{
+			name: "many bond token, 101 ario, weight 2.4, expect 242",
+			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper, msgServer multistakingtypes.MsgServer) (sdk.Coin, error) {
+				msKeeper.SetBondTokenWeight(ctx, govDenom, sdk.MustNewDecFromStr("1.0"))
+				msKeeper.SetBondTokenWeight(ctx, gasDenom, sdk.MustNewDecFromStr("2.4"))
+				bondAmount := sdk.NewCoin(gasDenom, sdk.NewInt(101))
+
+				msg := multistakingtypes.MsgCreateValidator{
+					Description: stakingtypes.Description{
+						Moniker:         "test",
+						Identity:        "test",
+						Website:         "test",
+						SecurityContact: "test",
+						Details:         "test",
+					},
+					Commission: stakingtypes.CommissionRates{
+						Rate:          sdk.MustNewDecFromStr("0.05"),
+						MaxRate:       sdk.MustNewDecFromStr("0.1"),
+						MaxChangeRate: sdk.MustNewDecFromStr("0.05"),
+					},
+					MinSelfDelegation: sdk.NewInt(1),
+					DelegatorAddress:  delAddr.String(),
+					ValidatorAddress:  valAddr.String(),
+					Pubkey:            codectypes.UnsafePackAny(valPubKey),
+					Value:             bondAmount,
+				}
+
+				_, err := msgServer.CreateValidator(ctx, &msg)
+				return bondAmount, err
+			},
+			expOut: sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(242)),
+			expErr: false,
+		},
+		{
 			name: "invalid bond token",
 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper, msgServer multistakingtypes.MsgServer) (sdk.Coin, error) {
+				msKeeper.SetBondTokenWeight(ctx, govDenom, sdk.MustNewDecFromStr("0.5"))
 				bondAmount := sdk.NewCoin(gasDenom, sdk.NewInt(25))
-
 				msg := multistakingtypes.MsgCreateValidator{
 					Description: stakingtypes.Description{
 						Moniker:         "test",
@@ -125,7 +190,7 @@ func (suite *KeeperTestSuite) TestCreateValidator() {
 			name: "invalid validator address",
 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper, msgServer multistakingtypes.MsgServer) (sdk.Coin, error) {
 				msKeeper.SetBondTokenWeight(ctx, gasDenom, sdk.MustNewDecFromStr("0.3"))
-				bondAmount := sdk.NewCoin(gasDenom, sdk.NewInt(3001))
+				bondAmount := sdk.NewCoin(govDenom, sdk.NewInt(3001))
 
 				msg := multistakingtypes.MsgCreateValidator{
 					Description: stakingtypes.Description{
@@ -152,8 +217,7 @@ func (suite *KeeperTestSuite) TestCreateValidator() {
 		{
 			name: "nil delegation amount",
 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper, msgServer multistakingtypes.MsgServer) (sdk.Coin, error) {
-				msKeeper.SetBondTokenWeight(ctx, gasDenom, sdk.MustNewDecFromStr("0.3"))
-
+				msKeeper.SetBondTokenWeight(ctx, govDenom, sdk.MustNewDecFromStr("0.3"))
 				msg := multistakingtypes.MsgCreateValidator{
 					Description: stakingtypes.Description{
 						Moniker: "NewValidator",
@@ -172,6 +236,36 @@ func (suite *KeeperTestSuite) TestCreateValidator() {
 
 				_, err := msgServer.CreateValidator(ctx, &msg)
 				return sdk.Coin{}, err
+			},
+			expOut: sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(0)),
+			expErr: true,
+		},
+		{
+			name: "error when not set BondTokenWeight",
+			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper, msgServer multistakingtypes.MsgServer) (sdk.Coin, error) {
+				bondAmount := sdk.NewCoin(gasDenom, sdk.NewInt(3001))
+				msg := multistakingtypes.MsgCreateValidator{
+					Description: stakingtypes.Description{
+						Moniker:         "test",
+						Identity:        "test",
+						Website:         "test",
+						SecurityContact: "test",
+						Details:         "test",
+					},
+					Commission: stakingtypes.CommissionRates{
+						Rate:          sdk.MustNewDecFromStr("0.05"),
+						MaxRate:       sdk.MustNewDecFromStr("0.1"),
+						MaxChangeRate: sdk.MustNewDecFromStr("0.05"),
+					},
+					MinSelfDelegation: sdk.NewInt(1),
+					DelegatorAddress:  delAddr.String(),
+					ValidatorAddress:  valAddr.String(),
+					Pubkey:            codectypes.UnsafePackAny(valPubKey),
+					Value:             bondAmount,
+				}
+
+				_, err := msgServer.CreateValidator(ctx, &msg)
+				return bondAmount, err
 			},
 			expOut: sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(0)),
 			expErr: true,
