@@ -78,6 +78,9 @@ func MigrateStakingGenesisCmd() *cobra.Command {
 
 			cmd.Println(string(sortedBz))
 
+			// save new genesis
+			genDoc.SaveAs(genesisPath)
+
 			return nil
 		},
 	}
