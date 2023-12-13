@@ -9,6 +9,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
+	v0 "github.com/realio-tech/multi-staking-module/x/multi-staking/types/v0"
 	"github.com/spf13/cobra"
 	tmjson "github.com/tendermint/tendermint/libs/json"
 	tmtypes "github.com/tendermint/tendermint/types"
@@ -108,4 +111,144 @@ func validateGenDoc(importGenesisFile string) (*tmtypes.GenesisDoc, error) {
 
 func migrate(genesisState AppMap, ctx client.Context) AppMap {
 	return nil
+}
+
+func migrateStaking(genesisState AppMap, ctx client.Context) (AppMap, error) {
+
+	rawData := genesisState[stakingtypes.ModuleName]
+	var oldState v0.GenesisState
+	err := json.Unmarshal(rawData, &oldState)
+	if err != nil {
+		return nil, err
+	}
+
+	newState := types.GenesisState{}
+	// Migrate state.StakingGenesisState
+	stakingGenesisState := stakingtypes.GenesisState{}
+
+	stakingGenesisState.Params = stakingtypes.Params(oldState.Params)
+	stakingGenesisState.LastTotalPower = oldState.LastTotalPower
+	stakingGenesisState.Validators = convertValidators(oldState.Validators)
+	stakingGenesisState.Delegations = convertDelegations(oldState.Delegations)
+	stakingGenesisState.UnbondingDelegations = convertUnbondings(oldState.UnbondingDelegations)
+	stakingGenesisState.Redelegations = convertRedelegations(oldState.Redelegations)
+	stakingGenesisState.Exported = oldState.Exported
+
+	newState.StakingGenesisState = &stakingGenesisState
+	// Migrate state.ValidatorAllowedToken field
+	newState.ValidatorAllowedToken = make([]types.ValidatorAllowedToken, 0)
+
+	for _, val := range oldState.Validators {
+		allowedToken := types.ValidatorAllowedToken{
+			ValAddr: val.OperatorAddress,
+			TokenDenom: val.BondDenom,
+		}
+		newState.ValidatorAllowedToken = append(newState.ValidatorAllowedToken, allowedToken)
+	}
+	// Migrate state.MultiStakingLock field
+	newState.MultiStakingLocks = make([]types.MultiStakingLock, 0)
+
+	for _, val := range stakingGenesisState.Validators {
+		for _, del := range oldState.Delegations {
+			if del.ValidatorAddress == val.OperatorAddress {
+				lock := types.MultiStakingLock{
+					ConversionRatio: sdk.OneDec(),
+					DelAddr: del.DelegatorAddress,
+					ValAddr: del.ValidatorAddress,
+					LockedAmount: val.TokensFromShares(del.Shares).TruncateInt(),
+				}
+				newState.MultiStakingLocks = append(newState.MultiStakingLocks, lock)
+			}
+			
+		}
+	}
+
+	newData, err := json.Marshal(&newState)
+	if err != nil {
+		return nil, err
+	}
+
+	genesisState[stakingtypes.ModuleName] = newData
+
+	return genesisState, nil
+}
+
+func convertValidators(validators []v0.Validator) []stakingtypes.Validator {
+	newValidators := make([]stakingtypes.Validator, 0)
+	for _, val := range validators {
+		newVal := stakingtypes.Validator{
+			OperatorAddress: val.OperatorAddress,
+			ConsensusPubkey: val.ConsensusPubkey,
+			Jailed:          val.Jailed,
+			Status:          stakingtypes.BondStatus(val.Status),
+			Tokens:          val.Tokens,
+			DelegatorShares: val.DelegatorShares,
+			Description:     stakingtypes.Description(val.Description),
+			UnbondingHeight: val.UnbondingHeight,
+			UnbondingTime:   val.UnbondingTime,
+			Commission: stakingtypes.Commission{
+				CommissionRates: stakingtypes.CommissionRates(val.Commission.CommissionRates),
+				UpdateTime:      val.Commission.UpdateTime,
+			},
+			MinSelfDelegation: val.MinSelfDelegation,
+		}
+		newValidators = append(newValidators, newVal)
+	}
+	return newValidators
+}
+
+func convertDelegations(delegations []v0.Delegation) []stakingtypes.Delegation {
+	newDelegations := make([]stakingtypes.Delegation, 0) 
+	for _, del := range delegations {
+		newDel := stakingtypes.Delegation(del)
+		newDelegations = append(newDelegations, newDel)
+	}
+	return newDelegations
+}
+
+func convertUnbondings(ubds []v0.UnbondingDelegation) []stakingtypes.UnbondingDelegation {
+	newUbds := make([]stakingtypes.UnbondingDelegation, 0) 
+	for _, ubd := range ubds {
+		newEntries := make([]stakingtypes.UnbondingDelegationEntry, 0)
+		for _, entry := range ubd.Entries {
+			newEntry := stakingtypes.UnbondingDelegationEntry{
+				CreationHeight: entry.CreationHeight,
+				CompletionTime: entry.CompletionTime,
+				InitialBalance: entry.InitialBalance.Amount,
+				Balance: entry.Balance.Amount,
+			}
+			newEntries = append(newEntries, newEntry)
+		}
+		newUbd := stakingtypes.UnbondingDelegation{
+			DelegatorAddress: ubd.DelegatorAddress,
+			ValidatorAddress: ubd.ValidatorAddress,
+			Entries: newEntries,
+		}
+		newUbds = append(newUbds, newUbd)
+	}
+	return newUbds
+}
+
+func convertRedelegations(reDels []v0.Redelegation) []stakingtypes.Redelegation {
+	newRedels := make([]stakingtypes.Redelegation, 0) 
+	for _, reDel := range reDels {
+		newEntries := make([]stakingtypes.RedelegationEntry, 0)
+		for _, entry := range reDel.Entries {
+			newEntry := stakingtypes.RedelegationEntry{
+				CreationHeight: entry.CreationHeight,
+				CompletionTime: entry.CompletionTime,
+				InitialBalance: entry.InitialBalance.Amount,
+				SharesDst: entry.SharesDst,
+			}
+			newEntries = append(newEntries, newEntry)
+		}
+		newRedel := stakingtypes.Redelegation{
+			DelegatorAddress: reDel.DelegatorAddress,
+			ValidatorSrcAddress: reDel.ValidatorSrcAddress,
+			ValidatorDstAddress: reDel.ValidatorDstAddress,
+			Entries: newEntries,
+		}
+		newRedels = append(newRedels, newRedel)
+	}
+	return newRedels
 }
