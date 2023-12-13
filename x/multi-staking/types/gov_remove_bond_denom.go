@@ -1,7 +1,6 @@
 package types
 
 import (
-	"fmt"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
 
@@ -38,7 +37,7 @@ func (p *RemoveBondTokenProposal) ValidateBasic() error {
 	}
 
 	if p.BondTokenRemove == "" {
-		return fmt.Errorf("denom %s does not exist", p.BondTokenRemove)
+		return ErrBrondDenomDoesNotExist
 	}
 
 	return nil

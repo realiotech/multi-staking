@@ -1,7 +1,6 @@
 package types
 
 import (
-	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
@@ -40,11 +39,11 @@ func (p *UpdateBondTokenWeightProposals) ValidateBasic() error {
 	}
 
 	if p.BondDenomChange == "" {
-		return fmt.Errorf("denom %s does not exist", p.BondDenomChange)
+		return ErrBrondDenomDoesNotExist
 	}
 
 	if p.BondTokenWeightChange.LT(sdk.ZeroDec()) {
-		return fmt.Errorf("BondTokenWeight cannot be less than 0")
+		return ErrLessThanZero
 	}
 
 	return nil

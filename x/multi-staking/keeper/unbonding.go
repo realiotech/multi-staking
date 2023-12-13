@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"fmt"
-
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -22,7 +20,7 @@ func (k Keeper) CompleteUnbonding(
 	// get unbonded record
 	ubd, found := k.GetMultiStakingUnlock(ctx, delAddr, valAddr)
 	if !found {
-		return unlockedAmount, fmt.Errorf("unbonded record not exists")
+		return unlockedAmount, types.ErrRecordNotExists
 	}
 	var (
 		unbondEntry      types.UnlockEntry
@@ -45,7 +43,7 @@ func (k Keeper) CompleteUnbonding(
 
 	// check amount
 	if unlockMultiStakingAmount.GT(unbondEntry.Balance) {
-		return unlockedAmount, fmt.Errorf("unlock amount greater than lock amount")
+		return unlockedAmount, types.ErrCheckInsufficientAmount
 	}
 
 	// burn bonded token

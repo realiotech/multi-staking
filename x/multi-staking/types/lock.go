@@ -1,8 +1,6 @@
 package types
 
 import (
-	"fmt"
-
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -18,7 +16,7 @@ func NewMultiStakingLock(lockedAmount math.Int, conversionRatio sdk.Dec, delAddr
 
 func (lock MultiStakingLock) RemoveTokenFromMultiStakingLock(removedAmount math.Int) (MultiStakingLock, error) {
 	if removedAmount.GT(lock.LockedAmount) {
-		return MultiStakingLock{}, fmt.Errorf("removed amount greater than existing amount in lock")
+		return MultiStakingLock{}, ErrCheckInsufficientAmount.Wrap("removed amount greater than existing amount in lock")
 	}
 
 	lock.LockedAmount = lock.LockedAmount.Sub(removedAmount)
