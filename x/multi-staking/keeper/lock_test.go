@@ -3,12 +3,12 @@ package keeper_test
 import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
-
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/realio-tech/multi-staking-module/testutil"
 	multistakingkeeper "github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
 	multistakingtypes "github.com/realio-tech/multi-staking-module/x/multi-staking/types"
+	"math/rand"
 )
 
 func (suite *KeeperTestSuite) TestLockedAmountToBondAmount() {
@@ -128,6 +128,33 @@ func (suite *KeeperTestSuite) TestAddTokenToLock() {
 			suite.Require().Equal(lockRecord.ConversionRatio, tc.expRate)
 		})
 	}
+}
+
+func (suite *KeeperTestSuite) TestAddTokenToLockManyTime() {
+	suite.SetupTest()
+	delAddr := testutil.GenAddress()
+	valAddr := testutil.GenValAddress()
+	lockId := multistakingtypes.MultiStakingLockID(delAddr, valAddr)
+	lockedAmountAfter := sdk.NewInt(0)
+	maxTest := rand.Intn(10000) + 10000
+	conversionRatioBefore := sdk.NewDec(0)
+	addedAmount := sdk.NewInt(1000000)
+	for i := 1; i <= maxTest; i++ {
+		// conversionRatioAfter = ( (conversionRatioBefore * lockedAmountBefore) + (currentConversionRatio * addedAmount) ) / lockedAmountAfter
+		currentConversionRatio := sdk.NewDec(int64(i % 1000)).Add(sdk.OneDec())
+		lockedAmountBefore := lockedAmountAfter
+
+		suite.msKeeper.AddTokenToLock(suite.ctx, delAddr, valAddr, addedAmount, currentConversionRatio)
+
+		lockedAmountAfter = lockedAmountAfter.Add(addedAmount)
+		conversionRatioAfter := (conversionRatioBefore.MulInt(lockedAmountBefore).Add(currentConversionRatio.MulInt(addedAmount))).QuoInt(lockedAmountAfter)
+		conversionRatioBefore = conversionRatioAfter
+		lockRecord, _ := suite.msKeeper.GetMultiStakingLock(suite.ctx, lockId)
+
+		suite.Require().Equal(lockedAmountAfter, lockRecord.LockedAmount)
+		suite.Require().Equal(lockRecord.ConversionRatio, conversionRatioAfter)
+	}
+	suite.Require().Equal(addedAmount.Mul(sdk.NewInt(int64(maxTest))), lockedAmountAfter)
 }
 
 func (suite *KeeperTestSuite) TestRemoveTokenFromLock() {
@@ -329,6 +356,24 @@ func (suite *KeeperTestSuite) TestLockMultiStakingTokenAndMintBondToken() {
 			expErr: false,
 		},
 		{
+			name: "901 token, weight 0.5, 2001 token, weight 2.1, expect 4652",
+			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) (math.Int, error) {
+				lockAmt := sdk.NewInt(901)
+				weight := sdk.MustNewDecFromStr("0.5")
+				msKeeper.SetBondTokenWeight(ctx, gasDenom, weight)
+				mintAmt, err := msKeeper.LockMultiStakingTokenAndMintBondToken(ctx, delAddr, valAddr, sdk.NewCoin(gasDenom, lockAmt))
+
+				newLockAmt := sdk.NewInt(2001)
+				newWeight := sdk.MustNewDecFromStr("2.1")
+				msKeeper.SetBondTokenWeight(ctx, gasDenom, newWeight)
+				newMintAmt, err := msKeeper.LockMultiStakingTokenAndMintBondToken(ctx, delAddr, valAddr, sdk.NewCoin(gasDenom, newLockAmt))
+
+				return mintAmt.Amount.Add(newMintAmt.Amount), err
+			},
+			expOut: sdk.NewInt(4652),
+			expErr: false,
+		},
+		{
 			name: "invalid coin",
 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) (math.Int, error) {
 				lockAmt := sdk.NewInt(3001)
@@ -371,7 +416,7 @@ func (suite *KeeperTestSuite) TestBurnBondTokenAndUnlockMultiStakingToken() {
 		expErr    bool
 	}{
 		{
-			name: "lock 3001 token, rate 0.3, expect unlock 3000",
+			name: "lock 3001 token, weight 0.3, expect unlock 3000",
 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) (math.Int, error) {
 				lockAmt := sdk.NewInt(3001)
 				weight := sdk.MustNewDecFromStr("0.3")
@@ -381,11 +426,11 @@ func (suite *KeeperTestSuite) TestBurnBondTokenAndUnlockMultiStakingToken() {
 				unlockSDKAmt := sdk.NewCoin(stakingtypes.DefaultParams().BondDenom, sdk.NewInt(900))
 				unlockAmt, err := msKeeper.BurnBondTokenAndUnlockMultiStakingToken(ctx, imAddr, valAddr, unlockSDKAmt)
 
-				return unlockAmt[0].Amount, err 
+				return unlockAmt[0].Amount, err
 			},
-			expOut: sdk.NewInt(3000),
+			expOut:    sdk.NewInt(3000),
 			expRemain: sdk.NewInt(3001),
-			expErr: false,
+			expErr:    false,
 		},
 		{
 			name: "lock 25 token, weight 0.5, expect unlock 24",
@@ -400,9 +445,9 @@ func (suite *KeeperTestSuite) TestBurnBondTokenAndUnlockMultiStakingToken() {
 
 				return unlockAmt[0].Amount, err
 			},
-			expOut: sdk.NewInt(24),
+			expOut:    sdk.NewInt(24),
 			expRemain: sdk.NewInt(25),
-			expErr: false,
+			expErr:    false,
 		},
 		{
 			name: "lock 25 token, weight 0.5, unlock 11 bond token, expect 22 token unlock, remain 3 token",
@@ -417,9 +462,9 @@ func (suite *KeeperTestSuite) TestBurnBondTokenAndUnlockMultiStakingToken() {
 
 				return unlockAmt[0].Amount, err
 			},
-			expOut: sdk.NewInt(22),
+			expOut:    sdk.NewInt(22),
 			expRemain: sdk.NewInt(25),
-			expErr: false,
+			expErr:    false,
 		},
 		{
 			name: "lock not exist",
