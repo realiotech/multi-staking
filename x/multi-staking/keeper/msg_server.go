@@ -241,8 +241,8 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (
 	return &types.MsgUndelegateResponse{}, err
 }
 
-// // CancelUnbondingDelegation defines a method for canceling the unbonding delegation
-// // and delegate back to the validator.
+// CancelUnbondingDelegation defines a method for canceling the unbonding delegation
+// and delegate back to the validator.
 func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.MsgCancelUnbondingDelegation) (*types.MsgCancelUnbondingDelegationResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
