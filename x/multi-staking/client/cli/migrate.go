@@ -8,6 +8,7 @@ import (
 	"cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 	tmjson "github.com/tendermint/tendermint/libs/json"
@@ -107,5 +108,10 @@ func validateGenDoc(importGenesisFile string) (*tmtypes.GenesisDoc, error) {
 }
 
 func migrate(genesisState AppMap, ctx client.Context) AppMap {
+	oldCodec := codec.NewLegacyAmino()
 	return nil
+}
+
+func migrateBankModule(genesisState AppMap, ctx client.Context) AppMap {
+
 }
