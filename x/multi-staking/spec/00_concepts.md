@@ -4,7 +4,7 @@ The multi-staking-module is a module that allows the cosmos-sdk staking system t
 
 ## Features
 
-- Staking with many diffrent type of tokens
+- Staking with many different type of tokens
 - Bond denom selection via Gov proposal
 - A validator can only be delegated using its bonded denom
 - All user usecases of the sdk staking module
@@ -27,7 +27,7 @@ Each delegation from a `delegator A` is actually reprensented in the form of a `
 
 ### Intermediary Account
 
-For each delegation from a `delegator A`, the underlying `sdk delegation` will be created and managed DIRECTLY by an unique `intermediary account C` instead of the `delegator A`, meaning that the `sdk delegation` will have the `intermediary account` as its delegator. The `delegator A` though, via messages of the multi-staking module can still dictate what `intermediary account C` on what to do with the `sdk delegation` so that `delegator A` still have full controll over the delegation. However, delegators aren't actually aware of the `intermediary account`. All logic related to `intermediary acocunt` is considered internal logic of the module and thus concealed from `delegator`.
+For each delegation from a `delegator A`, the underlying `sdk delegation` will be created and managed DIRECTLY by an unique `intermediary account C` instead of the `delegator A`, meaning that the `sdk delegation` will have the `intermediary account` as its delegator. The `delegator A` though, via messages of the multi-staking module can still dictate what `intermediary account C` on what to do with the `sdk delegation` so that `delegator A` still have full control over the delegation. However, delegators aren't actually aware of the `intermediary account`. All logic related to `intermediary account` is considered internal logic of the module and thus concealed from `delegator`.
 
 The `intermediary account` is also where the `bond token` from `delegator` is locked and the `sdkbond token` is minted to, the minted `sdkbond token` will then be used to create the `sdk delegation`.
 
@@ -35,5 +35,5 @@ The `intermediary account` is also where the `bond token` from `delegator` is lo
 
 Each `bond token` is associated with a `bond token weight`. This `bond token weight` is specified via the gov proposal in which the `bond token` is accepted.
 
-We mentioned above that for each delegation the multi-staking will lock the `bond token` and mint a calculated ammount of `sdkbond token`. The calculation here is a multiplication : minted sdkbond token ammount = bond token amount * bond token weight.
+We mentioned above that for each delegation the multi-staking will lock the `bond token` and mint a calculated amount of `sdkbond token`. The calculation here is a multiplication : minted sdkbond token amount = bond token amount * bond token weight.
 
