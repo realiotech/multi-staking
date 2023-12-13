@@ -53,7 +53,7 @@ Logic flow:
 
 * Send delegated coins from user to `IntermediaryAccount`.
 
-* Caculate the `sdkbond token` to be minted using `BondTokenWeight`.
+* Calculate the `sdkbond token` to be minted using `BondTokenWeight`.
 
 * Mint `sdkbond token` to `IntermediaryAccount`
 
@@ -70,7 +70,7 @@ validator.
 
 Logic flow:
 
-* Calculate ammount of `sdkbond token` need to be `sdk undelegated`
+* Calculate amount of `sdkbond token` need to be `sdk undelegated`
 
 * Call `stakingkeeper.Undelegate()` with the calculated amount of `sdkbond token`
 
