@@ -8,8 +8,9 @@ import (
 	"cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	v0 "github.com/realio-tech/multi-staking-module/x/multi-staking/types/v0"
@@ -21,6 +22,12 @@ import (
 type AppMap map[string]json.RawMessage
 
 const flagGenesisTime = "genesis-time"
+
+var (
+	bondedPoolAddress   = authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String()
+	unbondedPoolAddress = authtypes.NewModuleAddress(stakingtypes.NotBondedPoolName).String()
+	newBondedTokenDenom = "stake"
+)
 
 // MigrateGenesisCmd returns a command to execute genesis state migration.
 func MigrateStakingGenesisCmd() *cobra.Command {
@@ -45,7 +52,11 @@ func MigrateStakingGenesisCmd() *cobra.Command {
 			}
 
 			// migrate
-			newGenState := migrate(initialState, clientCtx)
+			newGenState, err := migrate(initialState, clientCtx)
+			if err != nil {
+				return err
+			}
+
 			genDoc.AppState, err = json.Marshal(newGenState)
 			if err != nil {
 				return errors.Wrap(err, "failed to JSON marshal migrated genesis state")
@@ -110,9 +121,75 @@ func validateGenDoc(importGenesisFile string) (*tmtypes.GenesisDoc, error) {
 	return genDoc, nil
 }
 
-func migrate(genesisState AppMap, ctx client.Context) AppMap {
-	oldCodec := codec.NewLegacyAmino()
-	return nil
+func migrate(genesisState AppMap, ctx client.Context) (AppMap, error) {
+	return genesisState, nil
+}
+
+func migrateBank(genesisState AppMap, ctx client.Context) (AppMap, error) {
+	rawData := genesisState[stakingtypes.ModuleName]
+	var oldStakingState v0.GenesisState
+	err := json.Unmarshal(rawData, &oldStakingState)
+	if err != nil {
+		return nil, err
+	}
+
+	rawData = genesisState[banktypes.ModuleName]
+	var oldBankState banktypes.GenesisState
+	err = json.Unmarshal(rawData, &oldBankState)
+	if err != nil {
+		return nil, err
+	}
+
+	// validator map
+	validatorMap := make(map[string]v0.Validator, 0)
+	for _, validator := range oldStakingState.Validators {
+		validatorMap[validator.OperatorAddress] = validator
+	}
+
+	for _, delegation := range oldStakingState.Delegations {
+		// change the delegation from staking bonded(unbonded) pool to intermedary account
+		DelAddr := sdk.AccAddress(delegation.DelegatorAddress)
+		intermediaryAccount := types.IntermediaryAccount(DelAddr)
+
+		validator, ok := validatorMap[delegation.ValidatorAddress]
+		if !ok {
+			return nil, fmt.Errorf("Error validator not found delegation %v", delegation.ValidatorAddress)
+		}
+		denom := validator.BondDenom
+
+		if validator.Status == v0.Bonded {
+			// if bonded => transfer from bondedPoolAddress to intermediary address
+			amount := (delegation.Shares.MulInt(validator.Tokens)).Quo(validator.DelegatorShares)
+
+			// Calculate new bonded token amount in bondedPoolAddress
+		} else {
+			// if unbonded or unbonding => transfer from unbondedPoolAddress to intermediary address
+			amount := (delegation.Shares.MulInt(validator.Tokens)).Quo(validator.DelegatorShares)
+			// Caculate new bonded token amount in unbondedPoolAddress
+		}
+
+	}
+
+	for _, ubdDelegation := range oldStakingState.UnbondingDelegations {
+		// change the delegation from staking unbonded pool to intermedary account
+		DelAddr := sdk.AccAddress(ubdDelegation.DelegatorAddress)
+		intermediaryAccount := types.IntermediaryAccount(DelAddr)
+
+		validator, ok := validatorMap[ubdDelegation.ValidatorAddress]
+		if !ok {
+			return nil, fmt.Errorf("Error validator not found ubdDelegation %v", ubdDelegation.ValidatorAddress)
+		}
+		denom := validator.BondDenom
+
+		for _, entry := range ubdDelegation.Entries {
+			// move balance in entry from unbondedPoolAddress to intermediary address
+
+			// Caculate new bonded token amount in unbondedPoolAddress
+		}
+
+	}
+
+	return genesisState, nil
 }
 
 func migrateStaking(genesisState AppMap, ctx client.Context) (AppMap, error) {
@@ -142,7 +219,7 @@ func migrateStaking(genesisState AppMap, ctx client.Context) (AppMap, error) {
 
 	for _, val := range oldState.Validators {
 		allowedToken := types.ValidatorAllowedToken{
-			ValAddr: val.OperatorAddress,
+			ValAddr:    val.OperatorAddress,
 			TokenDenom: val.BondDenom,
 		}
 		newState.ValidatorAllowedToken = append(newState.ValidatorAllowedToken, allowedToken)
@@ -155,13 +232,13 @@ func migrateStaking(genesisState AppMap, ctx client.Context) (AppMap, error) {
 			if del.ValidatorAddress == val.OperatorAddress {
 				lock := types.MultiStakingLock{
 					ConversionRatio: sdk.OneDec(),
-					DelAddr: del.DelegatorAddress,
-					ValAddr: del.ValidatorAddress,
-					LockedAmount: val.TokensFromShares(del.Shares).TruncateInt(),
+					DelAddr:         del.DelegatorAddress,
+					ValAddr:         del.ValidatorAddress,
+					LockedAmount:    val.TokensFromShares(del.Shares).TruncateInt(),
 				}
 				newState.MultiStakingLocks = append(newState.MultiStakingLocks, lock)
 			}
-			
+
 		}
 	}
 
@@ -200,7 +277,7 @@ func convertValidators(validators []v0.Validator) []stakingtypes.Validator {
 }
 
 func convertDelegations(delegations []v0.Delegation) []stakingtypes.Delegation {
-	newDelegations := make([]stakingtypes.Delegation, 0) 
+	newDelegations := make([]stakingtypes.Delegation, 0)
 	for _, del := range delegations {
 		newDel := stakingtypes.Delegation(del)
 		newDelegations = append(newDelegations, newDel)
@@ -209,7 +286,7 @@ func convertDelegations(delegations []v0.Delegation) []stakingtypes.Delegation {
 }
 
 func convertUnbondings(ubds []v0.UnbondingDelegation) []stakingtypes.UnbondingDelegation {
-	newUbds := make([]stakingtypes.UnbondingDelegation, 0) 
+	newUbds := make([]stakingtypes.UnbondingDelegation, 0)
 	for _, ubd := range ubds {
 		newEntries := make([]stakingtypes.UnbondingDelegationEntry, 0)
 		for _, entry := range ubd.Entries {
@@ -217,14 +294,14 @@ func convertUnbondings(ubds []v0.UnbondingDelegation) []stakingtypes.UnbondingDe
 				CreationHeight: entry.CreationHeight,
 				CompletionTime: entry.CompletionTime,
 				InitialBalance: entry.InitialBalance.Amount,
-				Balance: entry.Balance.Amount,
+				Balance:        entry.Balance.Amount,
 			}
 			newEntries = append(newEntries, newEntry)
 		}
 		newUbd := stakingtypes.UnbondingDelegation{
 			DelegatorAddress: ubd.DelegatorAddress,
 			ValidatorAddress: ubd.ValidatorAddress,
-			Entries: newEntries,
+			Entries:          newEntries,
 		}
 		newUbds = append(newUbds, newUbd)
 	}
@@ -232,7 +309,7 @@ func convertUnbondings(ubds []v0.UnbondingDelegation) []stakingtypes.UnbondingDe
 }
 
 func convertRedelegations(reDels []v0.Redelegation) []stakingtypes.Redelegation {
-	newRedels := make([]stakingtypes.Redelegation, 0) 
+	newRedels := make([]stakingtypes.Redelegation, 0)
 	for _, reDel := range reDels {
 		newEntries := make([]stakingtypes.RedelegationEntry, 0)
 		for _, entry := range reDel.Entries {
@@ -240,21 +317,17 @@ func convertRedelegations(reDels []v0.Redelegation) []stakingtypes.Redelegation 
 				CreationHeight: entry.CreationHeight,
 				CompletionTime: entry.CompletionTime,
 				InitialBalance: entry.InitialBalance.Amount,
-				SharesDst: entry.SharesDst,
+				SharesDst:      entry.SharesDst,
 			}
 			newEntries = append(newEntries, newEntry)
 		}
 		newRedel := stakingtypes.Redelegation{
-			DelegatorAddress: reDel.DelegatorAddress,
+			DelegatorAddress:    reDel.DelegatorAddress,
 			ValidatorSrcAddress: reDel.ValidatorSrcAddress,
 			ValidatorDstAddress: reDel.ValidatorDstAddress,
-			Entries: newEntries,
+			Entries:             newEntries,
 		}
 		newRedels = append(newRedels, newRedel)
 	}
 	return newRedels
-}
-
-func migrateBankModule(genesisState AppMap, ctx client.Context) AppMap {
-	return nil
 }
