@@ -38,7 +38,7 @@ func KeyPrefix(key string) []byte {
 	return []byte(key)
 }
 
-// GetBondTokenWeightKeyKey returns a key for an index containing the bond token weight
+// GetBondTokenWeightKey returns a key for an index containing the bond token weight
 func GetBondTokenWeightKey(tokenDenom string) []byte {
 	return append(BondTokenWeightKey, []byte(tokenDenom)...)
 }
@@ -48,7 +48,7 @@ func GetValidatorAllowedTokenKey(valAddr string) []byte {
 	return append(ValidatorAllowedTokenKey, []byte(valAddr)...)
 }
 
-// GetIntermediaryAccountDelegatorKey returns a key for an index containing the delegator of an intermediary account
+// GetIntermediaryAccountKey returns a key for an index containing the delegator of an intermediary account
 func GetIntermediaryAccountKey(intermediaryAccount sdk.AccAddress) []byte {
 	return append(IntermediaryAccountKey, intermediaryAccount...)
 }
