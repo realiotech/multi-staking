@@ -14,6 +14,14 @@ func HandlerAddBondDenomProposal(ctx sdk.Context, k *Keeper, p *types.AddBondDen
 	}
 
 	k.SetBondTokenWeight(ctx, p.BondTokenAdd, *p.BondTokenWeightAdd)
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeAddBondToken,
+			sdk.NewAttribute(types.AttributeKeyBondToken, p.BondTokenAdd),
+			sdk.NewAttribute(types.AttributeKeyBondTokenWeight, p.BondTokenWeightAdd.String()),
+		),
+	)
 	return nil
 }
 
@@ -25,6 +33,14 @@ func HandlerUpdateBondTokenWeightProposals(ctx sdk.Context, k *Keeper, p *types.
 	k.RemoveBondTokenWeight(ctx, p.BondDenomChange)
 
 	k.SetBondTokenWeight(ctx, p.BondDenomChange, *p.BondTokenWeightChange)
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeUpdateBondTokenWeight,
+			sdk.NewAttribute(types.AttributeKeyBondToken, p.BondDenomChange),
+			sdk.NewAttribute(types.AttributeKeyBondTokenWeight, p.BondTokenWeightChange.String()),
+		),
+	)
 	return nil
 }
 
@@ -35,4 +51,10 @@ func HandlerRemoveBondTokenProposal(ctx sdk.Context, k *Keeper, p *types.RemoveB
 	}
 
 	k.RemoveBondTokenWeight(ctx, p.BondTokenRemove)
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeRemoveBondTokenWeight,
+			sdk.NewAttribute(types.AttributeKeyBondToken, p.BondTokenRemove),
+		),
+	)
 }
