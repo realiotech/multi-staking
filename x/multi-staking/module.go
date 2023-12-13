@@ -168,3 +168,4 @@ func (am AppModule) EndBlock(ctx sdk.Context, requestEndBlock abci.RequestEndBlo
 
 // ConsensusVersion return module consensus version
 func (AppModule) ConsensusVersion() uint64 { return 1 }
+
