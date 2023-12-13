@@ -14,10 +14,19 @@ func NewBondDenomProposalHandler(k keeper.Keeper) govtypes.Handler {
 	return func(ctx sdk.Context, content govtypes.Content) error {
 		switch c := content.(type) {
 		case *types.AddBondDenomProposal:
+			if err := c.ValidateBasic(); err != nil {
+				return err
+			}
 			return keeper.HandlerAddBondDenomProposal(ctx, &k, c)
 		case *types.UpdateBondTokenWeightProposals:
+			if err := c.ValidateBasic(); err != nil {
+				return err
+			}
 			return keeper.HandlerUpdateBondTokenWeightProposals(ctx, &k, c)
 		case *types.RemoveBondTokenProposal:
+			if err := c.ValidateBasic(); err != nil {
+				return err
+			}
 			keeper.HandlerRemoveBondTokenProposal(ctx, &k, c)
 			return nil
 		default:
