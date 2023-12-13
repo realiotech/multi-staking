@@ -24,7 +24,7 @@ func NewMultiStakingProposalHandler(k *keeper.Keeper) govv1beta1.Handler {
 	}
 }
 
-// handleAddBondTokenProposal handles the proposals to add a new bond token 
+// handleAddBondTokenProposal handles the proposals to add a new bond token
 func handleAddBondTokenProposal(
 	ctx sdk.Context,
 	k *keeper.Keeper,

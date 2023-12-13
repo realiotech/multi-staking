@@ -1,18 +1,17 @@
 package types
 
 import (
-	"fmt"
-	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	"cosmossdk.io/math"
 	sdkerrors "cosmossdk.io/errors"
+	"fmt"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
 
 // Proposal types
 const (
-	ProposalTypeAddBondToken string = "AddBondToken"
+	ProposalTypeAddBondToken          string = "AddBondToken"
 	ProposalTypeChangeBondTokenWeight string = "ChangeBondTokenWeight"
 )
-
 
 // Assert module proposals implement govtypes.Content at compile-time
 var (
@@ -25,13 +24,12 @@ func init() {
 	govv1beta1.RegisterProposalType(ProposalTypeChangeBondTokenWeight)
 }
 
-
 // NewAddBondTokenProposal returns new instance of AddBondTokenProposal
-func NewAddBondTokenProposal(title, description, bondToken string, tokenWeight math.LegacyDec) govv1beta1.Content {
+func NewAddBondTokenProposal(title, description, bondToken string, tokenWeight sdk.Dec) govv1beta1.Content {
 	return &AddBondTokenProposal{
 		Title:       title,
 		Description: description,
-		BondToken: bondToken,
+		BondToken:   bondToken,
 		TokenWeight: &tokenWeight,
 	}
 }
@@ -41,7 +39,6 @@ func (abtp *AddBondTokenProposal) GetTitle() string { return abtp.Title }
 
 // GetDescription returns the description of a AddBondTokenProposal
 func (abtp *AddBondTokenProposal) GetDescription() string { return abtp.Description }
-
 
 // ProposalRoute returns router key for a AddBondTokenProposal
 func (*AddBondTokenProposal) ProposalRoute() string { return RouterKey }
@@ -57,8 +54,8 @@ func (abtp *AddBondTokenProposal) ValidateBasic() error {
 	if err != nil {
 		return err
 	}
-		
-	if (abtp.BondToken == "") {
+
+	if abtp.BondToken == "" {
 		return sdkerrors.Wrap(ErrInvalidAddBondTokenProposal, "proposal bond token cannot be blank")
 	}
 
@@ -74,14 +71,12 @@ func (abtp AddBondTokenProposal) String() string {
 	return fmt.Sprintf("AddBondTokenProposal: Title: %s Description: %s BondToken: %s TokenWeight: %s", abtp.Title, abtp.Description, abtp.BondToken, abtp.TokenWeight)
 }
 
-
-
 // NewChangeBondTokenWeightProposal returns new instance of ChangeBondTokenWeightProposal
-func NewChangeBondTokenWeightProposal(title, description, bondToken string, tokenWeight math.LegacyDec) govv1beta1.Content {
+func NewChangeBondTokenWeightProposal(title, description, bondToken string, tokenWeight sdk.Dec) govv1beta1.Content {
 	return &ChangeBondTokenWeightProposal{
 		Title:       title,
 		Description: description,
-		BondToken: bondToken,
+		BondToken:   bondToken,
 		TokenWeight: &tokenWeight,
 	}
 }
@@ -111,8 +106,8 @@ func (cbtp *ChangeBondTokenWeightProposal) ValidateBasic() error {
 	if err != nil {
 		return err
 	}
-		
-	if (cbtp.BondToken == "") {
+
+	if cbtp.BondToken == "" {
 		return sdkerrors.Wrap(ErrInvalidChangeBondTokenWeightProposal, "proposal bond token cannot be blank")
 	}
 
