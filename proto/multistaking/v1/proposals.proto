@@ -1,0 +1,34 @@
+syntax = "proto3";
+package multistaking.v1;
+
+import "gogoproto/gogo.proto";
+
+import "cosmos_proto/cosmos.proto";
+
+option go_package = "github.com/realiotech/multi-staking/x/multi-staking/types";
+
+message AddBondDenomProposal {
+  string title = 1;
+  string description = 2;
+  string bond_token_add = 3;
+  string bond_token_weight_add = 4 [
+    (cosmos_proto.scalar) = "cosmos.Dec",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
+  ];
+}
+
+message UpdateBondTokenWeightProposals {
+  string title = 1;
+  string description = 2;
+  string bond_denom_change = 3;
+  string bond_token_weight_change = 4 [
+    (cosmos_proto.scalar) = "cosmos.Dec",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
+  ];
+}
+
+message RemoveBondTokenProposal {
+  string title = 1;
+  string description = 2;
+  string bond_token_remove = 3;
+}

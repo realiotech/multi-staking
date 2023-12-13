@@ -10,6 +10,7 @@ require (
 	github.com/cosmos/gogoproto v1.4.11
 	github.com/cosmos/ibc-go/v6 v6.1.1
 	github.com/gorilla/mux v1.8.0
+	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/rakyll/statik v0.1.7
 	github.com/spf13/cast v1.5.0
 	github.com/spf13/cobra v1.6.1
@@ -19,6 +20,7 @@ require (
 	github.com/tendermint/tm-db v0.6.7
 	google.golang.org/grpc v1.57.0
 	google.golang.org/protobuf v1.31.0
+	sigs.k8s.io/yaml v1.3.0
 )
 
 require (
@@ -84,7 +86,6 @@ require (
 	github.com/gorilla/handlers v1.5.1 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0 // indirect
-	github.com/grpc-ecosystem/grpc-gateway v1.16.0 // indirect
 	github.com/gsterjov/go-libsecret v0.0.0-20161001094733-a6f4afe4910c // indirect
 	github.com/gtank/merlin v0.1.1 // indirect
 	github.com/gtank/ristretto255 v0.1.2 // indirect
@@ -159,7 +160,6 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	nhooyr.io/websocket v1.8.6 // indirect
-	sigs.k8s.io/yaml v1.3.0 // indirect
 )
 
 replace (

@@ -24,40 +24,47 @@ const (
 
 // KVStore keys
 var (
-	BondTokenWeightKey    = []byte{0x00}
-	ValidatorBondDenomKey = []byte{0x01}
+	BondTokenWeightKey       = []byte{0x00}
+	ValidatorAllowedTokenKey = []byte{0x01}
 
-	IntermediaryAccountDelegator = []byte{0x02}
+	IntermediaryAccountKey = []byte{0x02}
 
-	DVPairSDKBondTokens = []byte{0x03}
+	MultiStakingLockPrefix = []byte{0x03}
 
-	DVPairBondTokens = []byte{0x04}
-
-	// mem store key
-	CompletedDelegationsPrefix = []byte{0x05}
+	UnbondDelKey = []byte{0x11} // key for an unbonding-delegation
 )
+
+func KeyPrefix(key string) []byte {
+	return []byte(key)
+}
 
 // GetBondTokenWeightKeyKey returns a key for an index containing the bond token weight
 func GetBondTokenWeightKey(tokenDenom string) []byte {
 	return append(BondTokenWeightKey, []byte(tokenDenom)...)
 }
 
-// GetValidatorBondDenomKey returns a key for an index containing the bond denom of a validator
-func GetValidatorBondDenomKey(operatorAddr sdk.ValAddress) []byte {
-	return append(ValidatorBondDenomKey, address.MustLengthPrefix(operatorAddr)...)
+// GetValidatorAllowedTokenKey returns a key for an index containing the bond denom of a validator
+func GetValidatorAllowedTokenKey(valAddr string) []byte {
+	return append(ValidatorAllowedTokenKey, []byte(valAddr)...)
 }
 
 // GetIntermediaryAccountDelegatorKey returns a key for an index containing the delegator of an intermediary account
-func GetIntermediaryAccountDelegatorKey(intermediaryAccount sdk.AccAddress) []byte {
-	return append(IntermediaryAccountDelegator, intermediaryAccount...)
+func GetIntermediaryAccountKey(intermediaryAccount sdk.AccAddress) []byte {
+	return append(IntermediaryAccountKey, intermediaryAccount...)
 }
 
-func GetDVPairSDKBondTokensKey(delAddr sdk.AccAddress, valAddr sdk.ValAddress) []byte {
+func MultiStakingLockID(delAddr sdk.AccAddress, valAddr sdk.ValAddress) []byte {
 	DVPair := append(delAddr, address.MustLengthPrefix(valAddr)...)
-	return append(DVPairSDKBondTokens, DVPair...)
+	return append(MultiStakingLockPrefix, DVPair...)
 }
 
-func GetDVPairBondTokensKey(delAddr sdk.AccAddress, valAddr sdk.ValAddress) []byte {
-	DVPair := append(delAddr, address.MustLengthPrefix(valAddr)...)
-	return append(DVPairBondTokens, DVPair...)
+// GetUBDsKey creates the prefix for all unbonding delegations from a delegator
+func GetUBDsKey(delAddr sdk.AccAddress) []byte {
+	return append(UnbondDelKey, address.MustLengthPrefix(delAddr)...)
+}
+
+// GetUBDKey creates the key for an unbonding delegation by delegator and validator addr
+// VALUE: multi-staking/MultiStakingUnlock
+func GetUBDKey(delAddr sdk.AccAddress, valAddr sdk.ValAddress) []byte {
+	return append(GetUBDsKey(delAddr.Bytes()), address.MustLengthPrefix(valAddr)...)
 }

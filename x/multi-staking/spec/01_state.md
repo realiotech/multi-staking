@@ -12,7 +12,7 @@ order: 1
 
 ### Validator Bond Denom
 
-* ValidatorBondDenom: `0x01 | ValOperatorAddr -> BondDenom (string)`
+* ValidatorAllowedToken: `0x01 | ValOperatorAddr -> BondDenom (string)`
 
 ### Intermediary Account Delegator
 

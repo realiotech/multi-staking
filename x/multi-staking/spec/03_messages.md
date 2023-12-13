@@ -15,7 +15,7 @@ The Initial delegation token must match the `bond denom` specified in `MsgCreate
 
 Logic flow:
 
-1. Setting `ValidatorBondDenom`.
+1. Setting `ValidatorAllowedToken`.
 
 2. Converting `MsgCreateValidator` to `stakingtypes.MsgCreateValidator` and
 calling `stakingkeeper.CreateValidator()`.
@@ -57,9 +57,9 @@ Logic flow:
 
 * Mint `sdkbond token` to `IntermediaryAccount`
 
-* Update `DVPairSDKBondTokens`.
+* Update `DVPairSDKBondAmount`.
 
-* Update `DVPairBondTokens`.
+* Update `DVPairBondAmount`.
 
 * Create `sdk delegation` with `IntermediaryAccount` using the minted `sdkbond token`
 
@@ -98,4 +98,4 @@ Logic flow:
 
 * Call `stakingkeeper.BeginRedelegate()` with the calculated amount of `sdkbond token`
 
-* Update `DVPairSDKBondTokens`
+* Update `DVPairSDKBondAmount`
