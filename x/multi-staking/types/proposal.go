@@ -11,17 +11,21 @@ import (
 const (
 	ProposalTypeAddBondToken          string = "AddBondToken"
 	ProposalTypeChangeBondTokenWeight string = "ChangeBondTokenWeight"
+	ProposalTypeRemoveBondTokenWeight string = "RemoveBondTokenWeight"
 )
 
 // Assert module proposals implement govtypes.Content at compile-time
 var (
 	_ govv1beta1.Content = &AddBondTokenProposal{}
 	_ govv1beta1.Content = &ChangeBondTokenWeightProposal{}
+	_ govv1beta1.Content = &RemoveBondTokenWeightProposal{}
 )
 
 func init() {
 	govv1beta1.RegisterProposalType(ProposalTypeAddBondToken)
 	govv1beta1.RegisterProposalType(ProposalTypeChangeBondTokenWeight)
+	govv1beta1.RegisterProposalType(ProposalTypeRemoveBondTokenWeight)
+
 }
 
 // NewAddBondTokenProposal returns new instance of AddBondTokenProposal
@@ -113,6 +117,43 @@ func (cbtp *ChangeBondTokenWeightProposal) ValidateBasic() error {
 
 	if !cbtp.TokenWeight.IsPositive() {
 		return sdkerrors.Wrap(ErrInvalidChangeBondTokenWeightProposal, "proposal bond token weight must be positive")
+	}
+
+	return nil
+}
+
+// NewRemoveBondTokenWeightProposal returns new instance of RemoveBondTokenWeightProposal
+func NewRemoveBondTokenWeightProposal(title, description, bondToken string, tokenWeight sdk.Dec) govv1beta1.Content {
+	return &RemoveBondTokenWeightProposal{
+		Title:       title,
+		Description: description,
+		BondToken:   bondToken,
+	}
+}
+
+// GetTitle returns the title of a RemoveBondTokenWeightProposal
+func (abtp *RemoveBondTokenWeightProposal) GetTitle() string { return abtp.Title }
+
+// GetDescription returns the description of a RemoveBondTokenWeightProposal
+func (abtp *RemoveBondTokenWeightProposal) GetDescription() string { return abtp.Description }
+
+// ProposalRoute returns router key for a RemoveBondTokenWeightProposal
+func (*RemoveBondTokenWeightProposal) ProposalRoute() string { return RouterKey }
+
+// ProposalType returns proposal type for a RemoveBondTokenWeightProposal
+func (*RemoveBondTokenWeightProposal) ProposalType() string {
+	return ProposalTypeRemoveBondTokenWeight
+}
+
+// ValidateBasic runs basic stateless validity checks
+func (abtp *RemoveBondTokenWeightProposal) ValidateBasic() error {
+	err := govv1beta1.ValidateAbstract(abtp)
+	if err != nil {
+		return err
+	}
+
+	if abtp.BondToken == "" {
+		return ErrInvalidRemoveBondTokenProposal.Wrap("proposal bond token cannot be blank")
 	}
 
 	return nil

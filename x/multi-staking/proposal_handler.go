@@ -14,10 +14,22 @@ func NewMultiStakingProposalHandler(k *keeper.Keeper) govv1beta1.Handler {
 	return func(ctx sdk.Context, content govv1beta1.Content) error {
 
 		switch c := content.(type) {
+
 		case *types.AddBondTokenProposal:
+			if err := c.ValidateBasic(); err != nil {
+				return err
+			}
 			return handleAddBondTokenProposal(ctx, k, c)
 		case *types.ChangeBondTokenWeightProposal:
+			if err := c.ValidateBasic(); err != nil {
+				return err
+			}
 			return handleChangeTokenWeightProposal(ctx, k, c)
+		case *types.RemoveBondTokenWeightProposal:
+			if err := c.ValidateBasic(); err != nil {
+				return err
+			}
+			return handleRemoveTokenWeightProposal(ctx, k, c)
 		default:
 			return sdkerrors.Wrapf(errortypes.ErrUnknownRequest, "unrecognized %s proposal content type: %T", types.ModuleName, c)
 		}
@@ -57,6 +69,23 @@ func handleChangeTokenWeightProposal(
 			types.EventTypeChangeBondTokenWeight,
 			sdk.NewAttribute(types.AttributeKeyBondToken, p.BondToken),
 			sdk.NewAttribute(types.AttributeKeyBondTokenWeight, p.TokenWeight.String()),
+		),
+	)
+	return nil
+}
+
+func handleRemoveTokenWeightProposal(
+	ctx sdk.Context,
+	k *keeper.Keeper,
+	p *types.RemoveBondTokenWeightProposal,
+) error {
+
+	k.RemoveBondTokenWeight(ctx, p.BondToken)
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeRemoveBondTokenWeight,
+			sdk.NewAttribute(types.AttributeKeyBondToken, p.BondToken),
 		),
 	)
 	return nil
