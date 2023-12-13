@@ -27,6 +27,43 @@ func (suite *KeeperTestSuite) TestSetBondTokenWeight() {
 	suite.Equal(govWeight, btw)
 }
 
+func (suite *KeeperTestSuite) TestRemoveBondTokenWeight() {
+	gasDenom := "ario"
+	gasWeight := sdk.NewDec(1)
+	testCases := []struct {
+		name     string
+		malleate func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper)
+		expOut   sdk.Dec
+		expPanic bool
+	}{
+		{
+			name: "success, already SetBondTokenWeight",
+			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) {
+				msKeeper.SetBondTokenWeight(ctx, gasDenom, gasWeight)
+			},
+			expOut:   gasWeight,
+			expPanic: false,
+		},
+		{
+			name: "success, not yet SetBondTokenWeight",
+			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) {
+			},
+			expOut:   gasWeight,
+			expPanic: false,
+		},
+	}
+	for _, tc := range testCases {
+		tc := tc
+		suite.Run(tc.name, func() {
+			suite.SetupTest()
+			tc.malleate(suite.ctx, suite.msKeeper)
+			suite.msKeeper.RemoveBondTokenWeight(suite.ctx, gasDenom)
+			_, found := suite.msKeeper.GetBondTokenWeight(suite.ctx, gasDenom)
+			suite.Require().False(found)
+		})
+	}
+}
+
 func (suite *KeeperTestSuite) TestSetValidatorAllowedToken() {
 	valA := testutil.GenValAddress()
 	valB := testutil.GenValAddress()
