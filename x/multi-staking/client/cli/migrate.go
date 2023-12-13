@@ -8,6 +8,7 @@ import (
 	"cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
@@ -110,6 +111,7 @@ func validateGenDoc(importGenesisFile string) (*tmtypes.GenesisDoc, error) {
 }
 
 func migrate(genesisState AppMap, ctx client.Context) AppMap {
+	oldCodec := codec.NewLegacyAmino()
 	return nil
 }
 
@@ -251,4 +253,8 @@ func convertRedelegations(reDels []v0.Redelegation) []stakingtypes.Redelegation 
 		newRedels = append(newRedels, newRedel)
 	}
 	return newRedels
+}
+
+func migrateBankModule(genesisState AppMap, ctx client.Context) AppMap {
+	return nil
 }
