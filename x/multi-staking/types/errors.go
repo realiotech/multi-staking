@@ -1,41 +1,51 @@
 package types
 
 import (
-	errorsmod "cosmossdk.io/errors"
+	sdkerrors "cosmossdk.io/errors"
 )
 
+// x/multistaking module sentinel errors
 var (
-	ErrUnrecognized = errorsmod.Register(ModuleName, 1,
-		"unrecognized brond denom proposal content type",
-	)
-	ErrBrondDenomAlreadyExists = errorsmod.Register(ModuleName, 2,
+	ErrBrondDenomAlreadyExists = sdkerrors.Register(ModuleName, 2,
 		"brond denom already exists",
 	)
-	ErrBrondDenomDoesNotExist = errorsmod.Register(ModuleName, 3,
+	ErrBrondDenomDoesNotExist = sdkerrors.Register(ModuleName, 3,
 		"brond denom does not exist",
 	)
-	ErrNotFoundMultiStaking = errorsmod.Register(ModuleName, 4,
+	ErrNotFoundMultiStaking = sdkerrors.Register(ModuleName, 4,
 		"can't find multi staking",
 	)
-	ErrStakingNotExitsts = errorsmod.Register(ModuleName, 5,
+	ErrStakingNotExitsts = sdkerrors.Register(ModuleName, 5,
 		"StakingLock not exists",
 	)
-	ErrCheckInsufficientAmount = errorsmod.Register(ModuleName, 6,
+	ErrCheckInsufficientAmount = sdkerrors.Register(ModuleName, 6,
 		"unlock amount greater than lock amount",
 	)
-	ErrRecordNotExists = errorsmod.Register(ModuleName, 7,
+	ErrRecordNotExists = sdkerrors.Register(ModuleName, 7,
 		"record not exists",
 	)
-	ErrLessThanZero = errorsmod.Register(ModuleName, 8,
+	ErrLessThanZero = sdkerrors.Register(ModuleName, 8,
 		"cannot be less than 0",
 	)
-	ErrNotAllowedToken = errorsmod.Register(ModuleName, 9,
+	ErrNotAllowedToken = sdkerrors.Register(ModuleName, 9,
 		"not allowed token",
 	)
-	ErrDelegationNotFound = errorsmod.Register(ModuleName, 10,
+	ErrDelegationNotFound = sdkerrors.Register(ModuleName, 10,
 		"delegation not found",
 	)
-	ErrValidatorNotFound = errorsmod.Register(ModuleName, 10,
+	ErrValidatorNotFound = sdkerrors.Register(ModuleName, 10,
 		"validator not found",
+	)
+	ErrInvalidAddBondTokenProposal = sdkerrors.Register(ModuleName, 11,
+		"invalid add bond token proposal",
+	)
+	ErrInvalidChangeBondTokenWeightProposal = sdkerrors.Register(ModuleName, 12,
+		"invalid change bond token weight proposal",
+	)
+	ErrInvalidRemoveBondTokenProposal = sdkerrors.Register(ModuleName, 13,
+		"invalid remove bond token weight proposal",
+	)
+	ErrUnrecognized = sdkerrors.Register(ModuleName, 14,
+		"unrecognized brond denom proposal content type",
 	)
 )
