@@ -204,8 +204,6 @@ func (k Keeper) AdjustUnbondAmount(ctx sdk.Context, delAcc sdk.AccAddress, valAc
 func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (*types.MsgUndelegateResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	delAcc := sdk.MustAccAddressFromBech32(msg.DelegatorAddress)
-
 	delAcc, valAcc, err := types.DelAccAndValAccFromStrings(msg.DelegatorAddress, msg.ValidatorAddress)
 	if err != nil {
 		return nil, err
@@ -233,9 +231,14 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (
 	}
 
 	resp, err := k.stakingMsgServer.Undelegate(goCtx, sdkMsg)
+	if err != nil {
+		return nil, err
+	}
 
-	k.RemoveTokenFromLock(ctx, delAcc, valAcc, msg.Amount.Amount)
-
+	_, err = k.RemoveTokenFromLock(ctx, delAcc, valAcc, msg.Amount.Amount)
+	if err != nil {
+		return nil, err
+	}
 	k.SetMultiStakingUnlockEntry(ctx, delAcc, valAcc, ctx.BlockHeight(), lock.ConversionRatio, resp.CompletionTime, msg.Amount.Amount)
 
 	return &types.MsgUndelegateResponse{}, err

@@ -3,8 +3,8 @@ package keeper_test
 import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/realio-tech/multi-staking-module/testutil"
 	multistakingkeeper "github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
@@ -102,10 +102,10 @@ func (suite *KeeperTestSuite) TestAddTokenToLock() {
 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) math.Int {
 				lockAmt := sdk.NewInt(1000)
 				weight := sdk.MustNewDecFromStr("0.5")
-				lockRecord := msKeeper.AddTokenToLock(ctx, delAddr, valAddr, lockAmt, weight)
+				msKeeper.AddTokenToLock(ctx, delAddr, valAddr, lockAmt, weight)
 				lockAmt1 := sdk.NewInt(500)
 				weight1 := sdk.MustNewDecFromStr("0.8")
-				lockRecord = msKeeper.AddTokenToLock(ctx, delAddr, valAddr, lockAmt1, weight1)
+				lockRecord := msKeeper.AddTokenToLock(ctx, delAddr, valAddr, lockAmt1, weight1)
 				return lockRecord.LockedAmount
 			},
 			expAmt:  sdk.NewInt(1500),
@@ -344,8 +344,10 @@ func (suite *KeeperTestSuite) TestLockMultiStakingTokenAndMintBondToken() {
 		suite.Run(tc.name, func() {
 			suite.SetupTest()
 			valCoins := sdk.NewCoins(sdk.NewCoin(gasDenom, sdk.NewInt(10000)), sdk.NewCoin(govDenom, sdk.NewInt(10000)))
-			suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, valCoins)
-			suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, minttypes.ModuleName, delAddr, valCoins)
+			err := suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, valCoins)
+			suite.Require().NoError(err)
+			err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, minttypes.ModuleName, delAddr, valCoins)
+			suite.Require().NoError(err)
 			bondAmount, err := tc.malleate(suite.ctx, suite.msKeeper)
 			if tc.expErr {
 				suite.Require().Error(err)
@@ -381,11 +383,11 @@ func (suite *KeeperTestSuite) TestBurnBondTokenAndUnlockMultiStakingToken() {
 				unlockSDKAmt := sdk.NewCoin(stakingtypes.DefaultParams().BondDenom, sdk.NewInt(900))
 				unlockAmt, err := msKeeper.BurnBondTokenAndUnlockMultiStakingToken(ctx, imAddr, valAddr, unlockSDKAmt)
 
-				return unlockAmt[0].Amount, err 
+				return unlockAmt[0].Amount, err
 			},
-			expOut: sdk.NewInt(3000),
+			expOut:    sdk.NewInt(3000),
 			expRemain: sdk.NewInt(3001),
-			expErr: false,
+			expErr:    false,
 		},
 		{
 			name: "lock 25 token, weight 0.5, expect unlock 24",
@@ -400,9 +402,9 @@ func (suite *KeeperTestSuite) TestBurnBondTokenAndUnlockMultiStakingToken() {
 
 				return unlockAmt[0].Amount, err
 			},
-			expOut: sdk.NewInt(24),
+			expOut:    sdk.NewInt(24),
 			expRemain: sdk.NewInt(25),
-			expErr: false,
+			expErr:    false,
 		},
 		{
 			name: "lock 25 token, weight 0.5, unlock 11 bond token, expect 22 token unlock, remain 3 token",
@@ -417,9 +419,9 @@ func (suite *KeeperTestSuite) TestBurnBondTokenAndUnlockMultiStakingToken() {
 
 				return unlockAmt[0].Amount, err
 			},
-			expOut: sdk.NewInt(22),
+			expOut:    sdk.NewInt(22),
 			expRemain: sdk.NewInt(25),
-			expErr: false,
+			expErr:    false,
 		},
 		{
 			name: "lock not exist",
@@ -454,8 +456,10 @@ func (suite *KeeperTestSuite) TestBurnBondTokenAndUnlockMultiStakingToken() {
 			suite.SetupTest()
 			suite.msKeeper.SetValidatorAllowedToken(suite.ctx, valAddr, gasDenom)
 			imAccBalance := sdk.NewCoins(sdk.NewCoin(stakingtypes.DefaultParams().BondDenom, sdk.NewInt(10000)), sdk.NewCoin(gasDenom, sdk.NewInt(10000)))
-			suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, imAccBalance)
-			suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, minttypes.ModuleName, imAddr, imAccBalance)
+			err := suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, imAccBalance)
+			suite.Require().NoError(err)
+			err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, minttypes.ModuleName, imAddr, imAccBalance)
+			suite.Require().NoError(err)
 			unlockAmt, err := tc.malleate(suite.ctx, suite.msKeeper)
 			if tc.expErr {
 				suite.Require().Error(err)

@@ -106,8 +106,10 @@ func (suite *KeeperTestSuite) TestCompleteUnbonding() {
 			suite.SetupTest()
 			suite.msKeeper.SetValidatorAllowedToken(suite.ctx, valAddr, gasDenom)
 			imAccBalance := sdk.NewCoins(sdk.NewCoin(stakingtypes.DefaultParams().BondDenom, sdk.NewInt(10000)), sdk.NewCoin(gasDenom, sdk.NewInt(10000)))
-			suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, imAccBalance)
-			suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, minttypes.ModuleName, imAddr, imAccBalance)
+			err := suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, imAccBalance)
+			suite.Require().NoError(err)
+			err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, minttypes.ModuleName, imAddr, imAccBalance)
+			suite.Require().NoError(err)
 			unlockAmt, err := tc.malleate(suite.ctx, suite.msKeeper)
 			if tc.expErr {
 				suite.Require().Error(err)

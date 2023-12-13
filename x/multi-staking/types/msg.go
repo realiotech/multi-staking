@@ -1,6 +1,8 @@
 package types
 
 import (
+	"fmt"
+
 	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
 
@@ -421,7 +423,7 @@ func (msg MsgVote) ValidateBasic() error {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid voter address: %s", err)
 	}
 	if !govv1.ValidVoteOption(msg.Option) {
-		return sdkerrors.Wrap(govtypes.ErrInvalidVote, msg.Option.String())
+		return govtypes.ErrInvalidVote.Wrap(msg.Option.String())
 	}
 
 	return nil
@@ -458,32 +460,32 @@ func (msg MsgVoteWeighted) ValidateBasic() error {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid voter address: %s", err)
 	}
 	if len(msg.Options) == 0 {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, govv1.WeightedVoteOptions(msg.Options).String())
+		return sdkerrors.ErrInvalidRequest.Wrap(govv1.WeightedVoteOptions(msg.Options).String())
 	}
 
 	totalWeight := sdk.NewDec(0)
 	usedOptions := make(map[govv1.VoteOption]bool)
 	for _, option := range msg.Options {
 		if !option.IsValid() {
-			return sdkerrors.Wrap(govtypes.ErrInvalidVote, option.String())
+			return govtypes.ErrInvalidVote.Wrap(option.String())
 		}
 		weight, err := sdk.NewDecFromStr(option.Weight)
 		if err != nil {
-			return sdkerrors.Wrapf(govtypes.ErrInvalidVote, "Invalid weight: %s", err)
+			return govtypes.ErrInvalidVote.Wrap(fmt.Sprintf("Invalid weight: %s", err))
 		}
 		totalWeight = totalWeight.Add(weight)
 		if usedOptions[option.Option] {
-			return sdkerrors.Wrap(govtypes.ErrInvalidVote, "Duplicated vote option")
+			return govtypes.ErrInvalidVote.Wrap("Duplicated vote option")
 		}
 		usedOptions[option.Option] = true
 	}
 
 	if totalWeight.GT(sdk.NewDec(1)) {
-		return sdkerrors.Wrap(govtypes.ErrInvalidVote, "Total weight overflow 1.00")
+		return govtypes.ErrInvalidVote.Wrap("Total weight overflow 1.00")
 	}
 
 	if totalWeight.LT(sdk.NewDec(1)) {
-		return sdkerrors.Wrap(govtypes.ErrInvalidVote, "Total weight lower than 1.00")
+		return govtypes.ErrInvalidVote.Wrap("Total weight lower than 1.00")
 	}
 
 	return nil

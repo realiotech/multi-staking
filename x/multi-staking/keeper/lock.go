@@ -119,9 +119,14 @@ func (k Keeper) LockMultiStakingTokenAndMintBondToken(
 	mintedBondToken = sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), mintedBondAmount)
 
 	// mint bond token to intermediary account
-	k.bankKeeper.MintCoins(ctx, types.ModuleName, sdk.NewCoins(mintedBondToken))
-	k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, intermediaryAcc, sdk.NewCoins(mintedBondToken))
-
+	err = k.bankKeeper.MintCoins(ctx, types.ModuleName, sdk.NewCoins(mintedBondToken))
+	if err != nil {
+		return sdk.Coin{}, err
+	}
+	err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, intermediaryAcc, sdk.NewCoins(mintedBondToken))
+	if err != nil {
+		return sdk.Coin{}, err
+	}
 	return mintedBondToken, nil
 }
 

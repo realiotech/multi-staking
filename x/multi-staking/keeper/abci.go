@@ -34,16 +34,16 @@ func GetUnbondingHeightsAndUnbondedAmounts(ctx sdk.Context, unbondingDelegation 
 
 func (k Keeper) EndBlocker(ctx sdk.Context, matureUnbondingDelegations []stakingtypes.UnbondingDelegation) {
 	for _, ubd := range matureUnbondingDelegations {
-
-		delAcc := sdk.MustAccAddressFromBech32(ubd.DelegatorAddress)
-
 		delAcc, valAcc, err := types.DelAccAndValAccFromStrings(ubd.DelegatorAddress, ubd.ValidatorAddress)
 		if err != nil {
 			panic(err)
 		}
 		unbondingHeightsAndUnbondedAmounts := GetUnbondingHeightsAndUnbondedAmounts(ctx, ubd)
 		for unbondingHeight, unbondedAmount := range unbondingHeightsAndUnbondedAmounts {
-			k.CompleteUnbonding(ctx, delAcc, valAcc, unbondingHeight, unbondedAmount)
+			_, err = k.CompleteUnbonding(ctx, delAcc, valAcc, unbondingHeight, unbondedAmount)
+			if err != nil {
+				panic(err)
+			}
 		}
 	}
 }
