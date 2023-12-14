@@ -26,7 +26,7 @@ var _ = math.Inf
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // AddBondTokenProposal is a gov v1beta1 Content type to add a token as a bond
-// denom
+// token
 type AddBondTokenProposal struct {
 	// title of the proposal
 	Title string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
@@ -71,7 +71,7 @@ func (m *AddBondTokenProposal) XXX_DiscardUnknown() {
 var xxx_messageInfo_AddBondTokenProposal proto.InternalMessageInfo
 
 // ChangeBondTokenWeightProposal is a gov v1beta1 Content type to change the
-// weight of bond token
+// weight of a bond token
 type ChangeBondTokenWeightProposal struct {
 	// title of the proposal
 	Title string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
