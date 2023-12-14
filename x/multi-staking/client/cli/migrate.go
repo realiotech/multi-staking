@@ -207,7 +207,7 @@ func convertBankState(
 		validatorMap[delegation.ValidatorAddress] = val
 
 		// move delegate token
-		if validator.Status == v0.Bonded {
+		if validator.Status == stakingtypes.BondStatusBonded {
 			// Caculate new bonded token amount in bondedPoolAddress
 			bondedPoolBalance.Add(sdk.NewCoin(newBondedTokenDenom, tokenAmount)) // TODO: need to add ratio. Current ratio is 1
 		} else {
@@ -321,15 +321,28 @@ func migrateStaking(genesisState AppMap) (AppMap, error) {
 	rawData := genesisState[stakingtypes.ModuleName]
 	var oldState v0.GenesisState
 	err := json.Unmarshal(rawData, &oldState)
+	fmt.Println("old state", oldState)
 	if err != nil {
 		return nil, err
 	}
+
 
 	newState := types.GenesisState{}
 	// Migrate state.StakingGenesisState
 	stakingGenesisState := stakingtypes.GenesisState{}
 
-	stakingGenesisState.Params = stakingtypes.Params(oldState.Params)
+	unbondingTime, err := time.ParseDuration(oldState.Params.UnbondingTime)
+	if err != nil {
+		return nil, err
+	}
+	stakingGenesisState.Params = stakingtypes.Params{
+		UnbondingTime: unbondingTime,
+		MaxValidators: oldState.Params.MaxValidators,
+		MaxEntries: oldState.Params.MaxEntries,
+		HistoricalEntries: oldState.Params.HistoricalEntries,
+		BondDenom: oldState.Params.BondDenom,
+		MinCommissionRate: oldState.Params.MinCommissionRate,
+	}
 	stakingGenesisState.LastTotalPower = oldState.LastTotalPower
 	stakingGenesisState.Validators = convertValidators(oldState.Validators)
 	stakingGenesisState.Delegations = convertDelegations(oldState.Delegations)
@@ -366,12 +379,17 @@ func migrateStaking(genesisState AppMap) (AppMap, error) {
 		}
 	}
 
+	err = newState.Validate()
+	if err != nil {
+		return nil, err
+	}
+
 	newData, err := json.Marshal(&newState)
 	if err != nil {
 		return nil, err
 	}
 
-	genesisState[stakingtypes.ModuleName] = newData
+	genesisState[types.ModuleName] = newData
 
 	return genesisState, nil
 }
@@ -383,7 +401,7 @@ func convertValidators(validators []v0.Validator) []stakingtypes.Validator {
 			OperatorAddress: val.OperatorAddress,
 			ConsensusPubkey: val.ConsensusPubkey,
 			Jailed:          val.Jailed,
-			Status:          stakingtypes.BondStatus(val.Status),
+			Status:          stakingtypes.BondStatus(stakingtypes.BondStatus_value[val.Status]),
 			Tokens:          val.Tokens,
 			DelegatorShares: val.DelegatorShares,
 			Description:     stakingtypes.Description(val.Description),
