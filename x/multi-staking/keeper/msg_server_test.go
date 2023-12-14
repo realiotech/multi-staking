@@ -1050,3 +1050,136 @@ func (suite *KeeperTestSuite) TestSetWithdrawAddress() {
 		})
 	}
 }
+
+func (suite *KeeperTestSuite) TestWithdrawDelegatorReward() {
+	delAddr := testutil.GenAddress()
+	delAddr1 := testutil.GenAddress()
+	valPubKey := testutil.GenPubKey()
+
+	valAddr := sdk.ValAddress(valPubKey.Address())
+
+	gasDenom := "ario"
+
+	testCases := []struct {
+		name       string
+		malleate   func(ctx sdk.Context, msgServer multistakingtypes.MsgServer, msKeeper multistakingkeeper.Keeper) (*multistakingtypes.MsgWithdrawDelegatorRewardResponse, error)
+		expBalance math.Int
+		expErr     bool
+	}{
+		{
+			name: "withdrawDelegatorReward after 1 block",
+			malleate: func(ctx sdk.Context, msgServer multistakingtypes.MsgServer, msKeeper multistakingkeeper.Keeper) (*multistakingtypes.MsgWithdrawDelegatorRewardResponse, error) {
+				// end block to bond validator
+				suite.CommitAndBeginBlock()
+				withdrawMsg := multistakingtypes.NewMsgWithdrawDelegatorReward(delAddr, valAddr)
+				return msgServer.WithdrawDelegatorReward(suite.ctx, withdrawMsg)
+			},
+			expBalance: sdk.NewInt(950000),
+			expErr:     false,
+		},
+		{
+			name: "edit validator commission from 5% -> 10% and continue allocate",
+			malleate: func(ctx sdk.Context, msgServer multistakingtypes.MsgServer, msKeeper multistakingkeeper.Keeper) (*multistakingtypes.MsgWithdrawDelegatorRewardResponse, error) {
+				//edit validator
+				newRate := sdk.MustNewDecFromStr("0.1")
+				newMinSelfDelegation := sdk.NewInt(201)
+				editMsg := multistakingtypes.NewMsgEditValidator(valAddr, stakingtypes.Description{
+					Moniker:         "test 1",
+					Identity:        "test 1",
+					Website:         "test 1",
+					SecurityContact: "test 1",
+					Details:         "test 1",
+				},
+					&newRate,
+					&newMinSelfDelegation,
+				)
+				suite.ctx = suite.ctx.WithBlockHeader(tmproto.Header{Time: time.Now()})
+				_, err := msgServer.EditValidator(suite.ctx, editMsg)
+				suite.Require().NoError(err)
+				//continue allocate
+				initial := suite.app.StakingKeeper.TokensFromConsensusPower(suite.ctx, 1)
+				tokens := sdk.DecCoins{sdk.NewDecCoin(sdk.DefaultBondDenom, initial)}
+				val := suite.app.StakingKeeper.Validator(suite.ctx, valAddr)
+				suite.app.DistrKeeper.AllocateTokensToValidator(suite.ctx, val, tokens)
+				withdrawMsg := multistakingtypes.NewMsgWithdrawDelegatorReward(delAddr, valAddr)
+				return msgServer.WithdrawDelegatorReward(suite.ctx, withdrawMsg)
+			},
+			expBalance: sdk.NewInt(1850000),
+			expErr:     false,
+		},
+		{
+			name: "withdrawDelegatorReward same block",
+			malleate: func(ctx sdk.Context, msgServer multistakingtypes.MsgServer, msKeeper multistakingkeeper.Keeper) (*multistakingtypes.MsgWithdrawDelegatorRewardResponse, error) {
+				suite.CommitAndBeginBlocks(0)
+				withdrawMsg := multistakingtypes.NewMsgWithdrawDelegatorReward(delAddr, valAddr)
+				return msgServer.WithdrawDelegatorReward(suite.ctx, withdrawMsg)
+			},
+			expBalance: sdk.NewInt(0),
+			expErr:     true,
+		},
+		{
+			name: "withdrawDelegatorReward when no delegation",
+			malleate: func(ctx sdk.Context, msgServer multistakingtypes.MsgServer, msKeeper multistakingkeeper.Keeper) (*multistakingtypes.MsgWithdrawDelegatorRewardResponse, error) {
+				suite.CommitAndBeginBlocks(1)
+				withdrawMsg := multistakingtypes.NewMsgWithdrawDelegatorReward(delAddr1, valAddr)
+				return msgServer.WithdrawDelegatorReward(suite.ctx, withdrawMsg)
+			},
+			expBalance: sdk.NewInt(0),
+			expErr:     true,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		suite.Run(tc.name, func() {
+			suite.SetupTest()
+			newParam := stakingtypes.DefaultParams()
+			newParam.MinCommissionRate = sdk.MustNewDecFromStr("0.02")
+			suite.stakingKeeper.SetParams(suite.ctx, newParam)
+			msgServer := multistakingkeeper.NewMsgServerImpl(*suite.msKeeper)
+			suite.msKeeper.SetBondTokenWeight(suite.ctx, gasDenom, sdk.OneDec())
+			bondAmount := sdk.NewCoin(gasDenom, sdk.NewInt(2000))
+			userBalance := sdk.NewCoin(gasDenom, sdk.NewInt(10000))
+
+			suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, sdk.NewCoins(userBalance))
+			suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, minttypes.ModuleName, delAddr, sdk.NewCoins(userBalance))
+			createMsg := multistakingtypes.MsgCreateValidator{
+				Description: stakingtypes.Description{
+					Moniker:         "test",
+					Identity:        "test",
+					Website:         "test",
+					SecurityContact: "test",
+					Details:         "test",
+				},
+				Commission: stakingtypes.CommissionRates{
+					Rate:          sdk.MustNewDecFromStr("0.05"),
+					MaxRate:       sdk.MustNewDecFromStr("0.1"),
+					MaxChangeRate: sdk.MustNewDecFromStr("0.05"),
+				},
+				MinSelfDelegation: sdk.NewInt(200),
+				DelegatorAddress:  delAddr.String(),
+				ValidatorAddress:  valAddr.String(),
+				Pubkey:            codectypes.UnsafePackAny(valPubKey),
+				Value:             bondAmount,
+			}
+			msgServer.CreateValidator(suite.ctx, &createMsg)
+
+			// allocate 1000000 stake for rewards
+			initial := suite.app.StakingKeeper.TokensFromConsensusPower(suite.ctx, 1)
+			tokens := sdk.DecCoins{sdk.NewDecCoin(sdk.DefaultBondDenom, initial)}
+			val := suite.app.StakingKeeper.Validator(suite.ctx, valAddr)
+			suite.app.DistrKeeper.AllocateTokensToValidator(suite.ctx, val, tokens)
+
+			_, err := tc.malleate(suite.ctx, msgServer, *suite.msKeeper)
+
+			if tc.expErr {
+				suite.Require().Error(err)
+			} else {
+				suite.Require().NoError(err)
+				delAddrBalance := suite.app.BankKeeper.GetBalance(suite.ctx, delAddr, sdk.DefaultBondDenom)
+				fmt.Println(delAddrBalance)
+				suite.Require().Equal(tc.expBalance, delAddrBalance.Amount)
+			}
+		})
+	}
+}
