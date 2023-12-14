@@ -7,7 +7,7 @@ import (
 	bytes "bytes"
 	compress_gzip "compress/gzip"
 	fmt "fmt"
-	types "github.com/cometbft/cometbft/proto/tendermint/types"
+	types "github.com/tendermint/tendermint/proto/tendermint/types"
 	_ "github.com/cosmos/cosmos-proto"
 	types1 "github.com/cosmos/cosmos-sdk/codec/types"
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
@@ -147,6 +147,7 @@ type CommissionRates struct {
 
 func (m *CommissionRates) Reset()      { *m = CommissionRates{} }
 func (*CommissionRates) ProtoMessage() {}
+func (m *CommissionRates) String() string     { return proto.CompactTextString(m)}
 func (*CommissionRates) Descriptor() ([]byte, []int) {
 	return fileDescriptor_6f0df8198ed3eea5, []int{1}
 }
@@ -188,6 +189,7 @@ type Commission struct {
 
 func (m *Commission) Reset()      { *m = Commission{} }
 func (*Commission) ProtoMessage() {}
+func (m *Commission) String() string     { return proto.CompactTextString(m)}
 func (*Commission) Descriptor() ([]byte, []int) {
 	return fileDescriptor_6f0df8198ed3eea5, []int{2}
 }
@@ -241,6 +243,7 @@ type Description struct {
 
 func (m *Description) Reset()      { *m = Description{} }
 func (*Description) ProtoMessage() {}
+func (m *Description) String() string     { return proto.CompactTextString(m)}
 func (*Description) Descriptor() ([]byte, []int) {
 	return fileDescriptor_6f0df8198ed3eea5, []int{3}
 }
@@ -350,6 +353,7 @@ type Validator struct {
 }
 
 func (m *Validator) Reset()      { *m = Validator{} }
+func (m *Validator) String() string     { return proto.CompactTextString(m)}
 func (*Validator) ProtoMessage() {}
 func (*Validator) Descriptor() ([]byte, []int) {
 	return fileDescriptor_6f0df8198ed3eea5, []int{4}
@@ -435,6 +439,7 @@ type DVPair struct {
 
 func (m *DVPair) Reset()      { *m = DVPair{} }
 func (*DVPair) ProtoMessage() {}
+func (m *DVPair) String() string     { return proto.CompactTextString(m)}
 func (*DVPair) Descriptor() ([]byte, []int) {
 	return fileDescriptor_6f0df8198ed3eea5, []int{6}
 }
@@ -522,6 +527,7 @@ type DVVTriplet struct {
 
 func (m *DVVTriplet) Reset()      { *m = DVVTriplet{} }
 func (*DVVTriplet) ProtoMessage() {}
+func (m *DVVTriplet) String() string     { return proto.CompactTextString(m)}
 func (*DVVTriplet) Descriptor() ([]byte, []int) {
 	return fileDescriptor_6f0df8198ed3eea5, []int{8}
 }
@@ -611,6 +617,7 @@ type Delegation struct {
 
 func (m *Delegation) Reset()      { *m = Delegation{} }
 func (*Delegation) ProtoMessage() {}
+func (m *Delegation) String() string     { return proto.CompactTextString(m)}
 func (*Delegation) Descriptor() ([]byte, []int) {
 	return fileDescriptor_6f0df8198ed3eea5, []int{10}
 }
@@ -654,6 +661,7 @@ type UnbondingDelegation struct {
 
 func (m *UnbondingDelegation) Reset()      { *m = UnbondingDelegation{} }
 func (*UnbondingDelegation) ProtoMessage() {}
+func (m *UnbondingDelegation) String() string     { return proto.CompactTextString(m)}
 func (*UnbondingDelegation) Descriptor() ([]byte, []int) {
 	return fileDescriptor_6f0df8198ed3eea5, []int{11}
 }
@@ -699,6 +707,7 @@ type UnbondingDelegationEntry struct {
 
 func (m *UnbondingDelegationEntry) Reset()      { *m = UnbondingDelegationEntry{} }
 func (*UnbondingDelegationEntry) ProtoMessage() {}
+func (m *UnbondingDelegationEntry) String() string     { return proto.CompactTextString(m)}
 func (*UnbondingDelegationEntry) Descriptor() ([]byte, []int) {
 	return fileDescriptor_6f0df8198ed3eea5, []int{12}
 }
@@ -758,6 +767,7 @@ type RedelegationEntry struct {
 
 func (m *RedelegationEntry) Reset()      { *m = RedelegationEntry{} }
 func (*RedelegationEntry) ProtoMessage() {}
+func (m *RedelegationEntry) String() string     { return proto.CompactTextString(m)}
 func (*RedelegationEntry) Descriptor() ([]byte, []int) {
 	return fileDescriptor_6f0df8198ed3eea5, []int{13}
 }
@@ -819,6 +829,7 @@ type Redelegation struct {
 
 func (m *Redelegation) Reset()      { *m = Redelegation{} }
 func (*Redelegation) ProtoMessage() {}
+func (m *Redelegation) String() string     { return proto.CompactTextString(m)}
 func (*Redelegation) Descriptor() ([]byte, []int) {
 	return fileDescriptor_6f0df8198ed3eea5, []int{14}
 }
@@ -852,7 +863,7 @@ var xxx_messageInfo_Redelegation proto.InternalMessageInfo
 // Params defines the parameters for the staking module.
 type Params struct {
 	// unbonding_time is the time duration of unbonding.
-	UnbondingTime time.Duration `protobuf:"bytes,1,opt,name=unbonding_time,json=unbondingTime,proto3,stdduration" json:"unbonding_time"`
+	UnbondingTime time.Duration `protobuf:"bytes,1,opt,name=unbonding_time,json=unbondingTime,proto3,stdduration,string" json:"unbonding_time"`
 	// max_validators is the maximum number of validators.
 	MaxValidators uint32 `protobuf:"varint,2,opt,name=max_validators,json=maxValidators,proto3" json:"max_validators,omitempty"`
 	// max_entries is the max entries for either unbonding delegation or
@@ -869,6 +880,7 @@ type Params struct {
 
 func (m *Params) Reset()      { *m = Params{} }
 func (*Params) ProtoMessage() {}
+func (m *Params) String() string     { return proto.CompactTextString(m)}
 func (*Params) Descriptor() ([]byte, []int) {
 	return fileDescriptor_6f0df8198ed3eea5, []int{15}
 }
@@ -943,6 +955,7 @@ type DelegationResponse struct {
 
 func (m *DelegationResponse) Reset()      { *m = DelegationResponse{} }
 func (*DelegationResponse) ProtoMessage() {}
+func (m *DelegationResponse) String() string     { return proto.CompactTextString(m)}
 func (*DelegationResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_6f0df8198ed3eea5, []int{16}
 }

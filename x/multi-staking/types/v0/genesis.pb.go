@@ -133,7 +133,7 @@ type LastValidatorPower struct {
 	// address is the address of the validator.
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
 	// power defines the power of the validator.
-	Power int64 `protobuf:"varint,2,opt,name=power,proto3" json:"power,omitempty"`
+	Power int64 `protobuf:"varint,2,opt,name=power,proto3" json:"power,omitempty,string"`
 }
 
 func (m *LastValidatorPower) Reset()         { *m = LastValidatorPower{} }
