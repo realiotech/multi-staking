@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"fmt"
 	"time"
 
 	"cosmossdk.io/math"
@@ -956,6 +957,95 @@ func (suite *KeeperTestSuite) TestCancelUnbondingDelegation() {
 				unbondRecord, found := suite.msKeeper.GetMultiStakingUnlock(suite.ctx, delAddr, valAddr1)
 				suite.Require().True(found)
 				suite.Require().Equal(tc.expUnlock, unbondRecord.Entries[0].Balance)
+			}
+		})
+	}
+}
+func (suite *KeeperTestSuite) TestSetWithdrawAddress() {
+	delAddr := testutil.GenAddress()
+	withdrawAddr := testutil.GenAddress()
+	fmt.Println(delAddr.String(), withdrawAddr.String())
+
+	testCases := []struct {
+		name     string
+		malleate func(ctx sdk.Context, msgServer multistakingtypes.MsgServer, msKeeper multistakingkeeper.Keeper) error
+		expAddr  string
+		expErr   bool
+	}{
+		{
+			name: "setWithdrawAddress success",
+			malleate: func(ctx sdk.Context, msgServer multistakingtypes.MsgServer, msKeeper multistakingkeeper.Keeper) error {
+				setWithdrawAddressMsg := multistakingtypes.MsgSetWithdrawAddress{
+					DelegatorAddress: delAddr.String(),
+					WithdrawAddress:  withdrawAddr.String(),
+				}
+				_, err := msgServer.SetWithdrawAddress(ctx, &setWithdrawAddressMsg)
+				return err
+			},
+			expAddr: withdrawAddr.String(),
+			expErr:  false,
+		},
+		{
+			name: "delegatorAddress invalid",
+			malleate: func(ctx sdk.Context, msgServer multistakingtypes.MsgServer, msKeeper multistakingkeeper.Keeper) error {
+				setWithdrawAddressMsg := multistakingtypes.MsgSetWithdrawAddress{
+					DelegatorAddress: "invalidDelAddr",
+					WithdrawAddress:  withdrawAddr.String(),
+				}
+				_, err := msgServer.SetWithdrawAddress(ctx, &setWithdrawAddressMsg)
+				return err
+			},
+			expErr: true,
+		},
+		{
+			name: "withdrawAddress invalid",
+			malleate: func(ctx sdk.Context, msgServer multistakingtypes.MsgServer, msKeeper multistakingkeeper.Keeper) error {
+				setWithdrawAddressMsg := multistakingtypes.MsgSetWithdrawAddress{
+					DelegatorAddress: delAddr.String(),
+					WithdrawAddress:  "invalidWithdrawAddr",
+				}
+				_, err := msgServer.SetWithdrawAddress(ctx, &setWithdrawAddressMsg)
+				return err
+			},
+			expErr: true,
+		},
+		{
+			name: "WithdrawAddrEnabled = false",
+			malleate: func(ctx sdk.Context, msgServer multistakingtypes.MsgServer, msKeeper multistakingkeeper.Keeper) error {
+				setWithdrawAddressMsg := multistakingtypes.MsgSetWithdrawAddress{
+					DelegatorAddress: delAddr.String(),
+					WithdrawAddress:  withdrawAddr.String(),
+				}
+				newParam := suite.app.DistrKeeper.GetParams(suite.ctx)
+				newParam.WithdrawAddrEnabled = false
+				suite.app.DistrKeeper.SetParams(suite.ctx, newParam)
+				_, err := msgServer.SetWithdrawAddress(ctx, &setWithdrawAddressMsg)
+				return err
+			},
+			expErr: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		suite.Run(tc.name, func() {
+			suite.SetupTest()
+			newParam := suite.app.DistrKeeper.GetParams(suite.ctx)
+			newParam.WithdrawAddrEnabled = true
+			suite.app.DistrKeeper.SetParams(suite.ctx, newParam)
+			msgServer := multistakingkeeper.NewMsgServerImpl(*suite.msKeeper)
+
+			err := tc.malleate(suite.ctx, msgServer, *suite.msKeeper)
+
+			if tc.expErr {
+				suite.Require().Error(err)
+			} else {
+				suite.Require().NoError(err)
+				intermediaryAccount := multistakingtypes.IntermediaryAccount(delAddr)
+				suite.Require().Equal(tc.expAddr,
+					suite.app.DistrKeeper.GetDelegatorWithdrawAddr(suite.ctx, intermediaryAccount).String())
+				suite.Require().Equal(delAddr,
+					suite.app.DistrKeeper.GetDelegatorWithdrawAddr(suite.ctx, delAddr))
 			}
 		})
 	}
