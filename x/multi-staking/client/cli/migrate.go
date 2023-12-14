@@ -141,7 +141,7 @@ func migrateBank(genesisState AppMap, ctx client.Context) (AppMap, error) {
 		return nil, err
 	}
 
-	newbalances, newSupply, err := convertBankBalances(oldBankState.Balances, oldBankState.Supply, oldStakingState)
+	newbalances, newSupply, err := convertBankState(oldBankState.Balances, oldBankState.Supply, oldStakingState)
 	if err != nil {
 		return nil, err
 	}
@@ -165,7 +165,7 @@ func migrateBank(genesisState AppMap, ctx client.Context) (AppMap, error) {
 	return genesisState, nil
 }
 
-func convertBankBalances(
+func convertBankState(
 	oldBalances []banktypes.Balance,
 	oldSupply sdk.Coins,
 	oldStakingState v0.GenesisState,
