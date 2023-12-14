@@ -192,7 +192,7 @@ func migrateBank(genesisState AppMap, ctx client.Context) (AppMap, error) {
 	return genesisState, nil
 }
 
-func migrateStaking(genesisState AppMap, ctx client.Context) (AppMap, error) {
+func migrateStaking(genesisState AppMap) (AppMap, error) {
 
 	rawData := genesisState[stakingtypes.ModuleName]
 	var oldState v0.GenesisState
