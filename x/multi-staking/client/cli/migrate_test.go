@@ -19,11 +19,11 @@ func TestMigrateStakingModule(t *testing.T) {
 
 	var oldState AppMap
 	err = json.Unmarshal(bs, &oldState)
-	fmt.Println(oldState["staking"])
 	require.NoError(t, err)
 
 	//Migrate staking module
 	newState, err := migrateStaking(oldState)
 	require.NoError(t, err)
 	fmt.Println(newState[types.ModuleName])
+
 }
