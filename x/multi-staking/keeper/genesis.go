@@ -25,6 +25,9 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) (res []abc
 		k.SetValidatorAllowedToken(ctx, valAddr, valAllowedToken.TokenDenom)
 	}
 
+	k.SetBondTokenWeight(ctx, "ario", sdk.OneDec())
+	k.SetBondTokenWeight(ctx, "arst", sdk.OneDec())
+
 	return k.stakingKeeper.InitGenesis(ctx, data.StakingGenesisState)
 }
 
