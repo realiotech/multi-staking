@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -140,56 +141,179 @@ func migrateBank(genesisState AppMap, ctx client.Context) (AppMap, error) {
 		return nil, err
 	}
 
+	newbalances, newSupply, err := convertBankState(oldBankState.Balances, oldBankState.Supply, oldStakingState)
+	if err != nil {
+		return nil, err
+	}
+
+	// new bank genesis
+	var newBankState banktypes.GenesisState
+
+	newBankState.Params = oldBankState.Params
+	newBankState.Balances = newbalances
+	newBankState.Supply = newSupply
+	newBankState.DenomMetadata = oldBankState.DenomMetadata
+
+	// replace to genesis state
+	newData, err := json.Marshal(&newBankState)
+	if err != nil {
+		return nil, err
+	}
+
+	genesisState[banktypes.ModuleName] = newData
+
+	return genesisState, nil
+}
+
+func convertBankState(
+	oldBalances []banktypes.Balance,
+	oldSupply sdk.Coins,
+	oldStakingState v0.GenesisState,
+) ([]banktypes.Balance, sdk.Coins, error) {
 	// validator map
 	validatorMap := make(map[string]v0.Validator, 0)
 	for _, validator := range oldStakingState.Validators {
 		validatorMap[validator.OperatorAddress] = validator
 	}
 
+	ubdDelegationMap := make(map[string]v0.UnbondingDelegation, 0)
+	for _, ubdDelegation := range oldStakingState.UnbondingDelegations {
+		key := ubdDelegation.DelegatorAddress + ubdDelegation.ValidatorAddress
+		ubdDelegationMap[key] = ubdDelegation
+	}
+
+	var newBalances []banktypes.Balance
+	var bondedPoolBalance sdk.Coins
+	var ubdPoolBalance sdk.Coins
+	var totalNewBondedTokenAmount sdk.Coin
+
 	for _, delegation := range oldStakingState.Delegations {
+		var delegationStakeAmount sdk.Coins
+
 		// change the delegation from staking bonded(unbonded) pool to intermedary account
 		DelAddr := sdk.AccAddress(delegation.DelegatorAddress)
 		intermediaryAccount := types.IntermediaryAccount(DelAddr)
 
 		validator, ok := validatorMap[delegation.ValidatorAddress]
 		if !ok {
-			return nil, fmt.Errorf("Error validator not found delegation %v", delegation.ValidatorAddress)
+			return nil, nil, fmt.Errorf("Error validator not found delegation %v", delegation.ValidatorAddress)
 		}
-		denom := validator.BondDenom
 
+		// calculate issued token
+		val, tokenAmount := tokenAmountFromShares(validator, delegation.Shares)
+		delegationStakeAmount.Add(sdk.NewCoin(validator.BondDenom, tokenAmount))
+
+		// update validator
+		validatorMap[delegation.ValidatorAddress] = val
+
+		// move delegate token
 		if validator.Status == v0.Bonded {
-			// if bonded => transfer from bondedPoolAddress to intermediary address
-			amount := (delegation.Shares.MulInt(validator.Tokens)).Quo(validator.DelegatorShares)
-
-			// Calculate new bonded token amount in bondedPoolAddress
+			// Caculate new bonded token amount in bondedPoolAddress
+			bondedPoolBalance.Add(sdk.NewCoin(newBondedTokenDenom, tokenAmount)) // TODO: need to add ratio. Current ratio is 1
 		} else {
-			// if unbonded or unbonding => transfer from unbondedPoolAddress to intermediary address
-			amount := (delegation.Shares.MulInt(validator.Tokens)).Quo(validator.DelegatorShares)
 			// Caculate new bonded token amount in unbondedPoolAddress
+			ubdPoolBalance.Add(sdk.NewCoin(newBondedTokenDenom, tokenAmount)) // TODO: need to add ratio. Current ratio is 1
 		}
+		totalNewBondedTokenAmount.Add(sdk.NewCoin(newBondedTokenDenom, tokenAmount)) // TODO: need to add ratio. Current ratio is 1
+
+		// move unbonding token
+		key := delegation.DelegatorAddress + delegation.ValidatorAddress
+		ubdDelegation, ok := ubdDelegationMap[key]
+		if ok {
+			for _, entry := range ubdDelegation.Entries {
+				// move balance in entry from unbondedPoolAddress to intermediary address
+				delegationStakeAmount.Add(entry.Balance)
+				// Caculate new bonded token amount in unbondedPoolAddress
+				ubdPoolBalance.Add(sdk.NewCoin(newBondedTokenDenom, entry.Balance.Amount))            // TODO: need to add ratio. Current ratio is 1
+				totalNewBondedTokenAmount.Add(sdk.NewCoin(newBondedTokenDenom, entry.Balance.Amount)) // TODO: need to add ratio. Current ratio is 1
+			}
+			// delete this key so we don't check in UnbondingDelegations iterator
+			delete(ubdDelegationMap, key)
+		}
+
+		balance := banktypes.Balance{
+			Address: intermediaryAccount.String(),
+			Coins:   delegationStakeAmount,
+		}
+
+		newBalances = append(newBalances, balance)
 
 	}
 
 	for _, ubdDelegation := range oldStakingState.UnbondingDelegations {
+		var delegationStakeAmount sdk.Coins
 		// change the delegation from staking unbonded pool to intermedary account
 		DelAddr := sdk.AccAddress(ubdDelegation.DelegatorAddress)
 		intermediaryAccount := types.IntermediaryAccount(DelAddr)
 
-		validator, ok := validatorMap[ubdDelegation.ValidatorAddress]
+		key := ubdDelegation.DelegatorAddress + ubdDelegation.ValidatorAddress
+		ubdDelegation, ok := ubdDelegationMap[key]
 		if !ok {
-			return nil, fmt.Errorf("Error validator not found ubdDelegation %v", ubdDelegation.ValidatorAddress)
+			continue
 		}
-		denom := validator.BondDenom
 
 		for _, entry := range ubdDelegation.Entries {
 			// move balance in entry from unbondedPoolAddress to intermediary address
-
+			delegationStakeAmount.Add(entry.Balance)
 			// Caculate new bonded token amount in unbondedPoolAddress
+			ubdPoolBalance.Add(sdk.NewCoin(newBondedTokenDenom, entry.Balance.Amount))            // TODO: need to add ratio. Current ratio is 1
+			totalNewBondedTokenAmount.Add(sdk.NewCoin(newBondedTokenDenom, entry.Balance.Amount)) // TODO: need to add ratio. Current ratio is 1
 		}
 
+		balance := banktypes.Balance{
+			Address: intermediaryAccount.String(),
+			Coins:   delegationStakeAmount,
+		}
+
+		newBalances = append(newBalances, balance)
 	}
 
-	return genesisState, nil
+	// append with oldBalances
+	for _, balance := range oldBalances {
+		// assign new bondedPool and ubdPool balances
+		if balance.Address == bondedPoolAddress {
+			balance.Coins = bondedPoolBalance
+		}
+
+		if balance.Address == unbondedPoolAddress {
+			balance.Coins = ubdPoolBalance
+		}
+
+		newBalances = append(newBalances, balance)
+	}
+
+	// new supply
+	newSupply := oldSupply.Add(totalNewBondedTokenAmount)
+
+	return newBalances, newSupply, nil
+}
+
+func tokenAmountFromShares(v v0.Validator, delShares sdk.Dec) (v0.Validator, math.Int) {
+	remainingShares := v.DelegatorShares.Sub(delShares)
+
+	var amount math.Int
+	if remainingShares.IsZero() {
+		// last delegation share gets any trimmings
+		amount = v.Tokens
+		v.Tokens = math.ZeroInt()
+	} else {
+		// leave excess tokens in the validator
+		// however fully use all the delegator shares
+		amount = tokensFromShares(v, delShares).TruncateInt()
+		v.Tokens = v.Tokens.Sub(amount)
+
+		if v.Tokens.IsNegative() {
+			panic("attempting to remove more tokens than available in validator")
+		}
+	}
+
+	v.DelegatorShares = remainingShares
+
+	return v, amount
+}
+
+func tokensFromShares(v v0.Validator, shares sdk.Dec) sdk.Dec {
+	return (shares.MulInt(v.Tokens)).Quo(v.DelegatorShares)
 }
 
 func migrateStaking(genesisState AppMap) (AppMap, error) {
