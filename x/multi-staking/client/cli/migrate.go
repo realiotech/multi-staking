@@ -343,7 +343,7 @@ func migrateStaking(genesisState AppMap) (AppMap, error) {
 		MaxValidators:     oldState.Params.MaxValidators,
 		MaxEntries:        oldState.Params.MaxEntries,
 		HistoricalEntries: oldState.Params.HistoricalEntries,
-		BondDenom:         oldState.Params.BondDenom,
+		BondDenom: newBondedTokenDenom,
 		MinCommissionRate: oldState.Params.MinCommissionRate,
 	}
 	stakingGenesisState.LastTotalPower = oldState.LastTotalPower
