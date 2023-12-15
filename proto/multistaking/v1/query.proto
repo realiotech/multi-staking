@@ -36,6 +36,14 @@ service Query {
             "{multi_staking_lock_id}"
     };
   };
+
+  rpc MultiStakingUnlock(QueryMultiStakingUnlockRequest)
+      returns (QueryMultiStakingUnlockReponse) {
+    option (google.api.http) = {
+      get : "/realio/multistaking/v1/multi_staking_unlock/"
+            "{delegator_address}/{validator_address}"
+    };
+  };
 }
 
 message QueryBondTokenWeightRequest { string token_denom = 1; }
@@ -60,5 +68,17 @@ message QueryMultiStakingLockRequest { bytes multi_staking_lock_id = 1; }
 
 message QueryMultiStakingLockResponse {
   MultiStakingLock multi_staking_lock = 1;
+  bool found = 2;
+}
+
+message QueryMultiStakingUnlockRequest {
+  string delegator_address = 1
+      [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  string validator_address = 2
+      [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+}
+
+message QueryMultiStakingUnlockReponse {
+  MultiStakingUnlock multi_staking_unlock = 1;
   bool found = 2;
 }

@@ -55,3 +55,14 @@ func (q queryServer) MultiStakingLock(c context.Context, params *types.QueryMult
 		Found:            found,
 	}, nil
 }
+
+func (q queryServer) MultiStakingUnlock(c context.Context, params *types.QueryMultiStakingUnlockRequest) (*types.QueryMultiStakingUnlockReponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	multiStakingUnlock, found := q.Keeper.GetMultiStakingUnlock(ctx, sdk.AccAddress(params.DelegatorAddress), sdk.ValAddress(params.ValidatorAddress))
+
+	return &types.QueryMultiStakingUnlockReponse{
+		MultiStakingUnlock: &multiStakingUnlock,
+		Found:              found,
+	}, nil
+}
