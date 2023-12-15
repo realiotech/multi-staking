@@ -12,6 +12,7 @@ import (
 	io "io"
 	math "math"
 	math_bits "math/bits"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -939,3 +940,78 @@ var (
 	ErrIntOverflowGenesis          = fmt.Errorf("proto: integer overflow")
 	ErrUnexpectedEndOfGroupGenesis = fmt.Errorf("proto: unexpected end of group")
 )
+
+type DistrGenesisState struct {
+	// params defines all the paramaters of the module.
+	Params distrtypes.Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
+	// fee_pool defines the fee pool at genesis.
+	FeePool distrtypes.FeePool `protobuf:"bytes,2,opt,name=fee_pool,json=feePool,proto3" json:"fee_pool"`
+	// fee_pool defines the delegator withdraw infos at genesis.
+	DelegatorWithdrawInfos []distrtypes.DelegatorWithdrawInfo `protobuf:"bytes,3,rep,name=delegator_withdraw_infos,json=delegatorWithdrawInfos,proto3" json:"delegator_withdraw_infos"`
+	// fee_pool defines the previous proposer at genesis.
+	PreviousProposer string `protobuf:"bytes,4,opt,name=previous_proposer,json=previousProposer,proto3" json:"previous_proposer,omitempty"`
+	// fee_pool defines the outstanding rewards of all validators at genesis.
+	OutstandingRewards []distrtypes.ValidatorOutstandingRewardsRecord `protobuf:"bytes,5,rep,name=outstanding_rewards,json=outstandingRewards,proto3" json:"outstanding_rewards"`
+	// fee_pool defines the accumulated commisions of all validators at genesis.
+	ValidatorAccumulatedCommissions []distrtypes.ValidatorAccumulatedCommissionRecord `protobuf:"bytes,6,rep,name=validator_accumulated_commissions,json=validatorAccumulatedCommissions,proto3" json:"validator_accumulated_commissions"`
+	// fee_pool defines the historical rewards of all validators at genesis.
+	ValidatorHistoricalRewards []ValidatorHistoricalRewardsRecord `protobuf:"bytes,7,rep,name=validator_historical_rewards,json=validatorHistoricalRewards,proto3" json:"validator_historical_rewards"`
+	// fee_pool defines the current rewards of all validators at genesis.
+	ValidatorCurrentRewards []ValidatorCurrentRewardsRecord `protobuf:"bytes,8,rep,name=validator_current_rewards,json=validatorCurrentRewards,proto3" json:"validator_current_rewards"`
+	// fee_pool defines the delegator starting infos at genesis.
+	DelegatorStartingInfos []DelegatorStartingInfoRecord `protobuf:"bytes,9,rep,name=delegator_starting_infos,json=delegatorStartingInfos,proto3" json:"delegator_starting_infos"`
+	// fee_pool defines the validator slash events at genesis.
+	ValidatorSlashEvents []ValidatorSlashEventRecord `protobuf:"bytes,10,rep,name=validator_slash_events,json=validatorSlashEvents,proto3" json:"validator_slash_events"`
+}
+
+type DelegatorStartingInfoRecord struct {
+	// delegator_address is the address of the delegator.
+	DelegatorAddress string `protobuf:"bytes,1,opt,name=delegator_address,json=delegatorAddress,proto3" json:"delegator_address,omitempty"`
+	// validator_address is the address of the validator.
+	ValidatorAddress string `protobuf:"bytes,2,opt,name=validator_address,json=validatorAddress,proto3" json:"validator_address,omitempty"`
+	// starting_info defines the starting info of a delegator.
+	StartingInfo DelegatorStartingInfo `protobuf:"bytes,3,opt,name=starting_info,json=startingInfo,proto3" json:"starting_info"`
+}
+
+type DelegatorStartingInfo struct {
+	PreviousPeriod string                                 `protobuf:"varint,1,opt,name=previous_period,json=previousPeriod,proto3" json:"previous_period,omitempty"`
+	Stake          github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,2,opt,name=stake,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"stake"`
+	Height         string                                 `protobuf:"varint,3,opt,name=height,proto3" json:"creation_height"`
+}
+
+type ValidatorCurrentRewardsRecord struct {
+	// validator_address is the address of the validator.
+	ValidatorAddress string `protobuf:"bytes,1,opt,name=validator_address,json=validatorAddress,proto3" json:"validator_address,omitempty"`
+	// rewards defines the current rewards of a validator.
+	Rewards ValidatorCurrentRewards `protobuf:"bytes,2,opt,name=rewards,proto3" json:"rewards"`
+}
+
+type ValidatorCurrentRewards struct {
+	Rewards github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,1,rep,name=rewards,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"rewards"`
+	Period  string                                      `protobuf:"varint,2,opt,name=period,proto3" json:"period,omitempty"`
+}
+
+type ValidatorHistoricalRewardsRecord struct {
+	// validator_address is the address of the validator.
+	ValidatorAddress string `protobuf:"bytes,1,opt,name=validator_address,json=validatorAddress,proto3" json:"validator_address,omitempty"`
+	// period defines the period the historical rewards apply to.
+	Period string `protobuf:"varint,2,opt,name=period,proto3" json:"period,omitempty"`
+	// rewards defines the historical rewards of a validator.
+	Rewards distrtypes.ValidatorHistoricalRewards `protobuf:"bytes,3,opt,name=rewards,proto3" json:"rewards"`
+}
+
+type ValidatorSlashEventRecord struct {
+	// validator_address is the address of the validator.
+	ValidatorAddress string `protobuf:"bytes,1,opt,name=validator_address,json=validatorAddress,proto3" json:"validator_address,omitempty"`
+	// height defines the block height at which the slash event occured.
+	Height string `protobuf:"varint,2,opt,name=height,proto3" json:"height,omitempty"`
+	// period is the period of the slash event.
+	Period string `protobuf:"varint,3,opt,name=period,proto3" json:"period,omitempty"`
+	// validator_slash_event describes the slash event.
+	ValidatorSlashEvent ValidatorSlashEvent `protobuf:"bytes,4,opt,name=validator_slash_event,json=validatorSlashEvent,proto3" json:"validator_slash_event"`
+}
+
+type ValidatorSlashEvent struct {
+	ValidatorPeriod string                                 `protobuf:"varint,1,opt,name=validator_period,json=validatorPeriod,proto3" json:"validator_period,omitempty"`
+	Fraction        github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,2,opt,name=fraction,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"fraction"`
+}
