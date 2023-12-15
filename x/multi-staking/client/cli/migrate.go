@@ -3,6 +3,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"time"
 
 	"cosmossdk.io/errors"
@@ -12,9 +13,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	v0 "github.com/realio-tech/multi-staking-module/x/multi-staking/types/v0"
+
 	"github.com/spf13/cobra"
 	tmjson "github.com/tendermint/tendermint/libs/json"
 	tmtypes "github.com/tendermint/tendermint/types"
@@ -480,4 +484,113 @@ func convertRedelegations(reDels []v0.Redelegation) []stakingtypes.Redelegation 
 		newRedels = append(newRedels, newRedel)
 	}
 	return newRedels
+}
+
+func migrateDistribution(genesisState AppMap) (AppMap, error) {
+	rawData := genesisState[distrtypes.ModuleName]
+	var oldState v0.DistrGenesisState
+
+	err := json.Unmarshal(rawData, &oldState)
+	if err != nil {
+		return nil, err
+	}
+
+	// Migrate state.DistributionGenesisState
+	newDelegatorStartingInfos := make([]distrtypes.DelegatorStartingInfoRecord, 0)
+
+	fmt.Println(len(oldState.DelegatorStartingInfos))
+
+	for _, info := range oldState.DelegatorStartingInfos {
+		delAddr := sdk.AccAddress(info.DelegatorAddress)
+
+		oldPeriod, _ := strconv.ParseUint(info.StartingInfo.PreviousPeriod, 10, 64)
+		oldHeight, _ := strconv.ParseUint(info.StartingInfo.Height, 10, 64)
+
+		startingInfo := distrtypes.DelegatorStartingInfo{
+			PreviousPeriod: oldPeriod,
+			Height:         oldHeight,
+			Stake:          info.StartingInfo.Stake,
+		}
+		intermediaryAccount := types.IntermediaryAccount(delAddr)
+		fmt.Println(delAddr.String())
+		fmt.Println(intermediaryAccount.String())
+		newRecord := distrtypes.DelegatorStartingInfoRecord{
+			DelegatorAddress: intermediaryAccount.String(),
+			ValidatorAddress: info.ValidatorAddress,
+			StartingInfo:     startingInfo,
+		}
+		newDelegatorStartingInfos = append(newDelegatorStartingInfos, newRecord)
+	}
+
+	newDelegatorWithdrawInfos := make([]distrtypes.DelegatorWithdrawInfo, 0)
+	for _, info := range oldState.DelegatorWithdrawInfos {
+		delAddr := sdk.AccAddress(info.DelegatorAddress)
+		intermediaryAccount := types.IntermediaryAccount(delAddr)
+		newRecord := distrtypes.DelegatorWithdrawInfo{
+			DelegatorAddress: intermediaryAccount.String(),
+			WithdrawAddress:  info.WithdrawAddress,
+		}
+		newDelegatorWithdrawInfos = append(newDelegatorWithdrawInfos, newRecord)
+	}
+
+	newValHistoryRewards := make([]distrtypes.ValidatorHistoricalRewardsRecord, 0)
+	for _, info := range oldState.ValidatorHistoricalRewards {
+		oldPeriod, _ := strconv.ParseUint(info.Period, 10, 64)
+		newRecord := distrtypes.ValidatorHistoricalRewardsRecord{
+			ValidatorAddress: info.ValidatorAddress,
+			Rewards:          info.Rewards,
+			Period:           oldPeriod,
+		}
+		newValHistoryRewards = append(newValHistoryRewards, newRecord)
+	}
+
+	newValCurrentRewards := make([]distrtypes.ValidatorCurrentRewardsRecord, 0)
+	for _, info := range oldState.ValidatorCurrentRewards {
+		oldPeriod, _ := strconv.ParseUint(info.Rewards.Period, 10, 64)
+		newRecord := distrtypes.ValidatorCurrentRewardsRecord{
+			ValidatorAddress: info.ValidatorAddress,
+			Rewards: distrtypes.ValidatorCurrentRewards{
+				Period:  oldPeriod,
+				Rewards: info.Rewards.Rewards,
+			},
+		}
+		newValCurrentRewards = append(newValCurrentRewards, newRecord)
+	}
+
+	newValSlashEvents := make([]distrtypes.ValidatorSlashEventRecord, 0)
+	for _, info := range oldState.ValidatorSlashEvents {
+		oldPeriod, _ := strconv.ParseUint(info.Period, 10, 64)
+		oldHeight, _ := strconv.ParseUint(info.Height, 10, 64)
+		oldValPeriod, _ := strconv.ParseUint(info.ValidatorSlashEvent.ValidatorPeriod, 10, 64)
+
+		newRecord := distrtypes.ValidatorSlashEventRecord{
+			ValidatorAddress: info.ValidatorAddress,
+			Height: oldHeight,
+			Period: oldPeriod,
+			ValidatorSlashEvent: distrtypes.NewValidatorSlashEvent(oldValPeriod, info.ValidatorSlashEvent.Fraction),
+		}
+		newValSlashEvents = append(newValSlashEvents, newRecord)
+	}
+
+	newState := distrtypes.GenesisState{
+		Params:                          oldState.Params,
+		FeePool:                         oldState.FeePool,
+		DelegatorWithdrawInfos:          newDelegatorWithdrawInfos,
+		PreviousProposer:                oldState.PreviousProposer,
+		OutstandingRewards:              oldState.OutstandingRewards,
+		ValidatorAccumulatedCommissions: oldState.ValidatorAccumulatedCommissions,
+		ValidatorHistoricalRewards:      newValHistoryRewards,
+		ValidatorCurrentRewards:         newValCurrentRewards,
+		DelegatorStartingInfos:          newDelegatorStartingInfos,
+		ValidatorSlashEvents:            newValSlashEvents,
+	}
+
+	newData, err := json.Marshal(&newState)
+	if err != nil {
+		return nil, err
+	}
+
+	genesisState[types.ModuleName] = newData
+
+	return genesisState, nil
 }
