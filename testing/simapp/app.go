@@ -352,16 +352,6 @@ func NewSimApp(
 		stakingtypes.NewMultiStakingHooks(app.DistrKeeper.Hooks(), app.SlashingKeeper.Hooks()),
 	)
 
-	app.MultiStakingKeeper = *multistakingkeeper.NewKeeper(
-		appCodec,
-		app.StakingKeeper,
-		app.DistrKeeper,
-		app.GovKeeper,
-		app.BankKeeper,
-		keys[multistakingtypes.StoreKey],
-		tkeys[multistakingtypes.MemStoreKey],
-	)
-
 	app.AuthzKeeper = authzkeeper.NewKeeper(keys[authzkeeper.StoreKey], appCodec, app.MsgServiceRouter(), app.AccountKeeper)
 
 	// IBC Keepers
@@ -392,6 +382,16 @@ func NewSimApp(
 		govtypes.NewMultiGovHooks(
 		// register the governance hooks
 		),
+	)
+
+	app.MultiStakingKeeper = *multistakingkeeper.NewKeeper(
+		appCodec,
+		app.StakingKeeper,
+		app.DistrKeeper,
+		app.GovKeeper,
+		app.BankKeeper,
+		keys[multistakingtypes.StoreKey],
+		tkeys[multistakingtypes.MemStoreKey],
 	)
 
 	groupConfig := group.DefaultConfig()
