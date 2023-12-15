@@ -1,6 +1,8 @@
 package keeper_test
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/realio-tech/multi-staking-module/testutil"
 	multistakingkeeper "github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
@@ -161,6 +163,106 @@ func (suite *KeeperTestSuite) TestQueryMultiStakingLock() {
 			suite.Require().NotNil(response)
 			suite.Require().Equal(tc.expectedFound, response.Found)
 			suite.Require().Equal(tc.expectedLock, response.MultiStakingLock)
+		})
+	}
+}
+
+func (suite *KeeperTestSuite) TestQueryMultiStakingUnlock() {
+	delegatorAddress := testutil.GenAddress()
+	validatorAddress := testutil.GenValAddress()
+
+	testCases := []struct {
+		name           string
+		setupFunc      func(ctx sdk.Context, k *multistakingkeeper.Keeper)
+		expectedFound  bool
+		expectedUnlock *multistakingtypes.MultiStakingUnlock
+	}{
+		{
+			name: "existing multi staking unlock",
+			setupFunc: func(ctx sdk.Context, k *multistakingkeeper.Keeper) {
+				multiStakingUnlock := &multistakingtypes.MultiStakingUnlock{
+					DelegatorAddress: delegatorAddress.String(),
+					ValidatorAddress: validatorAddress.String(),
+					Entries: []multistakingtypes.UnlockEntry{
+						{
+							CreationHeight:  1,
+							ConversionRatio: sdk.MustNewDecFromStr("0.3"),
+							Balance:         sdk.NewInt(10000),
+						},
+					},
+				}
+
+				k.SetMultiStakingUnlock(ctx, *multiStakingUnlock)
+			},
+			expectedFound: true,
+			expectedUnlock: &multistakingtypes.MultiStakingUnlock{
+				DelegatorAddress: delegatorAddress.String(),
+				ValidatorAddress: validatorAddress.String(),
+				Entries: []multistakingtypes.UnlockEntry{
+					{
+						CreationHeight:  1,
+						ConversionRatio: sdk.MustNewDecFromStr("0.3"),
+						Balance:         sdk.NewInt(10000),
+					},
+				},
+			},
+		},
+		{
+			name: "existing multi staking unlock",
+			setupFunc: func(ctx sdk.Context, k *multistakingkeeper.Keeper) {
+				multiStakingUnlock := &multistakingtypes.MultiStakingUnlock{
+					DelegatorAddress: delegatorAddress.String(),
+					ValidatorAddress: validatorAddress.String(),
+					Entries: []multistakingtypes.UnlockEntry{
+						{
+							CreationHeight:  1,
+							ConversionRatio: sdk.MustNewDecFromStr("0.3"),
+							Balance:         sdk.NewInt(10000),
+						},
+					},
+				}
+
+				k.SetMultiStakingUnlock(ctx, *multiStakingUnlock)
+			},
+			expectedFound: true,
+			expectedUnlock: &multistakingtypes.MultiStakingUnlock{
+				DelegatorAddress: delegatorAddress.String(),
+				ValidatorAddress: validatorAddress.String(),
+				Entries: []multistakingtypes.UnlockEntry{
+					{
+						CreationHeight:  1,
+						ConversionRatio: sdk.MustNewDecFromStr("0.3"),
+						Balance:         sdk.NewInt(10000),
+					},
+				},
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		suite.Run(tc.name, func() {
+			suite.SetupTest()
+			if tc.setupFunc != nil {
+				tc.setupFunc(suite.ctx, suite.msKeeper)
+			}
+
+			queryServer := multistakingkeeper.NewQueryServerImpl(*suite.msKeeper)
+			response, err := queryServer.MultiStakingUnlock(sdk.WrapSDKContext(suite.ctx), &multistakingtypes.QueryMultiStakingUnlockRequest{
+				DelegatorAddress: delegatorAddress.String(),
+				ValidatorAddress: validatorAddress.String(),
+			})
+
+			fmt.Println("res: ", response)
+
+			suite.Require().NoError(err)
+			suite.Require().NotNil(response)
+			suite.Require().Equal(tc.expectedFound, response.Found)
+			if tc.expectedFound {
+				suite.Require().Equal(tc.expectedUnlock, response.MultiStakingUnlock)
+			} else {
+				suite.Require().Nil(response.MultiStakingUnlock)
+			}
 		})
 	}
 }
