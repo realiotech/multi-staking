@@ -25,9 +25,10 @@ type AppMap map[string]json.RawMessage
 const flagGenesisTime = "genesis-time"
 
 var (
-	bondedPoolAddress   = authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String()
-	unbondedPoolAddress = authtypes.NewModuleAddress(stakingtypes.NotBondedPoolName).String()
-	newBondedTokenDenom = "stake"
+	prefix                 = "realio"
+	newBondedTokenDenom    = "stake"
+	bondedPoolAddress, _   = sdk.Bech32ifyAddressBytes(prefix, authtypes.NewModuleAddress(stakingtypes.BondedPoolName))
+	unbondedPoolAddress, _ = sdk.Bech32ifyAddressBytes(prefix, authtypes.NewModuleAddress(stakingtypes.NotBondedPoolName))
 )
 
 // MigrateGenesisCmd returns a command to execute genesis state migration.
@@ -126,7 +127,7 @@ func migrate(genesisState AppMap, ctx client.Context) (AppMap, error) {
 	return genesisState, nil
 }
 
-func migrateBank(genesisState AppMap, ctx client.Context) (AppMap, error) {
+func migrateBank(genesisState AppMap) (AppMap, error) {
 	rawData := genesisState[stakingtypes.ModuleName]
 	var oldStakingState v0.GenesisState
 	err := json.Unmarshal(rawData, &oldStakingState)
@@ -176,67 +177,65 @@ func convertBankState(
 		validatorMap[validator.OperatorAddress] = validator
 	}
 
-	ubdDelegationMap := make(map[string]v0.UnbondingDelegation, 0)
-	for _, ubdDelegation := range oldStakingState.UnbondingDelegations {
-		key := ubdDelegation.DelegatorAddress + ubdDelegation.ValidatorAddress
-		ubdDelegationMap[key] = ubdDelegation
-	}
-
 	var newBalances []banktypes.Balance
 	var bondedPoolBalance sdk.Coins
 	var ubdPoolBalance sdk.Coins
-	var totalNewBondedTokenAmount sdk.Coin
+	var totalNewBondedTokenAmount sdk.Coins
+	var balancesIndexMap = make(map[string]uint64, 0)
 
 	for _, delegation := range oldStakingState.Delegations {
-		var delegationStakeAmount sdk.Coins
+		var delegationLockAmount sdk.Coins
 
 		// change the delegation from staking bonded(unbonded) pool to intermedary account
 		DelAddr := sdk.AccAddress(delegation.DelegatorAddress)
 		intermediaryAccount := types.IntermediaryAccount(DelAddr)
+		intermediaryBech32Addr, _ := sdk.Bech32ifyAddressBytes(prefix, intermediaryAccount)
 
 		validator, ok := validatorMap[delegation.ValidatorAddress]
 		if !ok {
-			return nil, nil, fmt.Errorf("Error validator not found delegation %v", delegation.ValidatorAddress)
+			return nil, nil, fmt.Errorf("Error validator not found delegation %s", delegation.ValidatorAddress)
 		}
 
 		// calculate issued token
 		val, tokenAmount := tokenAmountFromShares(validator, delegation.Shares)
-		delegationStakeAmount.Add(sdk.NewCoin(validator.BondDenom, tokenAmount))
+		delegationAmount := sdk.NewCoins(sdk.NewCoin(validator.BondDenom, tokenAmount))
 
-		// update validator
-		validatorMap[delegation.ValidatorAddress] = val
+		delegationLockAmount = delegationLockAmount.Add(delegationAmount...)
 
 		// move delegate token
 		if validator.Status == stakingtypes.BondStatusBonded {
 			// Caculate new bonded token amount in bondedPoolAddress
-			bondedPoolBalance.Add(sdk.NewCoin(newBondedTokenDenom, tokenAmount)) // TODO: need to add ratio. Current ratio is 1
+			bondedPoolBalance = bondedPoolBalance.Add(sdk.NewCoin(newBondedTokenDenom, tokenAmount)) // TODO: need to add ratio. Current ratio is 1
 		} else {
 			// Caculate new bonded token amount in unbondedPoolAddress
-			ubdPoolBalance.Add(sdk.NewCoin(newBondedTokenDenom, tokenAmount)) // TODO: need to add ratio. Current ratio is 1
+			ubdPoolBalance = ubdPoolBalance.Add(sdk.NewCoin(newBondedTokenDenom, tokenAmount)) // TODO: need to add ratio. Current ratio is 1
 		}
-		totalNewBondedTokenAmount.Add(sdk.NewCoin(newBondedTokenDenom, tokenAmount)) // TODO: need to add ratio. Current ratio is 1
+		totalNewBondedTokenAmount = totalNewBondedTokenAmount.Add(sdk.NewCoin(newBondedTokenDenom, tokenAmount)) // TODO: need to add ratio. Current ratio is 1
 
-		// move unbonding token
-		key := delegation.DelegatorAddress + delegation.ValidatorAddress
-		ubdDelegation, ok := ubdDelegationMap[key]
-		if ok {
-			for _, entry := range ubdDelegation.Entries {
-				// move balance in entry from unbondedPoolAddress to intermediary address
-				delegationStakeAmount.Add(entry.Balance)
-				// Caculate new bonded token amount in unbondedPoolAddress
-				ubdPoolBalance.Add(sdk.NewCoin(newBondedTokenDenom, entry.Balance.Amount))            // TODO: need to add ratio. Current ratio is 1
-				totalNewBondedTokenAmount.Add(sdk.NewCoin(newBondedTokenDenom, entry.Balance.Amount)) // TODO: need to add ratio. Current ratio is 1
+		// update validator
+		validatorMap[delegation.ValidatorAddress] = val
+
+		index, found := balancesIndexMap[intermediaryBech32Addr]
+		if !found {
+			index := len(newBalances)
+			balancesIndexMap[intermediaryBech32Addr] = uint64(index)
+
+			balance := banktypes.Balance{
+				Address: intermediaryBech32Addr,
+				Coins:   delegationLockAmount,
 			}
-			// delete this key so we don't check in UnbondingDelegations iterator
-			delete(ubdDelegationMap, key)
-		}
 
-		balance := banktypes.Balance{
-			Address: intermediaryAccount.String(),
-			Coins:   delegationStakeAmount,
-		}
+			newBalances = append(newBalances, balance)
+		} else {
+			delegationLockAmount = delegationLockAmount.Add(newBalances[index].Coins...)
 
-		newBalances = append(newBalances, balance)
+			balance := banktypes.Balance{
+				Address: intermediaryBech32Addr,
+				Coins:   delegationLockAmount,
+			}
+
+			newBalances[index] = balance
+		}
 
 	}
 
@@ -245,27 +244,37 @@ func convertBankState(
 		// change the delegation from staking unbonded pool to intermedary account
 		DelAddr := sdk.AccAddress(ubdDelegation.DelegatorAddress)
 		intermediaryAccount := types.IntermediaryAccount(DelAddr)
-
-		key := ubdDelegation.DelegatorAddress + ubdDelegation.ValidatorAddress
-		ubdDelegation, ok := ubdDelegationMap[key]
-		if !ok {
-			continue
-		}
+		intermediaryBech32Addr, _ := sdk.Bech32ifyAddressBytes(prefix, intermediaryAccount)
 
 		for _, entry := range ubdDelegation.Entries {
 			// move balance in entry from unbondedPoolAddress to intermediary address
-			delegationStakeAmount.Add(entry.Balance)
+			delegationStakeAmount = delegationStakeAmount.Add(entry.Balance)
 			// Caculate new bonded token amount in unbondedPoolAddress
-			ubdPoolBalance.Add(sdk.NewCoin(newBondedTokenDenom, entry.Balance.Amount))            // TODO: need to add ratio. Current ratio is 1
-			totalNewBondedTokenAmount.Add(sdk.NewCoin(newBondedTokenDenom, entry.Balance.Amount)) // TODO: need to add ratio. Current ratio is 1
+			ubdPoolBalance = ubdPoolBalance.Add(sdk.NewCoin(newBondedTokenDenom, entry.Balance.Amount))                       // TODO: need to add ratio. Current ratio is 1
+			totalNewBondedTokenAmount = totalNewBondedTokenAmount.Add(sdk.NewCoin(newBondedTokenDenom, entry.Balance.Amount)) // TODO: need to add ratio. Current ratio is 1
 		}
 
-		balance := banktypes.Balance{
-			Address: intermediaryAccount.String(),
-			Coins:   delegationStakeAmount,
-		}
+		index, found := balancesIndexMap[intermediaryBech32Addr]
+		if !found {
+			index := len(newBalances)
+			balancesIndexMap[intermediaryBech32Addr] = uint64(index)
 
-		newBalances = append(newBalances, balance)
+			balance := banktypes.Balance{
+				Address: intermediaryBech32Addr,
+				Coins:   delegationStakeAmount,
+			}
+
+			newBalances = append(newBalances, balance)
+		} else {
+			delegationStakeAmount = delegationStakeAmount.Add(newBalances[index].Coins...)
+
+			balance := banktypes.Balance{
+				Address: intermediaryBech32Addr,
+				Coins:   delegationStakeAmount,
+			}
+
+			newBalances[index] = balance
+		}
 	}
 
 	// append with oldBalances
@@ -283,7 +292,7 @@ func convertBankState(
 	}
 
 	// new supply
-	newSupply := oldSupply.Add(totalNewBondedTokenAmount)
+	newSupply := oldSupply.Add(totalNewBondedTokenAmount...)
 
 	return newBalances, newSupply, nil
 }
@@ -326,7 +335,6 @@ func migrateStaking(genesisState AppMap) (AppMap, error) {
 		return nil, err
 	}
 
-
 	newState := types.GenesisState{}
 	// Migrate state.StakingGenesisState
 	stakingGenesisState := stakingtypes.GenesisState{}
@@ -336,11 +344,11 @@ func migrateStaking(genesisState AppMap) (AppMap, error) {
 		return nil, err
 	}
 	stakingGenesisState.Params = stakingtypes.Params{
-		UnbondingTime: unbondingTime,
-		MaxValidators: oldState.Params.MaxValidators,
-		MaxEntries: oldState.Params.MaxEntries,
+		UnbondingTime:     unbondingTime,
+		MaxValidators:     oldState.Params.MaxValidators,
+		MaxEntries:        oldState.Params.MaxEntries,
 		HistoricalEntries: oldState.Params.HistoricalEntries,
-		BondDenom: newBondedTokenDenom,
+		BondDenom:         newBondedTokenDenom,
 		MinCommissionRate: oldState.Params.MinCommissionRate,
 	}
 	stakingGenesisState.LastTotalPower = oldState.LastTotalPower
