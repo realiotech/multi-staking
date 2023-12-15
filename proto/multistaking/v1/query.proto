@@ -20,6 +20,13 @@ service Query {
       get : "/realio/multistaking/v1/bond_token_weight/{token_denom}"
     };
   }
+
+  rpc ValidatorAllowedToken(QueryValidatorAllowedTokenRequest)
+      returns (QueryValidatorAllowedTokenResponse) {
+    option (google.api.http) = {
+      get : "/realio/multistaking/v1/validator_allowed_token/{operator_address}"
+    };
+  }
 }
 
 message QueryBondTokenWeightRequest { string token_denom = 1; }
@@ -32,3 +39,10 @@ message QueryBondTokenWeightResponse {
 
   bool is_set = 2;
 }
+
+message QueryValidatorAllowedTokenRequest {
+  string operator_address = 1
+      [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+}
+
+message QueryValidatorAllowedTokenResponse { string denom = 1; }
