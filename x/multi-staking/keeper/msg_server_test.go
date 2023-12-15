@@ -1,6 +1,8 @@
 package keeper_test
 
 import (
+	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	"time"
 
 	"cosmossdk.io/math"
@@ -956,6 +958,205 @@ func (suite *KeeperTestSuite) TestCancelUnbondingDelegation() {
 				unbondRecord, found := suite.msKeeper.GetMultiStakingUnlock(suite.ctx, delAddr, valAddr1)
 				suite.Require().True(found)
 				suite.Require().Equal(tc.expUnlock, unbondRecord.Entries[0].Balance)
+			}
+		})
+	}
+}
+
+func (suite *KeeperTestSuite) TestVote() {
+	delAddr := testutil.GenAddress()
+	metadata := "metadata"
+	testCases := []struct {
+		name     string
+		malleate func(ctx sdk.Context,
+			msgServer multistakingtypes.MsgServer,
+			msKeeper multistakingkeeper.Keeper,
+			proposal v1.Proposal) error
+		expTotalVote  int
+		expVoteOption v1.VoteOption
+		expErr        bool
+	}{
+		{
+			name: "proposal not on voting period",
+			malleate: func(ctx sdk.Context, msgServer multistakingtypes.MsgServer,
+				msKeeper multistakingkeeper.Keeper, proposal v1.Proposal) error {
+				multiStakingMsg := multistakingtypes.MsgVote{
+					ProposalId: proposal.Id,
+					Voter:      delAddr.String(),
+					Option:     v1.VoteOption(govtypes.OptionYes),
+					Metadata:   metadata,
+				}
+				_, err := msgServer.Vote(ctx, &multiStakingMsg)
+				return err
+			},
+			expTotalVote: 1,
+			expErr:       true,
+		},
+		{
+			name: "invalid proposal ID",
+			malleate: func(ctx sdk.Context, msgServer multistakingtypes.MsgServer,
+				msKeeper multistakingkeeper.Keeper, proposal v1.Proposal) error {
+				multiStakingMsg := multistakingtypes.MsgVote{
+					ProposalId: 10,
+					Voter:      delAddr.String(),
+					Option:     v1.VoteOption(govtypes.OptionYes),
+					Metadata:   metadata,
+				}
+				_, err := msgServer.Vote(ctx, &multiStakingMsg)
+				return err
+			},
+			expTotalVote: 1,
+			expErr:       true,
+		},
+		{
+			name: "success when proposal on voting period",
+			malleate: func(ctx sdk.Context, msgServer multistakingtypes.MsgServer,
+				msKeeper multistakingkeeper.Keeper, proposal v1.Proposal) error {
+
+				// update proposal status
+				proposal.Status = v1.StatusVotingPeriod
+				suite.app.GovKeeper.SetProposal(ctx, proposal)
+
+				multiStakingMsg := multistakingtypes.MsgVote{
+					ProposalId: proposal.Id,
+					Voter:      delAddr.String(),
+					Option:     v1.VoteOption(govtypes.OptionYes),
+					Metadata:   metadata,
+				}
+				_, err := msgServer.Vote(ctx, &multiStakingMsg)
+				return err
+			},
+			expTotalVote:  1,
+			expVoteOption: v1.VoteOption(govtypes.OptionYes),
+			expErr:        false,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		suite.Run(tc.name, func() {
+			suite.SetupTest()
+			msgServer := multistakingkeeper.NewMsgServerImpl(*suite.msKeeper)
+
+			tp := TestProposal
+			proposal, err := suite.app.GovKeeper.SubmitProposal(suite.ctx, tp, metadata)
+			suite.Require().NoError(err)
+			suite.Require().Equal(uint64(1), proposal.Id)
+
+			err = tc.malleate(suite.ctx, msgServer, *suite.msKeeper, proposal)
+			if tc.expErr {
+				suite.Require().Error(err)
+			} else {
+				suite.Require().NoError(err)
+				voteResp := suite.app.GovKeeper.GetVotes(suite.ctx, proposal.Id)
+				suite.Require().Equal(tc.expTotalVote, len(voteResp))
+				suite.Require().Equal(tc.expVoteOption, voteResp[0].Options[0].Option)
+				intermediaryAcc := multistakingtypes.IntermediaryAccount(delAddr)
+				suite.Require().Equal(intermediaryAcc.String(), voteResp[0].Voter)
+			}
+		})
+	}
+}
+
+func (suite *KeeperTestSuite) TestVoteWeighted() {
+	delAddr := testutil.GenAddress()
+	metadata := "metadata"
+	testCases := []struct {
+		name     string
+		malleate func(ctx sdk.Context,
+			msgServer multistakingtypes.MsgServer,
+			msKeeper multistakingkeeper.Keeper,
+			proposal v1.Proposal) error
+		expTotalVote   int
+		expVoteOptions v1.WeightedVoteOptions
+		expErr         bool
+	}{
+		{
+			name: "proposal not on voting period",
+			malleate: func(ctx sdk.Context, msgServer multistakingtypes.MsgServer,
+				msKeeper multistakingkeeper.Keeper, proposal v1.Proposal) error {
+				multiStakingMsg := multistakingtypes.MsgVoteWeighted{
+					ProposalId: proposal.Id,
+					Voter:      delAddr.String(),
+					Metadata:   metadata,
+					Options:    v1.NewNonSplitVoteOption(v1.VoteOption_VOTE_OPTION_YES),
+				}
+				_, err := msgServer.VoteWeighted(ctx, &multiStakingMsg)
+				return err
+			},
+			expTotalVote: 1,
+			expErr:       true,
+		},
+		{
+			name: "invalid proposal ID",
+			malleate: func(ctx sdk.Context, msgServer multistakingtypes.MsgServer,
+				msKeeper multistakingkeeper.Keeper, proposal v1.Proposal) error {
+				multiStakingMsg := multistakingtypes.MsgVoteWeighted{
+					ProposalId: 10,
+					Voter:      delAddr.String(),
+					Options:    v1.NewNonSplitVoteOption(v1.VoteOption_VOTE_OPTION_YES),
+					Metadata:   metadata,
+				}
+				_, err := msgServer.VoteWeighted(ctx, &multiStakingMsg)
+				return err
+			},
+			expTotalVote: 1,
+			expErr:       true,
+		},
+		{
+			name: "success when proposal on voting period",
+			malleate: func(ctx sdk.Context, msgServer multistakingtypes.MsgServer,
+				msKeeper multistakingkeeper.Keeper, proposal v1.Proposal) error {
+
+				// update proposal status
+				proposal.Status = v1.StatusVotingPeriod
+				suite.app.GovKeeper.SetProposal(ctx, proposal)
+				voteOptions := v1.WeightedVoteOptions{
+					{v1.VoteOption_VOTE_OPTION_YES, sdk.MustNewDecFromStr("0.6").String()},
+					{v1.VoteOption_VOTE_OPTION_NO, sdk.MustNewDecFromStr("0.4").String()},
+				}
+				multiStakingMsg := multistakingtypes.MsgVoteWeighted{
+					ProposalId: proposal.Id,
+					Voter:      delAddr.String(),
+					Options:    voteOptions,
+					Metadata:   metadata,
+				}
+				_, err := msgServer.VoteWeighted(ctx, &multiStakingMsg)
+				return err
+			},
+			expTotalVote: 1,
+			expVoteOptions: v1.WeightedVoteOptions{
+				{v1.VoteOption_VOTE_OPTION_YES, sdk.MustNewDecFromStr("0.6").String()},
+				{v1.VoteOption_VOTE_OPTION_NO, sdk.MustNewDecFromStr("0.4").String()},
+			},
+			expErr: false,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		suite.Run(tc.name, func() {
+			suite.SetupTest()
+			msgServer := multistakingkeeper.NewMsgServerImpl(*suite.msKeeper)
+
+			tp := TestProposal
+			proposal, err := suite.app.GovKeeper.SubmitProposal(suite.ctx, tp, metadata)
+			suite.Require().NoError(err)
+			suite.Require().Equal(uint64(1), proposal.Id)
+
+			err = tc.malleate(suite.ctx, msgServer, *suite.msKeeper, proposal)
+			if tc.expErr {
+				suite.Require().Error(err)
+			} else {
+				suite.Require().NoError(err)
+				voteResp := suite.app.GovKeeper.GetVotes(suite.ctx, proposal.Id)
+				suite.Require().Equal(tc.expTotalVote, len(voteResp))
+				for i := 0; i < len(voteResp); i++ {
+					suite.Require().Equal(tc.expVoteOptions[i].Option, voteResp[0].Options[i].Option)
+					suite.Require().Equal(tc.expVoteOptions[i].Weight, voteResp[0].Options[i].Weight)
+				}
+				intermediaryAcc := multistakingtypes.IntermediaryAccount(delAddr)
+				suite.Require().Equal(intermediaryAcc.String(), voteResp[0].Voter)
 			}
 		})
 	}
