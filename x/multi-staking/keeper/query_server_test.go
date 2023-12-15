@@ -5,7 +5,6 @@ import (
 	"github.com/realio-tech/multi-staking-module/testutil"
 	multistakingkeeper "github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
 	multistakingtypes "github.com/realio-tech/multi-staking-module/x/multi-staking/types"
-	// other necessary imports
 )
 
 func (suite *KeeperTestSuite) TestBondTokenWeightQuery() {
@@ -103,6 +102,65 @@ func (suite *KeeperTestSuite) TestValidatorAllowedTokenQuery() {
 			suite.Require().NoError(err)
 			suite.Require().NotNil(response)
 			suite.Require().Equal(tc.expectedToken, response.Denom)
+		})
+
+	}
+}
+
+func (suite *KeeperTestSuite) TestQueryMultiStakingLock() {
+	multiStakingLock := &multistakingtypes.MultiStakingLock{
+		ConversionRatio: sdk.MustNewDecFromStr("0.3"),
+		LockedAmount:    sdk.NewInt(10000),
+		DelAddr:         testutil.GenAddress().String(),
+		ValAddr:         testutil.GenValAddress().String(),
+	}
+
+	testCases := []struct {
+		name               string
+		multiStakingLockID []byte
+		setupFunc          func(ctx sdk.Context, k *multistakingkeeper.Keeper)
+		expectedFound      bool
+		expectedLock       *multistakingtypes.MultiStakingLock
+	}{
+		{
+			name:               "existing multi staking lock",
+			multiStakingLockID: []byte("lock_id_1"),
+			setupFunc: func(ctx sdk.Context, k *multistakingkeeper.Keeper) {
+				k.SetMultiStakingLock(ctx, []byte("lock_id_1"), *multiStakingLock)
+			},
+			expectedFound: true,
+			expectedLock:  multiStakingLock,
+		},
+		{
+			name:               "non-existing multi staking lock",
+			multiStakingLockID: []byte("lock_id_2"),
+			setupFunc:          nil, // no setup required
+			expectedFound:      false,
+			expectedLock: &multistakingtypes.MultiStakingLock{
+				ConversionRatio: sdk.Dec{},
+				LockedAmount:    sdk.Int{},
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		suite.Run(tc.name, func() {
+			suite.SetupTest() // setup the test environment
+
+			if tc.setupFunc != nil {
+				tc.setupFunc(suite.ctx, suite.msKeeper)
+			}
+
+			queryServer := multistakingkeeper.NewQueryServerImpl(*suite.msKeeper)
+			response, err := queryServer.MultiStakingLock(sdk.WrapSDKContext(suite.ctx), &multistakingtypes.QueryMultiStakingLockRequest{
+				MultiStakingLockId: tc.multiStakingLockID,
+			})
+
+			suite.Require().NoError(err)
+			suite.Require().NotNil(response)
+			suite.Require().Equal(tc.expectedFound, response.Found)
+			suite.Require().Equal(tc.expectedLock, response.MultiStakingLock)
 		})
 	}
 }

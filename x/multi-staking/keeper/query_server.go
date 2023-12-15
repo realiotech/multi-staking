@@ -7,8 +7,6 @@ import (
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
 
-// NewQueryServerImpl returns an implementation of the module QueryServer.
-
 var _ types.QueryServer = queryServer{}
 
 func NewQueryServerImpl(k Keeper) types.QueryServer {
