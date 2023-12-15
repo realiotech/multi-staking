@@ -35,7 +35,12 @@ func (q queryServer) BondTokenWeight(c context.Context, params *types.QueryBondT
 func (q queryServer) ValidatorAllowedToken(c context.Context, params *types.QueryValidatorAllowedTokenRequest) (*types.QueryValidatorAllowedTokenResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	allowedToken := q.Keeper.GetValidatorAllowedToken(ctx, sdk.ValAddress(params.OperatorAddress))
+	operatorAddress, err := sdk.ValAddressFromBech32(params.OperatorAddress)
+	if err != nil {
+		return &types.QueryValidatorAllowedTokenResponse{}, nil
+	}
+
+	allowedToken := q.Keeper.GetValidatorAllowedToken(ctx, operatorAddress)
 
 	return &types.QueryValidatorAllowedTokenResponse{
 		Denom: allowedToken,
