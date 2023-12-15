@@ -46,3 +46,14 @@ func (q queryServer) ValidatorAllowedToken(c context.Context, params *types.Quer
 		Denom: allowedToken,
 	}, nil
 }
+
+func (q queryServer) MultiStakingLock(c context.Context, params *types.QueryMultiStakingLockRequest) (*types.QueryMultiStakingLockResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	multiStakingLock, found := q.Keeper.GetMultiStakingLock(ctx, params.MultiStakingLockId)
+
+	return &types.QueryMultiStakingLockResponse{
+		MultiStakingLock: &multiStakingLock,
+		Found:            found,
+	}, nil
+}

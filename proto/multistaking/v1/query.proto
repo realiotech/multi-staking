@@ -10,6 +10,7 @@ import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/staking/v1beta1/staking.proto";
 
 import "cosmos/msg/v1/msg.proto";
+import "multistaking/v1/delegation.proto";
 
 option go_package = "github.com/realiotech/multi-staking/x/multi-staking/types";
 
@@ -27,6 +28,14 @@ service Query {
       get : "/realio/multistaking/v1/validator_allowed_token/{operator_address}"
     };
   }
+
+  rpc MultiStakingLock(QueryMultiStakingLockRequest)
+      returns (QueryMultiStakingLockResponse) {
+    option (google.api.http) = {
+      get : "/realio/multistaking/v1/multi_staking_lock/"
+            "{multi_staking_lock_id}"
+    };
+  };
 }
 
 message QueryBondTokenWeightRequest { string token_denom = 1; }
@@ -46,3 +55,10 @@ message QueryValidatorAllowedTokenRequest {
 }
 
 message QueryValidatorAllowedTokenResponse { string denom = 1; }
+
+message QueryMultiStakingLockRequest { bytes multi_staking_lock_id = 1; }
+
+message QueryMultiStakingLockResponse {
+  MultiStakingLock multi_staking_lock = 1;
+  bool found = 2;
+}
