@@ -236,6 +236,8 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (
 
 	k.RemoveTokenFromLock(ctx, delAcc, valAcc, msg.Amount.Amount)
 
+	
+
 	k.SetMultiStakingUnlockEntry(ctx, delAcc, valAcc, ctx.BlockHeight(), lock.ConversionRatio, resp.CompletionTime, msg.Amount.Amount)
 
 	return &types.MsgUndelegateResponse{}, err
@@ -261,7 +263,7 @@ func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.M
 		)
 	}
 
-	ubd, found := k.GetMultiStakingUnlock(ctx, delAcc, valAcc)
+	ubd, found := k.GetMultiStakingUnlock(ctx, types.MultiStakingUnlockID(delAcc, valAcc))
 
 	if !found {
 		return nil, fmt.Errorf("not found unbonding recored")

@@ -5,9 +5,45 @@ import (
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
+
+func (k Keeper) BurnToken(ctx sdk.Context, accAddr sdk.AccAddress, token sdk.Coins) error {
+	err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, accAddr, types.ModuleName, token)
+	if err != nil {
+		return err
+	}
+	err = k.bankKeeper.BurnCoins(ctx, types.ModuleName, token)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (k Keeper) GetUnlockEntryAtHeight(ctx sdk.Context, unlockID []byte, creationHeight int64) (types.UnlockEntry, bool) {
+	// get unbonded record
+	ubd, found := k.GetMultiStakingUnlock(ctx, unlockID)
+	if !found {
+		return types.UnlockEntry{}, false
+	}
+	var (
+		unlockEntry      types.UnlockEntry
+		foundUnlockEntry bool = false
+	)
+
+	for _, entry := range ubd.Entries {
+		if entry.CreationHeight == creationHeight {
+			unlockEntry = entry
+			foundUnlockEntry = true
+			break
+		}
+	}
+	if !foundUnlockEntry {
+		return types.UnlockEntry{}, false
+	}
+
+	return unlockEntry, foundUnlockEntry
+}
 
 func (k Keeper) CompleteUnbonding(
 	ctx sdk.Context,
@@ -19,45 +55,24 @@ func (k Keeper) CompleteUnbonding(
 	// get delAddr
 	delAddr := types.DelegatorAccount(intermediaryAcc)
 
-	// get unbonded record
-	ubd, found := k.GetMultiStakingUnlock(ctx, delAddr, valAddr)
+	// get unlock record
+	unlockID := types.MultiStakingUnlockID(delAddr, valAddr)
+	unlockEntry, found := k.GetUnlockEntryAtHeight(ctx, unlockID, unbondingHeight)
 	if !found {
-		return unlockedAmount, fmt.Errorf("unbonded record not exists")
-	}
-	var (
-		unbondEntry      types.UnlockEntry
-		unbondEntryIndex int64 = -1
-	)
-
-	for i, entry := range ubd.Entries {
-		if entry.CreationHeight == unbondingHeight {
-			unbondEntry = entry
-			unbondEntryIndex = int64(i)
-			break
-		}
-	}
-	if unbondEntryIndex == -1 {
-		return nil, sdkerrors.ErrNotFound.Wrapf("unbonding delegation entry is not found at block height %d", unbondingHeight)
+		return sdk.Coins{}, fmt.Errorf("unlock entry not found")
 	}
 
 	unlockDenom := k.GetValidatorAllowedToken(ctx, valAddr)
-	unlockMultiStakingAmount := sdk.NewDecFromInt(balance).Quo(unbondEntry.ConversionRatio).RoundInt()
+	unlockMultiStakingAmount := sdk.NewDecFromInt(balance).Mul(unlockEntry.ConversionRatio).RoundInt()
 
 	// check amount
-	if unlockMultiStakingAmount.GT(unbondEntry.Balance) {
+	if unlockMultiStakingAmount.GT(unlockEntry.Balance) {
 		return unlockedAmount, fmt.Errorf("unlock amount greater than lock amount")
 	}
 
 	// burn bonded token
-	burnAmount := sdk.NewCoins(sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), balance))
-	err = k.bankKeeper.SendCoinsFromAccountToModule(ctx, intermediaryAcc, types.ModuleName, burnAmount)
-	if err != nil {
-		return unlockedAmount, err
-	}
-	err = k.bankKeeper.BurnCoins(ctx, types.ModuleName, burnAmount)
-	if err != nil {
-		return unlockedAmount, err
-	}
+	burnToken := sdk.NewCoins(sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), balance))
+	k.BurnToken(ctx, intermediaryAcc, burnToken)
 
 	// check unbond amount has been slashed or not
 	if unbondEntry.Balance.GT(unlockMultiStakingAmount) {

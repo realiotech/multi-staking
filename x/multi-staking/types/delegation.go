@@ -8,7 +8,6 @@ import (
 	"cosmossdk.io/math"
 	"sigs.k8s.io/yaml"
 
-	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -69,27 +68,6 @@ func (ubd *MultiStakingUnlock) AddEntry(creationHeight int64, rate sdk.Dec, bala
 // RemoveEntry - remove entry at index i to the unbonding delegation
 func (ubd *MultiStakingUnlock) RemoveEntry(i int64) {
 	ubd.Entries = append(ubd.Entries[:i], ubd.Entries[i+1:]...)
-}
-
-// return the unbonding delegation
-func MustMarshalUBD(cdc codec.BinaryCodec, ubd MultiStakingUnlock) []byte {
-	return cdc.MustMarshal(&ubd)
-}
-
-// unmarshal a unbonding delegation from a store value
-func MustUnmarshalUBD(cdc codec.BinaryCodec, value []byte) MultiStakingUnlock {
-	ubd, err := UnmarshalUBD(cdc, value)
-	if err != nil {
-		panic(err)
-	}
-
-	return ubd
-}
-
-// unmarshal a unbonding delegation from a store value
-func UnmarshalUBD(cdc codec.BinaryCodec, value []byte) (ubd MultiStakingUnlock, err error) {
-	err = cdc.Unmarshal(value, &ubd)
-	return ubd, err
 }
 
 // String returns a human readable string representation of an MultiStakingUnlock.

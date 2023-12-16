@@ -2,7 +2,6 @@ package types
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/address"
 )
 
 const (
@@ -31,7 +30,7 @@ var (
 
 	MultiStakingLockPrefix = []byte{0x03}
 
-	UnbondDelKey = []byte{0x11} // key for an unbonding-delegation
+	MultiStakingUnlockPrefix = []byte{0x11} // key for an unbonding-delegation
 )
 
 func KeyPrefix(key string) []byte {
@@ -54,17 +53,17 @@ func GetIntermediaryAccountKey(intermediaryAccount sdk.AccAddress) []byte {
 }
 
 func MultiStakingLockID(delAddr sdk.AccAddress, valAddr sdk.ValAddress) []byte {
-	DVPair := append(delAddr, address.MustLengthPrefix(valAddr)...)
+	DVPair := append(delAddr, valAddr...)
 	return append(MultiStakingLockPrefix, DVPair...)
 }
 
-// GetUBDsKey creates the prefix for all unbonding delegations from a delegator
-func GetUBDsKey(delAddr sdk.AccAddress) []byte {
-	return append(UnbondDelKey, address.MustLengthPrefix(delAddr)...)
+func MultiStakingUnlockID(delAddr sdk.AccAddress, valAddr sdk.ValAddress) []byte {
+	DVPair := append(delAddr, valAddr...)
+	return append(MultiStakingUnlockPrefix, DVPair...)
 }
 
-// GetUBDKey creates the key for an unbonding delegation by delegator and validator addr
-// VALUE: multi-staking/MultiStakingUnlock
-func GetUBDKey(delAddr sdk.AccAddress, valAddr sdk.ValAddress) []byte {
-	return append(GetUBDsKey(delAddr.Bytes()), address.MustLengthPrefix(valAddr)...)
-}
+// // GetUBDKey creates the key for an unbonding delegation by delegator and validator addr
+// // VALUE: multi-staking/MultiStakingUnlock
+// func GetUBDKey(delAddr sdk.AccAddress, valAddr sdk.ValAddress) []byte {
+// 	return append(GetUBDsKey(delAddr.Bytes()), address.MustLengthPrefix(valAddr)...)
+// }

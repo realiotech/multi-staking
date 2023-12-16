@@ -40,7 +40,7 @@ func (k Keeper) AddTokenToLock(
 	} else {
 		multiStakingLock = multiStakingLock.AddTokenToMultiStakingLock(amountAdded, conversionRatio)
 	}
-	k.SetMultiStakingLock(ctx, lockID, multiStakingLock)
+	k.SetMultiStakingLock(ctx, multiStakingLock)
 	return multiStakingLock
 }
 
@@ -65,7 +65,7 @@ func (k Keeper) RemoveTokenFromLock(
 	}
 
 	// update lock on source val
-	k.SetMultiStakingLock(ctx, lockID, lock)
+	k.SetMultiStakingLock(ctx, lock)
 	return lock, nil
 }
 

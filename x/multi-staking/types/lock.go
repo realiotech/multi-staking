@@ -7,6 +7,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+func DelAccAndValAccFromLockID(lockID []byte) (delAcc []byte, valAcc []byte) {
+	return
+}
+
 func NewMultiStakingLock(lockedAmount math.Int, conversionRatio sdk.Dec, delAddr sdk.AccAddress, valAddr sdk.ValAddress) MultiStakingLock {
 	return MultiStakingLock{
 		LockedAmount:    lockedAmount,
