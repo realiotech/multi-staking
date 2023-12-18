@@ -34,9 +34,6 @@ func GetUnbondingHeightsAndUnbondedAmounts(ctx sdk.Context, unbondingDelegation 
 
 func (k Keeper) EndBlocker(ctx sdk.Context, matureUnbondingDelegations []stakingtypes.UnbondingDelegation) {
 	for _, ubd := range matureUnbondingDelegations {
-
-		delAcc := sdk.MustAccAddressFromBech32(ubd.DelegatorAddress)
-
 		delAcc, valAcc, err := types.DelAccAndValAccFromStrings(ubd.DelegatorAddress, ubd.ValidatorAddress)
 		if err != nil {
 			panic(err)
