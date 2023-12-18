@@ -128,7 +128,19 @@ func validateGenDoc(importGenesisFile string) (*tmtypes.GenesisDoc, error) {
 }
 
 func migrate(genesisState AppMap, ctx client.Context) (AppMap, error) {
-	return genesisState, nil
+	newGenState, err := migrateBank(genesisState)
+	if err != nil {
+		return nil, err
+	}
+	newGenState, err = migrateStaking(newGenState)
+	if err != nil {
+		return nil, err
+	}
+	newGenState, err = migrateDistribution(newGenState)
+	if err != nil {
+		return nil, err
+	}
+	return newGenState, nil
 }
 
 func migrateBank(genesisState AppMap) (AppMap, error) {

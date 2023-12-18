@@ -10,6 +10,12 @@ import (
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	"github.com/stretchr/testify/require"
+	"github.com/realio-tech/multi-staking-module/testing/simapp"
+	tmtypes "github.com/tendermint/tendermint/types"
+	"github.com/tendermint/tendermint/libs/log"
+	dbm "github.com/tendermint/tm-db"
+	abci "github.com/tendermint/tendermint/abci/types"
+
 )
 
 func TestMigrateStakingModule(t *testing.T) {
@@ -26,7 +32,6 @@ func TestMigrateStakingModule(t *testing.T) {
 	newState, err := migrateStaking(oldState)
 	require.NoError(t, err)
 	fmt.Println(newState[types.ModuleName])
-
 }
 
 func TestMigrateBankModule(t *testing.T) {
@@ -61,4 +66,26 @@ func TestMigrateDistributionModule(t *testing.T) {
 	// _ = os.WriteFile("new_state.json", newStateData, 0644)
 	require.NoError(t, err)
 	fmt.Println(newState[distrtypes.ModuleName])
+}
+
+func TestMigrateFull(t *testing.T) {
+	genDoc, err := tmtypes.GenesisDocFromFile("oldState.json")
+	require.NoError(t, err)
+	app := simapp.NewSimApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, map[int64]bool{}, "", 1, simapp.MakeTestEncodingConfig(), simapp.EmptyAppOptions{})
+	res := app.InitChain(
+		abci.RequestInitChain{
+			Validators:      []abci.ValidatorUpdate{},
+			ConsensusParams: &abci.ConsensusParams{
+				Block: &abci.BlockParams{
+					MaxBytes: genDoc.ConsensusParams.Block.MaxBytes,
+					MaxGas: genDoc.ConsensusParams.Block.MaxGas,
+				},
+				Evidence: &genDoc.ConsensusParams.Evidence,
+				Validator: &genDoc.ConsensusParams.Validator,
+				Version: &genDoc.ConsensusParams.Version,
+			},
+			AppStateBytes:   genDoc.AppState,
+		},
+	)
+	fmt.Println("res", res)
 }
