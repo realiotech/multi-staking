@@ -112,7 +112,7 @@ import (
 	ibchost "github.com/cosmos/ibc-go/v6/modules/core/24-host"
 	ibckeeper "github.com/cosmos/ibc-go/v6/modules/core/keeper"
 	ibcmock "github.com/cosmos/ibc-go/v6/testing/mock"
-	simappparams "github.com/cosmos/ibc-go/v6/testing/simapp/params"
+	simappparams "github.com/cosmos/cosmos-sdk/simapp/params"
 	simappupgrades "github.com/cosmos/ibc-go/v6/testing/simapp/upgrades"
 	v6 "github.com/cosmos/ibc-go/v6/testing/simapp/upgrades/v6"
 	ibctestingtypes "github.com/cosmos/ibc-go/v6/testing/types"
@@ -279,7 +279,7 @@ func NewSimApp(
 	homePath string, invCheckPeriod uint, encodingConfig simappparams.EncodingConfig,
 	appOpts servertypes.AppOptions, baseAppOptions ...func(*baseapp.BaseApp),
 ) *SimApp {
-	appCodec := encodingConfig.Marshaler
+	appCodec := encodingConfig.Codec
 	legacyAmino := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry
 
@@ -830,7 +830,7 @@ func (app *SimApp) GetScopedIBCKeeper() capabilitykeeper.ScopedKeeper {
 
 // GetTxConfig implements the TestingApp interface.
 func (app *SimApp) GetTxConfig() client.TxConfig {
-	return MakeTestEncodingConfig().TxConfig
+	return MakeEncodingConfig().TxConfig
 }
 
 // SimulationManager implements the SimulationApp interface

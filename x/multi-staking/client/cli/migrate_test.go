@@ -15,7 +15,6 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	dbm "github.com/tendermint/tm-db"
 	abci "github.com/tendermint/tendermint/abci/types"
-
 )
 
 func TestMigrateStakingModule(t *testing.T) {
@@ -71,7 +70,7 @@ func TestMigrateDistributionModule(t *testing.T) {
 func TestMigrateFull(t *testing.T) {
 	genDoc, err := tmtypes.GenesisDocFromFile("oldState.json")
 	require.NoError(t, err)
-	app := simapp.NewSimApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, map[int64]bool{}, "", 1, simapp.MakeTestEncodingConfig(), simapp.EmptyAppOptions{})
+	app := simapp.NewSimApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, map[int64]bool{}, "", 1, simapp.MakeEncodingConfig(), simapp.EmptyAppOptions{})
 	res := app.InitChain(
 		abci.RequestInitChain{
 			Validators:      []abci.ValidatorUpdate{},
