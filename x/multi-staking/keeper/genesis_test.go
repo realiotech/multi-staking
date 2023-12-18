@@ -9,16 +9,17 @@ import (
 )
 
 func (suite *KeeperTestSuite) TestInitGenesis() {
-	val := testutil.GenValAddress()
-	del := testutil.GenValAddress()
+	delAddr := testutil.GenAddress()
+	valPubKey := testutil.GenPubKey()
+	valAddr := sdk.ValAddress(valPubKey.Address())
 	multiStakingLock := types.MultiStakingLock{
 		ConversionRatio: sdk.NewDec(1),
 		LockedAmount:    sdk.NewInt(1),
-		DelAddr:         del.String(),
-		ValAddr:         val.String(),
+		DelAddr:         delAddr.String(),
+		ValAddr:         valAddr.String(),
 	}
 	validatorAllowedToken := types.ValidatorAllowedToken{
-		ValAddr:    val.String(),
+		ValAddr:    valAddr.String(),
 		TokenDenom: "stake",
 	}
 
