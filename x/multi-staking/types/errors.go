@@ -33,16 +33,16 @@ var (
 	ErrDelegationNotFound = sdkerrors.Register(ModuleName, 10,
 		"delegation not found",
 	)
-	ErrValidatorNotFound = sdkerrors.Register(ModuleName, 10,
+	ErrValidatorNotFound = sdkerrors.Register(ModuleName, 11,
 		"validator not found",
 	)
-	ErrUnrecognized = sdkerrors.Register(ModuleName, 11,
+	ErrUnrecognized = sdkerrors.Register(ModuleName, 12,
 		"unrecognized brond denom proposal content type",
 	)
-	ErrBrondDenomAlreadyExists = sdkerrors.Register(ModuleName, 12,
+	ErrBrondDenomAlreadyExists = sdkerrors.Register(ModuleName, 13,
 		"brond denom already exists",
 	)
-	ErrBrondDenomDoesNotExist = sdkerrors.Register(ModuleName, 13,
+	ErrBrondDenomDoesNotExist = sdkerrors.Register(ModuleName, 14,
 		"brond denom does not exist",
 	)
 )
