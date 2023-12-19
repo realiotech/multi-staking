@@ -1,7 +1,6 @@
 package multistaking
 
 import (
-	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
@@ -21,7 +20,7 @@ func NewBondDenomProposalHandler(k keeper.Keeper) govtypes.Handler {
 			keeper.HandlerRemoveBondTokenProposal(ctx, &k, c)
 			return nil
 		default:
-			return fmt.Errorf("unrecognized brond denom proposal content type")
+			return types.ErrUnrecognized
 		}
 	}
 }

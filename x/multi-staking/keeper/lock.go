@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"fmt"
-
 	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -20,7 +18,7 @@ func (k Keeper) LockedAmountToBondAmount(
 	// get lock on source val
 	lock, found := k.GetMultiStakingLock(ctx, lockID)
 	if !found {
-		return math.Int{}, fmt.Errorf("can't find multi staking lock")
+		return math.Int{}, types.ErrNotFoundMultiStaking
 	}
 
 	return lock.LockedAmountToBondAmount(lockedAmount).RoundInt(), nil
@@ -55,7 +53,7 @@ func (k Keeper) RemoveTokenFromLock(
 	lockID := types.MultiStakingLockID(delAddr, valAddr)
 	lock, found := k.GetMultiStakingLock(ctx, lockID)
 	if !found {
-		return types.MultiStakingLock{}, fmt.Errorf("can't find multi staking lock")
+		return types.MultiStakingLock{}, types.ErrNotFoundMultiStaking
 	}
 
 	// remove token from lock on source val
@@ -138,7 +136,7 @@ func (k Keeper) BurnBondTokenAndUnlockMultiStakingToken(
 	lockID := types.MultiStakingLockID(delAddr, valAddr)
 	multiStakingLock, found := k.GetMultiStakingLock(ctx, lockID)
 	if !found {
-		return unlockedAmount, fmt.Errorf("StakingLock not exists")
+		return unlockedAmount, types.ErrStakingNotExitsts
 	}
 
 	// unlock amount
@@ -148,7 +146,7 @@ func (k Keeper) BurnBondTokenAndUnlockMultiStakingToken(
 
 	// check amount
 	if unlockMultiStakingAmount.GT(multiStakingLock.LockedAmount) {
-		return unlockedAmount, fmt.Errorf("unlock amount greater than lock amount")
+		return unlockedAmount, types.ErrCheckInsufficientAmount
 	}
 
 	// burn bonded token

@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"context"
-	"fmt"
 
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
@@ -96,7 +95,7 @@ func (k msgServer) Delegate(goCtx context.Context, msg *types.MsgDelegate) (*typ
 	}
 
 	if !k.IsAllowedToken(ctx, valAcc, msg.Amount) {
-		return nil, fmt.Errorf("not allowed token")
+		return nil, types.ErrNotAllowedToken
 	}
 
 	intermediaryAccount := types.IntermediaryAccount(delAcc)
@@ -139,7 +138,7 @@ func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRed
 	}
 
 	if !k.IsAllowedToken(ctx, srcValAcc, msg.Amount) || !k.IsAllowedToken(ctx, dstValAcc, msg.Amount) {
-		return nil, fmt.Errorf("not allowed Token")
+		return nil, types.ErrNotAllowedToken
 	}
 
 	bondAmount, err := k.LockedAmountToBondAmount(ctx, delAcc, srcValAcc, msg.Amount.Amount)
@@ -176,11 +175,11 @@ func (k Keeper) GetDelegation(ctx sdk.Context, delAcc sdk.AccAddress, val sdk.Va
 func (k Keeper) AdjustUnbondAmount(ctx sdk.Context, delAcc sdk.AccAddress, valAcc sdk.ValAddress, amount math.Int) (adjustedAmount math.Int, err error) {
 	delegation, found := k.GetDelegation(ctx, delAcc, valAcc)
 	if !found {
-		return math.Int{}, fmt.Errorf("delegation not found")
+		return math.Int{}, types.ErrDelegationNotFound
 	}
 	validator, found := k.stakingKeeper.GetValidator(ctx, valAcc)
 	if !found {
-		return math.Int{}, fmt.Errorf("validator not found")
+		return math.Int{}, types.ErrValidatorNotFound
 	}
 
 	shares, err := validator.SharesFromTokens(amount)
@@ -212,13 +211,13 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (
 	}
 
 	if !k.IsAllowedToken(ctx, valAcc, msg.Amount) {
-		return nil, fmt.Errorf("not allowed token")
+		return nil, types.ErrNotAllowedToken
 	}
 
 	lockID := types.MultiStakingLockID(delAcc, valAcc)
 	lock, found := k.GetMultiStakingLock(ctx, lockID)
 	if !found {
-		return nil, fmt.Errorf("can't find multi staking lock")
+		return nil, types.ErrNotFoundMultiStaking
 	}
 
 	unbondAmount := lock.LockedAmountToBondAmount(msg.Amount.Amount).RoundInt()
@@ -264,7 +263,9 @@ func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.M
 	ubd, found := k.GetMultiStakingUnlock(ctx, delAcc, valAcc)
 
 	if !found {
-		return nil, fmt.Errorf("not found unbonding recored")
+		return nil, errorsmod.Wrapf(
+			sdkerrors.ErrNotFound, "not found unbonding recored",
+		)
 	}
 
 	var (
