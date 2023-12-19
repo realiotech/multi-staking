@@ -40,7 +40,10 @@ func (k Keeper) EndBlocker(ctx sdk.Context, matureUnbondingDelegations []staking
 		}
 		unbondingHeightsAndUnbondedAmounts := GetUnbondingHeightsAndUnbondedAmounts(ctx, ubd)
 		for unbondingHeight, unbondedAmount := range unbondingHeightsAndUnbondedAmounts {
-			k.CompleteUnbonding(ctx, intAcc, valAcc, unbondingHeight, unbondedAmount)
+			_, err = k.CompleteUnbonding(ctx, intAcc, valAcc, unbondingHeight, unbondedAmount)
+			if err != nil {
+				panic(err)
+			}
 		}
 	}
 }
