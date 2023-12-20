@@ -13,7 +13,7 @@ func HandlerAddBondDenomProposal(ctx sdk.Context, k *Keeper, p *types.AddBondDen
 		return fmt.Errorf("denom %s already exists", p.BondTokenAdd)
 	}
 
-	k.SetBondTokenWeight(ctx, p.BondTokenAdd, *p.BondTokenWeightAdd)
+	k.SetBondTokenWeight(ctx, p.BondTokenAdd, p.BondTokenWeightAdd)
 	return nil
 }
 
@@ -24,7 +24,7 @@ func HandlerUpdateBondTokenWeightProposals(ctx sdk.Context, k *Keeper, p *types.
 	}
 	k.RemoveBondTokenWeight(ctx, p.BondDenomChange)
 
-	k.SetBondTokenWeight(ctx, p.BondDenomChange, *p.BondTokenWeightChange)
+	k.SetBondTokenWeight(ctx, p.BondDenomChange, p.BondTokenWeightChange)
 	return nil
 }
 

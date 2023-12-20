@@ -13,7 +13,8 @@ message AddBondDenomProposal {
   string bond_token_add = 3;
   string bond_token_weight_add = 4 [
     (cosmos_proto.scalar) = "cosmos.Dec",
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
   ];
 }
 
@@ -23,7 +24,8 @@ message UpdateBondTokenWeightProposals {
   string bond_denom_change = 3;
   string bond_token_weight_change = 4 [
     (cosmos_proto.scalar) = "cosmos.Dec",
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
   ];
 }
 

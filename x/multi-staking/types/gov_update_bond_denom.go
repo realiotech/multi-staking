@@ -23,7 +23,7 @@ func NewUpdateBondDenomProposal(title, description, bondDenom string, bondDenomW
 		Title:                 title,
 		Description:           description,
 		BondDenomChange:       bondDenom,
-		BondTokenWeightChange: &bondDenomWeight,
+		BondTokenWeightChange: bondDenomWeight,
 	}
 }
 
