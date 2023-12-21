@@ -241,8 +241,8 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (
 	return &types.MsgUndelegateResponse{}, err
 }
 
-// // CancelUnbondingDelegation defines a method for canceling the unbonding delegation
-// // and delegate back to the validator.
+// CancelUnbondingDelegation defines a method for canceling the unbonding delegation
+// and delegate back to the validator.
 func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.MsgCancelUnbondingDelegation) (*types.MsgCancelUnbondingDelegationResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
@@ -287,8 +287,6 @@ func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.M
 		return nil, sdkerrors.ErrInvalidRequest.Wrap("amount is greater than the unbonding delegation entry balance")
 	}
 
-	// delegate back the unbonding delegation amount to the validator
-	// _, err = k.Keeper.Delegate(ctx, delegatorAddress, msg.Amount.Amount, types.Unbonding, validator, false)
 	if err != nil {
 		return nil, err
 	}

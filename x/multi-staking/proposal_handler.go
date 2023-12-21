@@ -30,8 +30,7 @@ func handleAddBondTokenProposal(
 	k *keeper.Keeper,
 	p *types.AddBondTokenProposal,
 ) error {
-
-	k.SetBondTokenWeight(ctx, p.BondToken, *p.TokenWeight)
+	k.SetBondTokenWeight(ctx, p.BondToken, p.TokenWeight)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
@@ -49,8 +48,7 @@ func handleChangeTokenWeightProposal(
 	k *keeper.Keeper,
 	p *types.ChangeBondTokenWeightProposal,
 ) error {
-
-	k.SetBondTokenWeight(ctx, p.BondToken, *p.TokenWeight)
+	k.SetBondTokenWeight(ctx, p.BondToken, p.TokenWeight)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(

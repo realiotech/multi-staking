@@ -23,7 +23,8 @@ message AddBondTokenProposal {
   // the bond token weight
   string token_weight = 4 [
     (cosmos_proto.scalar) = "cosmos.Dec",
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec"
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
   ];
 }
 
@@ -43,6 +44,7 @@ message ChangeBondTokenWeightProposal {
   // the bond token weight
   string token_weight = 4 [
     (cosmos_proto.scalar) = "cosmos.Dec",
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec"
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
   ];
 }
