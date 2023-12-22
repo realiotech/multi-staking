@@ -9,7 +9,7 @@ package keeper_test
 // 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 // )
 
-// func (suite *KeeperTestSuite) TestSetBondTokenWeight() {
+// func (suite *KeeperTestSuite) TestSetBondCoinWeight() {
 // 	suite.SetupTest()
 
 // 	gasDenom := "ario"
@@ -17,17 +17,17 @@ package keeper_test
 // 	gasWeight := sdk.NewDec(1)
 // 	govWeight := sdk.MustNewDecFromStr("0.5")
 
-// 	suite.msKeeper.SetBondTokenWeight(suite.ctx, gasDenom, gasWeight)
-// 	suite.msKeeper.SetBondTokenWeight(suite.ctx, govDenom, govWeight)
+// 	suite.msKeeper.SetBondCoinWeight(suite.ctx, gasDenom, gasWeight)
+// 	suite.msKeeper.SetBondCoinWeight(suite.ctx, govDenom, govWeight)
 
-// 	btw, _ := suite.msKeeper.GetBondTokenWeight(suite.ctx, gasDenom)
+// 	btw, _ := suite.msKeeper.GetBondCoinWeight(suite.ctx, gasDenom)
 // 	suite.Equal(gasWeight, btw)
 
-// 	btw, _ = suite.msKeeper.GetBondTokenWeight(suite.ctx, govDenom)
+// 	btw, _ = suite.msKeeper.GetBondCoinWeight(suite.ctx, govDenom)
 // 	suite.Equal(govWeight, btw)
 // }
 
-// func (suite *KeeperTestSuite) TestSetValidatorAllowedToken() {
+// func (suite *KeeperTestSuite) TestSetValidatorAllowedCoin() {
 // 	valA := testutil.GenValAddress()
 // 	valB := testutil.GenValAddress()
 // 	gasDenom := "ario"
@@ -41,7 +41,7 @@ package keeper_test
 // 		{
 // 			name: "1 val, 1 denom, success",
 // 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []string {
-// 				msKeeper.SetValidatorAllowedToken(ctx, valA, gasDenom)
+// 				msKeeper.SetValidatorAllowedCoin(ctx, valA, gasDenom)
 // 				return []string{gasDenom}
 // 			},
 // 			vals:     []sdk.ValAddress{valA},
@@ -50,8 +50,8 @@ package keeper_test
 // 		{
 // 			name: "2 val, 2 denom, success",
 // 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []string {
-// 				msKeeper.SetValidatorAllowedToken(ctx, valA, gasDenom)
-// 				msKeeper.SetValidatorAllowedToken(ctx, valB, govDenom)
+// 				msKeeper.SetValidatorAllowedCoin(ctx, valA, gasDenom)
+// 				msKeeper.SetValidatorAllowedCoin(ctx, valB, govDenom)
 // 				return []string{gasDenom, govDenom}
 // 			},
 // 			vals:     []sdk.ValAddress{valA, valB},
@@ -60,8 +60,8 @@ package keeper_test
 // 		{
 // 			name: "1 val, 2 denom, failed",
 // 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []string {
-// 				msKeeper.SetValidatorAllowedToken(ctx, valA, gasDenom)
-// 				msKeeper.SetValidatorAllowedToken(ctx, valA, govDenom)
+// 				msKeeper.SetValidatorAllowedCoin(ctx, valA, gasDenom)
+// 				msKeeper.SetValidatorAllowedCoin(ctx, valA, govDenom)
 // 				return []string{gasDenom, govDenom}
 // 			},
 // 			vals:     []sdk.ValAddress{valA, valB},
@@ -81,7 +81,7 @@ package keeper_test
 // 			} else {
 // 				inputs := tc.malleate(suite.ctx, suite.msKeeper)
 // 				for idx, val := range tc.vals {
-// 					actualDenom := suite.msKeeper.GetValidatorAllowedToken(suite.ctx, val)
+// 					actualDenom := suite.msKeeper.GetValidatorAllowedCoin(suite.ctx, val)
 // 					suite.Require().Equal(inputs[idx], actualDenom)
 // 				}
 // 			}

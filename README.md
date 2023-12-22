@@ -1,6 +1,6 @@
 # multi-staking-module
 
-The multi-staking-module is a module that allows the cosmos-sdk staking system to support many types of token 
+The multi-staking-module is a module that allows the cosmos-sdk staking system to support many types of coin 
 
 ## Multi staking design
 

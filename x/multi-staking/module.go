@@ -156,7 +156,7 @@ func (am AppModule) BeginBlock(ctx sdk.Context, requestBeginBlock abci.RequestBe
 // EndBlock returns the end blocker for the feeabs module. It returns no validator
 // updates.
 func (am AppModule) EndBlock(ctx sdk.Context, requestEndBlock abci.RequestEndBlock) []abci.ValidatorUpdate {
-	// calculate the amount of token
+	// calculate the amount of coin
 	matureUnbondingDelegations := am.keeper.GetMatureUnbondingDelegations(ctx)
 	// staking endblock
 	valUpdates := am.skAppModule.EndBlock(ctx, requestEndBlock)

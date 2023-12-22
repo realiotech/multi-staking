@@ -23,8 +23,8 @@ const (
 
 // KVStore keys
 var (
-	BondTokenWeightKey       = []byte{0x00}
-	ValidatorAllowedTokenKey = []byte{0x01}
+	BondCoinWeightKey       = []byte{0x00}
+	ValidatorAllowedCoinKey = []byte{0x01}
 
 	IntermediaryAccountKey = []byte{0x02}
 
@@ -37,14 +37,14 @@ func KeyPrefix(key string) []byte {
 	return []byte(key)
 }
 
-// GetBondTokenWeightKeyKey returns a key for an index containing the bond token weight
-func GetBondTokenWeightKey(tokenDenom string) []byte {
-	return append(BondTokenWeightKey, []byte(tokenDenom)...)
+// GetBondCoinWeightKeyKey returns a key for an index containing the bond coin weight
+func GetBondCoinWeightKey(tokenDenom string) []byte {
+	return append(BondCoinWeightKey, []byte(tokenDenom)...)
 }
 
-// GetValidatorAllowedTokenKey returns a key for an index containing the bond denom of a validator
-func GetValidatorAllowedTokenKey(valAddr string) []byte {
-	return append(ValidatorAllowedTokenKey, []byte(valAddr)...)
+// GetValidatorAllowedCoinKey returns a key for an index containing the bond denom of a validator
+func GetValidatorAllowedCoinKey(valAddr string) []byte {
+	return append(ValidatorAllowedCoinKey, []byte(valAddr)...)
 }
 
 // GetIntermediaryAccountDelegatorKey returns a key for an index containing the delegator of an intermediary account
@@ -53,13 +53,50 @@ func GetIntermediaryAccountKey(intermediaryAccount sdk.AccAddress) []byte {
 }
 
 func MultiStakingLockID(delAddr sdk.AccAddress, valAddr sdk.ValAddress) []byte {
-	DVPair := append(delAddr, valAddr...)
+	lenDelAddr := len(delAddr)
+
+	DVPair := make([]byte, 1+lenDelAddr+len(valAddr))
+
+	DVPair[0] = uint8(lenDelAddr)
+
+	copy(delAddr[:], DVPair[1:])
+
+	copy(valAddr[:], DVPair[1+lenDelAddr:])
+
 	return append(MultiStakingLockPrefix, DVPair...)
 }
 
 func MultiStakingUnlockID(delAddr sdk.AccAddress, valAddr sdk.ValAddress) []byte {
-	DVPair := append(delAddr, valAddr...)
+	lenDelAddr := len(delAddr)
+
+	DVPair := make([]byte, 1+lenDelAddr+len(valAddr))
+
+	DVPair[0] = uint8(lenDelAddr)
+
+	copy(delAddr[:], DVPair[1:])
+
+	copy(valAddr[:], DVPair[1+lenDelAddr:])
 	return append(MultiStakingUnlockPrefix, DVPair...)
+}
+
+func DelAddrAndValAddrFromLockID(lockID []byte) (delAddr sdk.AccAddress, valAddr sdk.ValAddress) {
+	lenDelAddr := lockID[0]
+
+	delAddr = lockID[1 : lenDelAddr+1]
+
+	valAddr = lockID[1+lenDelAddr:]
+
+	return delAddr, valAddr
+}
+
+func DelAddrAndValAddrFromUnlockID(unlockID []byte) (delAddr sdk.AccAddress, valAddr sdk.ValAddress) {
+	lenDelAddr := unlockID[0]
+
+	delAddr = unlockID[1 : lenDelAddr+1]
+
+	valAddr = unlockID[1+lenDelAddr:]
+
+	return delAddr, valAddr
 }
 
 // // GetUBDKey creates the key for an unbonding delegation by delegator and validator addr

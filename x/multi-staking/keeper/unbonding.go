@@ -8,12 +8,12 @@ import (
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
 
-func (k Keeper) BurnToken(ctx sdk.Context, accAddr sdk.AccAddress, token sdk.Coins) error {
-	err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, accAddr, types.ModuleName, token)
+func (k Keeper) BurnCoin(ctx sdk.Context, accAddr sdk.AccAddress, coin sdk.Coins) error {
+	err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, accAddr, types.ModuleName, coin)
 	if err != nil {
 		return err
 	}
-	err = k.bankKeeper.BurnCoins(ctx, types.ModuleName, token)
+	err = k.bankKeeper.BurnCoins(ctx, types.ModuleName, coin)
 	if err != nil {
 		return err
 	}
@@ -22,7 +22,7 @@ func (k Keeper) BurnToken(ctx sdk.Context, accAddr sdk.AccAddress, token sdk.Coi
 
 func (k Keeper) GetUnlockEntryAtHeight(ctx sdk.Context, unlockID []byte, creationHeight int64) (types.UnlockEntry, bool) {
 	// get unbonded record
-	ubd, found := k.GetMultiStakingUnlock(ctx, unlockID)
+	unlock, found := k.GetMultiStakingUnlock(ctx, unlockID)
 	if !found {
 		return types.UnlockEntry{}, false
 	}
@@ -31,7 +31,7 @@ func (k Keeper) GetUnlockEntryAtHeight(ctx sdk.Context, unlockID []byte, creatio
 		foundUnlockEntry bool = false
 	)
 
-	for _, entry := range ubd.Entries {
+	for _, entry := range unlock.Entries {
 		if entry.CreationHeight == creationHeight {
 			unlockEntry = entry
 			foundUnlockEntry = true
@@ -62,7 +62,7 @@ func (k Keeper) CompleteUnbonding(
 		return sdk.Coins{}, fmt.Errorf("unlock entry not found")
 	}
 
-	unlockDenom := k.GetValidatorAllowedToken(ctx, valAddr)
+	unlockDenom := k.GetValidatorAllowedCoin(ctx, valAddr)
 	unlockMultiStakingAmount := sdk.NewDecFromInt(balance).Mul(unlockEntry.ConversionRatio).RoundInt()
 
 	// check amount
@@ -70,16 +70,16 @@ func (k Keeper) CompleteUnbonding(
 		return unlockedAmount, fmt.Errorf("unlock amount greater than lock amount")
 	}
 
-	// burn bonded token
-	burnToken := sdk.NewCoins(sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), balance))
-	k.BurnToken(ctx, intermediaryAcc, burnToken)
+	// burn bonded coin
+	burnCoin := sdk.NewCoins(sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), balance))
+	k.BurnCoin(ctx, intermediaryAcc, burnCoin)
 
 	// check unbond amount has been slashed or not
-	if unbondEntry.Balance.GT(unlockMultiStakingAmount) {
+	if unlockEntry.Balance.GT(unlockMultiStakingAmount) {
 		unlockedAmount = sdk.NewCoins(sdk.NewCoin(unlockDenom, unlockMultiStakingAmount))
 
 		// Slash user amount
-		burnUserAmount := sdk.NewCoins(sdk.NewCoin(unlockDenom, unbondEntry.Balance.Sub(unlockMultiStakingAmount)))
+		burnUserAmount := sdk.NewCoins(sdk.NewCoin(unlockDenom, unlockEntry.Balance.Sub(unlockMultiStakingAmount)))
 		err = k.bankKeeper.SendCoinsFromAccountToModule(ctx, intermediaryAcc, types.ModuleName, burnUserAmount)
 		if err != nil {
 			return unlockedAmount, err
@@ -89,7 +89,7 @@ func (k Keeper) CompleteUnbonding(
 			return unlockedAmount, err
 		}
 	} else {
-		unlockedAmount = sdk.NewCoins(sdk.NewCoin(unlockDenom, unbondEntry.Balance))
+		unlockedAmount = sdk.NewCoins(sdk.NewCoin(unlockDenom, unlockEntry.Balance))
 	}
 
 	err = k.bankKeeper.SendCoins(ctx, intermediaryAcc, delAddr, unlockedAmount)

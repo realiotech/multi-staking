@@ -30,7 +30,7 @@ func (suite *KeeperTestSuite) TestHandleAddBondDenomProposal() {
 func (suite *KeeperTestSuite) TestHandleChangeBondDenomProposal() {
 	tests := []struct {
 		name    string
-		p       *types.UpdateBondTokenWeightProposals
+		p       *types.UpdateBondCoinWeightProposals
 		wantErr bool
 	}{
 		{},
@@ -38,7 +38,7 @@ func (suite *KeeperTestSuite) TestHandleChangeBondDenomProposal() {
 	for _, test := range tests {
 		suite.Run(test.name, func() {
 			suite.SetupTest()
-			err := keeper.HandlerUpdateBondTokenWeightProposals(suite.ctx, suite.msKeeper, test.p)
+			err := keeper.HandlerUpdateBondCoinWeightProposals(suite.ctx, suite.msKeeper, test.p)
 			if test.wantErr {
 				suite.Require().Error(err)
 				return
@@ -51,7 +51,7 @@ func (suite *KeeperTestSuite) TestHandleChangeBondDenomProposal() {
 func (suite *KeeperTestSuite) TestHandleRemoveBondDenomProposal() {
 	tests := []struct {
 		name    string
-		p       *types.RemoveBondTokenProposal
+		p       *types.RemoveBondCoinProposal
 		wantErr bool
 	}{
 		{},
@@ -59,7 +59,7 @@ func (suite *KeeperTestSuite) TestHandleRemoveBondDenomProposal() {
 	for _, test := range tests {
 		suite.Run(test.name, func() {
 			suite.SetupTest()
-			keeper.HandlerRemoveBondTokenProposal(suite.ctx, suite.msKeeper, test.p)
+			keeper.HandlerRemoveBondCoinProposal(suite.ctx, suite.msKeeper, test.p)
 
 			// get and check
 

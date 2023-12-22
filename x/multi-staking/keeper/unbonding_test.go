@@ -27,7 +27,7 @@ package keeper_test
 // 		expErr   bool
 // 	}{
 // 		{
-// 			name: "lock 3001 token, rate 0.3, expect unlock 3000",
+// 			name: "lock 3001 coin, rate 0.3, expect unlock 3000",
 // 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) (math.Int, error) {
 // 				unbondAmt := sdk.NewInt(3001)
 // 				weight := sdk.MustNewDecFromStr("0.3")
@@ -40,7 +40,7 @@ package keeper_test
 // 			expErr: false,
 // 		},
 // 		{
-// 			name: "lock 25 token, weight 0.5, expect unlock 24",
+// 			name: "lock 25 coin, weight 0.5, expect unlock 24",
 // 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) (math.Int, error) {
 // 				unbondAmt := sdk.NewInt(25)
 // 				weight := sdk.MustNewDecFromStr("0.5")
@@ -53,7 +53,7 @@ package keeper_test
 // 			expErr: false,
 // 		},
 // 		{
-// 			name: "lock 25 token, weight 0.5, unlock 11 bond token because of slashing, expect unlock 22 token",
+// 			name: "lock 25 coin, weight 0.5, unlock 11 bond coin because of slashing, expect unlock 22 coin",
 // 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) (math.Int, error) {
 // 				unbondAmt := sdk.NewInt(25)
 // 				weight := sdk.MustNewDecFromStr("0.5")
@@ -104,7 +104,7 @@ package keeper_test
 // 		tc := tc
 // 		suite.Run(tc.name, func() {
 // 			suite.SetupTest()
-// 			suite.msKeeper.SetValidatorAllowedToken(suite.ctx, valAddr, gasDenom)
+// 			suite.msKeeper.SetValidatorAllowedCoin(suite.ctx, valAddr, gasDenom)
 // 			imAccBalance := sdk.NewCoins(sdk.NewCoin(stakingtypes.DefaultParams().BondDenom, sdk.NewInt(10000)), sdk.NewCoin(gasDenom, sdk.NewInt(10000)))
 // 			suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, imAccBalance)
 // 			suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, minttypes.ModuleName, imAddr, imAccBalance)

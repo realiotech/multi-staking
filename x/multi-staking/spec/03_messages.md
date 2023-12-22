@@ -15,7 +15,7 @@ The Initial delegation token must match the `bond denom` specified in `MsgCreate
 
 Logic flow:
 
-1. Setting `ValidatorAllowedToken`.
+1. Setting `ValidatorAllowedCoin`.
 
 2. Converting `MsgCreateValidator` to `stakingtypes.MsgCreateValidator` and
 calling `stakingkeeper.CreateValidator()`.
@@ -53,7 +53,7 @@ Logic flow:
 
 * Send delegated coins from user to `IntermediaryAccount`.
 
-* Caculate the `sdkbond token` to be minted using `BondTokenWeight`.
+* Caculate the `sdkbond token` to be minted using `BondCoinWeight`.
 
 * Mint `sdkbond token` to `IntermediaryAccount`
 

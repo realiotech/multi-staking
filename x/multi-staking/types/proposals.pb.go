@@ -28,8 +28,8 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 type AddBondDenomProposal struct {
 	Title              string                                  `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
 	Description        string                                  `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
-	BondTokenAdd       string                                  `protobuf:"bytes,3,opt,name=bond_token_add,json=bondTokenAdd,proto3" json:"bond_token_add,omitempty"`
-	BondTokenWeightAdd *github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,4,opt,name=bond_token_weight_add,json=bondTokenWeightAdd,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"bond_token_weight_add,omitempty"`
+	BondCoinAdd       string                                  `protobuf:"bytes,3,opt,name=bond_token_add,json=bondCoinAdd,proto3" json:"bond_token_add,omitempty"`
+	BondCoinWeightAdd *github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,4,opt,name=bond_token_weight_add,json=bondCoinWeightAdd,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"bond_token_weight_add,omitempty"`
 }
 
 func (m *AddBondDenomProposal) Reset()         { *m = AddBondDenomProposal{} }
@@ -79,32 +79,32 @@ func (m *AddBondDenomProposal) GetDescription() string {
 	return ""
 }
 
-func (m *AddBondDenomProposal) GetBondTokenAdd() string {
+func (m *AddBondDenomProposal) GetBondCoinAdd() string {
 	if m != nil {
-		return m.BondTokenAdd
+		return m.BondCoinAdd
 	}
 	return ""
 }
 
-type UpdateBondTokenWeightProposals struct {
+type UpdateBondCoinWeightProposals struct {
 	Title                 string                                  `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
 	Description           string                                  `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
 	BondDenomChange       string                                  `protobuf:"bytes,3,opt,name=bond_denom_change,json=bondDenomChange,proto3" json:"bond_denom_change,omitempty"`
-	BondTokenWeightChange *github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,4,opt,name=bond_token_weight_change,json=bondTokenWeightChange,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"bond_token_weight_change,omitempty"`
+	BondCoinWeightChange *github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,4,opt,name=bond_token_weight_change,json=bondCoinWeightChange,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"bond_token_weight_change,omitempty"`
 }
 
-func (m *UpdateBondTokenWeightProposals) Reset()         { *m = UpdateBondTokenWeightProposals{} }
-func (m *UpdateBondTokenWeightProposals) String() string { return proto.CompactTextString(m) }
-func (*UpdateBondTokenWeightProposals) ProtoMessage()    {}
-func (*UpdateBondTokenWeightProposals) Descriptor() ([]byte, []int) {
+func (m *UpdateBondCoinWeightProposals) Reset()         { *m = UpdateBondCoinWeightProposals{} }
+func (m *UpdateBondCoinWeightProposals) String() string { return proto.CompactTextString(m) }
+func (*UpdateBondCoinWeightProposals) ProtoMessage()    {}
+func (*UpdateBondCoinWeightProposals) Descriptor() ([]byte, []int) {
 	return fileDescriptor_5028153a52b38c49, []int{1}
 }
-func (m *UpdateBondTokenWeightProposals) XXX_Unmarshal(b []byte) error {
+func (m *UpdateBondCoinWeightProposals) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *UpdateBondTokenWeightProposals) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *UpdateBondCoinWeightProposals) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_UpdateBondTokenWeightProposals.Marshal(b, m, deterministic)
+		return xxx_messageInfo_UpdateBondCoinWeightProposals.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -114,57 +114,57 @@ func (m *UpdateBondTokenWeightProposals) XXX_Marshal(b []byte, deterministic boo
 		return b[:n], nil
 	}
 }
-func (m *UpdateBondTokenWeightProposals) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_UpdateBondTokenWeightProposals.Merge(m, src)
+func (m *UpdateBondCoinWeightProposals) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UpdateBondCoinWeightProposals.Merge(m, src)
 }
-func (m *UpdateBondTokenWeightProposals) XXX_Size() int {
+func (m *UpdateBondCoinWeightProposals) XXX_Size() int {
 	return m.Size()
 }
-func (m *UpdateBondTokenWeightProposals) XXX_DiscardUnknown() {
-	xxx_messageInfo_UpdateBondTokenWeightProposals.DiscardUnknown(m)
+func (m *UpdateBondCoinWeightProposals) XXX_DiscardUnknown() {
+	xxx_messageInfo_UpdateBondCoinWeightProposals.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_UpdateBondTokenWeightProposals proto.InternalMessageInfo
+var xxx_messageInfo_UpdateBondCoinWeightProposals proto.InternalMessageInfo
 
-func (m *UpdateBondTokenWeightProposals) GetTitle() string {
+func (m *UpdateBondCoinWeightProposals) GetTitle() string {
 	if m != nil {
 		return m.Title
 	}
 	return ""
 }
 
-func (m *UpdateBondTokenWeightProposals) GetDescription() string {
+func (m *UpdateBondCoinWeightProposals) GetDescription() string {
 	if m != nil {
 		return m.Description
 	}
 	return ""
 }
 
-func (m *UpdateBondTokenWeightProposals) GetBondDenomChange() string {
+func (m *UpdateBondCoinWeightProposals) GetBondDenomChange() string {
 	if m != nil {
 		return m.BondDenomChange
 	}
 	return ""
 }
 
-type RemoveBondTokenProposal struct {
+type RemoveBondCoinProposal struct {
 	Title           string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
 	Description     string `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
-	BondTokenRemove string `protobuf:"bytes,3,opt,name=bond_token_remove,json=bondTokenRemove,proto3" json:"bond_token_remove,omitempty"`
+	BondCoinRemove string `protobuf:"bytes,3,opt,name=bond_token_remove,json=bondCoinRemove,proto3" json:"bond_token_remove,omitempty"`
 }
 
-func (m *RemoveBondTokenProposal) Reset()         { *m = RemoveBondTokenProposal{} }
-func (m *RemoveBondTokenProposal) String() string { return proto.CompactTextString(m) }
-func (*RemoveBondTokenProposal) ProtoMessage()    {}
-func (*RemoveBondTokenProposal) Descriptor() ([]byte, []int) {
+func (m *RemoveBondCoinProposal) Reset()         { *m = RemoveBondCoinProposal{} }
+func (m *RemoveBondCoinProposal) String() string { return proto.CompactTextString(m) }
+func (*RemoveBondCoinProposal) ProtoMessage()    {}
+func (*RemoveBondCoinProposal) Descriptor() ([]byte, []int) {
 	return fileDescriptor_5028153a52b38c49, []int{2}
 }
-func (m *RemoveBondTokenProposal) XXX_Unmarshal(b []byte) error {
+func (m *RemoveBondCoinProposal) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *RemoveBondTokenProposal) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *RemoveBondCoinProposal) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_RemoveBondTokenProposal.Marshal(b, m, deterministic)
+		return xxx_messageInfo_RemoveBondCoinProposal.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -174,43 +174,43 @@ func (m *RemoveBondTokenProposal) XXX_Marshal(b []byte, deterministic bool) ([]b
 		return b[:n], nil
 	}
 }
-func (m *RemoveBondTokenProposal) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_RemoveBondTokenProposal.Merge(m, src)
+func (m *RemoveBondCoinProposal) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RemoveBondCoinProposal.Merge(m, src)
 }
-func (m *RemoveBondTokenProposal) XXX_Size() int {
+func (m *RemoveBondCoinProposal) XXX_Size() int {
 	return m.Size()
 }
-func (m *RemoveBondTokenProposal) XXX_DiscardUnknown() {
-	xxx_messageInfo_RemoveBondTokenProposal.DiscardUnknown(m)
+func (m *RemoveBondCoinProposal) XXX_DiscardUnknown() {
+	xxx_messageInfo_RemoveBondCoinProposal.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_RemoveBondTokenProposal proto.InternalMessageInfo
+var xxx_messageInfo_RemoveBondCoinProposal proto.InternalMessageInfo
 
-func (m *RemoveBondTokenProposal) GetTitle() string {
+func (m *RemoveBondCoinProposal) GetTitle() string {
 	if m != nil {
 		return m.Title
 	}
 	return ""
 }
 
-func (m *RemoveBondTokenProposal) GetDescription() string {
+func (m *RemoveBondCoinProposal) GetDescription() string {
 	if m != nil {
 		return m.Description
 	}
 	return ""
 }
 
-func (m *RemoveBondTokenProposal) GetBondTokenRemove() string {
+func (m *RemoveBondCoinProposal) GetBondCoinRemove() string {
 	if m != nil {
-		return m.BondTokenRemove
+		return m.BondCoinRemove
 	}
 	return ""
 }
 
 func init() {
 	proto.RegisterType((*AddBondDenomProposal)(nil), "multistaking.v1.AddBondDenomProposal")
-	proto.RegisterType((*UpdateBondTokenWeightProposals)(nil), "multistaking.v1.UpdateBondTokenWeightProposals")
-	proto.RegisterType((*RemoveBondTokenProposal)(nil), "multistaking.v1.RemoveBondTokenProposal")
+	proto.RegisterType((*UpdateBondCoinWeightProposals)(nil), "multistaking.v1.UpdateBondCoinWeightProposals")
+	proto.RegisterType((*RemoveBondCoinProposal)(nil), "multistaking.v1.RemoveBondCoinProposal")
 }
 
 func init() { proto.RegisterFile("multistaking/v1/proposals.proto", fileDescriptor_5028153a52b38c49) }
@@ -264,11 +264,11 @@ func (m *AddBondDenomProposal) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if m.BondTokenWeightAdd != nil {
+	if m.BondCoinWeightAdd != nil {
 		{
-			size := m.BondTokenWeightAdd.Size()
+			size := m.BondCoinWeightAdd.Size()
 			i -= size
-			if _, err := m.BondTokenWeightAdd.MarshalTo(dAtA[i:]); err != nil {
+			if _, err := m.BondCoinWeightAdd.MarshalTo(dAtA[i:]); err != nil {
 				return 0, err
 			}
 			i = encodeVarintProposals(dAtA, i, uint64(size))
@@ -276,10 +276,10 @@ func (m *AddBondDenomProposal) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x22
 	}
-	if len(m.BondTokenAdd) > 0 {
-		i -= len(m.BondTokenAdd)
-		copy(dAtA[i:], m.BondTokenAdd)
-		i = encodeVarintProposals(dAtA, i, uint64(len(m.BondTokenAdd)))
+	if len(m.BondCoinAdd) > 0 {
+		i -= len(m.BondCoinAdd)
+		copy(dAtA[i:], m.BondCoinAdd)
+		i = encodeVarintProposals(dAtA, i, uint64(len(m.BondCoinAdd)))
 		i--
 		dAtA[i] = 0x1a
 	}
@@ -300,7 +300,7 @@ func (m *AddBondDenomProposal) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *UpdateBondTokenWeightProposals) Marshal() (dAtA []byte, err error) {
+func (m *UpdateBondCoinWeightProposals) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -310,21 +310,21 @@ func (m *UpdateBondTokenWeightProposals) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *UpdateBondTokenWeightProposals) MarshalTo(dAtA []byte) (int, error) {
+func (m *UpdateBondCoinWeightProposals) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *UpdateBondTokenWeightProposals) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *UpdateBondCoinWeightProposals) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if m.BondTokenWeightChange != nil {
+	if m.BondCoinWeightChange != nil {
 		{
-			size := m.BondTokenWeightChange.Size()
+			size := m.BondCoinWeightChange.Size()
 			i -= size
-			if _, err := m.BondTokenWeightChange.MarshalTo(dAtA[i:]); err != nil {
+			if _, err := m.BondCoinWeightChange.MarshalTo(dAtA[i:]); err != nil {
 				return 0, err
 			}
 			i = encodeVarintProposals(dAtA, i, uint64(size))
@@ -356,7 +356,7 @@ func (m *UpdateBondTokenWeightProposals) MarshalToSizedBuffer(dAtA []byte) (int,
 	return len(dAtA) - i, nil
 }
 
-func (m *RemoveBondTokenProposal) Marshal() (dAtA []byte, err error) {
+func (m *RemoveBondCoinProposal) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -366,20 +366,20 @@ func (m *RemoveBondTokenProposal) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *RemoveBondTokenProposal) MarshalTo(dAtA []byte) (int, error) {
+func (m *RemoveBondCoinProposal) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *RemoveBondTokenProposal) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *RemoveBondCoinProposal) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.BondTokenRemove) > 0 {
-		i -= len(m.BondTokenRemove)
-		copy(dAtA[i:], m.BondTokenRemove)
-		i = encodeVarintProposals(dAtA, i, uint64(len(m.BondTokenRemove)))
+	if len(m.BondCoinRemove) > 0 {
+		i -= len(m.BondCoinRemove)
+		copy(dAtA[i:], m.BondCoinRemove)
+		i = encodeVarintProposals(dAtA, i, uint64(len(m.BondCoinRemove)))
 		i--
 		dAtA[i] = 0x1a
 	}
@@ -425,18 +425,18 @@ func (m *AddBondDenomProposal) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovProposals(uint64(l))
 	}
-	l = len(m.BondTokenAdd)
+	l = len(m.BondCoinAdd)
 	if l > 0 {
 		n += 1 + l + sovProposals(uint64(l))
 	}
-	if m.BondTokenWeightAdd != nil {
-		l = m.BondTokenWeightAdd.Size()
+	if m.BondCoinWeightAdd != nil {
+		l = m.BondCoinWeightAdd.Size()
 		n += 1 + l + sovProposals(uint64(l))
 	}
 	return n
 }
 
-func (m *UpdateBondTokenWeightProposals) Size() (n int) {
+func (m *UpdateBondCoinWeightProposals) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -454,14 +454,14 @@ func (m *UpdateBondTokenWeightProposals) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovProposals(uint64(l))
 	}
-	if m.BondTokenWeightChange != nil {
-		l = m.BondTokenWeightChange.Size()
+	if m.BondCoinWeightChange != nil {
+		l = m.BondCoinWeightChange.Size()
 		n += 1 + l + sovProposals(uint64(l))
 	}
 	return n
 }
 
-func (m *RemoveBondTokenProposal) Size() (n int) {
+func (m *RemoveBondCoinProposal) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -475,7 +475,7 @@ func (m *RemoveBondTokenProposal) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovProposals(uint64(l))
 	}
-	l = len(m.BondTokenRemove)
+	l = len(m.BondCoinRemove)
 	if l > 0 {
 		n += 1 + l + sovProposals(uint64(l))
 	}
@@ -583,7 +583,7 @@ func (m *AddBondDenomProposal) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 3:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field BondTokenAdd", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field BondCoinAdd", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -611,11 +611,11 @@ func (m *AddBondDenomProposal) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.BondTokenAdd = string(dAtA[iNdEx:postIndex])
+			m.BondCoinAdd = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 4:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field BondTokenWeightAdd", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field BondCoinWeightAdd", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -644,8 +644,8 @@ func (m *AddBondDenomProposal) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			var v github_com_cosmos_cosmos_sdk_types.Dec
-			m.BondTokenWeightAdd = &v
-			if err := m.BondTokenWeightAdd.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.BondCoinWeightAdd = &v
+			if err := m.BondCoinWeightAdd.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -670,7 +670,7 @@ func (m *AddBondDenomProposal) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *UpdateBondTokenWeightProposals) Unmarshal(dAtA []byte) error {
+func (m *UpdateBondCoinWeightProposals) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -693,10 +693,10 @@ func (m *UpdateBondTokenWeightProposals) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: UpdateBondTokenWeightProposals: wiretype end group for non-group")
+			return fmt.Errorf("proto: UpdateBondCoinWeightProposals: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: UpdateBondTokenWeightProposals: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: UpdateBondCoinWeightProposals: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -797,7 +797,7 @@ func (m *UpdateBondTokenWeightProposals) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 4:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field BondTokenWeightChange", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field BondCoinWeightChange", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -826,8 +826,8 @@ func (m *UpdateBondTokenWeightProposals) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			var v github_com_cosmos_cosmos_sdk_types.Dec
-			m.BondTokenWeightChange = &v
-			if err := m.BondTokenWeightChange.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.BondCoinWeightChange = &v
+			if err := m.BondCoinWeightChange.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -852,7 +852,7 @@ func (m *UpdateBondTokenWeightProposals) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *RemoveBondTokenProposal) Unmarshal(dAtA []byte) error {
+func (m *RemoveBondCoinProposal) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -875,10 +875,10 @@ func (m *RemoveBondTokenProposal) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: RemoveBondTokenProposal: wiretype end group for non-group")
+			return fmt.Errorf("proto: RemoveBondCoinProposal: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: RemoveBondTokenProposal: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: RemoveBondCoinProposal: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -947,7 +947,7 @@ func (m *RemoveBondTokenProposal) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 3:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field BondTokenRemove", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field BondCoinRemove", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -975,7 +975,7 @@ func (m *RemoveBondTokenProposal) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.BondTokenRemove = string(dAtA[iNdEx:postIndex])
+			m.BondCoinRemove = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

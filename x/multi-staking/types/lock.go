@@ -1,8 +1,6 @@
 package types
 
 import (
-	"fmt"
-
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -11,42 +9,31 @@ func DelAccAndValAccFromLockID(lockID []byte) (delAcc []byte, valAcc []byte) {
 	return
 }
 
-func NewMultiStakingLock(lockedAmount math.Int, conversionRatio sdk.Dec, delAddr sdk.AccAddress, valAddr sdk.ValAddress) MultiStakingLock {
+func NewMultiStakingLock(lockID *LockID, lockedCoin WeightedCoin) MultiStakingLock {
 	return MultiStakingLock{
-		LockedAmount:    lockedAmount,
-		ConversionRatio: conversionRatio,
-		DelAddr:         delAddr.String(),
-		ValAddr:         valAddr.String(),
+		LockID:     lockID,
+		LockedCoin: lockedCoin,
 	}
 }
 
-func (lock MultiStakingLock) RemoveTokenFromMultiStakingLock(removedAmount math.Int) (MultiStakingLock, error) {
-	if removedAmount.GT(lock.LockedAmount) {
-		return MultiStakingLock{}, fmt.Errorf("removed amount greater than existing amount in lock")
-	}
-
-	lock.LockedAmount = lock.LockedAmount.Sub(removedAmount)
-
-	return lock, nil
+func (lock MultiStakingLock) RemoveCoinFromMultiStakingLock(removedCoin WeightedCoin) (MultiStakingLock, error) {
+	lockedCoinAfter, err := lock.LockedCoin.SafeSub(removedCoin)
+	lock.LockedCoin = lockedCoinAfter
+	return lock, err
 }
 
 func (lock MultiStakingLock) IsEmpty() bool {
-	return lock.LockedAmount.IsZero()
+	return lock.LockedCoin.Amount.IsZero()
 }
 
-func (multiStakingLock MultiStakingLock) AddTokenToMultiStakingLock(addedAmount math.Int, currentConversionRatio sdk.Dec) MultiStakingLock {
-	lockedAmountBefore := multiStakingLock.LockedAmount
-	conversionRatioBefore := multiStakingLock.ConversionRatio
-
-	lockedAmountAfter := lockedAmountBefore.Add(addedAmount)
-	// conversionRatioAfter = ( (conversionRatioBefore * lockedAmountBefore) + (currentConversionRatio * addedAmount) ) / lockedAmountAfter
-	conversionRatioAfter := ((conversionRatioBefore.MulInt(lockedAmountBefore)).Add(currentConversionRatio.MulInt(addedAmount))).QuoInt(lockedAmountAfter)
-
-	multiStakingLock.LockedAmount = lockedAmountAfter
-	multiStakingLock.ConversionRatio = conversionRatioAfter
-	return multiStakingLock
+func (multiStakingLock MultiStakingLock) AddCoinToMultiStakingLock(addedCoin WeightedCoin) (MultiStakingLock, error) {
+	lockedCoinAfter, err := multiStakingLock.LockedCoin.SafeAdd(addedCoin)
+	multiStakingLock.LockedCoin = lockedCoinAfter
+	return multiStakingLock, err
 }
 
 func (multiStakingLock MultiStakingLock) LockedAmountToBondAmount(lockedAmount math.Int) sdk.Dec {
-	return multiStakingLock.ConversionRatio.MulInt(lockedAmount)
+	conversionRatio := multiStakingLock.LockedCoin.Weight
+
+	return conversionRatio.MulInt(lockedAmount)
 }

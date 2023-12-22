@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
 
@@ -14,31 +15,31 @@ func init() {
 }
 
 func NewRemoveBondDenomProposal(title, description, bondDenom string) govtypes.Content {
-	return &RemoveBondTokenProposal{
-		Title:           title,
-		Description:     description,
-		BondTokenRemove: bondDenom,
+	return &RemoveBondCoinProposal{
+		Title:          title,
+		Description:    description,
+		BondCoinRemove: bondDenom,
 	}
 }
 
 var (
-	_ govtypes.Content = &RemoveBondTokenProposal{}
+	_ govtypes.Content = &RemoveBondCoinProposal{}
 )
 
-func (p *RemoveBondTokenProposal) ProposalRoute() string { return RouterKey }
+func (p *RemoveBondCoinProposal) ProposalRoute() string { return RouterKey }
 
-func (p *RemoveBondTokenProposal) ProposalType() string {
+func (p *RemoveBondCoinProposal) ProposalType() string {
 	return ProposalTypeRemoveBondDenom
 }
 
-func (p *RemoveBondTokenProposal) ValidateBasic() error {
+func (p *RemoveBondCoinProposal) ValidateBasic() error {
 	err := govtypes.ValidateAbstract(p)
 	if err != nil {
 		return err
 	}
 
-	if p.BondTokenRemove == "" {
-		return fmt.Errorf("denom %s does not exist", p.BondTokenRemove)
+	if p.BondCoinRemove == "" {
+		return fmt.Errorf("denom %s does not exist", p.BondCoinRemove)
 	}
 
 	return nil

@@ -6,25 +6,25 @@ order: 1
 
 ## Store
 
-### Bond Token Weight
+### Bond Coin Weight
 
-* BondTokenWeight: `0x00 | BondDenom -> BondTokenWeight (sdk.Dec)`
+* BondCoinWeight: `0x00 | BondDenom -> BondCoinWeight (sdk.Dec)`
 
 ### Validator Bond Denom
 
-* ValidatorAllowedToken: `0x01 | ValOperatorAddr -> BondDenom (string)`
+* ValidatorAllowedCoin: `0x01 | ValOperatorAddr -> BondDenom (string)`
 
 ### Intermediary Account Delegator
 
 * IntermediaryAccountDelegator: `0x02 | IntermediaryAccount -> DelegatorAddr`
 
-### DV Pair SDK Bond Tokens
+### DV Pair SDK Bond Coins
 
-* DVPairSDKBondToken: `0x03 | DVPair -> SDKBondTokens`
+* DVPairSDKBondCoin: `0x03 | DVPair -> SDKBondCoins`
 
-### DV Pair Bond Token
+### DV Pair Bond Coin
 
-* DVPairBondToken: `0x04 | DVPair -> BondTokens`
+* DVPairBondCoin: `0x04 | DVPair -> BondCoins`
 
 ## MemStore
 

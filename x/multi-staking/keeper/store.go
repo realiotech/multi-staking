@@ -9,59 +9,59 @@ import (
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
 
-func (k Keeper) GetBondTokenWeight(ctx sdk.Context, tokenDenom string) (sdk.Dec, bool) {
+func (k Keeper) GetBondCoinWeight(ctx sdk.Context, tokenDenom string) (sdk.Dec, bool) {
 	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.GetBondTokenWeightKey(tokenDenom))
+	bz := store.Get(types.GetBondCoinWeightKey(tokenDenom))
 	if bz == nil {
 		return sdk.Dec{}, false
 	}
 
-	bondTokenWeight := &sdk.Dec{}
-	err := bondTokenWeight.Unmarshal(bz)
+	bondCoinWeight := &sdk.Dec{}
+	err := bondCoinWeight.Unmarshal(bz)
 	if err != nil {
-		panic(fmt.Errorf("unable to unmarshal bond token weight %v", err))
+		panic(fmt.Errorf("unable to unmarshal bond coin weight %v", err))
 
 	}
-	return *bondTokenWeight, true
+	return *bondCoinWeight, true
 }
 
-func (k Keeper) SetBondTokenWeight(ctx sdk.Context, tokenDenom string, tokenWeight sdk.Dec) {
+func (k Keeper) SetBondCoinWeight(ctx sdk.Context, tokenDenom string, tokenWeight sdk.Dec) {
 	store := ctx.KVStore(k.storeKey)
 	bz, err := tokenWeight.Marshal()
 
 	if err != nil {
-		panic(fmt.Errorf("unable to marshal bond token weight %v", err))
+		panic(fmt.Errorf("unable to marshal bond coin weight %v", err))
 	}
 
-	store.Set(types.GetBondTokenWeightKey(tokenDenom), bz)
+	store.Set(types.GetBondCoinWeightKey(tokenDenom), bz)
 }
 
-func (k Keeper) RemoveBondTokenWeight(ctx sdk.Context, tokenDenom string) {
+func (k Keeper) RemoveBondCoinWeight(ctx sdk.Context, tokenDenom string) {
 	store := ctx.KVStore(k.storeKey)
 
-	store.Delete(types.GetBondTokenWeightKey(tokenDenom))
+	store.Delete(types.GetBondCoinWeightKey(tokenDenom))
 }
 
-func (k Keeper) GetValidatorAllowedToken(ctx sdk.Context, operatorAddr sdk.ValAddress) string {
+func (k Keeper) GetValidatorAllowedCoin(ctx sdk.Context, operatorAddr sdk.ValAddress) string {
 	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.GetValidatorAllowedTokenKey(operatorAddr.String()))
+	bz := store.Get(types.GetValidatorAllowedCoinKey(operatorAddr.String()))
 
 	return string(bz)
 }
 
-func (k Keeper) SetValidatorAllowedToken(ctx sdk.Context, operatorAddr sdk.ValAddress, bondDenom string) {
-	if k.GetValidatorAllowedToken(ctx, operatorAddr) != "" {
+func (k Keeper) SetValidatorAllowedCoin(ctx sdk.Context, operatorAddr sdk.ValAddress, bondDenom string) {
+	if k.GetValidatorAllowedCoin(ctx, operatorAddr) != "" {
 		panic("validator denom already set")
 	}
 
 	store := ctx.KVStore(k.storeKey)
 
-	store.Set(types.GetValidatorAllowedTokenKey(operatorAddr.String()), []byte(bondDenom))
+	store.Set(types.GetValidatorAllowedCoinKey(operatorAddr.String()), []byte(bondDenom))
 }
 
-func (k Keeper) ValidatorAllowedTokenIterator(ctx sdk.Context, cb func(valAddr string, denom string) (stop bool)) {
+func (k Keeper) ValidatorAllowedCoinIterator(ctx sdk.Context, cb func(valAddr string, denom string) (stop bool)) {
 	store := ctx.KVStore(k.storeKey)
-	prefixStore := prefix.NewStore(store, types.ValidatorAllowedTokenKey)
+	prefixStore := prefix.NewStore(store, types.ValidatorAllowedCoinKey)
 	iterator := sdk.KVStorePrefixIterator(prefixStore, nil)
 
 	defer iterator.Close()
@@ -108,26 +108,18 @@ func (k Keeper) GetMultiStakingLock(ctx sdk.Context, multiStakingLockID []byte) 
 	return multiStakingLock, true
 }
 
-func (k Keeper) SetMultiStakingLock(ctx sdk.Context, multiStakingLock types.MultiStakingLock) error {
+func (k Keeper) SetMultiStakingLock(ctx sdk.Context, multiStakingLockID []byte, multiStakingLock types.MultiStakingLock) {
 	store := ctx.KVStore(k.storeKey)
 
-	delAcc, valAcc, err := types.DelAccAndValAccFromStrings(multiStakingLock.DelAddr, multiStakingLock.ValAddr)
-	if err != nil {
-		return err
-	}
-
-	lockID := types.MultiStakingLockID(delAcc, valAcc)
 	bz := k.cdc.MustMarshal(&multiStakingLock)
 
-	store.Set(lockID, bz)
-
-	return err
+	store.Set(multiStakingLockID, bz)
 }
 
-func (k Keeper) RemoveMultiStakingLock(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) {
+func (k Keeper) RemoveMultiStakingLock(ctx sdk.Context, multiStakingLockID []byte) {
 	store := ctx.KVStore(k.storeKey)
 
-	store.Delete(types.MultiStakingLockID(delAddr, valAddr))
+	store.Delete(multiStakingLockID)
 }
 
 func (k Keeper) MultiStakingLockIterator(ctx sdk.Context, cb func(stakingLock types.MultiStakingLock) (stop bool)) {
@@ -161,45 +153,34 @@ func (k Keeper) GetMultiStakingUnlock(ctx sdk.Context, multiStakingUnlockID []by
 }
 
 // SetMultiStakingUnlock sets the unbonding delegation and associated index.
-func (k Keeper) SetMultiStakingUnlock(ctx sdk.Context, unlock types.MultiStakingUnlock) {
-	delAddr := sdk.MustAccAddressFromBech32(unlock.DelegatorAddress)
+func (k Keeper) SetMultiStakingUnlock(ctx sdk.Context, unlockID []byte, unlock types.MultiStakingUnlock) {
 	store := ctx.KVStore(k.storeKey)
 
 	bz := k.cdc.MustMarshal(&unlock)
-	valAddr, err := sdk.ValAddressFromBech32(unlock.ValidatorAddress)
-	if err != nil {
-		panic(err)
-	}
-	key := types.MultiStakingUnlockID(delAddr, valAddr)
-	store.Set(key, bz)
+
+	store.Set(unlockID, bz)
 }
 
 // RemoveMultiStakingUnlock removes the unbonding delegation object and associated index.
-func (k Keeper) RemoveMultiStakingUnlock(ctx sdk.Context, unlock types.MultiStakingUnlock) {
-	delegatorAddress := sdk.MustAccAddressFromBech32(unlock.DelegatorAddress)
-
+func (k Keeper) RemoveMultiStakingUnlock(ctx sdk.Context, unlockID []byte) {
 	store := ctx.KVStore(k.storeKey)
-	addr, err := sdk.ValAddressFromBech32(unlock.ValidatorAddress)
-	if err != nil {
-		panic(err)
-	}
-	key := types.MultiStakingUnlockID(delegatorAddress, addr)
-	store.Delete(key)
+
+	store.Delete(unlockID)
 }
 
 // SetMultiStakingUnlockEntry adds an entry to the unbonding delegation at
 // the given addresses. It creates the unbonding delegation if it does not exist.
 func (k Keeper) SetMultiStakingUnlockEntry(
-	ctx sdk.Context, delegatorAddr sdk.AccAddress, validatorAddr sdk.ValAddress,
-	creationHeight int64, rate sdk.Dec, balance math.Int,
+	ctx sdk.Context, unlockID []byte,
+	rate sdk.Dec, balance math.Int,
 ) types.MultiStakingUnlock {
-	unlock, found := k.GetMultiStakingUnlock(ctx, types.MultiStakingUnlockID(delegatorAddr, validatorAddr))
+	unlock, found := k.GetMultiStakingUnlock(ctx, unlockID)
 	if found {
-		unlock.AddEntry(creationHeight, rate, balance)
+		unlock.AddEntry(ctx.BlockHeight(), rate, balance)
 	} else {
-		unlock = types.NewMultiStakingUnlock(delegatorAddr, validatorAddr, creationHeight, rate, balance)
+		unlock = types.NewMultiStakingUnlock(ctx.BlockHeight(), rate, balance)
 	}
 
-	k.SetMultiStakingUnlock(ctx, unlock)
+	k.SetMultiStakingUnlock(ctx, unlockID, unlock)
 	return unlock
 }

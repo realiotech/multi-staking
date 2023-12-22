@@ -153,7 +153,7 @@ func (suite *KeeperTestSuite) TestUpdateDVPairBondAmount() {
 	//	}
 }
 
-func (suite *KeeperTestSuite) TestCalSDKBondToken() {
+func (suite *KeeperTestSuite) TestCalSDKBondCoin() {
 	// 	gasDenom := "ario"
 	// 	govDenom := "arst"
 	// 	testCases := []struct {
@@ -163,27 +163,27 @@ func (suite *KeeperTestSuite) TestCalSDKBondToken() {
 	// 		expErr   bool
 	// 	}{
 	// 		{
-	// 			name: "3001 token, weight 0.3, expect 900",
+	// 			name: "3001 coin, weight 0.3, expect 900",
 	// 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) (sdk.Coin, error) {
-	// 				msKeeper.SetBondTokenWeight(ctx, gasDenom, math.LegacyMustNewDecFromStr("0.3"))
-	// 				return msKeeper.CalSDKBondToken(ctx, sdk.NewCoin(gasDenom, sdk.NewInt(3001)))
+	// 				msKeeper.SetBondCoinWeight(ctx, gasDenom, math.LegacyMustNewDecFromStr("0.3"))
+	// 				return msKeeper.CalSDKBondCoin(ctx, sdk.NewCoin(gasDenom, sdk.NewInt(3001)))
 	// 			},
 	// 			expOut: sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(900)),
 	// 			expErr: false,
 	// 		},
 	// 		{
-	// 			name: "25 token, weight 0.5, expect 12",
+	// 			name: "25 coin, weight 0.5, expect 12",
 	// 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) (sdk.Coin, error) {
-	// 				msKeeper.SetBondTokenWeight(ctx, govDenom, math.LegacyMustNewDecFromStr("0.5"))
-	// 				return msKeeper.CalSDKBondToken(ctx, sdk.NewCoin(govDenom, sdk.NewInt(25)))
+	// 				msKeeper.SetBondCoinWeight(ctx, govDenom, math.LegacyMustNewDecFromStr("0.5"))
+	// 				return msKeeper.CalSDKBondCoin(ctx, sdk.NewCoin(govDenom, sdk.NewInt(25)))
 	// 			},
 	// 			expOut: sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(12)),
 	// 			expErr: false,
 	// 		},
 	// 		{
-	// 			name: "invalid bond token",
+	// 			name: "invalid bond coin",
 	// 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) (sdk.Coin, error) {
-	// 				return msKeeper.CalSDKBondToken(ctx, sdk.NewCoin(govDenom, sdk.NewInt(25)))
+	// 				return msKeeper.CalSDKBondCoin(ctx, sdk.NewCoin(govDenom, sdk.NewInt(25)))
 	// 			},
 	// 			expOut: sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(12)),
 	// 			expErr: true,
@@ -218,10 +218,10 @@ func (suite *KeeperTestSuite) TestCalSDKBondToken() {
 	// 		expErr   bool
 	// 	}{
 	// 		{
-	// 			name: "3001 token, weight 0.3, expect 900",
+	// 			name: "3001 coin, weight 0.3, expect 900",
 	// 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) (sdk.Coin, error) {
-	// 				msKeeper.SetBondTokenWeight(ctx, gasDenom, math.LegacyMustNewDecFromStr("0.3"))
-	// 				msKeeper.SetValidatorAllowedToken(ctx, valAddr, gasDenom)
+	// 				msKeeper.SetBondCoinWeight(ctx, gasDenom, math.LegacyMustNewDecFromStr("0.3"))
+	// 				msKeeper.SetValidatorAllowedCoin(ctx, valAddr, gasDenom)
 	// 				bondAmount := sdk.NewCoin(gasDenom, sdk.NewInt(3001))
 	// 				err := msKeeper.PreDelegate(ctx, delAddr, valAddr, bondAmount)
 	// 				return bondAmount, err
@@ -230,10 +230,10 @@ func (suite *KeeperTestSuite) TestCalSDKBondToken() {
 	// 			expErr: false,
 	// 		},
 	// 		{
-	// 			name: "25 token, weight 0.5, expect 12",
+	// 			name: "25 coin, weight 0.5, expect 12",
 	// 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) (sdk.Coin, error) {
-	// 				msKeeper.SetBondTokenWeight(ctx, govDenom, math.LegacyMustNewDecFromStr("0.5"))
-	// 				msKeeper.SetValidatorAllowedToken(ctx, valAddr, govDenom)
+	// 				msKeeper.SetBondCoinWeight(ctx, govDenom, math.LegacyMustNewDecFromStr("0.5"))
+	// 				msKeeper.SetValidatorAllowedCoin(ctx, valAddr, govDenom)
 	// 				bondAmount := sdk.NewCoin(govDenom, sdk.NewInt(25))
 	// 				err := msKeeper.PreDelegate(ctx, delAddr, valAddr, bondAmount)
 	// 				return bondAmount, err
@@ -242,9 +242,9 @@ func (suite *KeeperTestSuite) TestCalSDKBondToken() {
 	// 			expErr: false,
 	// 		},
 	// 		{
-	// 			name: "invalid bond token",
+	// 			name: "invalid bond coin",
 	// 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) (sdk.Coin, error) {
-	// 				msKeeper.SetValidatorAllowedToken(ctx, valAddr, gasDenom)
+	// 				msKeeper.SetValidatorAllowedCoin(ctx, valAddr, gasDenom)
 	// 				bondAmount := sdk.NewCoin(govDenom, sdk.NewInt(25))
 	// 				err := msKeeper.PreDelegate(ctx, delAddr, valAddr, bondAmount)
 	// 				return bondAmount, err
@@ -263,9 +263,9 @@ func (suite *KeeperTestSuite) TestCalSDKBondToken() {
 	// 			expErr: true,
 	// 		},
 	// 		{
-	// 			name: "invalid val address token",
+	// 			name: "invalid val address coin",
 	// 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) (sdk.Coin, error) {
-	// 				msKeeper.SetValidatorAllowedToken(ctx, valAddr, gasDenom)
+	// 				msKeeper.SetValidatorAllowedCoin(ctx, valAddr, gasDenom)
 	// 				bondAmount := sdk.NewCoin(govDenom, sdk.NewInt(25))
 	// 				err := msKeeper.PreDelegate(ctx, delAddr, valAddr, bondAmount)
 	// 				return bondAmount, err

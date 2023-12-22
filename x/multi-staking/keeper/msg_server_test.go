@@ -29,9 +29,9 @@ package keeper_test
 // 		expErr   bool
 // 	}{
 // 		{
-// 			name: "3001 token, weight 0.3, expect 900",
+// 			name: "3001 coin, weight 0.3, expect 900",
 // 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper, msgServer multistakingtypes.MsgServer) (sdk.Coin, error) {
-// 				msKeeper.SetBondTokenWeight(ctx, gasDenom, sdk.MustNewDecFromStr("0.3"))
+// 				msKeeper.SetBondCoinWeight(ctx, gasDenom, sdk.MustNewDecFromStr("0.3"))
 // 				bondAmount := sdk.NewCoin(gasDenom, sdk.NewInt(3001))
 // 				msg := multistakingtypes.MsgCreateValidator{
 // 					Description: stakingtypes.Description{
@@ -60,9 +60,9 @@ package keeper_test
 // 			expErr: false,
 // 		},
 // 		{
-// 			name: "25 token, weight 0.5, expect 12",
+// 			name: "25 coin, weight 0.5, expect 12",
 // 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper, msgServer multistakingtypes.MsgServer) (sdk.Coin, error) {
-// 				msKeeper.SetBondTokenWeight(ctx, govDenom, sdk.MustNewDecFromStr("0.5"))
+// 				msKeeper.SetBondCoinWeight(ctx, govDenom, sdk.MustNewDecFromStr("0.5"))
 // 				bondAmount := sdk.NewCoin(govDenom, sdk.NewInt(25))
 
 // 				msg := multistakingtypes.MsgCreateValidator{
@@ -92,7 +92,7 @@ package keeper_test
 // 			expErr: false,
 // 		},
 // 		{
-// 			name: "invalid bond token",
+// 			name: "invalid bond coin",
 // 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper, msgServer multistakingtypes.MsgServer) (sdk.Coin, error) {
 // 				bondAmount := sdk.NewCoin(gasDenom, sdk.NewInt(25))
 
@@ -124,7 +124,7 @@ package keeper_test
 // 		{
 // 			name: "invalid validator address",
 // 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper, msgServer multistakingtypes.MsgServer) (sdk.Coin, error) {
-// 				msKeeper.SetBondTokenWeight(ctx, gasDenom, sdk.MustNewDecFromStr("0.3"))
+// 				msKeeper.SetBondCoinWeight(ctx, gasDenom, sdk.MustNewDecFromStr("0.3"))
 // 				bondAmount := sdk.NewCoin(gasDenom, sdk.NewInt(3001))
 
 // 				msg := multistakingtypes.MsgCreateValidator{
@@ -152,7 +152,7 @@ package keeper_test
 // 		{
 // 			name: "nil delegation amount",
 // 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper, msgServer multistakingtypes.MsgServer) (sdk.Coin, error) {
-// 				msKeeper.SetBondTokenWeight(ctx, gasDenom, sdk.MustNewDecFromStr("0.3"))
+// 				msKeeper.SetBondCoinWeight(ctx, gasDenom, sdk.MustNewDecFromStr("0.3"))
 
 // 				msg := multistakingtypes.MsgCreateValidator{
 // 					Description: stakingtypes.Description{
@@ -365,7 +365,7 @@ package keeper_test
 // 			newParam.MinCommissionRate = sdk.MustNewDecFromStr("0.02")
 // 			suite.stakingKeeper.SetParams(suite.ctx, newParam)
 // 			msgServer := multistakingkeeper.NewMsgServerImpl(*suite.msKeeper)
-// 			suite.msKeeper.SetBondTokenWeight(suite.ctx, gasDenom, sdk.OneDec())
+// 			suite.msKeeper.SetBondCoinWeight(suite.ctx, gasDenom, sdk.OneDec())
 // 			bondAmount := sdk.NewCoin(gasDenom, sdk.NewInt(1000))
 // 			suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, sdk.NewCoins(bondAmount))
 // 			suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, minttypes.ModuleName, delAddr, sdk.NewCoins(bondAmount))
@@ -437,7 +437,7 @@ package keeper_test
 // 				bondAmount := sdk.NewCoin(gasDenom, sdk.NewInt(1000))
 // 				delMsg := multistakingtypes.NewMsgDelegate(delAddr, valAddr, bondAmount)
 // 				_, err := msgServer.Delegate(ctx, delMsg)
-// 				msKeeper.SetBondTokenWeight(ctx, gasDenom, sdk.MustNewDecFromStr("0.5"))
+// 				msKeeper.SetBondCoinWeight(ctx, gasDenom, sdk.MustNewDecFromStr("0.5"))
 // 				bondAmount1 := sdk.NewCoin(gasDenom, sdk.NewInt(2000))
 // 				delMsg1 := multistakingtypes.NewMsgDelegate(delAddr, valAddr, bondAmount1)
 // 				_, err = msgServer.Delegate(ctx, delMsg1)
@@ -458,7 +458,7 @@ package keeper_test
 // 			expErr: true,
 // 		},
 // 		{
-// 			name: "not allow token",
+// 			name: "not allow coin",
 // 			malleate: func(ctx sdk.Context, msgServer multistakingtypes.MsgServer, msKeeper multistakingkeeper.Keeper) (multistakingtypes.MsgDelegate, error) {
 // 				bondAmount := sdk.NewCoin("arst", sdk.NewInt(1000))
 
@@ -478,7 +478,7 @@ package keeper_test
 // 			newParam.MinCommissionRate = sdk.MustNewDecFromStr("0.02")
 // 			suite.stakingKeeper.SetParams(suite.ctx, newParam)
 // 			msgServer := multistakingkeeper.NewMsgServerImpl(*suite.msKeeper)
-// 			suite.msKeeper.SetBondTokenWeight(suite.ctx, gasDenom, sdk.OneDec())
+// 			suite.msKeeper.SetBondCoinWeight(suite.ctx, gasDenom, sdk.OneDec())
 // 			bondAmount := sdk.NewCoin(gasDenom, sdk.NewInt(1000))
 // 			userBalance := sdk.NewCoin(gasDenom, sdk.NewInt(10000))
 
@@ -552,7 +552,7 @@ package keeper_test
 // 		{
 // 			name: "delegate 500 more to val1 then change rate and redelegate to val2",
 // 			malleate: func(ctx sdk.Context, msgServer multistakingtypes.MsgServer, msKeeper multistakingkeeper.Keeper) (multistakingtypes.MsgBeginRedelegate, error) {
-// 				msKeeper.SetBondTokenWeight(ctx, gasDenom, sdk.MustNewDecFromStr("0.25"))
+// 				msKeeper.SetBondCoinWeight(ctx, gasDenom, sdk.MustNewDecFromStr("0.25"))
 // 				bondAmount := sdk.NewCoin(gasDenom, sdk.NewInt(500))
 
 // 				delMsg := multistakingtypes.NewMsgDelegate(delAddr, valAddr1, bondAmount)
@@ -578,7 +578,7 @@ package keeper_test
 // 			expErr: true,
 // 		},
 // 		{
-// 			name: "not allow token",
+// 			name: "not allow coin",
 // 			malleate: func(ctx sdk.Context, msgServer multistakingtypes.MsgServer, msKeeper multistakingkeeper.Keeper) (multistakingtypes.MsgBeginRedelegate, error) {
 // 				bondAmount := sdk.NewCoin("arst", sdk.NewInt(1000))
 
@@ -631,7 +631,7 @@ package keeper_test
 // 			newParam.MinCommissionRate = sdk.MustNewDecFromStr("0.02")
 // 			suite.stakingKeeper.SetParams(suite.ctx, newParam)
 // 			msgServer := multistakingkeeper.NewMsgServerImpl(*suite.msKeeper)
-// 			suite.msKeeper.SetBondTokenWeight(suite.ctx, gasDenom, sdk.OneDec())
+// 			suite.msKeeper.SetBondCoinWeight(suite.ctx, gasDenom, sdk.OneDec())
 // 			bondAmount := sdk.NewCoin(gasDenom, sdk.NewInt(1000))
 // 			userBalance := sdk.NewCoin(gasDenom, sdk.NewInt(10000))
 
@@ -756,7 +756,7 @@ package keeper_test
 // 			expErr: true,
 // 		},
 // 		{
-// 			name: "not allow token",
+// 			name: "not allow coin",
 // 			malleate: func(ctx sdk.Context, msgServer multistakingtypes.MsgServer, msKeeper multistakingkeeper.Keeper) (multistakingtypes.MsgUndelegate, error) {
 // 				bondAmount := sdk.NewCoin("arst", sdk.NewInt(1000))
 
@@ -776,7 +776,7 @@ package keeper_test
 // 			newParam.MinCommissionRate = sdk.MustNewDecFromStr("0.02")
 // 			suite.stakingKeeper.SetParams(suite.ctx, newParam)
 // 			msgServer := multistakingkeeper.NewMsgServerImpl(*suite.msKeeper)
-// 			suite.msKeeper.SetBondTokenWeight(suite.ctx, gasDenom, sdk.OneDec())
+// 			suite.msKeeper.SetBondCoinWeight(suite.ctx, gasDenom, sdk.OneDec())
 // 			bondAmount := sdk.NewCoin(gasDenom, sdk.NewInt(1000))
 // 			userBalance := sdk.NewCoin(gasDenom, sdk.NewInt(10000))
 
@@ -879,7 +879,7 @@ package keeper_test
 // 			expErr: true,
 // 		},
 // 		{
-// 			name: "not allow token",
+// 			name: "not allow coin",
 // 			malleate: func(ctx sdk.Context, msgServer multistakingtypes.MsgServer, msKeeper multistakingkeeper.Keeper) (multistakingtypes.MsgCancelUnbondingDelegation, error) {
 // 				bondAmount := sdk.NewCoin("arst", sdk.NewInt(1000))
 
@@ -909,7 +909,7 @@ package keeper_test
 // 			newParam.MinCommissionRate = sdk.MustNewDecFromStr("0.02")
 // 			suite.stakingKeeper.SetParams(suite.ctx, newParam)
 // 			msgServer := multistakingkeeper.NewMsgServerImpl(*suite.msKeeper)
-// 			suite.msKeeper.SetBondTokenWeight(suite.ctx, gasDenom, sdk.OneDec())
+// 			suite.msKeeper.SetBondCoinWeight(suite.ctx, gasDenom, sdk.OneDec())
 // 			bondAmount := sdk.NewCoin(gasDenom, sdk.NewInt(2000))
 // 			userBalance := sdk.NewCoin(gasDenom, sdk.NewInt(10000))
 

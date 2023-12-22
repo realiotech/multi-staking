@@ -9,19 +9,27 @@ import (
 func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) (res []abci.ValidatorUpdate) {
 	// multi-staking state
 	for _, multiStakingLock := range data.MultiStakingLocks {
-		// set staking lock
-		k.SetMultiStakingLock(ctx, multiStakingLock)
-		// set intermediaryAccount
-		intermediaryAccount := types.IntermediaryAccount(sdk.AccAddress(multiStakingLock.DelAddr))
-		k.SetIntermediaryAccount(ctx, intermediaryAccount)
-	}
+		delAcc, valAcc, err := types.DelAccAndValAccFromStrings(multiStakingLock.LockID.DelAddr, multiStakingLock.LockID.ValAddr)
+		if err != nil {
 
-	for _, valAllowedToken := range data.ValidatorAllowedToken {
-		valAddr, err := sdk.ValAddressFromBech32(valAllowedToken.ValAddr)
+		}
+
+		// set staking lock
+		k.SetMultiStakingLock(ctx, types.MultiStakingLockID(delAcc, valAcc), multiStakingLock)
+		// set intermediaryAccount
+		// intermediaryAccount := types.IntermediaryAccount(sdk.AccAddress(multiStakingLock.DelAddr))
+		// k.SetIntermediaryAccount(ctx, intermediaryAccount)
+	}
+	// for _, multiStakingUnlock := range data.MultiStakingUnlocks {
+
+	// }
+
+	for _, valAllowedCoin := range data.ValidatorAllowedCoin {
+		valAddr, err := sdk.ValAddressFromBech32(valAllowedCoin.ValAddr)
 		if err != nil {
 			panic("error validator address")
 		}
-		k.SetValidatorAllowedToken(ctx, valAddr, valAllowedToken.TokenDenom)
+		k.SetValidatorAllowedCoin(ctx, valAddr, valAllowedCoin.CoinDenom)
 	}
 
 	return k.stakingKeeper.InitGenesis(ctx, data.StakingGenesisState)
@@ -35,20 +43,20 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 		return false
 	})
 
-	// get validator allowed token
-	var validatorAllowedTokenLists []types.ValidatorAllowedToken
-	k.ValidatorAllowedTokenIterator(ctx, func(valAddr string, denom string) (stop bool) {
-		validatorAllowedToken := types.ValidatorAllowedToken{
-			ValAddr:    valAddr,
-			TokenDenom: denom,
+	// get validator allowed coin
+	var validatorAllowedCoinLists []types.ValidatorAllowedCoin
+	k.ValidatorAllowedCoinIterator(ctx, func(valAddr string, denom string) (stop bool) {
+		validatorAllowedCoin := types.ValidatorAllowedCoin{
+			ValAddr:   valAddr,
+			CoinDenom: denom,
 		}
-		validatorAllowedTokenLists = append(validatorAllowedTokenLists, validatorAllowedToken)
+		validatorAllowedCoinLists = append(validatorAllowedCoinLists, validatorAllowedCoin)
 		return false
 	})
 
 	return &types.GenesisState{
-		MultiStakingLocks:     multiStakingLocks,
-		ValidatorAllowedToken: validatorAllowedTokenLists,
-		StakingGenesisState:   k.stakingKeeper.ExportGenesis(ctx),
+		MultiStakingLocks:    multiStakingLocks,
+		ValidatorAllowedCoin: validatorAllowedCoinLists,
+		StakingGenesisState:  k.stakingKeeper.ExportGenesis(ctx),
 	}
 }
