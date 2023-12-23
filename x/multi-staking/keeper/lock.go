@@ -30,19 +30,18 @@ func (k Keeper) AddCoinToLock(
 	ctx sdk.Context,
 	fromAcc sdk.AccAddress,
 	lockID []byte,
-	tokenAdded sdk.Coin,
-	weight sdk.Dec,
+	weightedCoin types.WeightedCoin,
 ) error {
-	err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, fromAcc, types.ModuleName, sdk.NewCoins(tokenAdded))
+	err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, fromAcc, types.ModuleName, sdk.NewCoins(weightedCoin.ToCoin()))
 	if err != nil {
 		return err
 	}
 
 	multiStakingLock, found := k.GetMultiStakingLock(ctx, lockID)
 	if !found {
-		multiStakingLock = types.NewMultiStakingLock(tokenAdded, weight)
+		multiStakingLock = types.NewMultiStakingLock(nil, weightedCoin)
 	} else {
-		multiStakingLock, err = multiStakingLock.AddCoinToMultiStakingLock(tokenAdded, weight)
+		multiStakingLock, err = multiStakingLock.AddWeightedCoinToMultiStakingLock(weightedCoin)
 		if err != nil {
 			return err
 		}
@@ -88,7 +87,7 @@ func (k Keeper) MoveLockedMultistakingCoin(
 	if !found {
 		return fmt.Errorf("can't find multi staking lock")
 	}
-	tokenWeight := fromLock.ConversionRatio
+	weightedCoin := fromLock.ToWeightedCoin(movedCoin)
 
 	// remove coin from lock on source val
 	fromLock, err = fromLock.RemoveCoinFromMultiStakingLock(movedCoin)
@@ -101,9 +100,9 @@ func (k Keeper) MoveLockedMultistakingCoin(
 	// add coin to destination lock
 	toLock, found := k.GetMultiStakingLock(ctx, toLockID)
 	if !found {
-		toLock = types.NewMultiStakingLock(movedCoin, tokenWeight)
+		toLock = types.NewMultiStakingLock(nil, weightedCoin)
 	} else {
-		toLock, err = toLock.AddCoinToMultiStakingLock(movedCoin, tokenWeight)
+		toLock, err = toLock.AddWeightedCoinToMultiStakingLock(weightedCoin)
 		if err != nil {
 			return err
 		}
@@ -128,7 +127,7 @@ func (k Keeper) LockMultiStakingCoinAndMintBondCoin(
 	}
 
 	// update multistaking lock
-	err = k.AddCoinToLock(ctx, fromAcc, lockID, multiStakingCoin, bondDenomWeight)
+	err = k.AddCoinToLock(ctx, fromAcc, lockID, types.NewWeightedCoin(multiStakingCoin.Denom, multiStakingCoin.Amount, bondDenomWeight))
 
 	// Calculate the amount of bond denom to be minted
 	// minted bond amount = multistaking coin * bond coin weight
@@ -162,7 +161,7 @@ func (k Keeper) BurnBondCoinAndUnlockMultiStakingCoin(
 	// unlock amount
 	// unlockMultiStakingAmount = unbondCoinAmount/multiStakingLock.ConversionRatio
 	unlockDenom := k.GetValidatorAllowedCoin(ctx, valAddr)
-	unlockMultiStakingAmount := sdk.NewDecFromInt(unbondCoinAmount.Amount).Quo(multiStakingLock.ConversionRatio).RoundInt()
+	unlockMultiStakingAmount := sdk.NewDecFromInt(unbondCoinAmount.Amount).Quo(multiStakingLock.LockedCoin.Weight).RoundInt()
 
 	// check amount
 	if unlockMultiStakingAmount.GT(multiStakingLock.LockedCoin.Amount) {

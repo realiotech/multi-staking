@@ -17,11 +17,19 @@ func (coin WeightedCoin) Validate() error {
 	return nil
 }
 
+func (coin WeightedCoin) ToCoin() sdk.Coin {
+	return sdk.NewCoin(coin.Denom, coin.Amount)
+}
+
 func NewWeightedCoin(denom string, amount sdk.Int, weight sdk.Dec) WeightedCoin {
 	return WeightedCoin{Denom: denom, Amount: amount, Weight: weight}
 }
 
-func (coin WeightedCoin) SafeSub(coinB WeightedCoin) (WeightedCoin, error) {
+func (coin WeightedCoin) WithAmount(amount sdk.Int) WeightedCoin {
+	return NewWeightedCoin(coin.Denom, amount, coin.Weight)
+}
+
+func (coin WeightedCoin) SafeSubCoin(coinB sdk.Coin) (WeightedCoin, error) {
 	if coin.Denom != coinB.Denom {
 		return WeightedCoin{}, fmt.Errorf("denom mismatch")
 	}

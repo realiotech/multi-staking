@@ -63,10 +63,10 @@ func (k Keeper) CompleteUnbonding(
 	}
 
 	unlockDenom := k.GetValidatorAllowedCoin(ctx, valAddr)
-	unlockMultiStakingAmount := sdk.NewDecFromInt(balance).Mul(unlockEntry.ConversionRatio).RoundInt()
+	unlockMultiStakingAmount := sdk.NewDecFromInt(balance).Mul(unlockEntry.UnlockingCoin.Weight).RoundInt()
 
 	// check amount
-	if unlockMultiStakingAmount.GT(unlockEntry.Balance) {
+	if unlockMultiStakingAmount.GT(unlockEntry.UnlockingCoin.Amount) {
 		return unlockedAmount, fmt.Errorf("unlock amount greater than lock amount")
 	}
 
@@ -75,11 +75,11 @@ func (k Keeper) CompleteUnbonding(
 	k.BurnCoin(ctx, intermediaryAcc, burnCoin)
 
 	// check unbond amount has been slashed or not
-	if unlockEntry.Balance.GT(unlockMultiStakingAmount) {
+	if unlockEntry.UnlockingCoin.Amount.GT(unlockMultiStakingAmount) {
 		unlockedAmount = sdk.NewCoins(sdk.NewCoin(unlockDenom, unlockMultiStakingAmount))
 
 		// Slash user amount
-		burnUserAmount := sdk.NewCoins(sdk.NewCoin(unlockDenom, unlockEntry.Balance.Sub(unlockMultiStakingAmount)))
+		burnUserAmount := sdk.NewCoins(sdk.NewCoin(unlockDenom, unlockEntry.UnlockingCoin.Amount.Sub(unlockMultiStakingAmount)))
 		err = k.bankKeeper.SendCoinsFromAccountToModule(ctx, intermediaryAcc, types.ModuleName, burnUserAmount)
 		if err != nil {
 			return unlockedAmount, err
@@ -89,7 +89,7 @@ func (k Keeper) CompleteUnbonding(
 			return unlockedAmount, err
 		}
 	} else {
-		unlockedAmount = sdk.NewCoins(sdk.NewCoin(unlockDenom, unlockEntry.Balance))
+		unlockedAmount = sdk.NewCoins(sdk.NewCoin(unlockDenom, unlockEntry.UnlockingCoin.Amount))
 	}
 
 	err = k.bankKeeper.SendCoins(ctx, intermediaryAcc, delAddr, unlockedAmount)

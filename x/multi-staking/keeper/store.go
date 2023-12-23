@@ -3,7 +3,6 @@ package keeper
 import (
 	"fmt"
 
-	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
@@ -172,13 +171,13 @@ func (k Keeper) RemoveMultiStakingUnlock(ctx sdk.Context, unlockID []byte) {
 // the given addresses. It creates the unbonding delegation if it does not exist.
 func (k Keeper) SetMultiStakingUnlockEntry(
 	ctx sdk.Context, unlockID []byte,
-	rate sdk.Dec, balance math.Int,
+	weightedCoin types.WeightedCoin,
 ) types.MultiStakingUnlock {
 	unlock, found := k.GetMultiStakingUnlock(ctx, unlockID)
 	if found {
-		unlock.AddEntry(ctx.BlockHeight(), rate, balance)
+		unlock.AddEntry(ctx.BlockHeight(), weightedCoin)
 	} else {
-		unlock = types.NewMultiStakingUnlock(ctx.BlockHeight(), rate, balance)
+		unlock = types.NewMultiStakingUnlock(ctx.BlockHeight(), weightedCoin)
 	}
 
 	k.SetMultiStakingUnlock(ctx, unlockID, unlock)

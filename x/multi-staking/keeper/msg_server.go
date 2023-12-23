@@ -187,7 +187,7 @@ func (k Keeper) AdjustUnbondAmount(ctx sdk.Context, delAcc sdk.AccAddress, valAc
 		return math.Int{}, fmt.Errorf("validator not found")
 	}
 
-	shares, err := validator.SharesFromCoins(amount)
+	shares, err := validator.SharesFromTokens(amount)
 	if err != nil {
 		return math.Int{}, err
 	}
@@ -201,7 +201,7 @@ func (k Keeper) AdjustUnbondAmount(ctx sdk.Context, delAcc sdk.AccAddress, valAc
 		shares = delShares
 	}
 
-	return validator.CoinsFromShares(shares).RoundInt(), nil
+	return validator.TokensFromShares(shares).RoundInt(), nil
 }
 
 // Undelegate defines a method for performing an undelegation from a delegate and a validator
@@ -239,7 +239,7 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (
 		return nil, err
 	}
 
-	k.SetMultiStakingUnlockEntry(ctx, types.MultiStakingUnlockID(delAcc, valAcc), lock.ConversionRatio, msg.Amount.Amount)
+	k.SetMultiStakingUnlockEntry(ctx, types.MultiStakingUnlockID(delAcc, valAcc), types.NewWeightedCoin(msg.Amount.Denom, msg.Amount.Amount, lock.LockedCoin.Weight))
 
 	return &types.MsgUndelegateResponse{}, err
 }
@@ -286,7 +286,7 @@ func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.M
 		return nil, sdkerrors.ErrNotFound.Wrapf("unbonding delegation entry is not found at block height %d", msg.CreationHeight)
 	}
 
-	if unbondEntry.Balance.LT(msg.Amount.Amount) {
+	if unbondEntry.UnlockingCoin.Amount.LT(msg.Amount.Amount) {
 		return nil, sdkerrors.ErrInvalidRequest.Wrap("amount is greater than the unbonding delegation entry balance")
 	}
 
@@ -296,7 +296,7 @@ func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.M
 		return nil, err
 	}
 
-	cancelAmt := unbondEntry.ConversionRatio.MulInt(msg.Amount.Amount).RoundInt()
+	cancelAmt := unbondEntry.UnlockingCoin.Weight.MulInt(msg.Amount.Amount).RoundInt()
 	if err != nil {
 		return nil, err
 	}
@@ -314,12 +314,12 @@ func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.M
 		return nil, err
 	}
 
-	amount := unbondEntry.Balance.Sub(msg.Amount.Amount)
+	amount := unbondEntry.UnlockingCoin.Amount.Sub(msg.Amount.Amount)
 	if amount.IsZero() {
 		unlock.RemoveEntry(unbondEntryIndex)
 	} else {
 		// update the unbondingDelegationEntryBalance and InitialBalance for unlock entry
-		unbondEntry.Balance = amount
+		unbondEntry.UnlockingCoin.Amount = amount
 		unlock.Entries[unbondEntryIndex] = unbondEntry
 	}
 
