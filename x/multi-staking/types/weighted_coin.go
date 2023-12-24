@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func (coin WeightedCoin) Validate() error {
+func (coin MultiStakingCoin) Validate() error {
 	if !coin.Amount.IsPositive() {
 		return fmt.Errorf("amount zero or negative")
 	}
@@ -17,41 +17,41 @@ func (coin WeightedCoin) Validate() error {
 	return nil
 }
 
-func (coin WeightedCoin) ToCoin() sdk.Coin {
+func (coin MultiStakingCoin) ToCoin() sdk.Coin {
 	return sdk.NewCoin(coin.Denom, coin.Amount)
 }
 
-func NewWeightedCoin(denom string, amount sdk.Int, weight sdk.Dec) WeightedCoin {
-	return WeightedCoin{Denom: denom, Amount: amount, Weight: weight}
+func NewWeightedCoin(denom string, amount sdk.Int, weight sdk.Dec) MultiStakingCoin {
+	return MultiStakingCoin{Denom: denom, Amount: amount, BondWeight: weight}
 }
 
-func (coin WeightedCoin) WithAmount(amount sdk.Int) WeightedCoin {
-	return NewWeightedCoin(coin.Denom, amount, coin.Weight)
+func (coin MultiStakingCoin) WithAmount(amount sdk.Int) MultiStakingCoin {
+	return NewWeightedCoin(coin.Denom, amount, coin.BondWeight)
 }
 
-func (coin WeightedCoin) SafeSubCoin(coinB sdk.Coin) (WeightedCoin, error) {
+func (coin MultiStakingCoin) SafeSub(coinB MultiStakingCoin) (MultiStakingCoin, error) {
 	if coin.Denom != coinB.Denom {
-		return WeightedCoin{}, fmt.Errorf("denom mismatch")
+		return MultiStakingCoin{}, fmt.Errorf("denom mismatch")
 	}
 
 	coin.Amount = coin.Amount.Sub(coinB.Amount)
 	if coin.Amount.IsNegative() {
-		return WeightedCoin{}, fmt.Errorf("insufficient amount")
+		return MultiStakingCoin{}, fmt.Errorf("insufficient amount")
 	}
 
 	return coin, nil
 }
 
-func (coinA WeightedCoin) SafeAdd(coinB WeightedCoin) (WeightedCoin, error) {
+func (coinA MultiStakingCoin) SafeAdd(coinB MultiStakingCoin) (MultiStakingCoin, error) {
 	if coinA.Denom != coinB.Denom {
-		return WeightedCoin{}, fmt.Errorf("denom mismatch")
+		return MultiStakingCoin{}, fmt.Errorf("denom mismatch")
 	}
 
 	amountA := coinA.Amount
-	weightA := coinA.Weight
+	weightA := coinA.BondWeight
 
 	amountB := coinB.Amount
-	weightB := coinB.Weight
+	weightB := coinB.BondWeight
 
 	// amountAB = amountA + amountB
 	amountAB := amountA.Add(amountB)
@@ -61,7 +61,7 @@ func (coinA WeightedCoin) SafeAdd(coinB WeightedCoin) (WeightedCoin, error) {
 	return NewWeightedCoin(coinA.Denom, amountAB, weightAB), nil
 }
 
-func (coinA WeightedCoin) Add(coinB WeightedCoin) WeightedCoin {
+func (coinA MultiStakingCoin) Add(coinB MultiStakingCoin) MultiStakingCoin {
 	coinAB, err := coinA.SafeAdd(coinB)
 	if err != nil {
 		panic(err)

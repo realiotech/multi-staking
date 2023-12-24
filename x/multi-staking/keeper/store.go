@@ -160,26 +160,8 @@ func (k Keeper) SetMultiStakingUnlock(ctx sdk.Context, unlockID []byte, unlock t
 	store.Set(unlockID, bz)
 }
 
-// RemoveMultiStakingUnlock removes the unbonding delegation object and associated index.
-func (k Keeper) RemoveMultiStakingUnlock(ctx sdk.Context, unlockID []byte) {
+func (k Keeper) DeleteMultiStakingUnlock(ctx sdk.Context, unlockID []byte) {
 	store := ctx.KVStore(k.storeKey)
 
 	store.Delete(unlockID)
-}
-
-// SetMultiStakingUnlockEntry adds an entry to the unbonding delegation at
-// the given addresses. It creates the unbonding delegation if it does not exist.
-func (k Keeper) SetMultiStakingUnlockEntry(
-	ctx sdk.Context, unlockID []byte,
-	weightedCoin types.WeightedCoin,
-) types.MultiStakingUnlock {
-	unlock, found := k.GetMultiStakingUnlock(ctx, unlockID)
-	if found {
-		unlock.AddEntry(ctx.BlockHeight(), weightedCoin)
-	} else {
-		unlock = types.NewMultiStakingUnlock(ctx.BlockHeight(), weightedCoin)
-	}
-
-	k.SetMultiStakingUnlock(ctx, unlockID, unlock)
-	return unlock
 }

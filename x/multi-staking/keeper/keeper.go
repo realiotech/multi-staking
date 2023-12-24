@@ -70,3 +70,41 @@ func (k Keeper) GetMatureUnbondingDelegations(ctx sdk.Context) []stakingtypes.Un
 	}
 	return matureUnbondingDelegations
 }
+
+func (k Keeper) GetUnbondingEntryAtCreationHeight(ctx sdk.Context, delAcc sdk.AccAddress, valAcc sdk.ValAddress, creationHeight int64) (stakingtypes.UnbondingDelegationEntry, bool) {
+	ubd, found := k.stakingKeeper.GetUnbondingDelegation(ctx, delAcc, valAcc)
+	if !found {
+		return stakingtypes.UnbondingDelegationEntry{}, false
+	}
+
+	var unbondingEntryAtHeight stakingtypes.UnbondingDelegationEntry
+	found = false
+	for _, entry := range ubd.Entries {
+		if entry.CreationHeight == creationHeight {
+			if !found {
+				found = true
+				unbondingEntryAtHeight = entry
+			} else {
+				unbondingEntryAtHeight.Balance = unbondingEntryAtHeight.Balance.Add(entry.Balance)
+			}
+		}
+	}
+
+	return unbondingEntryAtHeight, found
+}
+
+func (k Keeper) BurnCoin(ctx sdk.Context, accAddr sdk.AccAddress, coin sdk.Coins) error {
+	err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, accAddr, types.ModuleName, coin)
+	if err != nil {
+		return err
+	}
+	err = k.bankKeeper.BurnCoins(ctx, types.ModuleName, coin)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (k Keeper) IsAllowedCoin(ctx sdk.Context, valAcc sdk.ValAddress, lockedCoin sdk.Coin) bool {
+	return lockedCoin.Denom == k.GetValidatorAllowedCoin(ctx, valAcc)
+}

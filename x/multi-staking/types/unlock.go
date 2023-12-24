@@ -3,6 +3,7 @@ package types
 import (
 	"fmt"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"sigs.k8s.io/yaml"
 )
 
@@ -15,7 +16,7 @@ func (unlockID *UnlockID) ToBytes() ([]byte, error) {
 	return append(MultiStakingLockPrefix, DVPair...), nil
 }
 
-func NewUnlockEntry(creationHeight int64, weightedCoin WeightedCoin) UnlockEntry {
+func NewUnlockEntry(creationHeight int64, weightedCoin MultiStakingCoin) UnlockEntry {
 	return UnlockEntry{
 		CreationHeight: creationHeight,
 		UnlockingCoin:  weightedCoin,
@@ -32,7 +33,7 @@ func (e UnlockEntry) String() string {
 //
 //nolint:interfacer
 func NewMultiStakingUnlock(
-	creationHeight int64, weightedCoin WeightedCoin,
+	creationHeight int64, weightedCoin MultiStakingCoin,
 ) MultiStakingUnlock {
 	return MultiStakingUnlock{
 		Entries: []UnlockEntry{
@@ -42,7 +43,7 @@ func NewMultiStakingUnlock(
 }
 
 // AddEntry - append entry to the unbonding delegation
-func (unlock *MultiStakingUnlock) AddEntry(creationHeight int64, weightedCoin WeightedCoin) {
+func (unlock *MultiStakingUnlock) AddEntry(creationHeight int64, weightedCoin MultiStakingCoin) {
 	// Check the entries exists with creation_height and complete_time
 	entryIndex := -1
 	for index, ubdEntry := range unlock.Entries {
@@ -66,8 +67,31 @@ func (unlock *MultiStakingUnlock) AddEntry(creationHeight int64, weightedCoin We
 }
 
 // RemoveEntry - remove entry at index i to the unbonding delegation
-func (unlock *MultiStakingUnlock) RemoveEntry(i int64) {
-	unlock.Entries = append(unlock.Entries[:i], unlock.Entries[i+1:]...)
+func (unlock *MultiStakingUnlock) RemoveEntryAtCreationHeight(creationHeight int64) {
+	// Check the entries exists with creation_height and complete_time
+	entryIndex := -1
+	for index, ubdEntry := range unlock.Entries {
+		if ubdEntry.CreationHeight == creationHeight {
+			entryIndex = index
+			break
+		}
+	}
+	// entryIndex exists
+	if entryIndex != -1 {
+		unlock.Entries = append(unlock.Entries[:entryIndex], unlock.Entries[entryIndex+1:]...)
+	}
+}
+
+func (u UnlockEntry) GetBondWeight() sdk.Dec {
+	return u.UnlockingCoin.BondWeight
+}
+
+func (unlockEntry UnlockEntry) UnbondAmountToUnlockAmount(unbondAmount sdk.Int) sdk.Int {
+	return sdk.NewDecFromInt(unbondAmount).Quo(unlockEntry.GetBondWeight()).RoundInt()
+}
+
+func (unlockEntry UnlockEntry) UnlockAmountToUnbondAmount(unlockAmount sdk.Int) sdk.Int {
+	return unlockEntry.GetBondWeight().MulInt(unlockAmount).RoundInt()
 }
 
 // String returns a human readable string representation of an MultiStakingUnlock.

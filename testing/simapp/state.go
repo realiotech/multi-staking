@@ -88,14 +88,14 @@ func AppStateFn(cdc codec.JSONCodec, simManager *module.SimulationManager) simty
 			panic(err)
 		}
 		// compute not bonded balance
-		notBondedCoins := sdk.ZeroInt()
+		notBondedAmount := sdk.ZeroInt()
 		for _, val := range stakingState.Validators {
 			if val.Status != stakingtypes.Unbonded {
 				continue
 			}
-			notBondedCoins = notBondedCoins.Add(val.GetCoins())
+			notBondedAmount = notBondedAmount.Add(val.GetTokens())
 		}
-		notBondedCoins := sdk.NewCoin(stakingState.Params.BondDenom, notBondedCoins)
+		notBondedCoins := sdk.NewCoin(stakingState.Params.BondDenom, notBondedAmount)
 		// edit bank state to make it have the not bonded pool tokens
 		bankStateBz, ok := rawState[banktypes.ModuleName]
 		// TODO(fdymylja/jonathan): should we panic in this case

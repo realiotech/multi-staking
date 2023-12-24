@@ -239,7 +239,7 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (
 		return nil, err
 	}
 
-	k.SetMultiStakingUnlockEntry(ctx, types.MultiStakingUnlockID(delAcc, valAcc), types.NewWeightedCoin(msg.Amount.Denom, msg.Amount.Amount, lock.LockedCoin.Weight))
+	k.SetMultiStakingUnlockEntry(ctx, types.MultiStakingUnlockID(delAcc, valAcc), types.NewWeightedCoin(msg.Amount.Denom, msg.Amount.Amount, lock.LockedCoin.BondWeight))
 
 	return &types.MsgUndelegateResponse{}, err
 }
@@ -264,49 +264,16 @@ func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.M
 		)
 	}
 
-	unlock, found := k.GetMultiStakingUnlock(ctx, types.MultiStakingUnlockID(delAcc, valAcc))
-
+	unbondEntry, found := k.GetUnbondingEntryAtCreationHeight(ctx, intermediaryAccount, valAcc, msg.CreationHeight)
 	if !found {
-		return nil, fmt.Errorf("not found unbonding recored")
+		return nil, fmt.Errorf("unbondEntry not found")
 	}
-
-	var (
-		unbondEntry      types.UnlockEntry
-		unbondEntryIndex int64 = -1
-	)
-
-	for i, entry := range unlock.Entries {
-		if entry.CreationHeight == msg.CreationHeight {
-			unbondEntry = entry
-			unbondEntryIndex = int64(i)
-			break
-		}
-	}
-	if unbondEntryIndex == -1 {
-		return nil, sdkerrors.ErrNotFound.Wrapf("unbonding delegation entry is not found at block height %d", msg.CreationHeight)
-	}
-
-	if unbondEntry.UnlockingCoin.Amount.LT(msg.Amount.Amount) {
-		return nil, sdkerrors.ErrInvalidRequest.Wrap("amount is greater than the unbonding delegation entry balance")
-	}
-
-	// delegate back the unbonding delegation amount to the validator
-	// _, err = k.Keeper.Delegate(ctx, delegatorAddress, msg.Amount.Amount, types.Unbonding, validator, false)
-	if err != nil {
-		return nil, err
-	}
-
-	cancelAmt := unbondEntry.UnlockingCoin.Weight.MulInt(msg.Amount.Amount).RoundInt()
-	if err != nil {
-		return nil, err
-	}
-
-	cancelCoin := sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), cancelAmt)
+	cancelUnbondingCoin := sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), unbondEntry.Balance)
 
 	sdkMsg := &stakingtypes.MsgCancelUnbondingDelegation{
 		DelegatorAddress: intermediaryAccount.String(),
 		ValidatorAddress: msg.ValidatorAddress,
-		Amount:           cancelCoin,
+		Amount:           cancelUnbondingCoin,
 	}
 
 	_, err = k.stakingMsgServer.CancelUnbondingDelegation(goCtx, sdkMsg)
@@ -314,38 +281,11 @@ func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.M
 		return nil, err
 	}
 
-	amount := unbondEntry.UnlockingCoin.Amount.Sub(msg.Amount.Amount)
-	if amount.IsZero() {
-		unlock.RemoveEntry(unbondEntryIndex)
-	} else {
-		// update the unbondingDelegationEntryBalance and InitialBalance for unlock entry
-		unbondEntry.UnlockingCoin.Amount = amount
-		unlock.Entries[unbondEntryIndex] = unbondEntry
-	}
-
 	unlockID := types.MultiStakingUnlockID(delAcc, valAcc)
-	// set the unbonding delegation or remove it if there are no more entries
-	if len(unlock.Entries) == 0 {
-		k.RemoveMultiStakingUnlock(ctx, unlockID)
-	} else {
-		k.SetMultiStakingUnlock(ctx, unlockID, unlock)
+	err = k.DeleteUnlockEntryAtCreationHeight(ctx, unlockID, msg.CreationHeight)
+	if err != nil {
+		return nil, err
 	}
-
-	// mintedBondCoin, err := k.Keeper.LockMultiStakingCoinAndMintBondCoin(ctx, delAcc, valAcc, msg.Amount)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// delegateMsg := stakingtypes.MsgDelegate{
-	// 	DelegatorAddress: intermediaryAccount.String(),
-	// 	ValidatorAddress: msg.ValidatorAddress,
-	// 	Amount:           mintedBondCoin,
-	// }
-
-	// _, err = k.stakingMsgServer.Delegate(ctx, &delegateMsg)
-	// if err != nil {
-	// 	return nil, err
-	// }
 
 	return &types.MsgCancelUnbondingDelegationResponse{}, nil
 }

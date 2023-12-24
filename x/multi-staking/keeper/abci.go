@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"fmt"
+
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -34,13 +36,56 @@ func GetUnbondingHeightsAndUnbondedAmounts(ctx sdk.Context, unbondingDelegation 
 
 func (k Keeper) EndBlocker(ctx sdk.Context, matureUnbondingDelegations []stakingtypes.UnbondingDelegation) {
 	for _, unlock := range matureUnbondingDelegations {
-		delAcc, valAcc, err := types.DelAccAndValAccFromStrings(unlock.DelegatorAddress, unlock.ValidatorAddress)
+		intermediaryAcc, valAcc, err := types.DelAccAndValAccFromStrings(unlock.DelegatorAddress, unlock.ValidatorAddress)
 		if err != nil {
 			panic(err)
 		}
 		unbondingHeightsAndUnbondedAmounts := GetUnbondingHeightsAndUnbondedAmounts(ctx, unlock)
 		for unbondingHeight, unbondedAmount := range unbondingHeightsAndUnbondedAmounts {
-			k.CompleteUnbonding(ctx, delAcc, valAcc, unbondingHeight, unbondedAmount)
+			k.BurnUnbondedCoinAndUnlockedMultiStakingCoin(ctx, intermediaryAcc, valAcc, unbondingHeight, unbondedAmount)
 		}
 	}
+}
+
+func (k Keeper) BurnUnbondedCoinAndUnlockedMultiStakingCoin(
+	ctx sdk.Context,
+	intermediaryAcc sdk.AccAddress,
+	valAddr sdk.ValAddress,
+	unbondingHeight int64,
+	unbondAmount math.Int,
+) (unlockedCoin sdk.Coin, err error) {
+	// get delAddr
+	delAddr := types.DelegatorAccount(intermediaryAcc)
+
+	// get unlock record
+	unlockID := types.MultiStakingUnlockID(delAddr, valAddr)
+	unlockEntry, found := k.GetUnlockEntryAtCreationHeight(ctx, unlockID, unbondingHeight)
+	if !found {
+		return sdk.Coin{}, fmt.Errorf("unlock entry not found")
+	}
+
+	unlockDenom := unlockEntry.UnlockingCoin.Denom
+	unlockedAmount := unlockEntry.UnbondAmountToUnlockAmount(unbondAmount)
+	unlockedCoin = sdk.NewCoin(unlockDenom, unlockedAmount)
+
+	// check amount
+	if unlockedAmount.GT(unlockEntry.UnlockingCoin.Amount) {
+		return sdk.Coin{}, fmt.Errorf("unlock amount greater than lock amount")
+	}
+
+	// burn bonded coin
+	burnCoin := sdk.NewCoins(sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), unbondAmount))
+	k.BurnCoin(ctx, intermediaryAcc, burnCoin)
+
+	err = k.bankKeeper.SendCoins(ctx, intermediaryAcc, delAddr, sdk.NewCoins(unlockedCoin))
+	if err != nil {
+		return sdk.Coin{}, err
+	}
+
+	err = k.DeleteUnlockEntryAtCreationHeight(ctx, unlockID, unbondingHeight)
+	if err != nil {
+		return sdk.Coin{}, err
+	}
+
+	return unlockedCoin, nil
 }

@@ -30,18 +30,18 @@ func (k Keeper) AddCoinToLock(
 	ctx sdk.Context,
 	fromAcc sdk.AccAddress,
 	lockID []byte,
-	weightedCoin types.WeightedCoin,
+	addedCoin types.MultiStakingCoin,
 ) error {
-	err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, fromAcc, types.ModuleName, sdk.NewCoins(weightedCoin.ToCoin()))
+	err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, fromAcc, types.ModuleName, sdk.NewCoins(addedCoin.ToCoin()))
 	if err != nil {
 		return err
 	}
 
 	multiStakingLock, found := k.GetMultiStakingLock(ctx, lockID)
 	if !found {
-		multiStakingLock = types.NewMultiStakingLock(nil, weightedCoin)
+		multiStakingLock = types.NewMultiStakingLock(nil, addedCoin)
 	} else {
-		multiStakingLock, err = multiStakingLock.AddWeightedCoinToMultiStakingLock(weightedCoin)
+		multiStakingLock, err = multiStakingLock.AddCoinToMultiStakingLock(addedCoin)
 		if err != nil {
 			return err
 		}
@@ -62,9 +62,10 @@ func (k Keeper) WithdrawCoinFromLock(
 	if !found {
 		return fmt.Errorf("can't find multi staking lock")
 	}
+	multiStakingCoin := lock.ToMultiStakingCoin(withdrawalCoin)
 
 	// remove coin from lock on source val
-	lock, err := lock.RemoveCoinFromMultiStakingLock(withdrawalCoin)
+	lock, err := lock.RemoveCoinFromMultiStakingLock(multiStakingCoin)
 	if err != nil {
 		return err
 	}
@@ -73,6 +74,9 @@ func (k Keeper) WithdrawCoinFromLock(
 	k.SetMultiStakingLock(ctx, fromLockID, lock)
 
 	err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, toAcc, sdk.NewCoins(withdrawalCoin))
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -87,10 +91,10 @@ func (k Keeper) MoveLockedMultistakingCoin(
 	if !found {
 		return fmt.Errorf("can't find multi staking lock")
 	}
-	weightedCoin := fromLock.ToWeightedCoin(movedCoin)
+	multiStakingCoin := fromLock.ToMultiStakingCoin(movedCoin)
 
 	// remove coin from lock on source val
-	fromLock, err = fromLock.RemoveCoinFromMultiStakingLock(movedCoin)
+	fromLock, err = fromLock.RemoveCoinFromMultiStakingLock(multiStakingCoin)
 	if err != nil {
 		return err
 	}
@@ -100,9 +104,9 @@ func (k Keeper) MoveLockedMultistakingCoin(
 	// add coin to destination lock
 	toLock, found := k.GetMultiStakingLock(ctx, toLockID)
 	if !found {
-		toLock = types.NewMultiStakingLock(nil, weightedCoin)
+		toLock = types.NewMultiStakingLock(nil, multiStakingCoin)
 	} else {
-		toLock, err = toLock.AddWeightedCoinToMultiStakingLock(weightedCoin)
+		toLock, err = toLock.AddCoinToMultiStakingLock(multiStakingCoin)
 		if err != nil {
 			return err
 		}
@@ -119,7 +123,7 @@ func (k Keeper) LockMultiStakingCoinAndMintBondCoin(
 	multiStakingCoin sdk.Coin,
 ) (mintedBondCoin sdk.Coin, err error) {
 	// get bond denom weight
-	bondDenomWeight, isBondCoin := k.GetBondCoinWeight(ctx, multiStakingCoin.Denom)
+	bondWeight, isBondCoin := k.GetBondCoinWeight(ctx, multiStakingCoin.Denom)
 	if !isBondCoin {
 		return sdk.Coin{}, errors.Wrapf(
 			sdkerrors.ErrInvalidRequest, "invalid coin denomination: got %s", multiStakingCoin.Denom,
@@ -127,11 +131,14 @@ func (k Keeper) LockMultiStakingCoinAndMintBondCoin(
 	}
 
 	// update multistaking lock
-	err = k.AddCoinToLock(ctx, fromAcc, lockID, types.NewWeightedCoin(multiStakingCoin.Denom, multiStakingCoin.Amount, bondDenomWeight))
+	err = k.AddCoinToLock(ctx, fromAcc, lockID, types.NewWeightedCoin(multiStakingCoin.Denom, multiStakingCoin.Amount, bondWeight))
+	if err != nil {
+		return sdk.Coin{}, err
+	}
 
 	// Calculate the amount of bond denom to be minted
 	// minted bond amount = multistaking coin * bond coin weight
-	mintedBondAmount := bondDenomWeight.MulInt(multiStakingCoin.Amount).RoundInt()
+	mintedBondAmount := bondWeight.MulInt(multiStakingCoin.Amount).RoundInt()
 	mintedBondCoin = sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), mintedBondAmount)
 
 	// mint bond coin to intermediary account
@@ -139,52 +146,4 @@ func (k Keeper) LockMultiStakingCoinAndMintBondCoin(
 	k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, mintedTo, sdk.NewCoins(mintedBondCoin))
 
 	return mintedBondCoin, nil
-}
-
-func (k Keeper) BurnBondCoinAndUnlockMultiStakingCoin(
-	ctx sdk.Context,
-	intermediaryAcc sdk.AccAddress,
-	valAddr sdk.ValAddress,
-
-	unbondCoinAmount sdk.Coin,
-) (unlockedAmount sdk.Coins, err error) {
-	// get delAddr
-	delAddr := types.DelegatorAccount(intermediaryAcc)
-
-	// get Lock
-	lockID := types.MultiStakingLockID(delAddr, valAddr)
-	multiStakingLock, found := k.GetMultiStakingLock(ctx, lockID)
-	if !found {
-		return unlockedAmount, fmt.Errorf("StakingLock not exists")
-	}
-
-	// unlock amount
-	// unlockMultiStakingAmount = unbondCoinAmount/multiStakingLock.ConversionRatio
-	unlockDenom := k.GetValidatorAllowedCoin(ctx, valAddr)
-	unlockMultiStakingAmount := sdk.NewDecFromInt(unbondCoinAmount.Amount).Quo(multiStakingLock.LockedCoin.Weight).RoundInt()
-
-	// check amount
-	if unlockMultiStakingAmount.GT(multiStakingLock.LockedCoin.Amount) {
-		return unlockedAmount, fmt.Errorf("unlock amount greater than lock amount")
-	}
-
-	// burn bonded coin
-	burnAmount := sdk.NewCoins(unbondCoinAmount)
-	err = k.bankKeeper.SendCoinsFromAccountToModule(ctx, intermediaryAcc, types.ModuleName, burnAmount)
-	if err != nil {
-		return unlockedAmount, err
-	}
-	err = k.bankKeeper.BurnCoins(ctx, types.ModuleName, burnAmount)
-	if err != nil {
-		return unlockedAmount, err
-	}
-
-	// unlock coin
-	unlockedAmount = sdk.NewCoins(sdk.NewCoin(unlockDenom, unlockMultiStakingAmount))
-	err = k.bankKeeper.SendCoins(ctx, intermediaryAcc, delAddr, unlockedAmount)
-	if err != nil {
-		return unlockedAmount, err
-	}
-
-	return unlockedAmount, nil
 }

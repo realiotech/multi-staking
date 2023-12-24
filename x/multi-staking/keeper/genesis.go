@@ -24,12 +24,12 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) (res []abc
 
 	// }
 
-	for _, valAllowedCoin := range data.ValidatorAllowedCoin {
+	for _, valAllowedCoin := range data.ValidatorAllowedToken {
 		valAddr, err := sdk.ValAddressFromBech32(valAllowedCoin.ValAddr)
 		if err != nil {
 			panic("error validator address")
 		}
-		k.SetValidatorAllowedCoin(ctx, valAddr, valAllowedCoin.CoinDenom)
+		k.SetValidatorAllowedCoin(ctx, valAddr, valAllowedCoin.TokenDenom)
 	}
 
 	return k.stakingKeeper.InitGenesis(ctx, data.StakingGenesisState)
@@ -47,16 +47,16 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 	var validatorAllowedCoinLists []types.ValidatorAllowedCoin
 	k.ValidatorAllowedCoinIterator(ctx, func(valAddr string, denom string) (stop bool) {
 		validatorAllowedCoin := types.ValidatorAllowedCoin{
-			ValAddr:   valAddr,
-			CoinDenom: denom,
+			ValAddr:    valAddr,
+			TokenDenom: denom,
 		}
 		validatorAllowedCoinLists = append(validatorAllowedCoinLists, validatorAllowedCoin)
 		return false
 	})
 
 	return &types.GenesisState{
-		MultiStakingLocks:    multiStakingLocks,
-		ValidatorAllowedCoin: validatorAllowedCoinLists,
-		StakingGenesisState:  k.stakingKeeper.ExportGenesis(ctx),
+		MultiStakingLocks:     multiStakingLocks,
+		ValidatorAllowedToken: validatorAllowedCoinLists,
+		StakingGenesisState:   k.stakingKeeper.ExportGenesis(ctx),
 	}
 }
