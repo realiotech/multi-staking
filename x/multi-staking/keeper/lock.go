@@ -4,27 +4,10 @@ import (
 	"fmt"
 
 	"cosmossdk.io/errors"
-	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
-
-func (k Keeper) LockedAmountToBondAmount(
-	ctx sdk.Context,
-	delAddr sdk.AccAddress,
-	valAddr sdk.ValAddress,
-	lockedAmount math.Int,
-) (math.Int, error) {
-	lockID := types.MultiStakingLockID(delAddr, valAddr)
-	// get lock on source val
-	lock, found := k.GetMultiStakingLock(ctx, lockID)
-	if !found {
-		return math.Int{}, fmt.Errorf("can't find multi staking lock")
-	}
-
-	return lock.LockedAmountToBondAmount(lockedAmount).RoundInt(), nil
-}
 
 func (k Keeper) AddCoinToLock(
 	ctx sdk.Context,

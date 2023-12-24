@@ -144,10 +144,12 @@ func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRed
 		return nil, fmt.Errorf("not allowed Coin")
 	}
 
-	bondAmount, err := k.LockedAmountToBondAmount(ctx, delAcc, srcValAcc, msg.Amount.Amount)
-	if err != nil {
-		return nil, err
+	fromLockID := types.MultiStakingLockID(delAcc, srcValAcc)
+	fromLock, found := k.GetMultiStakingLock(ctx, fromLockID)
+	if !found {
+		return nil, fmt.Errorf("lock not found")
 	}
+	bondAmount := fromLock.LockedAmountToBondAmount(msg.Amount.Amount)
 
 	sdkBondCoin := sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), bondAmount)
 	intermediaryAccount := types.IntermediaryAccount(delAcc)
@@ -163,7 +165,6 @@ func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRed
 		return nil, err
 	}
 
-	fromLockID := types.MultiStakingLockID(delAcc, srcValAcc)
 	toLockID := types.MultiStakingLockID(delAcc, dstValAcc)
 	err = k.MoveLockedMultistakingCoin(ctx, fromLockID, toLockID, msg.Amount)
 	if err != nil {
@@ -223,7 +224,7 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (
 		return nil, fmt.Errorf("can't find multi staking lock")
 	}
 
-	unbondAmount := lock.LockedAmountToBondAmount(msg.Amount.Amount).RoundInt()
+	unbondAmount := lock.LockedAmountToBondAmount(msg.Amount.Amount)
 
 	unbondCoin := sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), unbondAmount)
 	intermediaryAccount := types.IntermediaryAccount(delAcc)

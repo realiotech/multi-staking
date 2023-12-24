@@ -40,6 +40,6 @@ func (m MultiStakingLock) GetBondWeight() sdk.Dec {
 	return m.LockedCoin.BondWeight
 }
 
-func (multiStakingLock MultiStakingLock) LockedAmountToBondAmount(lockedAmount math.Int) sdk.Dec {
-	return multiStakingLock.GetBondWeight().MulInt(lockedAmount)
+func (multiStakingLock MultiStakingLock) LockedAmountToBondAmount(lockedAmount math.Int) sdk.Int {
+	return multiStakingLock.GetBondWeight().MulInt(lockedAmount).RoundInt()
 }
