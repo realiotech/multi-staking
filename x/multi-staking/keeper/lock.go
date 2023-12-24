@@ -34,18 +34,17 @@ func (k Keeper) AddCoinToLock(
 }
 
 // removing coin from lock won't change the conversion ratio of the lock
-func (k Keeper) WithdrawCoinFromLock(
+func (k Keeper) RemoveCoinFromLock(
 	ctx sdk.Context,
 	fromLockID []byte,
-	toAcc sdk.AccAddress,
-	withdrawalCoin sdk.Coin,
+	removedCoin sdk.Coin,
 ) error {
 	// get lock on source val
 	lock, found := k.GetMultiStakingLock(ctx, fromLockID)
 	if !found {
 		return fmt.Errorf("can't find multi staking lock")
 	}
-	multiStakingCoin := lock.ToMultiStakingCoin(withdrawalCoin)
+	multiStakingCoin := lock.ToMultiStakingCoin(removedCoin)
 
 	// remove coin from lock on source val
 	lock, err := lock.RemoveCoinFromMultiStakingLock(multiStakingCoin)
@@ -56,10 +55,6 @@ func (k Keeper) WithdrawCoinFromLock(
 	// update lock on source val
 	k.SetMultiStakingLock(ctx, fromLockID, lock)
 
-	err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, toAcc, sdk.NewCoins(withdrawalCoin))
-	if err != nil {
-		return err
-	}
 	return nil
 }
 

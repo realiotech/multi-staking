@@ -224,6 +224,11 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (
 		return nil, fmt.Errorf("can't find multi staking lock")
 	}
 
+	err = k.RemoveCoinFromLock(ctx, lockID, msg.Amount)
+	if err != nil {
+		return nil, err
+	}
+
 	unbondAmount := lock.LockedAmountToBondAmount(msg.Amount.Amount)
 
 	unbondCoin := sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), unbondAmount)
