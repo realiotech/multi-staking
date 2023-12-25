@@ -1,6 +1,9 @@
 package keeper
 
 import (
+	"fmt"
+
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/tendermint/libs/log"
 
@@ -107,4 +110,31 @@ func (k Keeper) BurnCoin(ctx sdk.Context, accAddr sdk.AccAddress, coin sdk.Coins
 
 func (k Keeper) IsAllowedCoin(ctx sdk.Context, valAcc sdk.ValAddress, lockedCoin sdk.Coin) bool {
 	return lockedCoin.Denom == k.GetValidatorAllowedCoin(ctx, valAcc)
+}
+
+func (k Keeper) AdjustUnbondAmount(ctx sdk.Context, delAcc sdk.AccAddress, valAcc sdk.ValAddress, amount math.Int) (adjustedAmount math.Int, err error) {
+	delegation, found := k.stakingKeeper.GetDelegation(ctx, types.IntermediaryAccount(delAcc), valAcc)
+	if !found {
+		return math.Int{}, fmt.Errorf("delegation not found")
+	}
+	validator, found := k.stakingKeeper.GetValidator(ctx, valAcc)
+	if !found {
+		return math.Int{}, fmt.Errorf("validator not found")
+	}
+
+	shares, err := validator.SharesFromTokens(amount)
+	if err != nil {
+		return math.Int{}, err
+	}
+
+	delShares := delegation.GetShares()
+	// Cap the shares at the delegation's shares. Shares being greater could occur
+	// due to rounding, however we don't want to truncate the shares or take the
+	// minimum because we want to allow for the full withdraw of shares from a
+	// delegation.
+	if shares.GT(delShares) {
+		shares = delShares
+	}
+
+	return validator.TokensFromShares(shares).RoundInt(), nil
 }

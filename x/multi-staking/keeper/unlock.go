@@ -7,7 +7,7 @@ import (
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
 
-func (k Keeper) GetUnlockEntryAtCreationHeight(ctx sdk.Context, unlockID []byte, creationHeight int64) (types.UnlockEntry, bool) {
+func (k Keeper) GetUnlockEntryAtCreationHeight(ctx sdk.Context, unlockID types.UnlockID, creationHeight int64) (types.UnlockEntry, bool) {
 	// get unbonded record
 	unlock, found := k.GetMultiStakingUnlock(ctx, unlockID)
 	if !found {
@@ -35,7 +35,7 @@ func (k Keeper) GetUnlockEntryAtCreationHeight(ctx sdk.Context, unlockID []byte,
 // SetMultiStakingUnlockEntry adds an entry to the unbonding delegation at
 // the given addresses. It creates the unbonding delegation if it does not exist.
 func (k Keeper) SetMultiStakingUnlockEntry(
-	ctx sdk.Context, unlockID []byte,
+	ctx sdk.Context, unlockID types.UnlockID,
 	multistakingCoin types.MultiStakingCoin,
 ) types.MultiStakingUnlock {
 	unlock, found := k.GetMultiStakingUnlock(ctx, unlockID)
@@ -45,12 +45,12 @@ func (k Keeper) SetMultiStakingUnlockEntry(
 		unlock = types.NewMultiStakingUnlock(ctx.BlockHeight(), multistakingCoin)
 	}
 
-	k.SetMultiStakingUnlock(ctx, unlockID, unlock)
+	k.SetMultiStakingUnlock(ctx, unlock)
 	return unlock
 }
 
 func (k Keeper) DeleteUnlockEntryAtCreationHeight(
-	ctx sdk.Context, unlockID []byte,
+	ctx sdk.Context, unlockID types.UnlockID,
 	creationHeight int64,
 ) error {
 	unlock, found := k.GetMultiStakingUnlock(ctx, unlockID)
@@ -65,6 +65,6 @@ func (k Keeper) DeleteUnlockEntryAtCreationHeight(
 		return nil
 	}
 
-	k.SetMultiStakingUnlock(ctx, unlockID, unlock)
+	k.SetMultiStakingUnlock(ctx, unlock)
 	return nil
 }

@@ -52,31 +52,12 @@ func GetIntermediaryAccountKey(intermediaryAccount sdk.AccAddress) []byte {
 	return append(IntermediaryAccountKey, intermediaryAccount...)
 }
 
-func MultiStakingLockID(delAddr sdk.AccAddress, valAddr sdk.ValAddress) []byte {
-	lenDelAddr := len(delAddr)
-
-	DVPair := make([]byte, 1+lenDelAddr+len(valAddr))
-
-	DVPair[0] = uint8(lenDelAddr)
-
-	copy(delAddr[:], DVPair[1:])
-
-	copy(valAddr[:], DVPair[1+lenDelAddr:])
-
-	return append(MultiStakingLockPrefix, DVPair...)
+func MultiStakingLockID(delAddr string, valAddr string) LockID {
+	return LockID{DelAddr: delAddr, ValAddr: valAddr}
 }
 
-func MultiStakingUnlockID(delAddr sdk.AccAddress, valAddr sdk.ValAddress) []byte {
-	lenDelAddr := len(delAddr)
-
-	DVPair := make([]byte, 1+lenDelAddr+len(valAddr))
-
-	DVPair[0] = uint8(lenDelAddr)
-
-	copy(delAddr[:], DVPair[1:])
-
-	copy(valAddr[:], DVPair[1+lenDelAddr:])
-	return append(MultiStakingUnlockPrefix, DVPair...)
+func MultiStakingUnlockID(delAddr string, valAddr string) UnlockID {
+	return UnlockID{DelAddr: delAddr, ValAddr: valAddr}
 }
 
 func DelAddrAndValAddrFromLockID(lockID []byte) (delAddr sdk.AccAddress, valAddr sdk.ValAddress) {
@@ -104,3 +85,41 @@ func DelAddrAndValAddrFromUnlockID(unlockID []byte) (delAddr sdk.AccAddress, val
 // func GetUBDKey(delAddr sdk.AccAddress, valAddr sdk.ValAddress) []byte {
 // 	return append(GetUBDsKey(delAddr.Bytes()), address.MustLengthPrefix(valAddr)...)
 // }
+
+func (l LockID) ToByte() []byte {
+	multiStakerAcc, valAcc, err := DelAccAndValAccFromStrings(l.DelAddr, l.ValAddr)
+	if err != nil {
+		panic(err)
+	}
+
+	lenDelAddr := len(multiStakerAcc)
+
+	DVPair := make([]byte, 1+lenDelAddr+len(valAcc))
+
+	DVPair[0] = uint8(lenDelAddr)
+
+	copy(multiStakerAcc[:], DVPair[1:])
+
+	copy(multiStakerAcc[:], DVPair[1+lenDelAddr:])
+
+	return append(MultiStakingLockPrefix, DVPair...)
+}
+
+func (l UnlockID) ToBytes() []byte {
+	multiStakerAcc, valAcc, err := DelAccAndValAccFromStrings(l.DelAddr, l.ValAddr)
+	if err != nil {
+		panic(err)
+	}
+
+	lenDelAddr := len(multiStakerAcc)
+
+	DVPair := make([]byte, 1+lenDelAddr+len(valAcc))
+
+	DVPair[0] = uint8(lenDelAddr)
+
+	copy(multiStakerAcc[:], DVPair[1:])
+
+	copy(multiStakerAcc[:], DVPair[1+lenDelAddr:])
+
+	return append(MultiStakingLockPrefix, DVPair...)
+}

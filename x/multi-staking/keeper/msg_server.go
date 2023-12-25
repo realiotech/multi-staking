@@ -4,10 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	errorsmod "cosmossdk.io/errors"
-	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -42,8 +39,9 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 		k.SetIntermediaryAccount(ctx, intermediaryAccount)
 	}
 
-	lockID := types.MultiStakingLockID(delAcc, valAcc)
-	sdkBondCoin, err := k.Keeper.LockMultiStakingCoinAndMintBondCoin(ctx, lockID, delAcc, intermediaryAccount, msg.Value)
+	lockID := types.MultiStakingLockID(msg.DelegatorAddress, msg.ValidatorAddress)
+
+	mintedBondCoin, err := k.Keeper.LockCoinAndMintBondCoin(ctx, lockID, delAcc, intermediaryAccount, msg.Value)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +53,7 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 		DelegatorAddress:  intermediaryAccount.String(),
 		ValidatorAddress:  msg.ValidatorAddress,
 		Pubkey:            msg.Pubkey,
-		Value:             sdkBondCoin,
+		Value:             mintedBondCoin,
 	}
 
 	k.SetValidatorAllowedCoin(ctx, valAcc, msg.Value.Denom)
@@ -105,8 +103,9 @@ func (k msgServer) Delegate(goCtx context.Context, msg *types.MsgDelegate) (*typ
 		k.SetIntermediaryAccount(ctx, intermediaryAccount)
 	}
 
-	lockID := types.MultiStakingLockID(delAcc, valAcc)
-	mintedBondCoin, err := k.Keeper.LockMultiStakingCoinAndMintBondCoin(ctx, lockID, delAcc, intermediaryAccount, msg.Amount)
+	lockID := types.MultiStakingLockID(msg.DelegatorAddress, msg.ValidatorAddress)
+
+	mintedBondCoin, err := k.Keeper.LockCoinAndMintBondCoin(ctx, lockID, delAcc, intermediaryAccount, msg.Amount)
 	if err != nil {
 		return nil, err
 	}
@@ -130,6 +129,7 @@ func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRed
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	delAcc := sdk.MustAccAddressFromBech32(msg.DelegatorAddress)
+	intermediaryAccount := types.IntermediaryAccount(delAcc)
 
 	srcValAcc, err := sdk.ValAddressFromBech32(msg.ValidatorSrcAddress)
 	if err != nil {
@@ -144,65 +144,44 @@ func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRed
 		return nil, fmt.Errorf("not allowed Coin")
 	}
 
-	fromLockID := types.MultiStakingLockID(delAcc, srcValAcc)
+	fromLockID := types.MultiStakingLockID(msg.DelegatorAddress, msg.ValidatorSrcAddress)
 	fromLock, found := k.GetMultiStakingLock(ctx, fromLockID)
 	if !found {
 		return nil, fmt.Errorf("lock not found")
 	}
-	bondAmount := fromLock.LockedAmountToBondAmount(msg.Amount.Amount)
 
-	sdkBondCoin := sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), bondAmount)
-	intermediaryAccount := types.IntermediaryAccount(delAcc)
+	toLockID := types.MultiStakingLockID(msg.DelegatorAddress, msg.ValidatorDstAddress)
+	toLock := k.GetOrCreateMultiStakingLock(ctx, toLockID)
+
+	multiStakingCoin := fromLock.MultiStakingCoin(msg.Amount.Amount)
+
+	err = fromLock.MoveCoinToLock(&toLock, multiStakingCoin)
+	if err != nil {
+		return nil, err
+	}
+	k.SetMultiStakingLock(ctx, fromLock)
+	k.SetMultiStakingLock(ctx, toLock)
+
+	bondAmount := multiStakingCoin.BondAmount()
+	bondAmount, err = k.AdjustUnbondAmount(ctx, delAcc, srcValAcc, bondAmount)
+	if err != nil {
+		return nil, err
+	}
+
+	bondCoin := sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), bondAmount)
 
 	sdkMsg := &stakingtypes.MsgBeginRedelegate{
 		DelegatorAddress:    intermediaryAccount.String(),
 		ValidatorSrcAddress: msg.ValidatorSrcAddress,
 		ValidatorDstAddress: msg.ValidatorDstAddress,
-		Amount:              sdkBondCoin,
+		Amount:              bondCoin,
 	}
 	_, err = k.stakingMsgServer.BeginRedelegate(goCtx, sdkMsg)
 	if err != nil {
 		return nil, err
 	}
 
-	toLockID := types.MultiStakingLockID(delAcc, dstValAcc)
-	err = k.MoveLockedMultistakingCoin(ctx, fromLockID, toLockID, msg.Amount)
-	if err != nil {
-		return nil, err
-	}
-
 	return &types.MsgBeginRedelegateResponse{}, err
-}
-
-func (k Keeper) GetDelegation(ctx sdk.Context, delAcc sdk.AccAddress, val sdk.ValAddress) (stakingtypes.Delegation, bool) {
-	return k.stakingKeeper.GetDelegation(ctx, types.IntermediaryAccount(delAcc), val)
-}
-
-func (k Keeper) AdjustUnbondAmount(ctx sdk.Context, delAcc sdk.AccAddress, valAcc sdk.ValAddress, amount math.Int) (adjustedAmount math.Int, err error) {
-	delegation, found := k.GetDelegation(ctx, delAcc, valAcc)
-	if !found {
-		return math.Int{}, fmt.Errorf("delegation not found")
-	}
-	validator, found := k.stakingKeeper.GetValidator(ctx, valAcc)
-	if !found {
-		return math.Int{}, fmt.Errorf("validator not found")
-	}
-
-	shares, err := validator.SharesFromTokens(amount)
-	if err != nil {
-		return math.Int{}, err
-	}
-
-	delShares := delegation.GetShares()
-	// Cap the shares at the delegation's shares. Shares being greater could occur
-	// due to rounding, however we don't want to truncate the shares or take the
-	// minimum because we want to allow for the full withdraw of shares from a
-	// delegation.
-	if shares.GT(delShares) {
-		shares = delShares
-	}
-
-	return validator.TokensFromShares(shares).RoundInt(), nil
 }
 
 // Undelegate defines a method for performing an undelegation from a delegate and a validator
@@ -218,18 +197,20 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (
 		return nil, fmt.Errorf("not allowed coin")
 	}
 
-	lockID := types.MultiStakingLockID(delAcc, valAcc)
+	lockID := types.MultiStakingLockID(msg.DelegatorAddress, msg.ValidatorAddress)
 	lock, found := k.GetMultiStakingLock(ctx, lockID)
 	if !found {
 		return nil, fmt.Errorf("can't find multi staking lock")
 	}
 
-	err = k.RemoveCoinFromLock(ctx, lockID, msg.Amount)
+	multiStakingCoin := lock.MultiStakingCoin(msg.Amount.Amount)
+	err = lock.RemoveCoinFromMultiStakingLock(multiStakingCoin)
 	if err != nil {
 		return nil, err
 	}
+	k.SetMultiStakingLock(ctx, lock)
 
-	unbondAmount := lock.LockedAmountToBondAmount(msg.Amount.Amount)
+	unbondAmount := multiStakingCoin.BondAmount()
 
 	unbondCoin := sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), unbondAmount)
 	intermediaryAccount := types.IntermediaryAccount(delAcc)
@@ -245,7 +226,7 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (
 		return nil, err
 	}
 
-	k.SetMultiStakingUnlockEntry(ctx, types.MultiStakingUnlockID(delAcc, valAcc), types.NewWeightedCoin(msg.Amount.Denom, msg.Amount.Amount, lock.LockedCoin.BondWeight))
+	k.SetMultiStakingUnlockEntry(ctx, types.MultiStakingUnlockID(msg.DelegatorAddress, msg.ValidatorAddress), multiStakingCoin)
 
 	return &types.MsgUndelegateResponse{}, err
 }
@@ -261,13 +242,8 @@ func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.M
 	}
 
 	intermediaryAccount := types.IntermediaryAccount(delAcc)
-
-	valDenom := k.GetValidatorAllowedCoin(ctx, valAcc)
-
-	if msg.Amount.Denom != valDenom {
-		return nil, errorsmod.Wrapf(
-			sdkerrors.ErrInvalidRequest, "invalid coin denomination: got %s, expected %s", msg.Amount.Denom, valDenom,
-		)
+	if !k.IsAllowedCoin(ctx, valAcc, msg.Amount) {
+		return nil, fmt.Errorf("not allow coin")
 	}
 
 	unbondEntry, found := k.GetUnbondingEntryAtCreationHeight(ctx, intermediaryAccount, valAcc, msg.CreationHeight)
@@ -287,7 +263,7 @@ func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.M
 		return nil, err
 	}
 
-	unlockID := types.MultiStakingUnlockID(delAcc, valAcc)
+	unlockID := types.MultiStakingUnlockID(msg.DelegatorAddress, msg.ValidatorAddress)
 	err = k.DeleteUnlockEntryAtCreationHeight(ctx, unlockID, msg.CreationHeight)
 	if err != nil {
 		return nil, err

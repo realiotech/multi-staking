@@ -16,30 +16,45 @@ func NewMultiStakingLock(lockID *LockID, lockedCoin MultiStakingCoin) MultiStaki
 	}
 }
 
-func (lock MultiStakingLock) ToMultiStakingCoin(coin sdk.Coin) MultiStakingCoin {
-	return lock.LockedCoin.WithAmount(coin.Amount)
+func (lock MultiStakingLock) MultiStakingCoin(withAmount sdk.Int) MultiStakingCoin {
+	return lock.LockedCoin.WithAmount(withAmount)
 }
 
-func (lock MultiStakingLock) RemoveCoinFromMultiStakingLock(removedCoin MultiStakingCoin) (MultiStakingLock, error) {
+func (lock *MultiStakingLock) RemoveCoinFromMultiStakingLock(removedCoin MultiStakingCoin) error {
 	lockedCoinAfter, err := lock.LockedCoin.SafeSub(removedCoin)
 	lock.LockedCoin = lockedCoinAfter
-	return lock, err
+	return err
 }
 
 func (lock MultiStakingLock) IsEmpty() bool {
 	return lock.LockedCoin.Amount.IsZero()
 }
 
-func (multiStakingLock MultiStakingLock) AddCoinToMultiStakingLock(addedCoin MultiStakingCoin) (MultiStakingLock, error) {
+func (multiStakingLock *MultiStakingLock) AddCoinToMultiStakingLock(addedCoin MultiStakingCoin) error {
 	lockedCoinAfter, err := multiStakingLock.LockedCoin.SafeAdd(addedCoin)
 	multiStakingLock.LockedCoin = lockedCoinAfter
-	return multiStakingLock, err
+	return err
 }
 
 func (m MultiStakingLock) GetBondWeight() sdk.Dec {
 	return m.LockedCoin.BondWeight
 }
 
-func (multiStakingLock MultiStakingLock) LockedAmountToBondAmount(lockedAmount math.Int) sdk.Int {
-	return multiStakingLock.GetBondWeight().MulInt(lockedAmount).RoundInt()
+func (multiStakingLock MultiStakingLock) LockedAmountToBondAmount(amount math.Int) sdk.Int {
+	return multiStakingLock.LockedCoin.WithAmount(amount).BondAmount()
+}
+
+func (fromLock *MultiStakingLock) MoveCoinToLock(toLock *MultiStakingLock, coin MultiStakingCoin) error {
+	// remove coin from lock on source val
+	err := fromLock.RemoveCoinFromMultiStakingLock(coin)
+	if err != nil {
+		return err
+	}
+
+	// add coin to destination lock
+	err = toLock.AddCoinToMultiStakingLock(coin)
+	if err != nil {
+		return err
+	}
+	return nil
 }

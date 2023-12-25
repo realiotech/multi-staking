@@ -7,15 +7,6 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
-func (unlockID *UnlockID) ToBytes() ([]byte, error) {
-	delAddr, valAddr, err := DelAccAndValAccFromStrings(unlockID.DelAddr, unlockID.ValAddr)
-	if err != nil {
-		return nil, err
-	}
-	DVPair := append(delAddr, valAddr...)
-	return append(MultiStakingLockPrefix, DVPair...), nil
-}
-
 func NewUnlockEntry(creationHeight int64, weightedCoin MultiStakingCoin) UnlockEntry {
 	return UnlockEntry{
 		CreationHeight: creationHeight,

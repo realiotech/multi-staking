@@ -9,13 +9,8 @@ import (
 func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) (res []abci.ValidatorUpdate) {
 	// multi-staking state
 	for _, multiStakingLock := range data.MultiStakingLocks {
-		delAcc, valAcc, err := types.DelAccAndValAccFromStrings(multiStakingLock.LockID.DelAddr, multiStakingLock.LockID.ValAddr)
-		if err != nil {
-
-		}
-
 		// set staking lock
-		k.SetMultiStakingLock(ctx, types.MultiStakingLockID(delAcc, valAcc), multiStakingLock)
+		k.SetMultiStakingLock(ctx, multiStakingLock)
 		// set intermediaryAccount
 		// intermediaryAccount := types.IntermediaryAccount(sdk.AccAddress(multiStakingLock.DelAddr))
 		// k.SetIntermediaryAccount(ctx, intermediaryAccount)

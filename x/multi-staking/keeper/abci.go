@@ -58,7 +58,7 @@ func (k Keeper) BurnUnbondedCoinAndUnlockedMultiStakingCoin(
 	delAddr := types.DelegatorAccount(intermediaryAcc)
 
 	// get unlock record
-	unlockID := types.MultiStakingUnlockID(delAddr, valAddr)
+	unlockID := types.MultiStakingUnlockID(delAddr.String(), valAddr.String())
 	unlockEntry, found := k.GetUnlockEntryAtCreationHeight(ctx, unlockID, unbondingHeight)
 	if !found {
 		return sdk.Coin{}, fmt.Errorf("unlock entry not found")
