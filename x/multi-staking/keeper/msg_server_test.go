@@ -193,7 +193,7 @@ package keeper_test
 // 				suite.Require().NoError(err)
 // 				lockId := multistakingtypes.MultiStakingLockID(delAddr, valAddr)
 // 				lockRecord, found := suite.msKeeper.GetMultiStakingLock(suite.ctx, lockId)
-// 				intermediaryAcc := multistakingtypes.IntermediaryAccount(delAddr)
+// 				intermediaryAcc := multistakingtypes.IntermediaryDelegator(delAddr)
 // 				suite.Require().True(found)
 // 				actualSDKBond, found := suite.stakingKeeper.GetDelegation(suite.ctx, intermediaryAcc, valAddr)
 // 				suite.Require().True(found)

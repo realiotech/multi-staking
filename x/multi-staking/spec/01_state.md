@@ -16,7 +16,7 @@ order: 1
 
 ### Intermediary Account Delegator
 
-* IntermediaryAccountDelegator: `0x02 | IntermediaryAccount -> DelegatorAddr`
+* IntermediaryDelegatorDelegator: `0x02 | IntermediaryDelegator -> DelegatorAddr`
 
 ### DV Pair SDK Bond Coins
 

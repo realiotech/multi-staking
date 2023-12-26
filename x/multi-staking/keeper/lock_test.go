@@ -360,7 +360,7 @@ package keeper_test
 // func (suite *KeeperTestSuite) TestBurnBondCoinAndUnlockMultiStakingCoin() {
 // 	delAddr := testutil.GenAddress()
 // 	valAddr := testutil.GenValAddress()
-// 	imAddr := multistakingtypes.IntermediaryAccount(delAddr)
+// 	imAddr := multistakingtypes.IntermediaryDelegator(delAddr)
 // 	gasDenom := "ario"
 
 // 	testCases := []struct {

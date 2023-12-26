@@ -17,7 +17,7 @@ package keeper_test
 // 	suite.SetupTest()
 // 	delAddr := testutil.GenAddress()
 // 	valAddr := testutil.GenValAddress()
-// 	imAddr := multistakingtypes.IntermediaryAccount(delAddr)
+// 	imAddr := multistakingtypes.IntermediaryDelegator(delAddr)
 // 	gasDenom := "ario"
 // 	minTime := time.Now()
 // 	testCases := []struct {

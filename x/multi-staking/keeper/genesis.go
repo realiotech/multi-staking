@@ -11,9 +11,9 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) (res []abc
 	for _, multiStakingLock := range data.MultiStakingLocks {
 		// set staking lock
 		k.SetMultiStakingLock(ctx, multiStakingLock)
-		// set intermediaryAccount
-		// intermediaryAccount := types.IntermediaryAccount(sdk.AccAddress(multiStakingLock.DelAddr))
-		// k.SetIntermediaryAccount(ctx, intermediaryAccount)
+		// set intermediaryDelegator
+		// intermediaryDelegator := types.IntermediaryDelegator(sdk.AccAddress(multiStakingLock.DelAddr))
+		// k.SetIntermediaryDelegator(ctx, intermediaryDelegator)
 	}
 	// for _, multiStakingUnlock := range data.MultiStakingUnlocks {
 

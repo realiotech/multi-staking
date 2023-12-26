@@ -34,14 +34,14 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 		return nil, err
 	}
 
-	intermediaryAccount := types.IntermediaryAccount(delAcc)
-	if !k.IsIntermediaryAccount(ctx, intermediaryAccount) {
-		k.SetIntermediaryAccount(ctx, intermediaryAccount)
+	intermediaryDelegator := types.IntermediaryDelegator(delAcc)
+	if !k.IsIntermediaryDelegator(ctx, intermediaryDelegator) {
+		k.SetIntermediaryDelegator(ctx, intermediaryDelegator)
 	}
 
 	lockID := types.MultiStakingLockID(msg.DelegatorAddress, msg.ValidatorAddress)
 
-	mintedBondCoin, err := k.Keeper.LockCoinAndMintBondCoin(ctx, lockID, delAcc, intermediaryAccount, msg.Value)
+	mintedBondCoin, err := k.Keeper.LockCoinAndMintBondCoin(ctx, lockID, delAcc, intermediaryDelegator, msg.Value)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 		Description:       msg.Description,
 		Commission:        msg.Commission,
 		MinSelfDelegation: msg.MinSelfDelegation,
-		DelegatorAddress:  intermediaryAccount.String(),
+		DelegatorAddress:  intermediaryDelegator.String(),
 		ValidatorAddress:  msg.ValidatorAddress,
 		Pubkey:            msg.Pubkey,
 		Value:             mintedBondCoin,
@@ -98,20 +98,20 @@ func (k msgServer) Delegate(goCtx context.Context, msg *types.MsgDelegate) (*typ
 		return nil, fmt.Errorf("not allowed coin")
 	}
 
-	intermediaryAccount := types.IntermediaryAccount(delAcc)
-	if !k.IsIntermediaryAccount(ctx, intermediaryAccount) {
-		k.SetIntermediaryAccount(ctx, intermediaryAccount)
+	intermediaryDelegator := types.IntermediaryDelegator(delAcc)
+	if !k.IsIntermediaryDelegator(ctx, intermediaryDelegator) {
+		k.SetIntermediaryDelegator(ctx, intermediaryDelegator)
 	}
 
 	lockID := types.MultiStakingLockID(msg.DelegatorAddress, msg.ValidatorAddress)
 
-	mintedBondCoin, err := k.Keeper.LockCoinAndMintBondCoin(ctx, lockID, delAcc, intermediaryAccount, msg.Amount)
+	mintedBondCoin, err := k.Keeper.LockCoinAndMintBondCoin(ctx, lockID, delAcc, intermediaryDelegator, msg.Amount)
 	if err != nil {
 		return nil, err
 	}
 
 	sdkMsg := stakingtypes.MsgDelegate{
-		DelegatorAddress: intermediaryAccount.String(),
+		DelegatorAddress: intermediaryDelegator.String(),
 		ValidatorAddress: msg.ValidatorAddress,
 		Amount:           mintedBondCoin,
 	}
@@ -129,7 +129,7 @@ func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRed
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	delAcc := sdk.MustAccAddressFromBech32(msg.DelegatorAddress)
-	intermediaryAccount := types.IntermediaryAccount(delAcc)
+	intermediaryDelegator := types.IntermediaryDelegator(delAcc)
 
 	srcValAcc, err := sdk.ValAddressFromBech32(msg.ValidatorSrcAddress)
 	if err != nil {
@@ -171,7 +171,7 @@ func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRed
 	bondCoin := sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), bondAmount)
 
 	sdkMsg := &stakingtypes.MsgBeginRedelegate{
-		DelegatorAddress:    intermediaryAccount.String(),
+		DelegatorAddress:    intermediaryDelegator.String(),
 		ValidatorSrcAddress: msg.ValidatorSrcAddress,
 		ValidatorDstAddress: msg.ValidatorDstAddress,
 		Amount:              bondCoin,
@@ -213,10 +213,10 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (
 	unbondAmount := multiStakingCoin.BondAmount()
 
 	unbondCoin := sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), unbondAmount)
-	intermediaryAccount := types.IntermediaryAccount(delAcc)
+	intermediaryDelegator := types.IntermediaryDelegator(delAcc)
 
 	sdkMsg := &stakingtypes.MsgUndelegate{
-		DelegatorAddress: intermediaryAccount.String(),
+		DelegatorAddress: intermediaryDelegator.String(),
 		ValidatorAddress: msg.ValidatorAddress,
 		Amount:           unbondCoin,
 	}
@@ -241,19 +241,19 @@ func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.M
 		return nil, err
 	}
 
-	intermediaryAccount := types.IntermediaryAccount(delAcc)
+	intermediaryDelegator := types.IntermediaryDelegator(delAcc)
 	if !k.IsAllowedCoin(ctx, valAcc, msg.Amount) {
 		return nil, fmt.Errorf("not allow coin")
 	}
 
-	unbondEntry, found := k.GetUnbondingEntryAtCreationHeight(ctx, intermediaryAccount, valAcc, msg.CreationHeight)
+	unbondEntry, found := k.GetUnbondingEntryAtCreationHeight(ctx, intermediaryDelegator, valAcc, msg.CreationHeight)
 	if !found {
 		return nil, fmt.Errorf("unbondEntry not found")
 	}
 	cancelUnbondingCoin := sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), unbondEntry.Balance)
 
 	sdkMsg := &stakingtypes.MsgCancelUnbondingDelegation{
-		DelegatorAddress: intermediaryAccount.String(),
+		DelegatorAddress: intermediaryDelegator.String(),
 		ValidatorAddress: msg.ValidatorAddress,
 		Amount:           cancelUnbondingCoin,
 	}
@@ -279,10 +279,10 @@ func (k msgServer) SetWithdrawAddress(goCtx context.Context, msg *types.MsgSetWi
 	if err != nil {
 		return nil, err
 	}
-	intermediaryAccount := types.IntermediaryAccount(delAcc)
+	intermediaryDelegator := types.IntermediaryDelegator(delAcc)
 
 	sdkMsg := distrtypes.MsgSetWithdrawAddress{
-		DelegatorAddress: intermediaryAccount.String(),
+		DelegatorAddress: intermediaryDelegator.String(),
 		WithdrawAddress:  msg.WithdrawAddress,
 	}
 
@@ -300,14 +300,14 @@ func (k msgServer) WithdrawDelegatorReward(goCtx context.Context, msg *types.Msg
 		return nil, err
 	}
 
-	intermediaryAccount := types.IntermediaryAccount(delAcc)
+	intermediaryDelegator := types.IntermediaryDelegator(delAcc)
 
-	if !k.IsIntermediaryAccount(ctx, intermediaryAccount) {
-		k.SetIntermediaryAccount(ctx, intermediaryAccount)
+	if !k.IsIntermediaryDelegator(ctx, intermediaryDelegator) {
+		k.SetIntermediaryDelegator(ctx, intermediaryDelegator)
 	}
 
 	sdkMsg := distrtypes.MsgWithdrawDelegatorReward{
-		DelegatorAddress: intermediaryAccount.String(),
+		DelegatorAddress: intermediaryDelegator.String(),
 		ValidatorAddress: msg.ValidatorAddress,
 	}
 
@@ -316,7 +316,7 @@ func (k msgServer) WithdrawDelegatorReward(goCtx context.Context, msg *types.Msg
 		return nil, err
 	}
 
-	err = k.bankKeeper.SendCoins(ctx, intermediaryAccount, delAcc, resp.Amount)
+	err = k.bankKeeper.SendCoins(ctx, intermediaryDelegator, delAcc, resp.Amount)
 	if err != nil {
 		return nil, err
 	}
@@ -329,9 +329,9 @@ func (k msgServer) Vote(goCtx context.Context, msg *types.MsgVote) (*types.MsgVo
 	if err != nil {
 		return nil, err
 	}
-	intermediaryAcc := types.IntermediaryAccount(delAcc)
-	if !k.IsIntermediaryAccount(ctx, intermediaryAcc) {
-		k.SetIntermediaryAccount(ctx, intermediaryAcc)
+	intermediaryAcc := types.IntermediaryDelegator(delAcc)
+	if !k.IsIntermediaryDelegator(ctx, intermediaryAcc) {
+		k.SetIntermediaryDelegator(ctx, intermediaryAcc)
 	}
 
 	sdkMsg := govv1.MsgVote{
@@ -355,9 +355,9 @@ func (k msgServer) VoteWeighted(goCtx context.Context, msg *types.MsgVoteWeighte
 		return nil, err
 	}
 
-	intermediaryAcc := types.IntermediaryAccount(delAcc)
-	if !k.IsIntermediaryAccount(ctx, intermediaryAcc) {
-		k.SetIntermediaryAccount(ctx, intermediaryAcc)
+	intermediaryAcc := types.IntermediaryDelegator(delAcc)
+	if !k.IsIntermediaryDelegator(ctx, intermediaryAcc) {
+		k.SetIntermediaryDelegator(ctx, intermediaryAcc)
 	}
 
 	sdkMsg := govv1.MsgVoteWeighted{

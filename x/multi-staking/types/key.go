@@ -26,7 +26,7 @@ var (
 	BondCoinWeightKey       = []byte{0x00}
 	ValidatorAllowedCoinKey = []byte{0x01}
 
-	IntermediaryAccountKey = []byte{0x02}
+	IntermediaryDelegatorKey = []byte{0x02}
 
 	MultiStakingLockPrefix = []byte{0x03}
 
@@ -47,9 +47,9 @@ func GetValidatorAllowedCoinKey(valAddr string) []byte {
 	return append(ValidatorAllowedCoinKey, []byte(valAddr)...)
 }
 
-// GetIntermediaryAccountDelegatorKey returns a key for an index containing the delegator of an intermediary account
-func GetIntermediaryAccountKey(intermediaryAccount sdk.AccAddress) []byte {
-	return append(IntermediaryAccountKey, intermediaryAccount...)
+// GetIntermediaryDelegatorDelegatorKey returns a key for an index containing the delegator of an intermediary account
+func GetIntermediaryDelegatorKey(intermediaryDelegator sdk.AccAddress) []byte {
+	return append(IntermediaryDelegatorKey, intermediaryDelegator...)
 }
 
 func MultiStakingLockID(delAddr string, valAddr string) LockID {
