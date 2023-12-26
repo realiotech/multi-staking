@@ -53,7 +53,7 @@ Logic flow:
 
 * Send delegated coins from user to `IntermediaryDelegator`.
 
-* Caculate the `sdkbond token` to be minted using `BondCoinWeight`.
+* Caculate the `sdkbond token` to be minted using `BondWeight`.
 
 * Mint `sdkbond token` to `IntermediaryDelegator`
 

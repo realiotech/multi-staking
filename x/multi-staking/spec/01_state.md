@@ -8,7 +8,7 @@ order: 1
 
 ### Bond Coin Weight
 
-* BondCoinWeight: `0x00 | BondDenom -> BondCoinWeight (sdk.Dec)`
+* BondWeight: `0x00 | BondDenom -> BondWeight (sdk.Dec)`
 
 ### Validator Bond Denom
 

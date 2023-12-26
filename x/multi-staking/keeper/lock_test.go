@@ -309,7 +309,7 @@ package keeper_test
 // 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) (math.Int, error) {
 // 				lockAmt := sdk.NewInt(3001)
 // 				weight := sdk.MustNewDecFromStr("0.3")
-// 				msKeeper.SetBondCoinWeight(ctx, gasDenom, weight)
+// 				msKeeper.SetBondWeight(ctx, gasDenom, weight)
 // 				mintAmt, err := msKeeper.LockMultiStakingCoinAndMintBondCoin(ctx, delAddr, valAddr, sdk.NewCoin(gasDenom, lockAmt))
 // 				return mintAmt.Amount, err
 // 			},
@@ -321,7 +321,7 @@ package keeper_test
 // 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) (math.Int, error) {
 // 				lockAmt := sdk.NewInt(25)
 // 				weight := sdk.MustNewDecFromStr("0.5")
-// 				msKeeper.SetBondCoinWeight(ctx, gasDenom, weight)
+// 				msKeeper.SetBondWeight(ctx, gasDenom, weight)
 // 				mintAmt, err := msKeeper.LockMultiStakingCoinAndMintBondCoin(ctx, delAddr, valAddr, sdk.NewCoin(gasDenom, lockAmt))
 // 				return mintAmt.Amount, err
 // 			},

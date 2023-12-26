@@ -2,11 +2,11 @@
 
 ### Add Bond Coin Proposals
 
-We can make a token to be one of the `bond token` by submiting a `AddMultiStakingCoinProposal`. In this proposal we specified the token's denom and its `BondCoinWeight`, if the proposal is passed the specified token will become a `bond token` with the specified `BondCoinWeight`.
+We can make a token to be one of the `bond token` by submiting a `AddMultiStakingCoinProposal`. In this proposal we specified the token's denom and its `BondWeight`, if the proposal is passed the specified token will become a `bond token` with the specified `BondWeight`.
 
 ### Change Bond Coin Weight Proposals
 
-We can change a bond token `BondCoinWeight` by submiting a `Proposal`. In this proposal we specified the token's denom and its `BondCoinWeight`, if the proposal is passed the specified token will have its `BondCoinWeight` changed.
+We can change a bond token `BondWeight` by submiting a `Proposal`. In this proposal we specified the token's denom and its `BondWeight`, if the proposal is passed the specified token will have its `BondWeight` changed.
 
 ### Remove Bond Coin Proposals
 

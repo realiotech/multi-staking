@@ -51,7 +51,7 @@ func (p *AddMultiStakingCoinProposal) ValidateBasic() error {
 	}
 
 	if p.BondWeight.LT(sdk.ZeroDec()) {
-		return fmt.Errorf("BondCoinWeight cannot be less than 0")
+		return fmt.Errorf("BondWeight cannot be less than 0")
 	}
 
 	return nil
@@ -83,7 +83,7 @@ func (p *UpdateBondWeightProposal) ValidateBasic() error {
 	}
 
 	if p.UpdatedBondWeight.LT(sdk.ZeroDec()) {
-		return fmt.Errorf("BondCoinWeight cannot be less than 0")
+		return fmt.Errorf("BondWeight cannot be less than 0")
 	}
 
 	return nil

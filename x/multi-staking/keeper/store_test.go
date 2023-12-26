@@ -9,7 +9,7 @@ package keeper_test
 // 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 // )
 
-// func (suite *KeeperTestSuite) TestSetBondCoinWeight() {
+// func (suite *KeeperTestSuite) TestSetBondWeight() {
 // 	suite.SetupTest()
 
 // 	gasDenom := "ario"
@@ -17,13 +17,13 @@ package keeper_test
 // 	gasWeight := sdk.NewDec(1)
 // 	govWeight := sdk.MustNewDecFromStr("0.5")
 
-// 	suite.msKeeper.SetBondCoinWeight(suite.ctx, gasDenom, gasWeight)
-// 	suite.msKeeper.SetBondCoinWeight(suite.ctx, govDenom, govWeight)
+// 	suite.msKeeper.SetBondWeight(suite.ctx, gasDenom, gasWeight)
+// 	suite.msKeeper.SetBondWeight(suite.ctx, govDenom, govWeight)
 
-// 	btw, _ := suite.msKeeper.GetBondCoinWeight(suite.ctx, gasDenom)
+// 	btw, _ := suite.msKeeper.GetBondWeight(suite.ctx, gasDenom)
 // 	suite.Equal(gasWeight, btw)
 
-// 	btw, _ = suite.msKeeper.GetBondCoinWeight(suite.ctx, govDenom)
+// 	btw, _ = suite.msKeeper.GetBondWeight(suite.ctx, govDenom)
 // 	suite.Equal(govWeight, btw)
 // }
 

@@ -37,7 +37,7 @@ func (k Keeper) LockCoinAndMintBondCoin(
 	}
 
 	// get multistaking coin's bond weight
-	bondWeight, isMultiStakingCoin := k.GetBondCoinWeight(ctx, coin.Denom)
+	bondWeight, isMultiStakingCoin := k.GetBondWeight(ctx, coin.Denom)
 	if !isMultiStakingCoin {
 		return sdk.Coin{}, errors.Wrapf(
 			sdkerrors.ErrInvalidRequest, "invalid coin denomination: got %s", coin.Denom,

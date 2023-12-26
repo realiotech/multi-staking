@@ -8,9 +8,9 @@ import (
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
 
-func (k Keeper) GetBondCoinWeight(ctx sdk.Context, tokenDenom string) (sdk.Dec, bool) {
+func (k Keeper) GetBondWeight(ctx sdk.Context, tokenDenom string) (sdk.Dec, bool) {
 	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.GetBondCoinWeightKey(tokenDenom))
+	bz := store.Get(types.GetBondWeightKey(tokenDenom))
 	if bz == nil {
 		return sdk.Dec{}, false
 	}
@@ -24,7 +24,7 @@ func (k Keeper) GetBondCoinWeight(ctx sdk.Context, tokenDenom string) (sdk.Dec, 
 	return *bondCoinWeight, true
 }
 
-func (k Keeper) SetBondCoinWeight(ctx sdk.Context, tokenDenom string, tokenWeight sdk.Dec) {
+func (k Keeper) SetBondWeight(ctx sdk.Context, tokenDenom string, tokenWeight sdk.Dec) {
 	store := ctx.KVStore(k.storeKey)
 	bz, err := tokenWeight.Marshal()
 
@@ -32,13 +32,13 @@ func (k Keeper) SetBondCoinWeight(ctx sdk.Context, tokenDenom string, tokenWeigh
 		panic(fmt.Errorf("unable to marshal bond coin weight %v", err))
 	}
 
-	store.Set(types.GetBondCoinWeightKey(tokenDenom), bz)
+	store.Set(types.GetBondWeightKey(tokenDenom), bz)
 }
 
-func (k Keeper) RemoveBondCoinWeight(ctx sdk.Context, tokenDenom string) {
+func (k Keeper) RemoveBondWeight(ctx sdk.Context, tokenDenom string) {
 	store := ctx.KVStore(k.storeKey)
 
-	store.Delete(types.GetBondCoinWeightKey(tokenDenom))
+	store.Delete(types.GetBondWeightKey(tokenDenom))
 }
 
 func (k Keeper) GetValidatorAllowedCoin(ctx sdk.Context, operatorAddr sdk.ValAddress) string {

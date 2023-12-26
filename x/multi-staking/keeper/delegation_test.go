@@ -165,7 +165,7 @@ func (suite *KeeperTestSuite) TestCalSDKBondCoin() {
 	// 		{
 	// 			name: "3001 coin, weight 0.3, expect 900",
 	// 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) (sdk.Coin, error) {
-	// 				msKeeper.SetBondCoinWeight(ctx, gasDenom, math.LegacyMustNewDecFromStr("0.3"))
+	// 				msKeeper.SetBondWeight(ctx, gasDenom, math.LegacyMustNewDecFromStr("0.3"))
 	// 				return msKeeper.CalSDKBondCoin(ctx, sdk.NewCoin(gasDenom, sdk.NewInt(3001)))
 	// 			},
 	// 			expOut: sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(900)),
@@ -174,7 +174,7 @@ func (suite *KeeperTestSuite) TestCalSDKBondCoin() {
 	// 		{
 	// 			name: "25 coin, weight 0.5, expect 12",
 	// 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) (sdk.Coin, error) {
-	// 				msKeeper.SetBondCoinWeight(ctx, govDenom, math.LegacyMustNewDecFromStr("0.5"))
+	// 				msKeeper.SetBondWeight(ctx, govDenom, math.LegacyMustNewDecFromStr("0.5"))
 	// 				return msKeeper.CalSDKBondCoin(ctx, sdk.NewCoin(govDenom, sdk.NewInt(25)))
 	// 			},
 	// 			expOut: sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(12)),
@@ -220,7 +220,7 @@ func (suite *KeeperTestSuite) TestCalSDKBondCoin() {
 	// 		{
 	// 			name: "3001 coin, weight 0.3, expect 900",
 	// 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) (sdk.Coin, error) {
-	// 				msKeeper.SetBondCoinWeight(ctx, gasDenom, math.LegacyMustNewDecFromStr("0.3"))
+	// 				msKeeper.SetBondWeight(ctx, gasDenom, math.LegacyMustNewDecFromStr("0.3"))
 	// 				msKeeper.SetValidatorAllowedCoin(ctx, valAddr, gasDenom)
 	// 				bondAmount := sdk.NewCoin(gasDenom, sdk.NewInt(3001))
 	// 				err := msKeeper.PreDelegate(ctx, delAddr, valAddr, bondAmount)
@@ -232,7 +232,7 @@ func (suite *KeeperTestSuite) TestCalSDKBondCoin() {
 	// 		{
 	// 			name: "25 coin, weight 0.5, expect 12",
 	// 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) (sdk.Coin, error) {
-	// 				msKeeper.SetBondCoinWeight(ctx, govDenom, math.LegacyMustNewDecFromStr("0.5"))
+	// 				msKeeper.SetBondWeight(ctx, govDenom, math.LegacyMustNewDecFromStr("0.5"))
 	// 				msKeeper.SetValidatorAllowedCoin(ctx, valAddr, govDenom)
 	// 				bondAmount := sdk.NewCoin(govDenom, sdk.NewInt(25))
 	// 				err := msKeeper.PreDelegate(ctx, delAddr, valAddr, bondAmount)
