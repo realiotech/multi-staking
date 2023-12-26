@@ -15,10 +15,19 @@ func NewBondDenomProposalHandler(k keeper.Keeper) govtypes.Handler {
 	return func(ctx sdk.Context, content govtypes.Content) error {
 		switch c := content.(type) {
 		case *types.AddMultiStakingCoinProposal:
+			if err := c.ValidateBasic(); err != nil {
+				return err
+			}
 			return keeper.HandlerAddMultiStakingCoinProposal(ctx, &k, c)
 		case *types.UpdateBondWeightProposal:
+			if err := c.ValidateBasic(); err != nil {
+				return err
+			}
 			return keeper.HandlerUpdateBondWeightProposals(ctx, &k, c)
 		case *types.RemoveMultiStakingCoinProposal:
+			if err := c.ValidateBasic(); err != nil {
+				return err
+			}
 			keeper.HandlerRemoveMultiStakingCoinProposal(ctx, &k, c)
 			return nil
 		default:
