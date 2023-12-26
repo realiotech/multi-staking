@@ -40,6 +40,9 @@ func (k Keeper) EndBlocker(ctx sdk.Context, matureUnbondingDelegations []staking
 		if err != nil {
 			panic(err)
 		}
+		if !k.IsIntermediaryDelegator(ctx, intermediaryDelegator) {
+			continue
+		}
 		unbondingHeightsAndUnbondedAmounts := GetUnbondingHeightsAndUnbondedAmounts(ctx, unlock)
 		for unbondingHeight, unbondedAmount := range unbondingHeightsAndUnbondedAmounts {
 			k.BurnUnbondedCoinAndUnlockedMultiStakingCoin(ctx, intermediaryDelegator, valAcc, unbondingHeight, unbondedAmount)
