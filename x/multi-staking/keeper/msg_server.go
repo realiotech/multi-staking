@@ -329,14 +329,14 @@ func (k msgServer) Vote(goCtx context.Context, msg *types.MsgVote) (*types.MsgVo
 	if err != nil {
 		return nil, err
 	}
-	intermediaryAcc := types.IntermediaryDelegator(multiStakerAddr)
-	if !k.IsIntermediaryDelegator(ctx, intermediaryAcc) {
-		k.SetIntermediaryDelegator(ctx, intermediaryAcc)
+	intermediaryDelegator := types.IntermediaryDelegator(multiStakerAddr)
+	if !k.IsIntermediaryDelegator(ctx, intermediaryDelegator) {
+		k.SetIntermediaryDelegator(ctx, intermediaryDelegator)
 	}
 
 	sdkMsg := govv1.MsgVote{
 		ProposalId: msg.ProposalId,
-		Voter:      intermediaryAcc.String(),
+		Voter:      intermediaryDelegator.String(),
 		Option:     msg.Option,
 		Metadata:   msg.Metadata,
 	}
@@ -355,14 +355,14 @@ func (k msgServer) VoteWeighted(goCtx context.Context, msg *types.MsgVoteWeighte
 		return nil, err
 	}
 
-	intermediaryAcc := types.IntermediaryDelegator(multiStakerAddr)
-	if !k.IsIntermediaryDelegator(ctx, intermediaryAcc) {
-		k.SetIntermediaryDelegator(ctx, intermediaryAcc)
+	intermediaryDelegator := types.IntermediaryDelegator(multiStakerAddr)
+	if !k.IsIntermediaryDelegator(ctx, intermediaryDelegator) {
+		k.SetIntermediaryDelegator(ctx, intermediaryDelegator)
 	}
 
 	sdkMsg := govv1.MsgVoteWeighted{
 		ProposalId: msg.ProposalId,
-		Voter:      intermediaryAcc.String(),
+		Voter:      intermediaryDelegator.String(),
 		Options:    msg.Options,
 		Metadata:   msg.Metadata,
 	}

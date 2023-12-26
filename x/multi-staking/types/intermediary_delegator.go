@@ -12,7 +12,7 @@ func IntermediaryDelegator(multiStakerAddr sdk.AccAddress) sdk.AccAddress {
 	return append(multiStakerAddr, 0x0)
 }
 
-func MultiStakerAddress(intermediaryAcc sdk.AccAddress) sdk.AccAddress {
-	return bytes.Clone(intermediaryAcc[:len(intermediaryAcc)-1])
+func MultiStakerAddress(intermediaryDelegator sdk.AccAddress) sdk.AccAddress {
+	return bytes.Clone(intermediaryDelegator[:len(intermediaryDelegator)-1])
 
 }
