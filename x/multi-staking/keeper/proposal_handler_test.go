@@ -9,7 +9,7 @@ import (
 func (suite *KeeperTestSuite) TestHandleAddBondDenomProposal() {
 	tests := []struct {
 		name    string
-		p       *types.AddBondDenomProposal
+		p       *types.AddMultiStakingCoinProposal
 		wantErr bool
 	}{
 		{},
@@ -17,7 +17,7 @@ func (suite *KeeperTestSuite) TestHandleAddBondDenomProposal() {
 	for _, test := range tests {
 		suite.Run(test.name, func() {
 			suite.SetupTest()
-			err := keeper.HandlerAddBondDenomProposal(suite.ctx, suite.msKeeper, test.p)
+			err := keeper.HandlerAddMultiStakingCoinProposal(suite.ctx, suite.msKeeper, test.p)
 			if test.wantErr {
 				suite.Require().Error(err)
 				return
@@ -30,7 +30,7 @@ func (suite *KeeperTestSuite) TestHandleAddBondDenomProposal() {
 func (suite *KeeperTestSuite) TestHandleChangeBondDenomProposal() {
 	tests := []struct {
 		name    string
-		p       *types.UpdateBondCoinWeightProposals
+		p       *types.UpdateBondWeightProposal
 		wantErr bool
 	}{
 		{},
@@ -38,7 +38,7 @@ func (suite *KeeperTestSuite) TestHandleChangeBondDenomProposal() {
 	for _, test := range tests {
 		suite.Run(test.name, func() {
 			suite.SetupTest()
-			err := keeper.HandlerUpdateBondCoinWeightProposals(suite.ctx, suite.msKeeper, test.p)
+			err := keeper.HandlerUpdateBondWeightProposals(suite.ctx, suite.msKeeper, test.p)
 			if test.wantErr {
 				suite.Require().Error(err)
 				return
@@ -51,7 +51,7 @@ func (suite *KeeperTestSuite) TestHandleChangeBondDenomProposal() {
 func (suite *KeeperTestSuite) TestHandleRemoveBondDenomProposal() {
 	tests := []struct {
 		name    string
-		p       *types.RemoveBondCoinProposal
+		p       *types.RemoveMultiStakingCoinProposal
 		wantErr bool
 	}{
 		{},
@@ -59,7 +59,7 @@ func (suite *KeeperTestSuite) TestHandleRemoveBondDenomProposal() {
 	for _, test := range tests {
 		suite.Run(test.name, func() {
 			suite.SetupTest()
-			keeper.HandlerRemoveBondCoinProposal(suite.ctx, suite.msKeeper, test.p)
+			keeper.HandlerRemoveMultiStakingCoinProposal(suite.ctx, suite.msKeeper, test.p)
 
 			// get and check
 

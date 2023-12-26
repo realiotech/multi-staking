@@ -8,32 +8,31 @@ import (
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
 
-func HandlerAddBondDenomProposal(ctx sdk.Context, k *Keeper, p *types.AddBondDenomProposal) error {
-	_, found := k.GetBondCoinWeight(ctx, p.BondCoinAdd)
+func HandlerAddMultiStakingCoinProposal(ctx sdk.Context, k *Keeper, p *types.AddMultiStakingCoinProposal) error {
+	_, found := k.GetBondCoinWeight(ctx, p.Denom)
 	if found {
-		return fmt.Errorf("denom %s already exists", p.BondCoinAdd)
+		return fmt.Errorf("denom %s already exists", p.Denom)
 	}
 
-	k.SetBondCoinWeight(ctx, p.BondCoinAdd, *p.BondCoinWeightAdd)
+	k.SetBondCoinWeight(ctx, p.Denom, *p.BondWeight)
 	return nil
 }
 
-func HandlerUpdateBondCoinWeightProposals(ctx sdk.Context, k *Keeper, p *types.UpdateBondCoinWeightProposals) error {
-	_, found := k.GetBondCoinWeight(ctx, p.BondDenomChange)
+func HandlerUpdateBondWeightProposals(ctx sdk.Context, k *Keeper, p *types.UpdateBondWeightProposal) error {
+	_, found := k.GetBondCoinWeight(ctx, p.Denom)
 	if !found {
-		return fmt.Errorf("denom %s does not exist", p.BondDenomChange)
+		return fmt.Errorf("denom %s does not exist", p.Denom)
 	}
-	k.RemoveBondCoinWeight(ctx, p.BondDenomChange)
 
-	k.SetBondCoinWeight(ctx, p.BondDenomChange, *p.BondCoinWeightChange)
+	k.SetBondCoinWeight(ctx, p.Denom, *p.UpdatedBondWeight)
 	return nil
 }
 
-func HandlerRemoveBondCoinProposal(ctx sdk.Context, k *Keeper, p *types.RemoveBondCoinProposal) {
-	_, found := k.GetBondCoinWeight(ctx, p.BondCoinRemove)
+func HandlerRemoveMultiStakingCoinProposal(ctx sdk.Context, k *Keeper, p *types.RemoveMultiStakingCoinProposal) {
+	_, found := k.GetBondCoinWeight(ctx, p.Denom)
 	if !found {
 		return
 	}
 
-	k.RemoveBondCoinWeight(ctx, p.BondCoinRemove)
+	k.RemoveBondCoinWeight(ctx, p.Denom)
 }

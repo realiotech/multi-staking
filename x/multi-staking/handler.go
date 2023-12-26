@@ -14,12 +14,12 @@ import (
 func NewBondDenomProposalHandler(k keeper.Keeper) govtypes.Handler {
 	return func(ctx sdk.Context, content govtypes.Content) error {
 		switch c := content.(type) {
-		case *types.AddBondDenomProposal:
-			return keeper.HandlerAddBondDenomProposal(ctx, &k, c)
-		case *types.UpdateBondCoinWeightProposals:
-			return keeper.HandlerUpdateBondCoinWeightProposals(ctx, &k, c)
-		case *types.RemoveBondCoinProposal:
-			keeper.HandlerRemoveBondCoinProposal(ctx, &k, c)
+		case *types.AddMultiStakingCoinProposal:
+			return keeper.HandlerAddMultiStakingCoinProposal(ctx, &k, c)
+		case *types.UpdateBondWeightProposal:
+			return keeper.HandlerUpdateBondWeightProposals(ctx, &k, c)
+		case *types.RemoveMultiStakingCoinProposal:
+			keeper.HandlerRemoveMultiStakingCoinProposal(ctx, &k, c)
 			return nil
 		default:
 			return fmt.Errorf("unrecognized brond denom proposal content type")
