@@ -4,8 +4,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func DelAccAndValAccFromStrings(delAddrString string, valAddrStraing string) (sdk.AccAddress, sdk.ValAddress, error) {
-	delAcc, err := sdk.AccAddressFromBech32(delAddrString)
+func AccAddrAndValAddrFromStrings(accAddrString string, valAddrStraing string) (sdk.AccAddress, sdk.ValAddress, error) {
+	accAddr, err := sdk.AccAddressFromBech32(accAddrString)
 	if err != nil {
 		return sdk.AccAddress{}, sdk.ValAddress{}, err
 	}
@@ -14,5 +14,5 @@ func DelAccAndValAccFromStrings(delAddrString string, valAddrStraing string) (sd
 		return sdk.AccAddress{}, sdk.ValAddress{}, err
 	}
 
-	return delAcc, valAcc, nil
+	return accAddr, valAcc, nil
 }

@@ -52,74 +52,74 @@ func GetIntermediaryDelegatorKey(intermediaryDelegator sdk.AccAddress) []byte {
 	return append(IntermediaryDelegatorKey, intermediaryDelegator...)
 }
 
-func MultiStakingLockID(delAddr string, valAddr string) LockID {
-	return LockID{DelAddr: delAddr, ValAddr: valAddr}
+func MultiStakingLockID(multiStakerAddr string, valAddr string) LockID {
+	return LockID{MultiStakerAddr: multiStakerAddr, ValAddr: valAddr}
 }
 
-func MultiStakingUnlockID(delAddr string, valAddr string) UnlockID {
-	return UnlockID{DelAddr: delAddr, ValAddr: valAddr}
+func MultiStakingUnlockID(multiStakerAddr string, valAddr string) UnlockID {
+	return UnlockID{MultiStakerAddr: multiStakerAddr, ValAddr: valAddr}
 }
 
-func DelAddrAndValAddrFromLockID(lockID []byte) (delAddr sdk.AccAddress, valAddr sdk.ValAddress) {
-	lenDelAddr := lockID[0]
+func DelAddrAndValAddrFromLockID(lockID []byte) (multiStakerAddr sdk.AccAddress, valAddr sdk.ValAddress) {
+	lenMultiStakerAddr := lockID[0]
 
-	delAddr = lockID[1 : lenDelAddr+1]
+	multiStakerAddr = lockID[1 : lenMultiStakerAddr+1]
 
-	valAddr = lockID[1+lenDelAddr:]
+	valAddr = lockID[1+lenMultiStakerAddr:]
 
-	return delAddr, valAddr
+	return multiStakerAddr, valAddr
 }
 
-func DelAddrAndValAddrFromUnlockID(unlockID []byte) (delAddr sdk.AccAddress, valAddr sdk.ValAddress) {
-	lenDelAddr := unlockID[0]
+func DelAddrAndValAddrFromUnlockID(unlockID []byte) (multiStakerAddr sdk.AccAddress, valAddr sdk.ValAddress) {
+	lenMultiStakerAddr := unlockID[0]
 
-	delAddr = unlockID[1 : lenDelAddr+1]
+	multiStakerAddr = unlockID[1 : lenMultiStakerAddr+1]
 
-	valAddr = unlockID[1+lenDelAddr:]
+	valAddr = unlockID[1+lenMultiStakerAddr:]
 
-	return delAddr, valAddr
+	return multiStakerAddr, valAddr
 }
 
 // // GetUBDKey creates the key for an unbonding delegation by delegator and validator addr
 // // VALUE: multi-staking/MultiStakingUnlock
-// func GetUBDKey(delAddr sdk.AccAddress, valAddr sdk.ValAddress) []byte {
+// func GetUBDKey(multiStakerAddr sdk.AccAddress, valAddr sdk.ValAddress) []byte {
 // 	return append(GetUBDsKey(delAddr.Bytes()), address.MustLengthPrefix(valAddr)...)
 // }
 
 func (l LockID) ToByte() []byte {
-	multiStakerAcc, valAcc, err := DelAccAndValAccFromStrings(l.DelAddr, l.ValAddr)
+	multiStakerAddr, valAcc, err := AccAddrAndValAddrFromStrings(l.MultiStakerAddr, l.ValAddr)
 	if err != nil {
 		panic(err)
 	}
 
-	lenDelAddr := len(multiStakerAcc)
+	lenMultiStakerAddr := len(multiStakerAddr)
 
-	DVPair := make([]byte, 1+lenDelAddr+len(valAcc))
+	DVPair := make([]byte, 1+lenMultiStakerAddr+len(valAcc))
 
-	DVPair[0] = uint8(lenDelAddr)
+	DVPair[0] = uint8(lenMultiStakerAddr)
 
-	copy(multiStakerAcc[:], DVPair[1:])
+	copy(multiStakerAddr[:], DVPair[1:])
 
-	copy(multiStakerAcc[:], DVPair[1+lenDelAddr:])
+	copy(multiStakerAddr[:], DVPair[1+lenMultiStakerAddr:])
 
 	return append(MultiStakingLockPrefix, DVPair...)
 }
 
 func (l UnlockID) ToBytes() []byte {
-	multiStakerAcc, valAcc, err := DelAccAndValAccFromStrings(l.DelAddr, l.ValAddr)
+	multiStakerAddr, valAcc, err := AccAddrAndValAddrFromStrings(l.MultiStakerAddr, l.ValAddr)
 	if err != nil {
 		panic(err)
 	}
 
-	lenDelAddr := len(multiStakerAcc)
+	lenMultiStakerAddr := len(multiStakerAddr)
 
-	DVPair := make([]byte, 1+lenDelAddr+len(valAcc))
+	DVPair := make([]byte, 1+lenMultiStakerAddr+len(valAcc))
 
-	DVPair[0] = uint8(lenDelAddr)
+	DVPair[0] = uint8(lenMultiStakerAddr)
 
-	copy(multiStakerAcc[:], DVPair[1:])
+	copy(multiStakerAddr[:], DVPair[1:])
 
-	copy(multiStakerAcc[:], DVPair[1+lenDelAddr:])
+	copy(multiStakerAddr[:], DVPair[1+lenMultiStakerAddr:])
 
 	return append(MultiStakingLockPrefix, DVPair...)
 }

@@ -79,7 +79,7 @@ func (app *SimApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []
 	// withdraw all delegator rewards
 	dels := app.StakingKeeper.GetAllDelegations(ctx)
 	for _, delegation := range dels {
-		delAddr, valAddr, err := types.DelAccAndValAccFromStrings(delegation.DelegatorAddress, delegation.ValidatorAddress)
+		delAddr, valAddr, err := types.AccAddrAndValAddrFromStrings(delegation.DelegatorAddress, delegation.ValidatorAddress)
 		if err != nil {
 			panic(err)
 		}
@@ -111,7 +111,7 @@ func (app *SimApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []
 
 	// reinitialize all delegations
 	for _, del := range dels {
-		delAddr, valAddr, err := types.DelAccAndValAccFromStrings(del.DelegatorAddress, del.ValidatorAddress)
+		delAddr, valAddr, err := types.AccAddrAndValAddrFromStrings(del.DelegatorAddress, del.ValidatorAddress)
 		if err != nil {
 			panic(err)
 		}

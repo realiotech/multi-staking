@@ -144,7 +144,7 @@ package keeper_test
 // 	suite.Require().True(found)
 // 	suite.Equal(actualUnbondRecord.Entries[0].ConversionRatio, weight)
 // 	suite.Equal(actualUnbondRecord.Entries[0].Balance, unbondAmt)
-// 	suite.Equal(actualUnbondRecord.DelegatorAddress, delAddr.String())
+// 	suite.Equal(actualUnbondRecord.MultiStakerAddress, delAddr.String())
 // 	suite.Equal(actualUnbondRecord.ValidatorAddress, valAddr.String())
 // }
 
@@ -162,7 +162,7 @@ package keeper_test
 // 	suite.Require().True(found)
 // 	suite.Equal(actualUnbondRecord.Entries[0].ConversionRatio, weight)
 // 	suite.Equal(actualUnbondRecord.Entries[0].Balance, unbondAmt)
-// 	suite.Equal(actualUnbondRecord.DelegatorAddress, delAddr.String())
+// 	suite.Equal(actualUnbondRecord.MultiStakerAddress, delAddr.String())
 // 	suite.Equal(actualUnbondRecord.ValidatorAddress, valAddr.String())
 
 // 	suite.msKeeper.RemoveMultiStakingUnlock(suite.ctx, actualUnbondRecord)
@@ -184,7 +184,7 @@ package keeper_test
 // 	suite.Require().True(found)
 // 	suite.Equal(actualUnbondRecord.Entries[0].ConversionRatio, weight)
 // 	suite.Equal(actualUnbondRecord.Entries[0].Balance, unbondAmt)
-// 	suite.Equal(actualUnbondRecord.DelegatorAddress, delAddr.String())
+// 	suite.Equal(actualUnbondRecord.MultiStakerAddress, delAddr.String())
 // 	suite.Equal(actualUnbondRecord.ValidatorAddress, valAddr.String())
 
 // 	suite.msKeeper.SetMultiStakingUnlockEntry(suite.ctx, delAddr, valAddr, 2, weight, minTime, unbondAmt)

@@ -8,11 +8,11 @@ import (
 
 // TODO: make unit test for this
 // this is against cosmos convention, doing this for more performance and less storage
-func IntermediaryDelegator(delAddr sdk.AccAddress) sdk.AccAddress {
-	return append(delAddr, 0x0)
+func IntermediaryDelegator(multiStakerAddr sdk.AccAddress) sdk.AccAddress {
+	return append(multiStakerAddr, 0x0)
 }
 
-func DelegatorAccount(intermediaryAcc sdk.AccAddress) sdk.AccAddress {
+func MultiStakerAddress(intermediaryAcc sdk.AccAddress) sdk.AccAddress {
 	return bytes.Clone(intermediaryAcc[:len(intermediaryAcc)-1])
 
 }

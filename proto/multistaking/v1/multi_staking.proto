@@ -23,8 +23,8 @@ message MultiStakingCoin {
 }
 
 message LockID {
-  string val_addr = 1;
-  string del_addr = 2;
+  string multi_staker_addr = 1;
+  string val_addr = 2;
 }
 
 message MultiStakingLock {
@@ -42,8 +42,8 @@ message ValidatorAllowedCoin {
 }
 
 message UnlockID {
-  string val_addr = 1;
-  string del_addr = 2;
+  string multi_staker_addr = 1;
+  string val_addr = 2;
 }
 
 message MultiStakingUnlock {

@@ -36,7 +36,7 @@ func GetUnbondingHeightsAndUnbondedAmounts(ctx sdk.Context, unbondingDelegation 
 
 func (k Keeper) EndBlocker(ctx sdk.Context, matureUnbondingDelegations []stakingtypes.UnbondingDelegation) {
 	for _, unlock := range matureUnbondingDelegations {
-		intermediaryAcc, valAcc, err := types.DelAccAndValAccFromStrings(unlock.DelegatorAddress, unlock.ValidatorAddress)
+		intermediaryAcc, valAcc, err := types.AccAddrAndValAddrFromStrings(unlock.DelegatorAddress, unlock.ValidatorAddress)
 		if err != nil {
 			panic(err)
 		}
@@ -54,11 +54,11 @@ func (k Keeper) BurnUnbondedCoinAndUnlockedMultiStakingCoin(
 	unbondingHeight int64,
 	unbondAmount math.Int,
 ) (unlockedCoin sdk.Coin, err error) {
-	// get delAddr
-	delAddr := types.DelegatorAccount(intermediaryAcc)
+	// get multiStakerAddr
+	multiStakerAddr := types.MultiStakerAddress(intermediaryAcc)
 
 	// get unlock record
-	unlockID := types.MultiStakingUnlockID(delAddr.String(), valAddr.String())
+	unlockID := types.MultiStakingUnlockID(multiStakerAddr.String(), valAddr.String())
 	unlockEntry, found := k.GetUnlockEntryAtCreationHeight(ctx, unlockID, unbondingHeight)
 	if !found {
 		return sdk.Coin{}, fmt.Errorf("unlock entry not found")
@@ -77,7 +77,7 @@ func (k Keeper) BurnUnbondedCoinAndUnlockedMultiStakingCoin(
 	burnCoin := sdk.NewCoins(sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), unbondAmount))
 	k.BurnCoin(ctx, intermediaryAcc, burnCoin)
 
-	err = k.bankKeeper.SendCoins(ctx, intermediaryAcc, delAddr, sdk.NewCoins(unlockedCoin))
+	err = k.bankKeeper.SendCoins(ctx, intermediaryAcc, multiStakerAddr, sdk.NewCoins(unlockedCoin))
 	if err != nil {
 		return sdk.Coin{}, err
 	}

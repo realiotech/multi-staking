@@ -73,9 +73,9 @@ func (k Keeper) ValidatorAllowedCoinIterator(ctx sdk.Context, cb func(valAddr st
 	}
 }
 
-func (k Keeper) GetIntermediaryDelegatorKey(ctx sdk.Context, delAcc sdk.AccAddress) sdk.AccAddress {
+func (k Keeper) GetIntermediaryDelegatorKey(ctx sdk.Context, multiStakerAddr sdk.AccAddress) sdk.AccAddress {
 	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.GetIntermediaryDelegatorKey(delAcc))
+	bz := store.Get(types.GetIntermediaryDelegatorKey(multiStakerAddr))
 
 	return bz
 }
