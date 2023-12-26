@@ -104,7 +104,7 @@ package keeper_test
 // 		tc := tc
 // 		suite.Run(tc.name, func() {
 // 			suite.SetupTest()
-// 			suite.msKeeper.SetValidatorAllowedCoin(suite.ctx, valAddr, gasDenom)
+// 			suite.msKeeper.SetValidatorMultiStakingCoin(suite.ctx, valAddr, gasDenom)
 // 			imAccBalance := sdk.NewCoins(sdk.NewCoin(stakingtypes.DefaultParams().BondDenom, sdk.NewInt(10000)), sdk.NewCoin(gasDenom, sdk.NewInt(10000)))
 // 			suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, imAccBalance)
 // 			suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, minttypes.ModuleName, imAddr, imAccBalance)

@@ -36,9 +36,9 @@ message MultiStakingLock {
   MultiStakingCoin locked_coin = 2 [ (gogoproto.nullable) = false ];
 };
 
-message ValidatorAllowedCoin {
+message ValidatorMultiStakingCoin {
   string val_addr = 1;
-  string token_denom = 2;
+  string coin_denom = 2;
 }
 
 message UnlockID {

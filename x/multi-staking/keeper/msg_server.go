@@ -56,7 +56,7 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 		Value:             mintedBondCoin,
 	}
 
-	k.SetValidatorAllowedCoin(ctx, valAcc, msg.Value.Denom)
+	k.SetValidatorMultiStakingCoin(ctx, valAcc, msg.Value.Denom)
 
 	_, err = k.stakingMsgServer.CreateValidator(ctx, &sdkMsg)
 
@@ -94,7 +94,7 @@ func (k msgServer) Delegate(goCtx context.Context, msg *types.MsgDelegate) (*typ
 		return nil, err
 	}
 
-	if !k.IsAllowedCoin(ctx, valAcc, msg.Amount) {
+	if !k.isValMultiStakingCoin(ctx, valAcc, msg.Amount) {
 		return nil, fmt.Errorf("not allowed coin")
 	}
 
@@ -140,7 +140,7 @@ func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRed
 		return nil, err
 	}
 
-	if !k.IsAllowedCoin(ctx, srcValAcc, msg.Amount) || !k.IsAllowedCoin(ctx, dstValAcc, msg.Amount) {
+	if !k.isValMultiStakingCoin(ctx, srcValAcc, msg.Amount) || !k.isValMultiStakingCoin(ctx, dstValAcc, msg.Amount) {
 		return nil, fmt.Errorf("not allowed Coin")
 	}
 
@@ -193,7 +193,7 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (
 		return nil, err
 	}
 
-	if !k.IsAllowedCoin(ctx, valAcc, msg.Amount) {
+	if !k.isValMultiStakingCoin(ctx, valAcc, msg.Amount) {
 		return nil, fmt.Errorf("not allowed coin")
 	}
 
@@ -242,7 +242,7 @@ func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.M
 	}
 
 	intermediaryDelegator := types.IntermediaryDelegator(multiStakerAddr)
-	if !k.IsAllowedCoin(ctx, valAcc, msg.Amount) {
+	if !k.isValMultiStakingCoin(ctx, valAcc, msg.Amount) {
 		return nil, fmt.Errorf("not allow coin")
 	}
 

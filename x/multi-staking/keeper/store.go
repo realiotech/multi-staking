@@ -41,26 +41,26 @@ func (k Keeper) RemoveBondWeight(ctx sdk.Context, tokenDenom string) {
 	store.Delete(types.GetBondWeightKey(tokenDenom))
 }
 
-func (k Keeper) GetValidatorAllowedCoin(ctx sdk.Context, operatorAddr sdk.ValAddress) string {
+func (k Keeper) GetValidatorMultiStakingCoin(ctx sdk.Context, operatorAddr sdk.ValAddress) string {
 	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.GetValidatorAllowedCoinKey(operatorAddr.String()))
+	bz := store.Get(types.GetValidatorMultiStakingCoinKey(operatorAddr.String()))
 
 	return string(bz)
 }
 
-func (k Keeper) SetValidatorAllowedCoin(ctx sdk.Context, operatorAddr sdk.ValAddress, bondDenom string) {
-	if k.GetValidatorAllowedCoin(ctx, operatorAddr) != "" {
+func (k Keeper) SetValidatorMultiStakingCoin(ctx sdk.Context, operatorAddr sdk.ValAddress, bondDenom string) {
+	if k.GetValidatorMultiStakingCoin(ctx, operatorAddr) != "" {
 		panic("validator denom already set")
 	}
 
 	store := ctx.KVStore(k.storeKey)
 
-	store.Set(types.GetValidatorAllowedCoinKey(operatorAddr.String()), []byte(bondDenom))
+	store.Set(types.GetValidatorMultiStakingCoinKey(operatorAddr.String()), []byte(bondDenom))
 }
 
-func (k Keeper) ValidatorAllowedCoinIterator(ctx sdk.Context, cb func(valAddr string, denom string) (stop bool)) {
+func (k Keeper) ValidatorMultiStakingCoinIterator(ctx sdk.Context, cb func(valAddr string, denom string) (stop bool)) {
 	store := ctx.KVStore(k.storeKey)
-	prefixStore := prefix.NewStore(store, types.ValidatorAllowedCoinKey)
+	prefixStore := prefix.NewStore(store, types.ValidatorMultiStakingCoinKey)
 	iterator := sdk.KVStorePrefixIterator(prefixStore, nil)
 
 	defer iterator.Close()

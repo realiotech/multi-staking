@@ -221,7 +221,7 @@ func (suite *KeeperTestSuite) TestCalSDKBondCoin() {
 	// 			name: "3001 coin, weight 0.3, expect 900",
 	// 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) (sdk.Coin, error) {
 	// 				msKeeper.SetBondWeight(ctx, gasDenom, math.LegacyMustNewDecFromStr("0.3"))
-	// 				msKeeper.SetValidatorAllowedCoin(ctx, valAddr, gasDenom)
+	// 				msKeeper.SetValidatorMultiStakingCoin(ctx, valAddr, gasDenom)
 	// 				bondAmount := sdk.NewCoin(gasDenom, sdk.NewInt(3001))
 	// 				err := msKeeper.PreDelegate(ctx, delAddr, valAddr, bondAmount)
 	// 				return bondAmount, err
@@ -233,7 +233,7 @@ func (suite *KeeperTestSuite) TestCalSDKBondCoin() {
 	// 			name: "25 coin, weight 0.5, expect 12",
 	// 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) (sdk.Coin, error) {
 	// 				msKeeper.SetBondWeight(ctx, govDenom, math.LegacyMustNewDecFromStr("0.5"))
-	// 				msKeeper.SetValidatorAllowedCoin(ctx, valAddr, govDenom)
+	// 				msKeeper.SetValidatorMultiStakingCoin(ctx, valAddr, govDenom)
 	// 				bondAmount := sdk.NewCoin(govDenom, sdk.NewInt(25))
 	// 				err := msKeeper.PreDelegate(ctx, delAddr, valAddr, bondAmount)
 	// 				return bondAmount, err
@@ -244,7 +244,7 @@ func (suite *KeeperTestSuite) TestCalSDKBondCoin() {
 	// 		{
 	// 			name: "invalid bond coin",
 	// 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) (sdk.Coin, error) {
-	// 				msKeeper.SetValidatorAllowedCoin(ctx, valAddr, gasDenom)
+	// 				msKeeper.SetValidatorMultiStakingCoin(ctx, valAddr, gasDenom)
 	// 				bondAmount := sdk.NewCoin(govDenom, sdk.NewInt(25))
 	// 				err := msKeeper.PreDelegate(ctx, delAddr, valAddr, bondAmount)
 	// 				return bondAmount, err
@@ -265,7 +265,7 @@ func (suite *KeeperTestSuite) TestCalSDKBondCoin() {
 	// 		{
 	// 			name: "invalid val address coin",
 	// 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) (sdk.Coin, error) {
-	// 				msKeeper.SetValidatorAllowedCoin(ctx, valAddr, gasDenom)
+	// 				msKeeper.SetValidatorMultiStakingCoin(ctx, valAddr, gasDenom)
 	// 				bondAmount := sdk.NewCoin(govDenom, sdk.NewInt(25))
 	// 				err := msKeeper.PreDelegate(ctx, delAddr, valAddr, bondAmount)
 	// 				return bondAmount, err

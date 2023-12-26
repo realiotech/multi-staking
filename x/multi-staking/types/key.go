@@ -23,8 +23,8 @@ const (
 
 // KVStore keys
 var (
-	BondWeightKey           = []byte{0x00}
-	ValidatorAllowedCoinKey = []byte{0x01}
+	BondWeightKey                = []byte{0x00}
+	ValidatorMultiStakingCoinKey = []byte{0x01}
 
 	IntermediaryDelegatorKey = []byte{0x02}
 
@@ -42,9 +42,9 @@ func GetBondWeightKey(tokenDenom string) []byte {
 	return append(BondWeightKey, []byte(tokenDenom)...)
 }
 
-// GetValidatorAllowedCoinKey returns a key for an index containing the bond denom of a validator
-func GetValidatorAllowedCoinKey(valAddr string) []byte {
-	return append(ValidatorAllowedCoinKey, []byte(valAddr)...)
+// GetValidatorMultiStakingCoinKey returns a key for an index containing the bond denom of a validator
+func GetValidatorMultiStakingCoinKey(valAddr string) []byte {
+	return append(ValidatorMultiStakingCoinKey, []byte(valAddr)...)
 }
 
 // GetIntermediaryDelegatorDelegatorKey returns a key for an index containing the delegator of an intermediary account

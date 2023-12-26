@@ -108,8 +108,8 @@ func (k Keeper) BurnCoin(ctx sdk.Context, accAddr sdk.AccAddress, coin sdk.Coins
 	return nil
 }
 
-func (k Keeper) IsAllowedCoin(ctx sdk.Context, valAcc sdk.ValAddress, lockedCoin sdk.Coin) bool {
-	return lockedCoin.Denom == k.GetValidatorAllowedCoin(ctx, valAcc)
+func (k Keeper) isValMultiStakingCoin(ctx sdk.Context, valAcc sdk.ValAddress, lockedCoin sdk.Coin) bool {
+	return lockedCoin.Denom == k.GetValidatorMultiStakingCoin(ctx, valAcc)
 }
 
 func (k Keeper) AdjustUnbondAmount(ctx sdk.Context, delAcc sdk.AccAddress, valAcc sdk.ValAddress, amount math.Int) (adjustedAmount math.Int, err error) {
