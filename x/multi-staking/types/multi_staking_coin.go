@@ -21,7 +21,7 @@ func (coin MultiStakingCoin) ToCoin() sdk.Coin {
 	return sdk.NewCoin(coin.Denom, coin.Amount)
 }
 
-func NewWeightedCoin(denom string, amount sdk.Int, weight sdk.Dec) MultiStakingCoin {
+func NewMultiStakingCoin(denom string, amount sdk.Int, weight sdk.Dec) MultiStakingCoin {
 	return MultiStakingCoin{Denom: denom, Amount: amount, BondWeight: weight}
 }
 
@@ -30,7 +30,7 @@ func (coin MultiStakingCoin) BondAmount() sdk.Int {
 }
 
 func (coin MultiStakingCoin) WithAmount(amount sdk.Int) MultiStakingCoin {
-	return NewWeightedCoin(coin.Denom, amount, coin.BondWeight)
+	return NewMultiStakingCoin(coin.Denom, amount, coin.BondWeight)
 }
 
 func (coin MultiStakingCoin) SafeSub(coinB MultiStakingCoin) (MultiStakingCoin, error) {
@@ -66,7 +66,7 @@ func (coinA MultiStakingCoin) SafeAdd(coinB MultiStakingCoin) (MultiStakingCoin,
 	// weightAB = (weightA * amountA + weightB * amountB) / (amountA + amountB)
 	weightAB := ((weightA.MulInt(amountA)).Add(weightB.MulInt(amountB))).QuoInt(amountAB)
 
-	return NewWeightedCoin(coinA.Denom, amountAB, weightAB), nil
+	return NewMultiStakingCoin(coinA.Denom, amountAB, weightAB), nil
 }
 
 func (coinA MultiStakingCoin) Add(coinB MultiStakingCoin) MultiStakingCoin {

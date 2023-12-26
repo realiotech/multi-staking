@@ -45,7 +45,7 @@ func (k Keeper) LockCoinAndMintBondCoin(
 	}
 
 	// update multistaking lock
-	multiStakingCoin := types.NewWeightedCoin(coin.Denom, coin.Amount, bondWeight)
+	multiStakingCoin := types.NewMultiStakingCoin(coin.Denom, coin.Amount, bondWeight)
 	lock := k.GetOrCreateMultiStakingLock(ctx, lockID)
 	err = lock.AddCoinToMultiStakingLock(multiStakingCoin)
 	if err != nil {
