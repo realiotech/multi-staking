@@ -14,9 +14,9 @@ import (
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	types "github.com/cosmos/cosmos-sdk/x/staking/types"
 	_ "github.com/cosmos/gogoproto/gogoproto"
-	grpc1 "github.com/cosmos/gogoproto/grpc"
-	proto "github.com/cosmos/gogoproto/proto"
-	github_com_cosmos_gogoproto_types "github.com/cosmos/gogoproto/types"
+	grpc1 "github.com/gogo/protobuf/grpc"
+	proto "github.com/gogo/protobuf/proto"
+	github_com_gogo_protobuf_types "github.com/gogo/protobuf/types"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -1907,7 +1907,7 @@ func (m *MsgBeginRedelegateResponse) MarshalToSizedBuffer(dAtA []byte) (int, err
 	_ = i
 	var l int
 	_ = l
-	n8, err8 := github_com_cosmos_gogoproto_types.StdTimeMarshalTo(m.CompletionTime, dAtA[i-github_com_cosmos_gogoproto_types.SizeOfStdTime(m.CompletionTime):])
+	n8, err8 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.CompletionTime, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.CompletionTime):])
 	if err8 != nil {
 		return 0, err8
 	}
@@ -1985,7 +1985,7 @@ func (m *MsgUndelegateResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	n10, err10 := github_com_cosmos_gogoproto_types.StdTimeMarshalTo(m.CompletionTime, dAtA[i-github_com_cosmos_gogoproto_types.SizeOfStdTime(m.CompletionTime):])
+	n10, err10 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.CompletionTime, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.CompletionTime):])
 	if err10 != nil {
 		return 0, err10
 	}
@@ -2492,7 +2492,7 @@ func (m *MsgBeginRedelegateResponse) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = github_com_cosmos_gogoproto_types.SizeOfStdTime(m.CompletionTime)
+	l = github_com_gogo_protobuf_types.SizeOfStdTime(m.CompletionTime)
 	n += 1 + l + sovTx(uint64(l))
 	return n
 }
@@ -2522,7 +2522,7 @@ func (m *MsgUndelegateResponse) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = github_com_cosmos_gogoproto_types.SizeOfStdTime(m.CompletionTime)
+	l = github_com_gogo_protobuf_types.SizeOfStdTime(m.CompletionTime)
 	n += 1 + l + sovTx(uint64(l))
 	return n
 }
@@ -3693,7 +3693,7 @@ func (m *MsgBeginRedelegateResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := github_com_cosmos_gogoproto_types.StdTimeUnmarshal(&m.CompletionTime, dAtA[iNdEx:postIndex]); err != nil {
+			if err := github_com_gogo_protobuf_types.StdTimeUnmarshal(&m.CompletionTime, dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -3923,7 +3923,7 @@ func (m *MsgUndelegateResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := github_com_cosmos_gogoproto_types.StdTimeUnmarshal(&m.CompletionTime, dAtA[iNdEx:postIndex]); err != nil {
+			if err := github_com_gogo_protobuf_types.StdTimeUnmarshal(&m.CompletionTime, dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
