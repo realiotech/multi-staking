@@ -134,7 +134,55 @@ func (k Keeper) MultiStakingLockIterator(ctx sdk.Context, cb func(stakingLock ty
 			break
 		}
 	}
+}
 
+func (k Keeper) MultiStakingUnlockIterator(ctx sdk.Context, cb func(multiStakingUnlock types.MultiStakingUnlock) (stop bool)) {
+	store := ctx.KVStore(k.storeKey)
+	prefixStore := prefix.NewStore(store, types.MultiStakingUnlockPrefix)
+	iterator := sdk.KVStorePrefixIterator(prefixStore, nil)
+
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		var multiStakingUnlock types.MultiStakingUnlock
+		k.cdc.MustUnmarshal(iterator.Value(), &multiStakingUnlock)
+		if cb(multiStakingUnlock) {
+			break
+		}
+	}
+}
+
+func (k Keeper) BondWeightIterator(ctx sdk.Context, cb func(denom string, bondWeight sdk.Dec) (stop bool)) {
+	store := ctx.KVStore(k.storeKey)
+	prefixStore := prefix.NewStore(store, types.BondWeightKey)
+	iterator := sdk.KVStorePrefixIterator(prefixStore, nil)
+
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		denom := string(iterator.Key())
+		bondWeight := &sdk.Dec{}
+		err := bondWeight.Unmarshal(iterator.Value())
+		if err != nil {
+			panic(fmt.Errorf("unable to unmarshal bond coin weight %v", err))
+
+		}
+		if cb(denom, *bondWeight) {
+			break
+		}
+	}
+}
+
+func (k Keeper) IntermediaryDelegatorIterator(ctx sdk.Context, cb func(intermediaryDelegator sdk.AccAddress) (stop bool)) {
+	store := ctx.KVStore(k.storeKey)
+	iterator := sdk.KVStorePrefixIterator(store, types.IntermediaryDelegatorKey)
+
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		intermediaryDelegator := sdk.AccAddress(iterator.Key())
+
+		if cb(intermediaryDelegator) {
+			break
+		}
+	}
 }
 
 func (k Keeper) GetMultiStakingUnlock(ctx sdk.Context, multiStakingUnlockID types.UnlockID) (unlock types.MultiStakingUnlock, found bool) {

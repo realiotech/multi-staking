@@ -23,7 +23,8 @@ const (
 
 // KVStore keys
 var (
-	BondWeightKey                = []byte{0x00}
+	BondWeightKey = []byte{0x00}
+
 	ValidatorMultiStakingCoinKey = []byte{0x01}
 
 	IntermediaryDelegatorKey = []byte{0x02}

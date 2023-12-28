@@ -9,17 +9,20 @@ import (
 func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) (res []abci.ValidatorUpdate) {
 	// multi-staking state
 	for _, multiStakingLock := range data.MultiStakingLocks {
-		// set staking lock
 		k.SetMultiStakingLock(ctx, multiStakingLock)
 		// set intermediaryDelegator
-		// intermediaryDelegator := types.IntermediaryDelegator(sdk.AccAddress(multiStakingLock.DelAddr))
-		// k.SetIntermediaryDelegator(ctx, intermediaryDelegator)
 	}
-	// for _, multiStakingUnlock := range data.MultiStakingUnlocks {
+	for _, multiStakingUnlock := range data.MultiStakingUnlocks {
+		k.SetMultiStakingUnlock(ctx, multiStakingUnlock)
+	}
+	for _, multiStakingCoinInfo := range data.MultiStakingCoinInfo {
+		k.SetBondWeight(ctx, multiStakingCoinInfo.Denom, multiStakingCoinInfo.BondWeight)
+	}
+	for _, intermediaryDelegator := range data.IntermediaryDelegators {
+		k.SetIntermediaryDelegator(ctx, sdk.MustAccAddressFromBech32(intermediaryDelegator))
+	}
 
-	// }
-
-	for _, valMultiStakingCoin := range data.ValidatorMultiStakingCoin {
+	for _, valMultiStakingCoin := range data.ValidatorMultiStakingCoins {
 		valAddr, err := sdk.ValAddressFromBech32(valMultiStakingCoin.ValAddr)
 		if err != nil {
 			panic("error validator address")
@@ -38,6 +41,27 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 		return false
 	})
 
+	var multiStakingUnlocks []types.MultiStakingUnlock
+	k.MultiStakingUnlockIterator(ctx, func(unlock types.MultiStakingUnlock) bool {
+		multiStakingUnlocks = append(multiStakingUnlocks, unlock)
+		return false
+	})
+
+	var intermediaryDelegators []string
+	k.IntermediaryDelegatorIterator(ctx, func(intermediaryDelegator sdk.AccAddress) bool {
+		intermediaryDelegators = append(intermediaryDelegators, intermediaryDelegator.String())
+		return false
+	})
+
+	var multiStakingCoinInfos []types.MultiStakingCoinInfo
+	k.BondWeightIterator(ctx, func(denom string, bondWeight sdk.Dec) bool {
+		multiStakingCoinInfos = append(multiStakingCoinInfos, types.MultiStakingCoinInfo{
+			Denom:      denom,
+			BondWeight: bondWeight,
+		})
+		return false
+	})
+
 	// get validator allowed coin
 	var ValidatorMultiStakingCoinLists []types.ValidatorMultiStakingCoin
 	k.ValidatorMultiStakingCoinIterator(ctx, func(valAddr string, denom string) (stop bool) {
@@ -50,8 +74,12 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 	})
 
 	return &types.GenesisState{
-		MultiStakingLocks:         multiStakingLocks,
-		ValidatorMultiStakingCoin: ValidatorMultiStakingCoinLists,
-		StakingGenesisState:       k.stakingKeeper.ExportGenesis(ctx),
+		MultiStakingLocks:          multiStakingLocks,
+		MultiStakingUnlocks:        multiStakingUnlocks,
+		IntermediaryDelegators:     intermediaryDelegators,
+		MultiStakingCoinInfo:       multiStakingCoinInfos,
+		ValidatorMultiStakingCoins: ValidatorMultiStakingCoinLists,
+
+		StakingGenesisState: k.stakingKeeper.ExportGenesis(ctx),
 	}
 }

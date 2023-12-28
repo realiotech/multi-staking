@@ -17,7 +17,21 @@ option go_package = "github.com/realiotech/multi-staking/x/multi-staking/types";
 message GenesisState {
   repeated MultiStakingLock multi_staking_locks = 1
       [ (gogoproto.nullable) = false ];
-  repeated ValidatorMultiStakingCoin validator_multi_staking_coin = 2
+  repeated MultiStakingUnlock multi_staking_unlocks = 2
       [ (gogoproto.nullable) = false ];
-  cosmos.staking.v1beta1.GenesisState staking_genesis_state = 3;
+  repeated MultiStakingCoinInfo multi_staking_coin_info = 3
+      [ (gogoproto.nullable) = false ];
+  repeated ValidatorMultiStakingCoin validator_multi_staking_coins = 4
+      [ (gogoproto.nullable) = false ];
+  repeated string IntermediaryDelegators = 5;
+  cosmos.staking.v1beta1.GenesisState staking_genesis_state = 6;
+}
+
+message MultiStakingCoinInfo {
+  string denom = 1;
+  string bond_weight = 2 [
+    (cosmos_proto.scalar) = "cosmos.Dec",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
 }
