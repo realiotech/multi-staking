@@ -14,6 +14,7 @@ func (k Keeper) BeginBlocker(ctx sdk.Context) {
 
 }
 
+// need a way to better name this func
 func GetUnbondingHeightsAndUnbondedAmounts(ctx sdk.Context, unbondingDelegation stakingtypes.UnbondingDelegation) map[int64]math.Int {
 	ctxTime := ctx.BlockHeader().Time
 
