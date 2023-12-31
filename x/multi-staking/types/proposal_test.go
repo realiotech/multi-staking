@@ -3,8 +3,9 @@ package types_test
 import (
 	"testing"
 
-	"github.com/stretchr/testify/suite"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	"github.com/stretchr/testify/suite"
 
 	"cosmossdk.io/math"
 
@@ -20,24 +21,24 @@ func TestProposalTestSuite(t *testing.T) {
 }
 
 func (suite *ProposalTestSuite) TestKeysTypes() {
-	suite.Require().Equal("multistaking", (&types.AddBondTokenProposal{}).ProposalRoute())
-	suite.Require().Equal("AddBondToken", (&types.AddBondTokenProposal{}).ProposalType())
-	suite.Require().Equal("multistaking", (&types.ChangeBondTokenWeightProposal{}).ProposalRoute())
-	suite.Require().Equal("ChangeBondTokenWeight", (&types.ChangeBondTokenWeightProposal{}).ProposalType())
+	suite.Require().Equal("multistaking", (&types.AddMultiStakingCoinProposal{}).ProposalRoute())
+	suite.Require().Equal("AddMultiStakingCoin", (&types.AddMultiStakingCoinProposal{}).ProposalType())
+	suite.Require().Equal("multistaking", (&types.UpdateBondWeightProposal{}).ProposalRoute())
+	suite.Require().Equal("UpdateBondWeight", (&types.UpdateBondWeightProposal{}).ProposalType())
 }
 
 func (suite *ProposalTestSuite) TestProposalString() {
 	testTokenWeight := math.LegacyNewDec(1)
-    testCases := []struct {
-		msg string
-		proposal govv1beta1.Content
+	testCases := []struct {
+		msg           string
+		proposal      govv1beta1.Content
 		expectedValue string
-	} {
-		{msg: "Add Bond Token Proposal", proposal: &types.AddBondTokenProposal{BondToken: "token", TokenWeight: &testTokenWeight, Description: "Add token", Title: "Add #1"}, 
-		expectedValue: "AddBondTokenProposal: Title: Add #1 Description: Add token BondToken: token TokenWeight: 1.000000000000000000" },
-	
-		{msg: "Change Bond Token Weight Proposal", proposal: &types.ChangeBondTokenWeightProposal{BondToken: "token", TokenWeight: &testTokenWeight, Description: "Change Bond token weight", Title: "Change #2"}, 
-		expectedValue: "ChangeBondTokenWeightProposal: Title: Change #2 Description: Change Bond token weight BondToken: token TokenWeight: 1.000000000000000000" },
+	}{
+		{msg: "Add Bond Token Proposal", proposal: &types.AddMultiStakingCoinProposal{BondToken: "token", TokenWeight: &testTokenWeight, Description: "Add token", Title: "Add #1"},
+			expectedValue: "AddMultiStakingCoinProposal: Title: Add #1 Description: Add token BondToken: token TokenWeight: 1.000000000000000000"},
+
+		{msg: "Change Bond Token Weight Proposal", proposal: &types.UpdateBondWeightProposal{BondToken: "token", TokenWeight: &testTokenWeight, Description: "Change Bond token weight", Title: "Change #2"},
+			expectedValue: "UpdateBondWeightProposal: Title: Change #2 Description: Change Bond token weight BondToken: token TokenWeight: 1.000000000000000000"},
 	}
 
 	for _, tc := range testCases {
@@ -46,14 +47,13 @@ func (suite *ProposalTestSuite) TestProposalString() {
 	}
 }
 
-
-func (suite *ProposalTestSuite) TestAddBondTokenProposal() {
+func (suite *ProposalTestSuite) TestAddMultiStakingCoinProposal() {
 	testCases := []struct {
 		msg         string
 		title       string
 		description string
 		bondToken   string
-		tokenWeight math.LegacyDec
+		tokenWeight sdk.Dec
 		expectPass  bool
 	}{
 		// Valid tests
@@ -66,7 +66,7 @@ func (suite *ProposalTestSuite) TestAddBondTokenProposal() {
 	}
 
 	for i, tc := range testCases {
-		tx := types.NewAddBondTokenProposal(tc.title, tc.description, tc.bondToken, tc.tokenWeight)
+		tx := types.NewAddMultiStakingCoinProposal(tc.title, tc.description, tc.Denom, tc.BondWeight)
 		err := tx.ValidateBasic()
 
 		if tc.expectPass {
@@ -77,13 +77,13 @@ func (suite *ProposalTestSuite) TestAddBondTokenProposal() {
 	}
 }
 
-func (suite *ProposalTestSuite) TestChangeBondTokenWeightProposal() {
+func (suite *ProposalTestSuite) TestUpdateBondWeightProposal() {
 	testCases := []struct {
 		msg         string
 		title       string
 		description string
 		bondToken   string
-		tokenWeight math.LegacyDec
+		tokenWeight sdk.Dec
 		expectPass  bool
 	}{
 		// Valid tests
@@ -96,7 +96,7 @@ func (suite *ProposalTestSuite) TestChangeBondTokenWeightProposal() {
 	}
 
 	for i, tc := range testCases {
-		tx := types.NewChangeBondTokenWeightProposal(tc.title, tc.description, tc.bondToken, tc.tokenWeight)
+		tx := types.NewUpdateBondWeightProposal(tc.title, tc.description, tc.Denom, tc.BondWeight)
 		err := tx.ValidateBasic()
 
 		if tc.expectPass {
