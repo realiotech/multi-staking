@@ -2,11 +2,11 @@
 
 ### Add Bond Token Proposals
 
-We can designate a token as a `bond token` by submiting an `AddBondDenomProposal`. In this proposal, we specify the token's denom and its `BondTokenWeight`, if the proposal passes, the specified token will become a `bond token` with the designated `BondTokenWeight`.
+We can designate a token as a `bond token` by submiting an `AddBondDenomProposal`. In this proposal, we specify the token's denom and its `BondWeight`, if the proposal passes, the specified token will become a `bond token` with the designated `BondWeight`.
 
 ### Change Bond Token Weight Proposals
 
-We can alter the `BondTokenWeight` of a `bond token` by submiting a `ChangeBondTokenWeightProposal`. This proposal requires specifying the `bond token` and the new `BondTokenWeight`, if the proposal is passed the specified `bond token` will have its `BondTokenWeight` changed.
+We can alter the `BondWeight` of a `bond token` by submiting a `UpdateBondWeightProposal`. This proposal requires specifying the `bond token` and the new `BondWeight`, if the proposal is passed the specified `bond token` will have its `BondWeight` changed.
 
 ### Remove Bond Token Proposals
 

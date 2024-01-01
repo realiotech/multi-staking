@@ -15,7 +15,7 @@ The Initial delegation token must match the `bond denom` specified in `MsgCreate
 
 Logic flow:
 
-1. Setting `ValidatorBondDenom`.
+1. Setting `ValidatorMultiStakingCoin`.
 
 2. Converting `MsgCreateValidator` to `stakingtypes.MsgCreateValidator` and
 calling `stakingkeeper.CreateValidator()`.
@@ -42,18 +42,18 @@ This message is expected to fail if:
 ## MsgDelegate
 
 Within this message the delegator locked up coins in the `multi-staking` module account. 
-The `multi-staking` inturns mint a calculated amount of `sdkstaking.bondtoken` and
+The `multi-staking` inturns mint a calculated amount of `sdkstaking.Denom` and
 create an `IntermediaryAccount` to delegate on behalf of the delegator.
 
 Logic flow:
 
 * Get `IntermediaryAccount` for the delegator.
 
-* Set `IntermediaryAccountDelegator` if it's not set yet.
+* Set `IntermediaryDelegator` if it's not set yet.
 
 * Send delegated coins from user to `IntermediaryAccount`.
 
-* Caculate the `sdkbond token` to be minted using `BondTokenWeight`.
+* Caculate the `sdkbond token` to be minted using `BondWeight`.
 
 * Mint `sdkbond token` to `IntermediaryAccount`
 
