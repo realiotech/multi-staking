@@ -7,8 +7,8 @@ import "cosmos_proto/cosmos.proto";
 
 option go_package = "github.com/realiotech/multi-staking/x/multi-staking/types";
 
-// AddMultiStakingCoinProposal is a gov v1beta1 Content type to add a token as a bond
-// token
+// AddMultiStakingCoinProposal is a gov v1beta1 Content type to add a token as a
+// bond token
 message AddMultiStakingCoinProposal {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
