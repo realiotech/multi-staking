@@ -26,12 +26,12 @@ func init() {
 }
 
 // NewAddMultiStakingCoinProposal returns new instance of AddMultiStakingCoinProposal
-func NewAddMultiStakingCoinProposal(title, description, bondToken string, tokenWeight sdk.Dec) govv1beta1.Content {
+func NewAddMultiStakingCoinProposal(title, description, denom string, bondWeight sdk.Dec) govv1beta1.Content {
 	return &AddMultiStakingCoinProposal{
 		Title:       title,
 		Description: description,
-		Denom:       bondToken,
-		BondWeight:  &tokenWeight,
+		Denom:       denom,
+		BondWeight:  &bondWeight,
 	}
 }
 
@@ -69,16 +69,16 @@ func (abtp *AddMultiStakingCoinProposal) ValidateBasic() error {
 
 // String implements the Stringer interface.
 func (abtp AddMultiStakingCoinProposal) String() string {
-	return fmt.Sprintf("AddMultiStakingCoinProposal: Title: %s Description: %s BondToken: %s TokenWeight: %s", abtp.Title, abtp.Description, abtp.Denom, abtp.BondWeight)
+	return fmt.Sprintf("AddMultiStakingCoinProposal: Title: %s Description: %s Denom: %s TokenWeight: %s", abtp.Title, abtp.Description, abtp.Denom, abtp.BondWeight)
 }
 
 // NewUpdateBondWeightProposal returns new instance of UpdateBondWeightProposal
-func NewUpdateBondWeightProposal(title, description, bondToken string, tokenWeight sdk.Dec) govv1beta1.Content {
+func NewUpdateBondWeightProposal(title, description, denom string, bondWeight sdk.Dec) govv1beta1.Content {
 	return &UpdateBondWeightProposal{
-		Title:       title,
-		Description: description,
-		BondToken:   bondToken,
-		TokenWeight: &tokenWeight,
+		Title:             title,
+		Description:       description,
+		Denom:             denom,
+		UpdatedBondWeight: &bondWeight,
 	}
 }
 
@@ -98,7 +98,7 @@ func (*UpdateBondWeightProposal) ProposalType() string {
 
 // String implements the Stringer interface.
 func (cbtp UpdateBondWeightProposal) String() string {
-	return fmt.Sprintf("UpdateBondWeightProposal: Title: %s Description: %s BondToken: %s TokenWeight: %s", cbtp.Title, cbtp.Description, cbtp.Denom, cbtp.BondWeight)
+	return fmt.Sprintf("UpdateBondWeightProposal: Title: %s Description: %s Denom: %s TokenWeight: %s", cbtp.Title, cbtp.Description, cbtp.Denom, cbtp.UpdatedBondWeight)
 }
 
 // ValidateBasic runs basic stateless validity checks
@@ -112,7 +112,7 @@ func (cbtp *UpdateBondWeightProposal) ValidateBasic() error {
 		return sdkerrors.Wrap(ErrInvalidUpdateBondWeightProposal, "proposal bond token cannot be blank")
 	}
 
-	if !cbtp.BondWeight.IsPositive() {
+	if !cbtp.UpdatedBondWeight.IsPositive() {
 		return sdkerrors.Wrap(ErrInvalidUpdateBondWeightProposal, "proposal bond token weight must be positive")
 	}
 

@@ -38,7 +38,7 @@ var (
 	CompletedDelegationsPrefix = []byte{0x05}
 )
 
-// GetBondWeightKeyKey returns a key for an index containing the bond token weight
+// GetBondWeightKey returns a key for an index containing the bond token weight
 func GetBondWeightKey(tokenDenom string) []byte {
 	return append(BondWeightKey, []byte(tokenDenom)...)
 }

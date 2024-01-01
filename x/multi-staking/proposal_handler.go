@@ -36,7 +36,7 @@ func handleAddMultiStakingCoinProposal(
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeAddMultiStakingCoin,
-			sdk.NewAttribute(types.AttributeKeyBondToken, p.Denom),
+			sdk.NewAttribute(types.AttributeKeyDenom, p.Denom),
 			sdk.NewAttribute(types.AttributeKeyBondWeight, p.BondWeight.String()),
 		),
 	)
@@ -55,7 +55,7 @@ func handleChangeTokenWeightProposal(
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeUpdateBondWeight,
-			sdk.NewAttribute(types.AttributeKeyBondToken, p.Denom),
+			sdk.NewAttribute(types.AttributeKeyDenom, p.Denom),
 			sdk.NewAttribute(types.AttributeKeyBondWeight, p.UpdatedBondWeight.String()),
 		),
 	)

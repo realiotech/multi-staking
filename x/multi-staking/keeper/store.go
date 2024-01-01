@@ -14,56 +14,56 @@ func (k Keeper) GetBondWeight(ctx sdk.Context, tokenDenom string) sdk.Dec {
 	bondTokenWeight := &sdk.Dec{}
 	err := bondTokenWeight.Unmarshal(bz)
 	if err != nil {
-		panic(fmt.Errorf("unable to unmarshal bond token weight %v", err))
+		panic(fmt.Errorf("unable to unmarshal bond weight %v", err))
 
 	}
 
 	return *bondTokenWeight
 }
 
-func (k Keeper) SetBondWeight(ctx sdk.Context, tokenDenom string, tokenWeight sdk.Dec) {
+func (k Keeper) SetBondWeight(ctx sdk.Context, tokenDenom string, bondWeight sdk.Dec) {
 	store := ctx.KVStore(k.storeKey)
-	bz, err := tokenWeight.Marshal()
+	bz, err := bondWeight.Marshal()
 
 	if err != nil {
-		panic(fmt.Errorf("unable to marshal bond token weight %v", err))
+		panic(fmt.Errorf("unable to marshal bond weight %v", err))
 	}
 
 	store.Set(types.GetBondWeightKey(tokenDenom), bz)
 }
 
-func (k Keeper) GetValidatorBondDenom(ctx sdk.Context, operatorAddr sdk.ValAddress) string {
+func (k Keeper) GetValidatorMultiStakingCoin(ctx sdk.Context, operatorAddr sdk.ValAddress) string {
 	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.GetValidatorBondDenomKey(operatorAddr))
+	bz := store.Get(types.GetValidatorMultiStakingCoinKey(operatorAddr))
 
 	return string(bz)
 }
 
-func (k Keeper) SetValidatorBondDenom(ctx sdk.Context, operatorAddr sdk.ValAddress, bondDenom string) {
-	if k.GetValidatorBondDenom(ctx, operatorAddr) != "" {
-		panic("validator denom already set")
+func (k Keeper) SetValidatorMultiStakingCoin(ctx sdk.Context, operatorAddr sdk.ValAddress, bondDenom string) {
+	if k.GetValidatorMultiStakingCoin(ctx, operatorAddr) != "" {
+		panic("validator multi staking coin already set")
 	}
 
 	store := ctx.KVStore(k.storeKey)
 
-	store.Set(types.GetValidatorBondDenomKey(operatorAddr), []byte(bondDenom))
+	store.Set(types.GetValidatorMultiStakingCoinKey(operatorAddr), []byte(bondDenom))
 }
 
-func (k Keeper) GetIntermediaryAccountDelegator(ctx sdk.Context, intermediaryAccount sdk.AccAddress) sdk.AccAddress {
+func (k Keeper) GetIntermediaryDelegator(ctx sdk.Context, intermediaryAccount sdk.AccAddress) sdk.AccAddress {
 	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.GetIntermediaryAccountDelegatorKey(intermediaryAccount))
+	bz := store.Get(types.GetIntermediaryDelegatorKey(intermediaryAccount))
 
 	return bz
 }
 
-func (k Keeper) SetIntermediaryAccountDelegator(ctx sdk.Context, intermediaryAccount sdk.AccAddress, delegator sdk.AccAddress) {
-	if k.GetIntermediaryAccountDelegator(ctx, intermediaryAccount) != nil {
-		panic("intermediary account for delegator already set")
+func (k Keeper) SetIntermediaryDelegator(ctx sdk.Context, intermediaryAccount sdk.AccAddress, delegator sdk.AccAddress) {
+	if k.GetIntermediaryDelegator(ctx, intermediaryAccount) != nil {
+		panic("intermediary delegator already set")
 	}
 
 	store := ctx.KVStore(k.storeKey)
 
-	store.Set(types.GetIntermediaryAccountDelegatorKey(intermediaryAccount), delegator)
+	store.Set(types.GetIntermediaryDelegatorKey(intermediaryAccount), delegator)
 }
 
 func (k Keeper) GetDVPairSDKBondTokens(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) sdk.Coin {

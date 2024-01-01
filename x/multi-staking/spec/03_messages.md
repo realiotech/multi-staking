@@ -15,7 +15,7 @@ The Initial delegation token must match the `bond denom` specified in `MsgCreate
 
 Logic flow:
 
-1. Setting `ValidatorBondDenom`.
+1. Setting `ValidatorMultiStakingCoin`.
 
 2. Converting `MsgCreateValidator` to `stakingtypes.MsgCreateValidator` and
 calling `stakingkeeper.CreateValidator()`.
@@ -49,7 +49,7 @@ Logic flow:
 
 * Get `IntermediaryAccount` for the delegator.
 
-* Set `IntermediaryAccountDelegator` if it's not set yet.
+* Set `IntermediaryDelegator` if it's not set yet.
 
 * Send delegated coins from user to `IntermediaryAccount`.
 
