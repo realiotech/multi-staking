@@ -63,7 +63,7 @@ func (k Keeper) SetIntermediaryDelegator(ctx sdk.Context, intermediaryDelegator 
 
 	store := ctx.KVStore(k.storeKey)
 
-	store.Set(types.GetIntermediaryDelegatorKey(intermediaryDelegator), delegator)
+	store.Set(types.GetIntermediaryDelegatorKey(intermediaryDelegator), []byte{1})
 }
 
 func (k Keeper) GetDVPairSDKBondTokens(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) sdk.Coin {
