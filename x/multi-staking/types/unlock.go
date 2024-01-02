@@ -128,3 +128,22 @@ func (unlock MultiStakingUnlock) String() string {
 // 	out, _ := yaml.Marshal(e)
 // 	return string(out)
 // }
+
+func (l UnlockID) ToBytes() []byte {
+	multiStakerAddr, valAcc, err := AccAddrAndValAddrFromStrings(l.MultiStakerAddr, l.ValAddr)
+	if err != nil {
+		panic(err)
+	}
+
+	lenMultiStakerAddr := len(multiStakerAddr)
+
+	DVPair := make([]byte, 1+lenMultiStakerAddr+len(valAcc))
+
+	DVPair[0] = uint8(lenMultiStakerAddr)
+
+	copy(multiStakerAddr[:], DVPair[1:])
+
+	copy(multiStakerAddr[:], DVPair[1+lenMultiStakerAddr:])
+
+	return append(MultiStakingLockPrefix, DVPair...)
+}

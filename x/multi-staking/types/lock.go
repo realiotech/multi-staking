@@ -54,3 +54,22 @@ func (fromLock *MultiStakingLock) MoveCoinToLock(toLock *MultiStakingLock, coin 
 	}
 	return nil
 }
+
+func (l LockID) ToByte() []byte {
+	multiStakerAddr, valAcc, err := AccAddrAndValAddrFromStrings(l.MultiStakerAddr, l.ValAddr)
+	if err != nil {
+		panic(err)
+	}
+
+	lenMultiStakerAddr := len(multiStakerAddr)
+
+	DVPair := make([]byte, 1+lenMultiStakerAddr+len(valAcc))
+
+	DVPair[0] = uint8(lenMultiStakerAddr)
+
+	copy(multiStakerAddr[:], DVPair[1:])
+
+	copy(multiStakerAddr[:], DVPair[1+lenMultiStakerAddr:])
+
+	return append(MultiStakingLockPrefix, DVPair...)
+}
