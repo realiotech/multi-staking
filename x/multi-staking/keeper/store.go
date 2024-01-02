@@ -108,6 +108,21 @@ func (k Keeper) SetIntermediaryDelegator(ctx sdk.Context, intermediaryAccount sd
 	store.Set(types.GetIntermediaryDelegatorKey(intermediaryAccount), delegator)
 }
 
+func (k Keeper) IntermediaryDelegatorIterator(ctx sdk.Context, cb func(intermediaryDelegator sdk.AccAddress) (stop bool)) {
+	store := ctx.KVStore(k.storeKey)
+	prefixStore := prefix.NewStore(store, types.IntermediaryDelegatorKey)
+	iterator := sdk.KVStorePrefixIterator(prefixStore, nil)
+
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		intermediaryDelegator := sdk.AccAddress(iterator.Key())
+
+		if cb(intermediaryDelegator) {
+			break
+		}
+	}
+}
+
 func (k Keeper) GetMultiStakingLock(ctx sdk.Context, multiStakingLockID types.LockID) (types.MultiStakingLock, bool) {
 	store := ctx.KVStore(k.storeKey)
 
@@ -123,7 +138,7 @@ func (k Keeper) GetMultiStakingLock(ctx sdk.Context, multiStakingLockID types.Lo
 
 func (k Keeper) SetMultiStakingLock(ctx sdk.Context, multiStakingLock types.MultiStakingLock) {
 	if multiStakingLock.IsEmpty() {
-		k.RemoveMultiStakingLock(ctx, *multiStakingLock.LockID)
+		k.RemoveMultiStakingLock(ctx, multiStakingLock.LockID)
 		return
 	}
 
@@ -194,20 +209,6 @@ func (k Keeper) MultiStakingUnlockIterator(ctx sdk.Context, cb func(multiStaking
 		var multiStakingUnlock types.MultiStakingUnlock
 		k.cdc.MustUnmarshal(iterator.Value(), &multiStakingUnlock)
 		if cb(multiStakingUnlock) {
-			break
-		}
-	}
-}
-
-func (k Keeper) IntermediaryDelegatorIterator(ctx sdk.Context, cb func(intermediaryDelegator sdk.AccAddress) (stop bool)) {
-	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStorePrefixIterator(store, types.IntermediaryDelegatorKey)
-
-	defer iterator.Close()
-	for ; iterator.Valid(); iterator.Next() {
-		intermediaryDelegator := sdk.AccAddress(iterator.Key())
-
-		if cb(intermediaryDelegator) {
 			break
 		}
 	}
