@@ -6,6 +6,6 @@ import (
 
 // x/multistaking module sentinel errors
 var (
-	ErrInvalidAddMultiStakingCoinProposal = sdkerrors.Register(ModuleName, 2, "invalid add multi staking coin proposal")
-	ErrInvalidUpdateBondWeightProposal    = sdkerrors.Register(ModuleName, 3, "invalid update bond weight proposal")
+	ErrInvalidAddBondTokenProposal  = sdkerrors.Register(ModuleName, 2, "invalid add bond token proposal")
+	ErrInvalidChangeBondTokenWeightProposal  = sdkerrors.Register(ModuleName, 3, "invalid change bond token weight proposal")
 )

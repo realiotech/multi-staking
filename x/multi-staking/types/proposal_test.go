@@ -3,9 +3,10 @@ package types_test
 import (
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	"github.com/stretchr/testify/suite"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+
+	"cosmossdk.io/math"
 
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
@@ -19,24 +20,24 @@ func TestProposalTestSuite(t *testing.T) {
 }
 
 func (suite *ProposalTestSuite) TestKeysTypes() {
-	suite.Require().Equal("multistaking", (&types.AddMultiStakingCoinProposal{}).ProposalRoute())
-	suite.Require().Equal("AddMultiStakingCoin", (&types.AddMultiStakingCoinProposal{}).ProposalType())
-	suite.Require().Equal("multistaking", (&types.UpdateBondWeightProposal{}).ProposalRoute())
-	suite.Require().Equal("UpdateBondWeight", (&types.UpdateBondWeightProposal{}).ProposalType())
+	suite.Require().Equal("multistaking", (&types.AddBondTokenProposal{}).ProposalRoute())
+	suite.Require().Equal("AddBondToken", (&types.AddBondTokenProposal{}).ProposalType())
+	suite.Require().Equal("multistaking", (&types.ChangeBondTokenWeightProposal{}).ProposalRoute())
+	suite.Require().Equal("ChangeBondTokenWeight", (&types.ChangeBondTokenWeightProposal{}).ProposalType())
 }
 
 func (suite *ProposalTestSuite) TestProposalString() {
-	testTokenWeight := sdk.OneDec()
-	testCases := []struct {
-		msg           string
-		proposal      govv1beta1.Content
+	testTokenWeight := math.LegacyNewDec(1)
+    testCases := []struct {
+		msg string
+		proposal govv1beta1.Content
 		expectedValue string
-	}{
-		{msg: "Add Bond Token Proposal", proposal: &types.AddMultiStakingCoinProposal{Denom: "token", BondWeight: &testTokenWeight, Description: "Add token", Title: "Add #1"},
-			expectedValue: "AddMultiStakingCoinProposal: Title: Add #1 Description: Add token Denom: token TokenWeight: 1.000000000000000000"},
-
-		{msg: "Change Bond Token Weight Proposal", proposal: &types.UpdateBondWeightProposal{Denom: "token", UpdatedBondWeight: &testTokenWeight, Description: "Change Bond token weight", Title: "Change #2"},
-			expectedValue: "UpdateBondWeightProposal: Title: Change #2 Description: Change Bond token weight Denom: token TokenWeight: 1.000000000000000000"},
+	} {
+		{msg: "Add Bond Token Proposal", proposal: &types.AddBondTokenProposal{BondToken: "token", TokenWeight: &testTokenWeight, Description: "Add token", Title: "Add #1"}, 
+		expectedValue: "AddBondTokenProposal: Title: Add #1 Description: Add token BondToken: token TokenWeight: 1.000000000000000000" },
+	
+		{msg: "Change Bond Token Weight Proposal", proposal: &types.ChangeBondTokenWeightProposal{BondToken: "token", TokenWeight: &testTokenWeight, Description: "Change Bond token weight", Title: "Change #2"}, 
+		expectedValue: "ChangeBondTokenWeightProposal: Title: Change #2 Description: Change Bond token weight BondToken: token TokenWeight: 1.000000000000000000" },
 	}
 
 	for _, tc := range testCases {
@@ -45,26 +46,27 @@ func (suite *ProposalTestSuite) TestProposalString() {
 	}
 }
 
-func (suite *ProposalTestSuite) TestAddMultiStakingCoinProposal() {
+
+func (suite *ProposalTestSuite) TestAddBondTokenProposal() {
 	testCases := []struct {
 		msg         string
 		title       string
 		description string
-		denom       string
-		bondWeight  sdk.Dec
+		bondToken   string
+		tokenWeight math.LegacyDec
 		expectPass  bool
 	}{
 		// Valid tests
-		{msg: "Add bond token", title: "test", description: "test desc", denom: "token", bondWeight: sdk.OneDec(), expectPass: true},
+		{msg: "Add bond token", title: "test", description: "test desc", bondToken: "token", tokenWeight: math.LegacyNewDec(1), expectPass: true},
 
 		// Invalid tests
-		{msg: "Add bond token - invalid token", title: "test", description: "test desc", denom: "", bondWeight: sdk.OneDec(), expectPass: false},
-		{msg: "Add bond token - negative weight", title: "test", description: "test desc", denom: "token", bondWeight: sdk.MustNewDecFromStr("-1"), expectPass: false},
-		{msg: "Add bond token - zero weight", title: "test", description: "test desc", denom: "token", bondWeight: sdk.ZeroDec(), expectPass: false},
+		{msg: "Add bond token - invalid token", title: "test", description: "test desc", bondToken: "", tokenWeight: math.LegacyNewDec(1), expectPass: false},
+		{msg: "Add bond token - negative weight", title: "test", description: "test desc", bondToken: "token", tokenWeight: math.LegacyNewDec(-1), expectPass: false},
+		{msg: "Add bond token - zero weight", title: "test", description: "test desc", bondToken: "token", tokenWeight: math.LegacyNewDec(0), expectPass: false},
 	}
 
 	for i, tc := range testCases {
-		tx := types.NewAddMultiStakingCoinProposal(tc.title, tc.description, tc.denom, tc.bondWeight)
+		tx := types.NewAddBondTokenProposal(tc.title, tc.description, tc.bondToken, tc.tokenWeight)
 		err := tx.ValidateBasic()
 
 		if tc.expectPass {
@@ -75,26 +77,26 @@ func (suite *ProposalTestSuite) TestAddMultiStakingCoinProposal() {
 	}
 }
 
-func (suite *ProposalTestSuite) TestUpdateBondWeightProposal() {
+func (suite *ProposalTestSuite) TestChangeBondTokenWeightProposal() {
 	testCases := []struct {
 		msg         string
 		title       string
 		description string
-		denom       string
-		bondWeight  sdk.Dec
+		bondToken   string
+		tokenWeight math.LegacyDec
 		expectPass  bool
 	}{
 		// Valid tests
-		{msg: "Change bond token weight", title: "test", description: "test desc", denom: "token", bondWeight: sdk.OneDec(), expectPass: true},
+		{msg: "Change bond token weight", title: "test", description: "test desc", bondToken: "token", tokenWeight: math.LegacyNewDec(1), expectPass: true},
 
 		// Invalid tests
-		{msg: "Change bond token weight - invalid token", title: "test", description: "test desc", denom: "", bondWeight: sdk.OneDec(), expectPass: false},
-		{msg: "Change bond token weight - negative weight", title: "test", description: "test desc", denom: "token", bondWeight: sdk.MustNewDecFromStr("-1"), expectPass: false},
-		{msg: "Change bond token weight - zero weight", title: "test", description: "test desc", denom: "token", bondWeight: sdk.ZeroDec(), expectPass: false},
+		{msg: "Change bond token weight - invalid token", title: "test", description: "test desc", bondToken: "", tokenWeight: math.LegacyNewDec(1), expectPass: false},
+		{msg: "Change bond token weight - negative weight", title: "test", description: "test desc", bondToken: "token", tokenWeight: math.LegacyNewDec(-1), expectPass: false},
+		{msg: "Change bond token weight - zero weight", title: "test", description: "test desc", bondToken: "token", tokenWeight: math.LegacyNewDec(0), expectPass: false},
 	}
 
 	for i, tc := range testCases {
-		tx := types.NewUpdateBondWeightProposal(tc.title, tc.description, tc.denom, tc.bondWeight)
+		tx := types.NewChangeBondTokenWeightProposal(tc.title, tc.description, tc.bondToken, tc.tokenWeight)
 		err := tx.ValidateBasic()
 
 		if tc.expectPass {
