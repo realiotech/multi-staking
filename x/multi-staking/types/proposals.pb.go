@@ -25,8 +25,8 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// AddMultiStakingCoinProposal is a gov v1beta1 Content type to add a token as a bond
-// token
+// AddMultiStakingCoinProposal is a gov v1beta1 Content type to add a token as a
+// bond token
 type AddMultiStakingCoinProposal struct {
 	Title       string                                  `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
 	Description string                                  `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`

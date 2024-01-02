@@ -1,0 +1,65 @@
+syntax = "proto3";
+package multistaking.v1;
+
+import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/realiotech/multi-staking/x/multi-staking/types";
+
+message MultiStakingCoin {
+  string denom = 1;
+  string amount = 2 [
+    (cosmos_proto.scalar) = "cosmos.Int",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false
+  ];
+  string bond_weight = 3 [
+    (cosmos_proto.scalar) = "cosmos.Dec",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message LockID {
+  string multi_staker_addr = 1;
+  string val_addr = 2;
+}
+
+message MultiStakingLock {
+  option (gogoproto.goproto_getters) = false;
+  //   option (gogoproto.goproto_stringer) = false;
+
+  LockID lockID = 1;
+
+  MultiStakingCoin locked_coin = 2 [ (gogoproto.nullable) = false ];
+};
+
+message ValidatorMultiStakingCoin {
+  string val_addr = 1;
+  string coin_denom = 2;
+}
+
+message UnlockID {
+  string multi_staker_addr = 1;
+  string val_addr = 2;
+}
+
+message MultiStakingUnlock {
+  option (gogoproto.goproto_getters) = false;
+  option (gogoproto.goproto_stringer) = false;
+
+  UnlockID unlockID = 1;
+
+  repeated UnlockEntry entries = 2 [ (gogoproto.nullable) = false ];
+}
+
+message UnlockEntry {
+  option (gogoproto.goproto_stringer) = false;
+
+  // creation_height is the height which the unbonding took place.
+  int64 creation_height = 1;
+
+  MultiStakingCoin unlocking_coin = 2 [ (gogoproto.nullable) = false ];
+}
