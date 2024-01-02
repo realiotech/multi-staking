@@ -30,12 +30,14 @@ var (
 
 	IntermediaryDelegatorKey = []byte{0x02}
 
-	DVPairSDKBondTokens = []byte{0x03}
+	MultiStakingLockPrefix = []byte{0x03}
 
-	DVPairBondTokens = []byte{0x04}
+	// DVPairSDKBondTokens = []byte{0x03}
 
-	// mem store key
-	CompletedDelegationsPrefix = []byte{0x05}
+	// DVPairBondTokens = []byte{0x04}
+
+	// // mem store key
+	// CompletedDelegationsPrefix = []byte{0x05}
 )
 
 // GetBondWeightKey returns a key for an index containing the bond token weight
@@ -51,14 +53,4 @@ func GetValidatorMultiStakingCoinKey(operatorAddr sdk.ValAddress) []byte {
 // GetIntermediaryDelegatorKey returns a key for an index containing the delegator of an intermediary account
 func GetIntermediaryDelegatorKey(intermediaryAccount sdk.AccAddress) []byte {
 	return append(IntermediaryDelegatorKey, intermediaryAccount...)
-}
-
-func GetDVPairSDKBondTokensKey(delAddr sdk.AccAddress, valAddr sdk.ValAddress) []byte {
-	DVPair := append(delAddr, address.MustLengthPrefix(valAddr)...)
-	return append(DVPairSDKBondTokens, DVPair...)
-}
-
-func GetDVPairBondTokensKey(delAddr sdk.AccAddress, valAddr sdk.ValAddress) []byte {
-	DVPair := append(delAddr, address.MustLengthPrefix(valAddr)...)
-	return append(DVPairBondTokens, DVPair...)
 }
