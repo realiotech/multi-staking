@@ -158,6 +158,40 @@ func (k Keeper) MultiStakingUnlockIterator(ctx sdk.Context, cb func(multiStaking
 	}
 }
 
+func (k Keeper) BondWeightIterator(ctx sdk.Context, cb func(denom string, bondWeight sdk.Dec) (stop bool)) {
+	store := ctx.KVStore(k.storeKey)
+	prefixStore := prefix.NewStore(store, types.BondWeightKey)
+	iterator := sdk.KVStorePrefixIterator(prefixStore, nil)
+
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		denom := string(iterator.Key())
+		bondWeight := &sdk.Dec{}
+		err := bondWeight.Unmarshal(iterator.Value())
+		if err != nil {
+			panic(fmt.Errorf("unable to unmarshal bond coin weight %v", err))
+
+		}
+		if cb(denom, *bondWeight) {
+			break
+		}
+	}
+}
+
+func (k Keeper) IntermediaryDelegatorIterator(ctx sdk.Context, cb func(intermediaryDelegator sdk.AccAddress) (stop bool)) {
+	store := ctx.KVStore(k.storeKey)
+	iterator := sdk.KVStorePrefixIterator(store, types.IntermediaryDelegatorKey)
+
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		intermediaryDelegator := sdk.AccAddress(iterator.Key())
+
+		if cb(intermediaryDelegator) {
+			break
+		}
+	}
+}
+
 func (k Keeper) GetDVPairSDKBondTokens(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) sdk.Coin {
 	store := ctx.KVStore(k.storeKey)
 
