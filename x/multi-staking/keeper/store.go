@@ -3,7 +3,7 @@ package keeper
 import (
 	"fmt"
 
-	"cosmossdk.io/store/prefix"
+	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
@@ -31,6 +31,26 @@ func (k Keeper) SetBondWeight(ctx sdk.Context, tokenDenom string, bondWeight sdk
 	}
 
 	store.Set(types.GetBondWeightKey(tokenDenom), bz)
+}
+
+func (k Keeper) BondWeightIterator(ctx sdk.Context, cb func(denom string, bondWeight sdk.Dec) (stop bool)) {
+	store := ctx.KVStore(k.storeKey)
+	prefixStore := prefix.NewStore(store, types.BondWeightKey)
+	iterator := sdk.KVStorePrefixIterator(prefixStore, nil)
+
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		denom := string(iterator.Key())
+		bondWeight := &sdk.Dec{}
+		err := bondWeight.Unmarshal(iterator.Value())
+		if err != nil {
+			panic(fmt.Errorf("unable to unmarshal bond coin weight %v", err))
+
+		}
+		if cb(denom, *bondWeight) {
+			break
+		}
+	}
 }
 
 func (k Keeper) GetValidatorMultiStakingCoin(ctx sdk.Context, operatorAddr sdk.ValAddress) string {
@@ -153,26 +173,6 @@ func (k Keeper) MultiStakingUnlockIterator(ctx sdk.Context, cb func(multiStaking
 		var multiStakingUnlock types.MultiStakingUnlock
 		k.cdc.MustUnmarshal(iterator.Value(), &multiStakingUnlock)
 		if cb(multiStakingUnlock) {
-			break
-		}
-	}
-}
-
-func (k Keeper) BondWeightIterator(ctx sdk.Context, cb func(denom string, bondWeight sdk.Dec) (stop bool)) {
-	store := ctx.KVStore(k.storeKey)
-	prefixStore := prefix.NewStore(store, types.BondWeightKey)
-	iterator := sdk.KVStorePrefixIterator(prefixStore, nil)
-
-	defer iterator.Close()
-	for ; iterator.Valid(); iterator.Next() {
-		denom := string(iterator.Key())
-		bondWeight := &sdk.Dec{}
-		err := bondWeight.Unmarshal(iterator.Value())
-		if err != nil {
-			panic(fmt.Errorf("unable to unmarshal bond coin weight %v", err))
-
-		}
-		if cb(denom, *bondWeight) {
 			break
 		}
 	}
