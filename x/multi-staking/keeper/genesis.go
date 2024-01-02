@@ -9,20 +9,25 @@ import (
 func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) (res []abci.ValidatorUpdate) {
 	// multi-staking state
 	for _, multiStakingLock := range data.MultiStakingLocks {
-		// set staking lock
-		lockID := types.MultiStakingLockID(sdk.AccAddress(multiStakingLock.DelAddr), sdk.ValAddress(multiStakingLock.ValAddr))
-		k.SetMultiStakingLock(ctx, lockID, multiStakingLock)
-		// set intermediaryAccount
-		intermediaryAccount := types.IntermediaryAccount(sdk.AccAddress(multiStakingLock.DelAddr))
-		k.SetIntermediaryAccount(ctx, intermediaryAccount)
+		k.SetMultiStakingLock(ctx, multiStakingLock)
+		// set intermediaryDelegator
+	}
+	for _, multiStakingUnlock := range data.MultiStakingUnlocks {
+		k.SetMultiStakingUnlock(ctx, multiStakingUnlock)
+	}
+	for _, multiStakingCoinInfo := range data.MultiStakingCoinInfo {
+		k.SetBondWeight(ctx, multiStakingCoinInfo.Denom, multiStakingCoinInfo.BondWeight)
+	}
+	for _, intermediaryDelegator := range data.IntermediaryDelegators {
+		k.SetIntermediaryDelegator(ctx, sdk.MustAccAddressFromBech32(intermediaryDelegator))
 	}
 
-	for _, valAllowedToken := range data.ValidatorAllowedToken {
-		valAddr, err := sdk.ValAddressFromBech32(valAllowedToken.ValAddr)
+	for _, valMultiStakingCoin := range data.ValidatorMultiStakingCoins {
+		valAddr, err := sdk.ValAddressFromBech32(valMultiStakingCoin.ValAddr)
 		if err != nil {
 			panic("error validator address")
 		}
-		k.SetValidatorAllowedToken(ctx, valAddr, valAllowedToken.TokenDenom)
+		k.SetValidatorMultiStakingCoin(ctx, valAddr, valMultiStakingCoin.CoinDenom)
 	}
 
 	k.SetBondTokenWeight(ctx, "ario", sdk.OneDec())
@@ -39,20 +44,45 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 		return false
 	})
 
-	// get validator allowed token
-	var validatorAllowedTokenLists []types.ValidatorAllowedToken
-	k.ValidatorAllowedTokenIterator(ctx, func(valAddr string, denom string) (stop bool) {
-		validatorAllowedToken := types.ValidatorAllowedToken{
-			ValAddr:    valAddr,
-			TokenDenom: denom,
+	var multiStakingUnlocks []types.MultiStakingUnlock
+	k.MultiStakingUnlockIterator(ctx, func(unlock types.MultiStakingUnlock) bool {
+		multiStakingUnlocks = append(multiStakingUnlocks, unlock)
+		return false
+	})
+
+	var intermediaryDelegators []string
+	k.IntermediaryDelegatorIterator(ctx, func(intermediaryDelegator sdk.AccAddress) bool {
+		intermediaryDelegators = append(intermediaryDelegators, intermediaryDelegator.String())
+		return false
+	})
+
+	var multiStakingCoinInfos []types.MultiStakingCoinInfo
+	k.BondWeightIterator(ctx, func(denom string, bondWeight sdk.Dec) bool {
+		multiStakingCoinInfos = append(multiStakingCoinInfos, types.MultiStakingCoinInfo{
+			Denom:      denom,
+			BondWeight: bondWeight,
+		})
+		return false
+	})
+
+	// get validator allowed coin
+	var ValidatorMultiStakingCoinLists []types.ValidatorMultiStakingCoin
+	k.ValidatorMultiStakingCoinIterator(ctx, func(valAddr string, denom string) (stop bool) {
+		ValidatorMultiStakingCoin := types.ValidatorMultiStakingCoin{
+			ValAddr:   valAddr,
+			CoinDenom: denom,
 		}
-		validatorAllowedTokenLists = append(validatorAllowedTokenLists, validatorAllowedToken)
+		ValidatorMultiStakingCoinLists = append(ValidatorMultiStakingCoinLists, ValidatorMultiStakingCoin)
 		return false
 	})
 
 	return &types.GenesisState{
-		MultiStakingLocks:     multiStakingLocks,
-		ValidatorAllowedToken: validatorAllowedTokenLists,
-		StakingGenesisState:   k.stakingKeeper.ExportGenesis(ctx),
+		MultiStakingLocks:          multiStakingLocks,
+		MultiStakingUnlocks:        multiStakingUnlocks,
+		IntermediaryDelegators:     intermediaryDelegators,
+		MultiStakingCoinInfo:       multiStakingCoinInfos,
+		ValidatorMultiStakingCoins: ValidatorMultiStakingCoinLists,
+
+		StakingGenesisState: k.stakingKeeper.ExportGenesis(ctx),
 	}
 }

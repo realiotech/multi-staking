@@ -2,37 +2,37 @@ package keeper
 
 import (
 	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
 
-func HandlerAddBondDenomProposal(ctx sdk.Context, k *Keeper, p *types.AddBondDenomProposal) error {
-	_, found := k.GetBondTokenWeight(ctx, p.BondTokenAdd)
+func HandlerAddMultiStakingCoinProposal(ctx sdk.Context, k *Keeper, p *types.AddMultiStakingCoinProposal) error {
+	_, found := k.GetBondWeight(ctx, p.Denom)
 	if found {
-		return fmt.Errorf("denom %s already exists", p.BondTokenAdd)
+		return fmt.Errorf("denom %s already exists", p.Denom)
 	}
 
-	k.SetBondTokenWeight(ctx, p.BondTokenAdd, *p.BondTokenWeightAdd)
+	k.SetBondWeight(ctx, p.Denom, *p.BondWeight)
 	return nil
 }
 
-func HandlerUpdateBondTokenWeightProposals(ctx sdk.Context, k *Keeper, p *types.UpdateBondTokenWeightProposals) error {
-	_, found := k.GetBondTokenWeight(ctx, p.BondDenomChange)
+func HandlerUpdateBondWeightProposals(ctx sdk.Context, k *Keeper, p *types.UpdateBondWeightProposal) error {
+	_, found := k.GetBondWeight(ctx, p.Denom)
 	if !found {
-		return fmt.Errorf("denom %s does not exist", p.BondDenomChange)
+		return fmt.Errorf("denom %s does not exist", p.Denom)
 	}
-	k.RemoveBondTokenWeight(ctx, p.BondDenomChange)
 
-	k.SetBondTokenWeight(ctx, p.BondDenomChange, *p.BondTokenWeightChange)
+	k.SetBondWeight(ctx, p.Denom, *p.UpdatedBondWeight)
 	return nil
 }
 
-func HandlerRemoveBondTokenProposal(ctx sdk.Context, k *Keeper, p *types.RemoveBondTokenProposal) {
-	_, found := k.GetBondTokenWeight(ctx, p.BondTokenRemove)
+func HandlerRemoveMultiStakingCoinProposal(ctx sdk.Context, k *Keeper, p *types.RemoveMultiStakingCoinProposal) {
+	_, found := k.GetBondWeight(ctx, p.Denom)
 	if !found {
 		return
 	}
 
-	k.RemoveBondTokenWeight(ctx, p.BondTokenRemove)
+	k.RemoveBondWeight(ctx, p.Denom)
 }

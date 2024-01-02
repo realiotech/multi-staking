@@ -8,6 +8,7 @@ import (
 	_ "github.com/cosmos/cosmos-proto"
 	_ "github.com/cosmos/cosmos-sdk/codec/types"
 	_ "github.com/cosmos/cosmos-sdk/types"
+	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/cosmos/cosmos-sdk/types/msgservice"
 	types "github.com/cosmos/cosmos-sdk/x/staking/types"
 	_ "github.com/cosmos/gogoproto/gogoproto"
@@ -30,9 +31,12 @@ var _ = math.Inf
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 type GenesisState struct {
-	MultiStakingLocks     []MultiStakingLock      `protobuf:"bytes,1,rep,name=multi_staking_locks,json=multiStakingLocks,proto3" json:"multi_staking_locks"`
-	ValidatorAllowedToken []ValidatorAllowedToken `protobuf:"bytes,2,rep,name=validator_allowed_token,json=validatorAllowedToken,proto3" json:"validator_allowed_token"`
-	StakingGenesisState   *types.GenesisState     `protobuf:"bytes,3,opt,name=staking_genesis_state,json=stakingGenesisState,proto3" json:"staking_genesis_state,omitempty"`
+	MultiStakingLocks          []MultiStakingLock          `protobuf:"bytes,1,rep,name=multi_staking_locks,json=multiStakingLocks,proto3" json:"multi_staking_locks"`
+	MultiStakingUnlocks        []MultiStakingUnlock        `protobuf:"bytes,2,rep,name=multi_staking_unlocks,json=multiStakingUnlocks,proto3" json:"multi_staking_unlocks"`
+	MultiStakingCoinInfo       []MultiStakingCoinInfo      `protobuf:"bytes,3,rep,name=multi_staking_coin_info,json=multiStakingCoinInfo,proto3" json:"multi_staking_coin_info"`
+	ValidatorMultiStakingCoins []ValidatorMultiStakingCoin `protobuf:"bytes,4,rep,name=validator_multi_staking_coins,json=validatorMultiStakingCoins,proto3" json:"validator_multi_staking_coins"`
+	IntermediaryDelegators     []string                    `protobuf:"bytes,5,rep,name=IntermediaryDelegators,proto3" json:"IntermediaryDelegators,omitempty"`
+	StakingGenesisState        *types.GenesisState         `protobuf:"bytes,6,opt,name=staking_genesis_state,json=stakingGenesisState,proto3" json:"staking_genesis_state,omitempty"`
 }
 
 func (m *GenesisState) Reset()         { *m = GenesisState{} }
@@ -75,9 +79,30 @@ func (m *GenesisState) GetMultiStakingLocks() []MultiStakingLock {
 	return nil
 }
 
-func (m *GenesisState) GetValidatorAllowedToken() []ValidatorAllowedToken {
+func (m *GenesisState) GetMultiStakingUnlocks() []MultiStakingUnlock {
 	if m != nil {
-		return m.ValidatorAllowedToken
+		return m.MultiStakingUnlocks
+	}
+	return nil
+}
+
+func (m *GenesisState) GetMultiStakingCoinInfo() []MultiStakingCoinInfo {
+	if m != nil {
+		return m.MultiStakingCoinInfo
+	}
+	return nil
+}
+
+func (m *GenesisState) GetValidatorMultiStakingCoins() []ValidatorMultiStakingCoin {
+	if m != nil {
+		return m.ValidatorMultiStakingCoins
+	}
+	return nil
+}
+
+func (m *GenesisState) GetIntermediaryDelegators() []string {
+	if m != nil {
+		return m.IntermediaryDelegators
 	}
 	return nil
 }
@@ -89,39 +114,94 @@ func (m *GenesisState) GetStakingGenesisState() *types.GenesisState {
 	return nil
 }
 
+type MultiStakingCoinInfo struct {
+	Denom      string                                 `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
+	BondWeight github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,2,opt,name=bond_weight,json=bondWeight,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"bond_weight"`
+}
+
+func (m *MultiStakingCoinInfo) Reset()         { *m = MultiStakingCoinInfo{} }
+func (m *MultiStakingCoinInfo) String() string { return proto.CompactTextString(m) }
+func (*MultiStakingCoinInfo) ProtoMessage()    {}
+func (*MultiStakingCoinInfo) Descriptor() ([]byte, []int) {
+	return fileDescriptor_8f95a201ebed173c, []int{1}
+}
+func (m *MultiStakingCoinInfo) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MultiStakingCoinInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MultiStakingCoinInfo.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MultiStakingCoinInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MultiStakingCoinInfo.Merge(m, src)
+}
+func (m *MultiStakingCoinInfo) XXX_Size() int {
+	return m.Size()
+}
+func (m *MultiStakingCoinInfo) XXX_DiscardUnknown() {
+	xxx_messageInfo_MultiStakingCoinInfo.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MultiStakingCoinInfo proto.InternalMessageInfo
+
+func (m *MultiStakingCoinInfo) GetDenom() string {
+	if m != nil {
+		return m.Denom
+	}
+	return ""
+}
+
 func init() {
 	proto.RegisterType((*GenesisState)(nil), "multistaking.v1.GenesisState")
+	proto.RegisterType((*MultiStakingCoinInfo)(nil), "multistaking.v1.MultiStakingCoinInfo")
 }
 
 func init() { proto.RegisterFile("multistaking/v1/genesis.proto", fileDescriptor_8f95a201ebed173c) }
 
 var fileDescriptor_8f95a201ebed173c = []byte{
-	// 385 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x6c, 0x91, 0xbf, 0xae, 0xd3, 0x30,
-	0x18, 0xc5, 0x93, 0x16, 0x31, 0xa4, 0x48, 0x88, 0x94, 0xaa, 0x7f, 0x24, 0xd2, 0x82, 0x2a, 0xd4,
-	0x85, 0x58, 0x29, 0x13, 0x23, 0x5d, 0x58, 0x60, 0x69, 0x11, 0x20, 0x96, 0xc8, 0x49, 0x8c, 0x6b,
-	0xc5, 0xce, 0x57, 0xd5, 0x6e, 0xa0, 0x6f, 0xc1, 0x5b, 0xf0, 0x2a, 0x1d, 0x3b, 0x32, 0x5d, 0x5d,
-	0xb5, 0x2f, 0x72, 0x15, 0xdb, 0x51, 0x7b, 0x73, 0xef, 0xe6, 0xf3, 0xfd, 0x8e, 0x8e, 0xfd, 0x1d,
-	0x7b, 0xaf, 0xc4, 0x8e, 0x2b, 0x26, 0x15, 0xce, 0x59, 0x41, 0x51, 0x19, 0x21, 0x4a, 0x0a, 0x22,
-	0x99, 0x0c, 0x37, 0x5b, 0x50, 0xe0, 0x3f, 0xbf, 0xc6, 0x61, 0x19, 0x8d, 0x86, 0x14, 0x80, 0x72,
-	0x82, 0x34, 0x4e, 0x76, 0xbf, 0x10, 0x2e, 0xf6, 0xc6, 0x3b, 0x1a, 0x37, 0x91, 0x62, 0x82, 0x48,
-	0x85, 0xc5, 0xc6, 0x1a, 0x5e, 0x52, 0xa0, 0xa0, 0x8f, 0xa8, 0x3a, 0xd9, 0xe9, 0x30, 0x05, 0x29,
-	0x40, 0xc6, 0x06, 0x18, 0x61, 0x51, 0x60, 0x14, 0x4a, 0xb0, 0x24, 0xa8, 0x8c, 0x12, 0xa2, 0x70,
-	0x84, 0x52, 0x60, 0x85, 0xe5, 0x53, 0xcb, 0x2f, 0xcf, 0x37, 0x96, 0x7b, 0x3b, 0x8c, 0x26, 0xcd,
-	0x15, 0x33, 0xc2, 0x09, 0xc5, 0x8a, 0x41, 0x9d, 0xd3, 0xb7, 0x39, 0x42, 0x6a, 0x2e, 0x24, 0x35,
-	0xe0, 0xcd, 0xbf, 0x96, 0xf7, 0xec, 0x93, 0x09, 0x5b, 0x29, 0xac, 0x88, 0xff, 0xdd, 0xeb, 0xea,
-	0xb4, 0xd8, 0xc6, 0xc5, 0x1c, 0xd2, 0x5c, 0x0e, 0xdc, 0x49, 0x7b, 0xd6, 0x99, 0xbf, 0x0e, 0x1b,
-	0x6d, 0x85, 0x5f, 0x2a, 0xbd, 0x32, 0xfa, 0x33, 0xa4, 0xf9, 0xe2, 0xc9, 0xe1, 0x66, 0xec, 0x2c,
-	0x5f, 0x88, 0xc6, 0x5c, 0xfa, 0x99, 0xd7, 0x2f, 0x31, 0x67, 0x19, 0x56, 0xb0, 0x8d, 0x31, 0xe7,
-	0xf0, 0x9b, 0x64, 0xb1, 0x82, 0x9c, 0x14, 0x83, 0x96, 0x0e, 0x7f, 0xfb, 0x20, 0xfc, 0x5b, 0xed,
-	0xff, 0x68, 0xec, 0x5f, 0x2b, 0xb7, 0xbd, 0xa1, 0x57, 0x3e, 0x06, 0xfd, 0x1f, 0x5e, 0xaf, 0x7e,
-	0xb8, 0xed, 0xa8, 0x5a, 0x44, 0x91, 0x41, 0x7b, 0xe2, 0xce, 0x3a, 0xf3, 0x69, 0x68, 0xeb, 0xbf,
-	0xdc, 0xa2, 0x0b, 0x0d, 0xaf, 0x3b, 0x58, 0x76, 0x2d, 0xbd, 0x1e, 0x2e, 0x56, 0x87, 0x53, 0xe0,
-	0x1e, 0x4f, 0x81, 0x7b, 0x7b, 0x0a, 0xdc, 0xbf, 0xe7, 0xc0, 0x39, 0x9e, 0x03, 0xe7, 0xff, 0x39,
-	0x70, 0x7e, 0x7e, 0xa0, 0x4c, 0xad, 0x77, 0x49, 0x98, 0x82, 0x40, 0x5b, 0x82, 0x39, 0x03, 0x45,
-	0xd2, 0x35, 0xd2, 0xdb, 0xbc, 0xab, 0x7f, 0xe5, 0x4f, 0x43, 0xab, 0xfd, 0x86, 0xc8, 0xe4, 0xa9,
-	0xfe, 0x85, 0xf7, 0x77, 0x01, 0x00, 0x00, 0xff, 0xff, 0x49, 0x57, 0xa1, 0xf6, 0xa5, 0x02, 0x00,
-	0x00,
+	// 534 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x7c, 0x53, 0xd1, 0x6a, 0xdb, 0x30,
+	0x14, 0x8d, 0x9b, 0xb4, 0x50, 0x65, 0x30, 0xe6, 0xa4, 0xab, 0x1b, 0xa8, 0x93, 0xb5, 0xdd, 0x08,
+	0x83, 0xd8, 0xa4, 0x83, 0xc1, 0x60, 0x4f, 0x59, 0x60, 0x14, 0xb6, 0x17, 0x87, 0xad, 0x63, 0x50,
+	0x8c, 0x6c, 0x2b, 0x8e, 0x88, 0x25, 0x05, 0x4b, 0xf1, 0x96, 0x6f, 0xd8, 0xcb, 0x7e, 0x65, 0xb0,
+	0x8f, 0xe8, 0x63, 0xd9, 0xd3, 0xd8, 0x43, 0x19, 0xc9, 0x8f, 0x14, 0x4b, 0x0a, 0x4d, 0x9c, 0xb6,
+	0x4f, 0xd6, 0xd1, 0x39, 0x3e, 0xe7, 0x5e, 0x71, 0x2f, 0x38, 0x24, 0xd3, 0x44, 0x60, 0x2e, 0xe0,
+	0x18, 0xd3, 0xd8, 0xcd, 0xba, 0x6e, 0x8c, 0x28, 0xe2, 0x98, 0x3b, 0x93, 0x94, 0x09, 0x66, 0x3e,
+	0x5e, 0xa5, 0x9d, 0xac, 0xdb, 0x38, 0x88, 0x19, 0x8b, 0x13, 0xe4, 0x4a, 0x3a, 0x98, 0x0e, 0x5d,
+	0x48, 0x67, 0x4a, 0xdb, 0x68, 0x16, 0x29, 0x81, 0x09, 0xe2, 0x02, 0x92, 0x89, 0x16, 0xd4, 0x63,
+	0x16, 0x33, 0x79, 0x74, 0xf3, 0x93, 0xbe, 0x3d, 0x08, 0x19, 0x27, 0x8c, 0xfb, 0x8a, 0x50, 0x40,
+	0x53, 0xb6, 0x42, 0x6e, 0x00, 0x39, 0x72, 0xb3, 0x6e, 0x80, 0x04, 0xec, 0xba, 0x21, 0xc3, 0x54,
+	0xf3, 0x27, 0x9a, 0xbf, 0x2d, 0x5f, 0x49, 0xd6, 0x7a, 0x68, 0x1c, 0x17, 0x5b, 0x94, 0xd8, 0x5f,
+	0x36, 0xa5, 0x44, 0xfb, 0xda, 0x8a, 0x70, 0x25, 0xe1, 0x9a, 0x38, 0xfa, 0x55, 0x01, 0x8f, 0xde,
+	0x2b, 0xbf, 0x81, 0x80, 0x02, 0x99, 0xe7, 0xa0, 0xb6, 0x66, 0xe0, 0x27, 0x2c, 0x1c, 0x73, 0xcb,
+	0x68, 0x95, 0xdb, 0xd5, 0xd3, 0x67, 0x4e, 0xe1, 0xc1, 0x9c, 0x8f, 0x39, 0x1e, 0x28, 0xfc, 0x81,
+	0x85, 0xe3, 0x5e, 0xe5, 0xf2, 0xba, 0x59, 0xf2, 0x9e, 0x90, 0xc2, 0x3d, 0x37, 0x2f, 0xc0, 0xde,
+	0xba, 0xf1, 0x94, 0x2a, 0xeb, 0x2d, 0x69, 0x7d, 0xfc, 0xa0, 0xf5, 0x27, 0xa9, 0xd5, 0xe6, 0x35,
+	0xb2, 0xc1, 0x70, 0x33, 0x00, 0xfb, 0xeb, 0xf6, 0xf9, 0x43, 0xfa, 0x98, 0x0e, 0x99, 0x55, 0x96,
+	0x01, 0xcf, 0x1f, 0x0c, 0x78, 0xc7, 0x30, 0x3d, 0xa3, 0x43, 0xa6, 0x23, 0xea, 0xe4, 0x0e, 0xce,
+	0xe4, 0xe0, 0x30, 0x83, 0x09, 0x8e, 0xa0, 0x60, 0xa9, 0xbf, 0x99, 0xc6, 0xad, 0x8a, 0x4c, 0x7a,
+	0xb9, 0x91, 0xf4, 0x79, 0xf9, 0x57, 0x31, 0x52, 0xc7, 0x35, 0xb2, 0xfb, 0x04, 0xdc, 0x7c, 0x0d,
+	0x9e, 0x9e, 0x51, 0x81, 0x52, 0x82, 0x22, 0x0c, 0xd3, 0x59, 0x1f, 0x25, 0x28, 0xce, 0x95, 0xdc,
+	0xda, 0x6e, 0x95, 0xdb, 0xbb, 0xde, 0x3d, 0xac, 0xf9, 0x05, 0xec, 0x2d, 0x8b, 0xd3, 0x03, 0x93,
+	0x17, 0x2b, 0x90, 0xb5, 0xd3, 0x32, 0xda, 0xd5, 0xd3, 0x13, 0x47, 0xcf, 0xe2, 0x6d, 0x99, 0x72,
+	0xba, 0x9c, 0xd5, 0x69, 0xf0, 0x6a, 0x9a, 0x5d, 0xbd, 0x3c, 0xfa, 0x61, 0x80, 0xfa, 0x5d, 0x6f,
+	0x67, 0xd6, 0xc1, 0x76, 0x84, 0x28, 0x23, 0x96, 0xd1, 0x32, 0xda, 0xbb, 0x9e, 0x02, 0xe6, 0x05,
+	0xa8, 0x06, 0x8c, 0x46, 0xfe, 0x37, 0x84, 0xe3, 0x91, 0xb0, 0xb6, 0x72, 0xae, 0xf7, 0x36, 0xef,
+	0xfb, 0xdf, 0x75, 0xf3, 0x45, 0x8c, 0xc5, 0x68, 0x1a, 0x38, 0x21, 0x23, 0x7a, 0x39, 0xf4, 0xa7,
+	0xc3, 0xa3, 0xb1, 0x2b, 0x66, 0x13, 0xc4, 0x9d, 0x3e, 0x0a, 0xff, 0xfc, 0xee, 0x00, 0x5d, 0x6f,
+	0x1f, 0x85, 0x1e, 0xc8, 0x0d, 0xcf, 0xa5, 0x5f, 0x6f, 0x70, 0x39, 0xb7, 0x8d, 0xab, 0xb9, 0x6d,
+	0xfc, 0x9f, 0xdb, 0xc6, 0xcf, 0x85, 0x5d, 0xba, 0x5a, 0xd8, 0xa5, 0xbf, 0x0b, 0xbb, 0xf4, 0xf5,
+	0xcd, 0x8a, 0x77, 0x8a, 0x60, 0x82, 0x99, 0x40, 0xe1, 0x48, 0xed, 0x47, 0x67, 0xb9, 0x30, 0xdf,
+	0x0b, 0x58, 0x46, 0x06, 0x3b, 0x72, 0x3b, 0x5e, 0xdd, 0x04, 0x00, 0x00, 0xff, 0xff, 0x45, 0x6a,
+	0x9d, 0xc9, 0x40, 0x04, 0x00, 0x00,
 }
 
 func (m *GenesisState) Marshal() (dAtA []byte, err error) {
@@ -154,12 +234,49 @@ func (m *GenesisState) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 			i = encodeVarintGenesis(dAtA, i, uint64(size))
 		}
 		i--
-		dAtA[i] = 0x1a
+		dAtA[i] = 0x32
 	}
-	if len(m.ValidatorAllowedToken) > 0 {
-		for iNdEx := len(m.ValidatorAllowedToken) - 1; iNdEx >= 0; iNdEx-- {
+	if len(m.IntermediaryDelegators) > 0 {
+		for iNdEx := len(m.IntermediaryDelegators) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.IntermediaryDelegators[iNdEx])
+			copy(dAtA[i:], m.IntermediaryDelegators[iNdEx])
+			i = encodeVarintGenesis(dAtA, i, uint64(len(m.IntermediaryDelegators[iNdEx])))
+			i--
+			dAtA[i] = 0x2a
+		}
+	}
+	if len(m.ValidatorMultiStakingCoins) > 0 {
+		for iNdEx := len(m.ValidatorMultiStakingCoins) - 1; iNdEx >= 0; iNdEx-- {
 			{
-				size, err := m.ValidatorAllowedToken[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				size, err := m.ValidatorMultiStakingCoins[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintGenesis(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x22
+		}
+	}
+	if len(m.MultiStakingCoinInfo) > 0 {
+		for iNdEx := len(m.MultiStakingCoinInfo) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.MultiStakingCoinInfo[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintGenesis(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x1a
+		}
+	}
+	if len(m.MultiStakingUnlocks) > 0 {
+		for iNdEx := len(m.MultiStakingUnlocks) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.MultiStakingUnlocks[iNdEx].MarshalToSizedBuffer(dAtA[:i])
 				if err != nil {
 					return 0, err
 				}
@@ -187,6 +304,46 @@ func (m *GenesisState) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *MultiStakingCoinInfo) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MultiStakingCoinInfo) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MultiStakingCoinInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size := m.BondWeight.Size()
+		i -= size
+		if _, err := m.BondWeight.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintGenesis(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x12
+	if len(m.Denom) > 0 {
+		i -= len(m.Denom)
+		copy(dAtA[i:], m.Denom)
+		i = encodeVarintGenesis(dAtA, i, uint64(len(m.Denom)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintGenesis(dAtA []byte, offset int, v uint64) int {
 	offset -= sovGenesis(v)
 	base := offset
@@ -210,9 +367,27 @@ func (m *GenesisState) Size() (n int) {
 			n += 1 + l + sovGenesis(uint64(l))
 		}
 	}
-	if len(m.ValidatorAllowedToken) > 0 {
-		for _, e := range m.ValidatorAllowedToken {
+	if len(m.MultiStakingUnlocks) > 0 {
+		for _, e := range m.MultiStakingUnlocks {
 			l = e.Size()
+			n += 1 + l + sovGenesis(uint64(l))
+		}
+	}
+	if len(m.MultiStakingCoinInfo) > 0 {
+		for _, e := range m.MultiStakingCoinInfo {
+			l = e.Size()
+			n += 1 + l + sovGenesis(uint64(l))
+		}
+	}
+	if len(m.ValidatorMultiStakingCoins) > 0 {
+		for _, e := range m.ValidatorMultiStakingCoins {
+			l = e.Size()
+			n += 1 + l + sovGenesis(uint64(l))
+		}
+	}
+	if len(m.IntermediaryDelegators) > 0 {
+		for _, s := range m.IntermediaryDelegators {
+			l = len(s)
 			n += 1 + l + sovGenesis(uint64(l))
 		}
 	}
@@ -220,6 +395,21 @@ func (m *GenesisState) Size() (n int) {
 		l = m.StakingGenesisState.Size()
 		n += 1 + l + sovGenesis(uint64(l))
 	}
+	return n
+}
+
+func (m *MultiStakingCoinInfo) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Denom)
+	if l > 0 {
+		n += 1 + l + sovGenesis(uint64(l))
+	}
+	l = m.BondWeight.Size()
+	n += 1 + l + sovGenesis(uint64(l))
 	return n
 }
 
@@ -294,7 +484,7 @@ func (m *GenesisState) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ValidatorAllowedToken", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field MultiStakingUnlocks", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -321,12 +511,112 @@ func (m *GenesisState) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.ValidatorAllowedToken = append(m.ValidatorAllowedToken, ValidatorAllowedToken{})
-			if err := m.ValidatorAllowedToken[len(m.ValidatorAllowedToken)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.MultiStakingUnlocks = append(m.MultiStakingUnlocks, MultiStakingUnlock{})
+			if err := m.MultiStakingUnlocks[len(m.MultiStakingUnlocks)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
 		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MultiStakingCoinInfo", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenesis
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.MultiStakingCoinInfo = append(m.MultiStakingCoinInfo, MultiStakingCoinInfo{})
+			if err := m.MultiStakingCoinInfo[len(m.MultiStakingCoinInfo)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ValidatorMultiStakingCoins", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenesis
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ValidatorMultiStakingCoins = append(m.ValidatorMultiStakingCoins, ValidatorMultiStakingCoin{})
+			if err := m.ValidatorMultiStakingCoins[len(m.ValidatorMultiStakingCoins)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field IntermediaryDelegators", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenesis
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.IntermediaryDelegators = append(m.IntermediaryDelegators, string(dAtA[iNdEx:postIndex]))
+			iNdEx = postIndex
+		case 6:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field StakingGenesisState", wireType)
 			}
@@ -359,6 +649,122 @@ func (m *GenesisState) Unmarshal(dAtA []byte) error {
 				m.StakingGenesisState = &types.GenesisState{}
 			}
 			if err := m.StakingGenesisState.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipGenesis(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MultiStakingCoinInfo) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowGenesis
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MultiStakingCoinInfo: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MultiStakingCoinInfo: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Denom", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenesis
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Denom = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field BondWeight", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenesis
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.BondWeight.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

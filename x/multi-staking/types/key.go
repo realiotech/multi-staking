@@ -2,7 +2,6 @@ package types
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/address"
 )
 
 const (
@@ -24,47 +23,104 @@ const (
 
 // KVStore keys
 var (
-	BondTokenWeightKey       = []byte{0x00}
-	ValidatorAllowedTokenKey = []byte{0x01}
+	BondWeightKey = []byte{0x00}
 
-	IntermediaryAccountKey = []byte{0x02}
+	ValidatorMultiStakingCoinKey = []byte{0x01}
+
+	IntermediaryDelegatorKey = []byte{0x02}
 
 	MultiStakingLockPrefix = []byte{0x03}
 
-	UnbondDelKey = []byte{0x11} // key for an unbonding-delegation
+	MultiStakingUnlockPrefix = []byte{0x11} // key for an unbonding-delegation
 )
 
 func KeyPrefix(key string) []byte {
 	return []byte(key)
 }
 
-// GetBondTokenWeightKeyKey returns a key for an index containing the bond token weight
-func GetBondTokenWeightKey(tokenDenom string) []byte {
-	return append(BondTokenWeightKey, []byte(tokenDenom)...)
+// GetBondWeightKeyKey returns a key for an index containing the bond coin weight
+func GetBondWeightKey(tokenDenom string) []byte {
+	return append(BondWeightKey, []byte(tokenDenom)...)
 }
 
-// GetValidatorAllowedTokenKey returns a key for an index containing the bond denom of a validator
-func GetValidatorAllowedTokenKey(valAddr string) []byte {
-	return append(ValidatorAllowedTokenKey, []byte(valAddr)...)
+// GetValidatorMultiStakingCoinKey returns a key for an index containing the bond denom of a validator
+func GetValidatorMultiStakingCoinKey(valAddr string) []byte {
+	return append(ValidatorMultiStakingCoinKey, []byte(valAddr)...)
 }
 
-// GetIntermediaryAccountDelegatorKey returns a key for an index containing the delegator of an intermediary account
-func GetIntermediaryAccountKey(intermediaryAccount sdk.AccAddress) []byte {
-	return append(IntermediaryAccountKey, intermediaryAccount...)
+// GetIntermediaryDelegatorDelegatorKey returns a key for an index containing the delegator of an intermediary account
+func GetIntermediaryDelegatorKey(intermediaryDelegator sdk.AccAddress) []byte {
+	return append(IntermediaryDelegatorKey, intermediaryDelegator...)
 }
 
-func MultiStakingLockID(delAddr sdk.AccAddress, valAddr sdk.ValAddress) []byte {
-	DVPair := append(delAddr, address.MustLengthPrefix(valAddr)...)
+func MultiStakingLockID(multiStakerAddr string, valAddr string) LockID {
+	return LockID{MultiStakerAddr: multiStakerAddr, ValAddr: valAddr}
+}
+
+func MultiStakingUnlockID(multiStakerAddr string, valAddr string) UnlockID {
+	return UnlockID{MultiStakerAddr: multiStakerAddr, ValAddr: valAddr}
+}
+
+func DelAddrAndValAddrFromLockID(lockID []byte) (multiStakerAddr sdk.AccAddress, valAddr sdk.ValAddress) {
+	lenMultiStakerAddr := lockID[0]
+
+	multiStakerAddr = lockID[1 : lenMultiStakerAddr+1]
+
+	valAddr = lockID[1+lenMultiStakerAddr:]
+
+	return multiStakerAddr, valAddr
+}
+
+func DelAddrAndValAddrFromUnlockID(unlockID []byte) (multiStakerAddr sdk.AccAddress, valAddr sdk.ValAddress) {
+	lenMultiStakerAddr := unlockID[0]
+
+	multiStakerAddr = unlockID[1 : lenMultiStakerAddr+1]
+
+	valAddr = unlockID[1+lenMultiStakerAddr:]
+
+	return multiStakerAddr, valAddr
+}
+
+// // GetUBDKey creates the key for an unbonding delegation by delegator and validator addr
+// // VALUE: multi-staking/MultiStakingUnlock
+// func GetUBDKey(multiStakerAddr sdk.AccAddress, valAddr sdk.ValAddress) []byte {
+// 	return append(GetUBDsKey(delAddr.Bytes()), address.MustLengthPrefix(valAddr)...)
+// }
+
+func (l LockID) ToByte() []byte {
+	multiStakerAddr, valAcc, err := AccAddrAndValAddrFromStrings(l.MultiStakerAddr, l.ValAddr)
+	if err != nil {
+		panic(err)
+	}
+
+	lenMultiStakerAddr := len(multiStakerAddr)
+
+	DVPair := make([]byte, 1+lenMultiStakerAddr+len(valAcc))
+
+	DVPair[0] = uint8(lenMultiStakerAddr)
+
+	copy(multiStakerAddr[:], DVPair[1:])
+
+	copy(multiStakerAddr[:], DVPair[1+lenMultiStakerAddr:])
+
 	return append(MultiStakingLockPrefix, DVPair...)
 }
 
-// GetUBDsKey creates the prefix for all unbonding delegations from a delegator
-func GetUBDsKey(delAddr sdk.AccAddress) []byte {
-	return append(UnbondDelKey, address.MustLengthPrefix(delAddr)...)
-}
+func (l UnlockID) ToBytes() []byte {
+	multiStakerAddr, valAcc, err := AccAddrAndValAddrFromStrings(l.MultiStakerAddr, l.ValAddr)
+	if err != nil {
+		panic(err)
+	}
 
-// GetUBDKey creates the key for an unbonding delegation by delegator and validator addr
-// VALUE: multi-staking/MultiStakingUnlock
-func GetUBDKey(delAddr sdk.AccAddress, valAddr sdk.ValAddress) []byte {
-	return append(GetUBDsKey(delAddr.Bytes()), address.MustLengthPrefix(valAddr)...)
+	lenMultiStakerAddr := len(multiStakerAddr)
+
+	DVPair := make([]byte, 1+lenMultiStakerAddr+len(valAcc))
+
+	DVPair[0] = uint8(lenMultiStakerAddr)
+
+	copy(multiStakerAddr[:], DVPair[1:])
+
+	copy(multiStakerAddr[:], DVPair[1+lenMultiStakerAddr:])
+
+	return append(MultiStakingLockPrefix, DVPair...)
 }

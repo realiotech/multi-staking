@@ -31,7 +31,7 @@ For each delegation from a `delegator A`, the underlying `sdk delegation` will b
 
 The `intermediary account` is also where the `bond token` from `delegator` is locked and the `sdkbond token` is minted to, the minted `sdkbond token` will then be used to create the `sdk delegation`.
 
-### Bond Token Weight
+### Bond Coin Weight
 
 Each `bond token` is associated with a `bond token weight`. This `bond token weight` is specified via the gov proposal in which the `bond token` is accepted.
 

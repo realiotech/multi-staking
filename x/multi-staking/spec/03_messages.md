@@ -15,7 +15,7 @@ The Initial delegation token must match the `bond denom` specified in `MsgCreate
 
 Logic flow:
 
-1. Setting `ValidatorAllowedToken`.
+1. Setting `ValidatorMultiStakingCoin`.
 
 2. Converting `MsgCreateValidator` to `stakingtypes.MsgCreateValidator` and
 calling `stakingkeeper.CreateValidator()`.
@@ -43,25 +43,25 @@ This message is expected to fail if:
 
 Within this message the delegator locked up coins in the `multi-staking` module account. 
 The `multi-staking` inturns mint a calculated amount of `sdkstaking.bondtoken` and
-create an `IntermediaryAccount` to delegate on behalf of the delegator.
+create an `IntermediaryDelegator` to delegate on behalf of the delegator.
 
 Logic flow:
 
-* Get `IntermediaryAccount` for the delegator.
+* Get `IntermediaryDelegator` for the delegator.
 
-* Set `IntermediaryAccountDelegator` if it's not set yet.
+* Set `IntermediaryDelegatorDelegator` if it's not set yet.
 
-* Send delegated coins from user to `IntermediaryAccount`.
+* Send delegated coins from user to `IntermediaryDelegator`.
 
-* Caculate the `sdkbond token` to be minted using `BondTokenWeight`.
+* Caculate the `sdkbond token` to be minted using `BondWeight`.
 
-* Mint `sdkbond token` to `IntermediaryAccount`
+* Mint `sdkbond token` to `IntermediaryDelegator`
 
 * Update `DVPairSDKBondAmount`.
 
 * Update `DVPairBondAmount`.
 
-* Create `sdk delegation` with `IntermediaryAccount` using the minted `sdkbond token`
+* Create `sdk delegation` with `IntermediaryDelegator` using the minted `sdkbond token`
 
 ## MsgUndelegate
 

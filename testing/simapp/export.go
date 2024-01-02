@@ -79,7 +79,7 @@ func (app *SimApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []
 	// withdraw all delegator rewards
 	dels := app.StakingKeeper.GetAllDelegations(ctx)
 	for _, delegation := range dels {
-		delAddr, valAddr, err := types.DelAccAndValAccFromStrings(delegation.DelegatorAddress, delegation.ValidatorAddress)
+		delAddr, valAddr, err := types.AccAddrAndValAddrFromStrings(delegation.DelegatorAddress, delegation.ValidatorAddress)
 		if err != nil {
 			panic(err)
 		}
@@ -111,7 +111,7 @@ func (app *SimApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []
 
 	// reinitialize all delegations
 	for _, del := range dels {
-		delAddr, valAddr, err := types.DelAccAndValAccFromStrings(del.DelegatorAddress, del.ValidatorAddress)
+		delAddr, valAddr, err := types.AccAddrAndValAddrFromStrings(del.DelegatorAddress, del.ValidatorAddress)
 		if err != nil {
 			panic(err)
 		}
@@ -140,11 +140,11 @@ func (app *SimApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []
 	})
 
 	// iterate through unbonding delegations, reset creation height
-	app.StakingKeeper.IterateUnbondingDelegations(ctx, func(_ int64, ubd stakingtypes.UnbondingDelegation) (stop bool) {
-		for i := range ubd.Entries {
-			ubd.Entries[i].CreationHeight = 0
+	app.StakingKeeper.IterateUnbondingDelegations(ctx, func(_ int64, unlock stakingtypes.UnbondingDelegation) (stop bool) {
+		for i := range unlock.Entries {
+			unlock.Entries[i].CreationHeight = 0
 		}
-		app.StakingKeeper.SetUnbondingDelegation(ctx, ubd)
+		app.StakingKeeper.SetUnbondingDelegation(ctx, unlock)
 		return false
 	})
 
