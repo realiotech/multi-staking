@@ -66,6 +66,67 @@ func (k Keeper) SetIntermediaryDelegator(ctx sdk.Context, intermediaryAccount sd
 	store.Set(types.GetIntermediaryDelegatorKey(intermediaryAccount), delegator)
 }
 
+func (k Keeper) GetMultiStakingLock(ctx sdk.Context, multiStakingLockID types.LockID) (types.MultiStakingLock, bool) {
+	store := ctx.KVStore(k.storeKey)
+
+	bz := store.Get(multiStakingLockID.ToByte())
+	if bz == nil {
+		return types.MultiStakingLock{}, false
+	}
+
+	multiStakingLock := types.MultiStakingLock{}
+	k.cdc.MustUnmarshal(bz, &multiStakingLock)
+	return multiStakingLock, true
+}
+
+func (k Keeper) SetMultiStakingLock(ctx sdk.Context, multiStakingLock types.MultiStakingLock) {
+	if multiStakingLock.IsEmpty() {
+		k.RemoveMultiStakingLock(ctx, *multiStakingLock.LockID)
+		return
+	}
+
+	store := ctx.KVStore(k.storeKey)
+
+	bz := k.cdc.MustMarshal(&multiStakingLock)
+
+	store.Set(multiStakingLock.LockID.ToByte(), bz)
+}
+
+func (k Keeper) RemoveMultiStakingLock(ctx sdk.Context, multiStakingLockID types.LockID) {
+	store := ctx.KVStore(k.storeKey)
+
+	store.Delete(multiStakingLockID.ToByte())
+}
+
+func (k Keeper) GetMultiStakingUnlock(ctx sdk.Context, multiStakingUnlockID types.UnlockID) (unlock types.MultiStakingUnlock, found bool) {
+	store := ctx.KVStore(k.storeKey)
+	value := store.Get(multiStakingUnlockID.ToBytes())
+
+	if value == nil {
+		return unlock, false
+	}
+
+	unlock = types.MultiStakingUnlock{}
+	k.cdc.MustUnmarshal(value, &unlock)
+
+	return unlock, true
+}
+
+// SetMultiStakingUnlock sets the unbonding delegation and associated index.
+func (k Keeper) SetMultiStakingUnlock(ctx sdk.Context, unlock types.MultiStakingUnlock) {
+	store := ctx.KVStore(k.storeKey)
+
+	bz := k.cdc.MustMarshal(&unlock)
+
+	store.Set(unlock.UnlockID.ToBytes(), bz)
+}
+
+func (k Keeper) DeleteMultiStakingUnlock(ctx sdk.Context, unlockID types.UnlockID) {
+	store := ctx.KVStore(k.storeKey)
+
+	store.Delete(unlockID.ToBytes())
+}
+
 func (k Keeper) GetDVPairSDKBondTokens(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) sdk.Coin {
 	store := ctx.KVStore(k.storeKey)
 
