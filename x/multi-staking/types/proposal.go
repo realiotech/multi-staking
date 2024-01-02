@@ -2,118 +2,122 @@ package types
 
 import (
 	"fmt"
-
-	sdkerrors "cosmossdk.io/errors"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	"cosmossdk.io/math"
+	sdkerrors "cosmossdk.io/errors"
 )
 
 // Proposal types
 const (
-	ProposalTypeAddMultiStakingCoin string = "AddMultiStakingCoin"
-	ProposalTypeUpdateBondWeight    string = "UpdateBondWeight"
+	ProposalTypeAddBondToken string = "AddBondToken"
+	ProposalTypeChangeBondTokenWeight string = "ChangeBondTokenWeight"
 )
+
 
 // Assert module proposals implement govtypes.Content at compile-time
 var (
-	_ govv1beta1.Content = &AddMultiStakingCoinProposal{}
-	_ govv1beta1.Content = &UpdateBondWeightProposal{}
+	_ govv1beta1.Content = &AddBondTokenProposal{}
+	_ govv1beta1.Content = &ChangeBondTokenWeightProposal{}
 )
 
 func init() {
-	govv1beta1.RegisterProposalType(ProposalTypeAddMultiStakingCoin)
-	govv1beta1.RegisterProposalType(ProposalTypeUpdateBondWeight)
+	govv1beta1.RegisterProposalType(ProposalTypeAddBondToken)
+	govv1beta1.RegisterProposalType(ProposalTypeChangeBondTokenWeight)
 }
 
-// NewAddMultiStakingCoinProposal returns new instance of AddMultiStakingCoinProposal
-func NewAddMultiStakingCoinProposal(title, description, denom string, bondWeight sdk.Dec) govv1beta1.Content {
-	return &AddMultiStakingCoinProposal{
+
+// NewAddBondTokenProposal returns new instance of AddBondTokenProposal
+func NewAddBondTokenProposal(title, description, bondToken string, tokenWeight math.LegacyDec) govv1beta1.Content {
+	return &AddBondTokenProposal{
 		Title:       title,
 		Description: description,
-		Denom:       denom,
-		BondWeight:  &bondWeight,
+		BondToken: bondToken,
+		TokenWeight: &tokenWeight,
 	}
 }
 
-// GetTitle returns the title of a AddMultiStakingCoinProposal
-func (abtp *AddMultiStakingCoinProposal) GetTitle() string { return abtp.Title }
+// GetTitle returns the title of a AddBondTokenProposal
+func (abtp *AddBondTokenProposal) GetTitle() string { return abtp.Title }
 
-// GetDescription returns the description of a AddMultiStakingCoinProposal
-func (abtp *AddMultiStakingCoinProposal) GetDescription() string { return abtp.Description }
+// GetDescription returns the description of a AddBondTokenProposal
+func (abtp *AddBondTokenProposal) GetDescription() string { return abtp.Description }
 
-// ProposalRoute returns router key for a AddMultiStakingCoinProposal
-func (*AddMultiStakingCoinProposal) ProposalRoute() string { return RouterKey }
 
-// ProposalType returns proposal type for a AddMultiStakingCoinProposal
-func (*AddMultiStakingCoinProposal) ProposalType() string {
-	return ProposalTypeAddMultiStakingCoin
+// ProposalRoute returns router key for a AddBondTokenProposal
+func (*AddBondTokenProposal) ProposalRoute() string { return RouterKey }
+
+// ProposalType returns proposal type for a AddBondTokenProposal
+func (*AddBondTokenProposal) ProposalType() string {
+	return ProposalTypeAddBondToken
 }
 
 // ValidateBasic runs basic stateless validity checks
-func (abtp *AddMultiStakingCoinProposal) ValidateBasic() error {
+func (abtp *AddBondTokenProposal) ValidateBasic() error {
 	err := govv1beta1.ValidateAbstract(abtp)
 	if err != nil {
 		return err
 	}
-
-	if abtp.Denom == "" {
-		return sdkerrors.Wrap(ErrInvalidAddMultiStakingCoinProposal, "proposal bond token cannot be blank")
+		
+	if (abtp.BondToken == "") {
+		return sdkerrors.Wrap(ErrInvalidAddBondTokenProposal, "proposal bond token cannot be blank")
 	}
 
-	if !abtp.BondWeight.IsPositive() {
-		return sdkerrors.Wrap(ErrInvalidAddMultiStakingCoinProposal, "proposal bond token weight must be positive")
+	if !abtp.TokenWeight.IsPositive() {
+		return sdkerrors.Wrap(ErrInvalidAddBondTokenProposal, "proposal bond token weight must be positive")
 	}
 
 	return nil
 }
 
 // String implements the Stringer interface.
-func (abtp AddMultiStakingCoinProposal) String() string {
-	return fmt.Sprintf("AddMultiStakingCoinProposal: Title: %s Description: %s Denom: %s TokenWeight: %s", abtp.Title, abtp.Description, abtp.Denom, abtp.BondWeight)
+func (abtp AddBondTokenProposal) String() string {
+	return fmt.Sprintf("AddBondTokenProposal: Title: %s Description: %s BondToken: %s TokenWeight: %s", abtp.Title, abtp.Description, abtp.BondToken, abtp.TokenWeight)
 }
 
-// NewUpdateBondWeightProposal returns new instance of UpdateBondWeightProposal
-func NewUpdateBondWeightProposal(title, description, denom string, bondWeight sdk.Dec) govv1beta1.Content {
-	return &UpdateBondWeightProposal{
-		Title:             title,
-		Description:       description,
-		Denom:             denom,
-		UpdatedBondWeight: &bondWeight,
+
+
+// NewChangeBondTokenWeightProposal returns new instance of ChangeBondTokenWeightProposal
+func NewChangeBondTokenWeightProposal(title, description, bondToken string, tokenWeight math.LegacyDec) govv1beta1.Content {
+	return &ChangeBondTokenWeightProposal{
+		Title:       title,
+		Description: description,
+		BondToken: bondToken,
+		TokenWeight: &tokenWeight,
 	}
 }
 
-// GetTitle returns the title of a UpdateBondWeightProposal
-func (cbtp *UpdateBondWeightProposal) GetTitle() string { return cbtp.Title }
+// GetTitle returns the title of a ChangeBondTokenWeightProposal
+func (cbtp *ChangeBondTokenWeightProposal) GetTitle() string { return cbtp.Title }
 
-// GetDescription returns the description of a UpdateBondWeightProposal
-func (cbtp *UpdateBondWeightProposal) GetDescription() string { return cbtp.Description }
+// GetDescription returns the description of a ChangeBondTokenWeightProposal
+func (cbtp *ChangeBondTokenWeightProposal) GetDescription() string { return cbtp.Description }
 
-// ProposalRoute returns router key for a UpdateBondWeightProposal
-func (*UpdateBondWeightProposal) ProposalRoute() string { return RouterKey }
+// ProposalRoute returns router key for a ChangeBondTokenWeightProposal
+func (*ChangeBondTokenWeightProposal) ProposalRoute() string { return RouterKey }
 
-// ProposalType returns proposal type for a UpdateBondWeightProposal
-func (*UpdateBondWeightProposal) ProposalType() string {
-	return ProposalTypeUpdateBondWeight
+// ProposalType returns proposal type for a ChangeBondTokenWeightProposal
+func (*ChangeBondTokenWeightProposal) ProposalType() string {
+	return ProposalTypeChangeBondTokenWeight
 }
 
 // String implements the Stringer interface.
-func (cbtp UpdateBondWeightProposal) String() string {
-	return fmt.Sprintf("UpdateBondWeightProposal: Title: %s Description: %s Denom: %s TokenWeight: %s", cbtp.Title, cbtp.Description, cbtp.Denom, cbtp.UpdatedBondWeight)
+func (cbtp ChangeBondTokenWeightProposal) String() string {
+	return fmt.Sprintf("ChangeBondTokenWeightProposal: Title: %s Description: %s BondToken: %s TokenWeight: %s", cbtp.Title, cbtp.Description, cbtp.BondToken, cbtp.TokenWeight)
 }
 
 // ValidateBasic runs basic stateless validity checks
-func (cbtp *UpdateBondWeightProposal) ValidateBasic() error {
+func (cbtp *ChangeBondTokenWeightProposal) ValidateBasic() error {
 	err := govv1beta1.ValidateAbstract(cbtp)
 	if err != nil {
 		return err
 	}
-
-	if cbtp.Denom == "" {
-		return sdkerrors.Wrap(ErrInvalidUpdateBondWeightProposal, "proposal bond token cannot be blank")
+		
+	if (cbtp.BondToken == "") {
+		return sdkerrors.Wrap(ErrInvalidChangeBondTokenWeightProposal, "proposal bond token cannot be blank")
 	}
 
-	if !cbtp.UpdatedBondWeight.IsPositive() {
-		return sdkerrors.Wrap(ErrInvalidUpdateBondWeightProposal, "proposal bond token weight must be positive")
+	if !cbtp.TokenWeight.IsPositive() {
+		return sdkerrors.Wrap(ErrInvalidChangeBondTokenWeightProposal, "proposal bond token weight must be positive")
 	}
 
 	return nil

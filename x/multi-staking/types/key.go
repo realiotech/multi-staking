@@ -24,11 +24,10 @@ const (
 
 // KVStore keys
 var (
-	BondWeightKey = []byte{0x00}
+	BondTokenWeightKey    = []byte{0x00}
+	ValidatorBondDenomKey = []byte{0x01}
 
-	ValidatorMultiStakingCoinKey = []byte{0x01}
-
-	IntermediaryDelegatorKey = []byte{0x02}
+	IntermediaryAccountDelegator = []byte{0x02}
 
 	DVPairSDKBondTokens = []byte{0x03}
 
@@ -38,19 +37,19 @@ var (
 	CompletedDelegationsPrefix = []byte{0x05}
 )
 
-// GetBondWeightKey returns a key for an index containing the bond token weight
-func GetBondWeightKey(tokenDenom string) []byte {
-	return append(BondWeightKey, []byte(tokenDenom)...)
+// GetBondTokenWeightKeyKey returns a key for an index containing the bond token weight
+func GetBondTokenWeightKey(tokenDenom string) []byte {
+	return append(BondTokenWeightKey, []byte(tokenDenom)...)
 }
 
-// GetValidatorMultiStakingCoinKey returns a key for an index containing the bond denom of a validator
-func GetValidatorMultiStakingCoinKey(operatorAddr sdk.ValAddress) []byte {
-	return append(ValidatorMultiStakingCoinKey, address.MustLengthPrefix(operatorAddr)...)
+// GetValidatorBondDenomKey returns a key for an index containing the bond denom of a validator
+func GetValidatorBondDenomKey(operatorAddr sdk.ValAddress) []byte {
+	return append(ValidatorBondDenomKey, address.MustLengthPrefix(operatorAddr)...)
 }
 
-// GetIntermediaryDelegatorKey returns a key for an index containing the delegator of an intermediary account
-func GetIntermediaryDelegatorKey(intermediaryAccount sdk.AccAddress) []byte {
-	return append(IntermediaryDelegatorKey, intermediaryAccount...)
+// GetIntermediaryAccountDelegatorKey returns a key for an index containing the delegator of an intermediary account
+func GetIntermediaryAccountDelegatorKey(intermediaryAccount sdk.AccAddress) []byte {
+	return append(IntermediaryAccountDelegator, intermediaryAccount...)
 }
 
 func GetDVPairSDKBondTokensKey(delAddr sdk.AccAddress, valAddr sdk.ValAddress) []byte {

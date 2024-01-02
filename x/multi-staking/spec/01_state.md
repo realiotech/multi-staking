@@ -8,15 +8,15 @@ order: 1
 
 ### Bond Token Weight
 
-* BondWeight: `0x00 | BondDenom -> BondWeight (sdk.Dec)`
+* BondTokenWeight: `0x00 | BondDenom -> BondTokenWeight (sdk.Dec)`
 
 ### Validator Bond Denom
 
-* ValidatorMultiStakingCoin: `0x01 | ValOperatorAddr -> BondDenom (string)`
+* ValidatorBondDenom: `0x01 | ValOperatorAddr -> BondDenom (string)`
 
 ### Intermediary Account Delegator
 
-* IntermediaryDelegator: `0x02 | IntermediaryAccount -> DelegatorAddr`
+* IntermediaryAccountDelegator: `0x02 | IntermediaryAccount -> DelegatorAddr`
 
 ### DV Pair SDK Bond Tokens
 

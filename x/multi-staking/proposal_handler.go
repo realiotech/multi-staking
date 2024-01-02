@@ -14,9 +14,9 @@ func NewMultiStakingProposalHandler(k *keeper.Keeper) govv1beta1.Handler {
 	return func(ctx sdk.Context, content govv1beta1.Content) error {
 
 		switch c := content.(type) {
-		case *types.AddMultiStakingCoinProposal:
-			return handleAddMultiStakingCoinProposal(ctx, k, c)
-		case *types.UpdateBondWeightProposal:
+		case *types.AddBondTokenProposal:
+			return handleAddBondTokenProposal(ctx, k, c)
+		case *types.ChangeBondTokenWeightProposal:
 			return handleChangeTokenWeightProposal(ctx, k, c)
 		default:
 			return sdkerrors.Wrapf(errortypes.ErrUnknownRequest, "unrecognized %s proposal content type: %T", types.ModuleName, c)
@@ -24,20 +24,20 @@ func NewMultiStakingProposalHandler(k *keeper.Keeper) govv1beta1.Handler {
 	}
 }
 
-// handleAddMultiStakingCoinProposal handles the proposals to add a new bond token
-func handleAddMultiStakingCoinProposal(
+// handleAddBondTokenProposal handles the proposals to add a new bond token 
+func handleAddBondTokenProposal(
 	ctx sdk.Context,
 	k *keeper.Keeper,
-	p *types.AddMultiStakingCoinProposal,
+	p *types.AddBondTokenProposal,
 ) error {
 
-	k.SetBondWeight(ctx, p.Denom, *p.BondWeight)
+	k.SetBondTokenWeight(ctx, p.BondToken, *p.TokenWeight)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
-			types.EventTypeAddMultiStakingCoin,
-			sdk.NewAttribute(types.AttributeKeyDenom, p.Denom),
-			sdk.NewAttribute(types.AttributeKeyBondWeight, p.BondWeight.String()),
+			types.EventTypeAddBondToken,
+			sdk.NewAttribute(types.AttributeKeyBondToken, p.BondToken),
+			sdk.NewAttribute(types.AttributeKeyBondTokenWeight, p.TokenWeight.String()),
 		),
 	)
 	return nil
@@ -47,16 +47,16 @@ func handleAddMultiStakingCoinProposal(
 func handleChangeTokenWeightProposal(
 	ctx sdk.Context,
 	k *keeper.Keeper,
-	p *types.UpdateBondWeightProposal,
+	p *types.ChangeBondTokenWeightProposal,
 ) error {
 
-	k.SetBondWeight(ctx, p.Denom, *p.UpdatedBondWeight)
+	k.SetBondTokenWeight(ctx, p.BondToken, *p.TokenWeight)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
-			types.EventTypeUpdateBondWeight,
-			sdk.NewAttribute(types.AttributeKeyDenom, p.Denom),
-			sdk.NewAttribute(types.AttributeKeyBondWeight, p.UpdatedBondWeight.String()),
+			types.EventTypeChangeBondTokenWeight,
+			sdk.NewAttribute(types.AttributeKeyBondToken, p.BondToken),
+			sdk.NewAttribute(types.AttributeKeyBondTokenWeight, p.TokenWeight.String()),
 		),
 	)
 	return nil
