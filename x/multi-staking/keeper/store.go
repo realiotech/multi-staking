@@ -6,7 +6,6 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
-
 )
 
 func (k Keeper) GetBondTokenWeight(ctx sdk.Context, tokenDenom string) math.LegacyDec {
@@ -53,7 +52,7 @@ func (k Keeper) SetValidatorBondDenom(ctx sdk.Context, operatorAddr sdk.ValAddre
 
 func (k Keeper) GetIntermediaryAccountDelegator(ctx sdk.Context, intermediaryAccount sdk.AccAddress) sdk.AccAddress {
 	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.GetIntermediaryAccountDelegatorKey(intermediaryAccount))
+	bz := store.Get(types.GetIntermediaryDelegatorKey(intermediaryAccount))
 
 	return bz
 }
@@ -65,7 +64,7 @@ func (k Keeper) SetIntermediaryAccountDelegator(ctx sdk.Context, intermediaryAcc
 
 	store := ctx.KVStore(k.storeKey)
 
-	store.Set(types.GetIntermediaryAccountDelegatorKey(intermediaryAccount), delegator)
+	store.Set(types.GetIntermediaryDelegatorKey(intermediaryAccount), delegator)
 }
 
 func (k Keeper) GetDVPairSDKBondTokens(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) sdk.Coin {

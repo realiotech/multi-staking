@@ -27,14 +27,14 @@ var (
 	BondTokenWeightKey    = []byte{0x00}
 	ValidatorBondDenomKey = []byte{0x01}
 
-	IntermediaryAccountDelegator = []byte{0x02}
-
 	DVPairSDKBondTokens = []byte{0x03}
 
 	DVPairBondTokens = []byte{0x04}
 
 	// mem store key
 	CompletedDelegationsPrefix = []byte{0x05}
+
+	IntermediaryDelegatorKey = []byte{0x02}
 )
 
 // GetBondTokenWeightKeyKey returns a key for an index containing the bond token weight
@@ -47,9 +47,9 @@ func GetValidatorBondDenomKey(operatorAddr sdk.ValAddress) []byte {
 	return append(ValidatorBondDenomKey, address.MustLengthPrefix(operatorAddr)...)
 }
 
-// GetIntermediaryAccountDelegatorKey returns a key for an index containing the delegator of an intermediary account
-func GetIntermediaryAccountDelegatorKey(intermediaryAccount sdk.AccAddress) []byte {
-	return append(IntermediaryAccountDelegator, intermediaryAccount...)
+// GetIntermediaryDelegatorDelegatorKey returns a key for an index containing the delegator of an intermediary account
+func GetIntermediaryDelegatorKey(intermediaryDelegator sdk.AccAddress) []byte {
+	return append(IntermediaryDelegatorKey, intermediaryDelegator...)
 }
 
 func GetDVPairSDKBondTokensKey(delAddr sdk.AccAddress, valAddr sdk.ValAddress) []byte {
