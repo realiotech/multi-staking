@@ -33,6 +33,12 @@ func (k Keeper) SetBondWeight(ctx sdk.Context, tokenDenom string, bondWeight sdk
 	store.Set(types.GetBondWeightKey(tokenDenom), bz)
 }
 
+func (k Keeper) RemoveBondWeight(ctx sdk.Context, tokenDenom string) {
+	store := ctx.KVStore(k.storeKey)
+
+	store.Delete(types.GetBondWeightKey(tokenDenom))
+}
+
 func (k Keeper) BondWeightIterator(ctx sdk.Context, cb func(denom string, bondWeight sdk.Dec) (stop bool)) {
 	store := ctx.KVStore(k.storeKey)
 	prefixStore := prefix.NewStore(store, types.BondWeightKey)
@@ -68,6 +74,21 @@ func (k Keeper) SetValidatorMultiStakingCoin(ctx sdk.Context, operatorAddr sdk.V
 	store := ctx.KVStore(k.storeKey)
 
 	store.Set(types.GetValidatorMultiStakingCoinKey(operatorAddr), []byte(bondDenom))
+}
+
+func (k Keeper) ValidatorMultiStakingCoinIterator(ctx sdk.Context, cb func(valAddr string, denom string) (stop bool)) {
+	store := ctx.KVStore(k.storeKey)
+	prefixStore := prefix.NewStore(store, types.ValidatorMultiStakingCoinKey)
+	iterator := sdk.KVStorePrefixIterator(prefixStore, nil)
+
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		valAddr := string(iterator.Key())
+		denom := string(iterator.Value())
+		if cb(valAddr, denom) {
+			break
+		}
+	}
 }
 
 func (k Keeper) GetIntermediaryDelegator(ctx sdk.Context, intermediaryAccount sdk.AccAddress) sdk.AccAddress {
