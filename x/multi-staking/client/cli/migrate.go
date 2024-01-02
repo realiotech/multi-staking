@@ -204,7 +204,7 @@ func convertBankState(
 
 		// change the delegation from staking bonded(unbonded) pool to intermedary account
 		DelAddr := sdk.AccAddress(delegation.DelegatorAddress)
-		intermediaryAccount := types.IntermediaryAccount(DelAddr)
+		intermediaryAccount := types.IntermediaryDelegator(DelAddr)
 		intermediaryBech32Addr, _ := sdk.Bech32ifyAddressBytes(prefix, intermediaryAccount)
 
 		validator, ok := validatorMap[delegation.ValidatorAddress]
@@ -259,7 +259,7 @@ func convertBankState(
 		var delegationStakeAmount sdk.Coins
 		// change the delegation from staking unbonded pool to intermedary account
 		DelAddr := sdk.AccAddress(ubdDelegation.DelegatorAddress)
-		intermediaryAccount := types.IntermediaryAccount(DelAddr)
+		intermediaryAccount := types.IntermediaryDelegator(DelAddr)
 		intermediaryBech32Addr, _ := sdk.Bech32ifyAddressBytes(prefix, intermediaryAccount)
 
 		for _, entry := range ubdDelegation.Entries {
@@ -376,26 +376,32 @@ func migrateStaking(genesisState AppMap) (AppMap, error) {
 
 	newState.StakingGenesisState = &stakingGenesisState
 	// Migrate state.ValidatorAllowedToken field
-	newState.ValidatorAllowedToken = make([]types.ValidatorAllowedToken, 0)
+	newState.ValidatorMultiStakingCoins = make([]types.ValidatorMultiStakingCoin, 0)
 
 	for _, val := range oldState.Validators {
-		allowedToken := types.ValidatorAllowedToken{
+		allowedToken := types.ValidatorMultiStakingCoin{
 			ValAddr:    val.OperatorAddress,
-			TokenDenom: val.BondDenom,
+			CoinDenom: val.BondDenom,
 		}
-		newState.ValidatorAllowedToken = append(newState.ValidatorAllowedToken, allowedToken)
+		newState.ValidatorMultiStakingCoins = append(newState.ValidatorMultiStakingCoins, allowedToken)
 	}
 	// Migrate state.MultiStakingLock field
 	newState.MultiStakingLocks = make([]types.MultiStakingLock, 0)
 
-	for _, val := range stakingGenesisState.Validators {
+	for _, val := range oldState.Validators {
 		for _, del := range oldState.Delegations {
 			if del.ValidatorAddress == val.OperatorAddress {
+				val, amount := tokenAmountFromShares(val, del.Shares)
 				lock := types.MultiStakingLock{
-					ConversionRatio: sdk.OneDec(),
-					DelAddr:         del.DelegatorAddress,
-					ValAddr:         del.ValidatorAddress,
-					LockedAmount:    val.TokensFromShares(del.Shares).TruncateInt(),
+					LockID: &types.LockID{
+						MultiStakerAddr: del.DelegatorAddress,
+						ValAddr: del.ValidatorAddress,
+					},
+					LockedCoin: types.MultiStakingCoin{
+						Denom: val.BondDenom,
+						Amount: amount,
+						BondWeight: sdk.OneDec(),
+					},
 				}
 				newState.MultiStakingLocks = append(newState.MultiStakingLocks, lock)
 			}
@@ -523,7 +529,7 @@ func migrateDistribution(genesisState AppMap) (AppMap, error) {
 			Height:         oldHeight,
 			Stake:          info.StartingInfo.Stake,
 		}
-		intermediaryAccount := types.IntermediaryAccount(delAddr)
+		intermediaryAccount := types.IntermediaryDelegator(delAddr)
 		fmt.Println(delAddr.String())
 		fmt.Println(intermediaryAccount.String())
 		newRecord := distrtypes.DelegatorStartingInfoRecord{
@@ -537,7 +543,7 @@ func migrateDistribution(genesisState AppMap) (AppMap, error) {
 	newDelegatorWithdrawInfos := make([]distrtypes.DelegatorWithdrawInfo, 0)
 	for _, info := range oldState.DelegatorWithdrawInfos {
 		delAddr := sdk.AccAddress(info.DelegatorAddress)
-		intermediaryAccount := types.IntermediaryAccount(delAddr)
+		intermediaryAccount := types.IntermediaryDelegator(delAddr)
 		newRecord := distrtypes.DelegatorWithdrawInfo{
 			DelegatorAddress: intermediaryAccount.String(),
 			WithdrawAddress:  info.WithdrawAddress,
