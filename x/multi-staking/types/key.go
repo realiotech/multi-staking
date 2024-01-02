@@ -24,13 +24,11 @@ const (
 
 // KVStore keys
 var (
-	BondWeightKey = []byte{0x00}
-
+	BondWeightKey                = []byte{0x00}
 	ValidatorMultiStakingCoinKey = []byte{0x01}
-
-	IntermediaryDelegatorKey = []byte{0x02}
-
-	MultiStakingLockPrefix = []byte{0x03}
+	IntermediaryDelegatorKey     = []byte{0x02}
+	MultiStakingLockPrefix       = []byte{0x03}
+	MultiStakingUnlockPrefix     = []byte{0x11} // key for an unbonding-delegation
 
 	// DVPairSDKBondTokens = []byte{0x03}
 

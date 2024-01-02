@@ -3,6 +3,7 @@ package keeper
 import (
 	"fmt"
 
+	"cosmossdk.io/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
@@ -98,6 +99,21 @@ func (k Keeper) RemoveMultiStakingLock(ctx sdk.Context, multiStakingLockID types
 	store.Delete(multiStakingLockID.ToByte())
 }
 
+func (k Keeper) MultiStakingLockIterator(ctx sdk.Context, cb func(stakingLock types.MultiStakingLock) (stop bool)) {
+	store := ctx.KVStore(k.storeKey)
+	prefixStore := prefix.NewStore(store, types.MultiStakingLockPrefix)
+	iterator := sdk.KVStorePrefixIterator(prefixStore, nil)
+
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		var multiStakingLock types.MultiStakingLock
+		k.cdc.MustUnmarshal(iterator.Value(), &multiStakingLock)
+		if cb(multiStakingLock) {
+			break
+		}
+	}
+}
+
 func (k Keeper) GetMultiStakingUnlock(ctx sdk.Context, multiStakingUnlockID types.UnlockID) (unlock types.MultiStakingUnlock, found bool) {
 	store := ctx.KVStore(k.storeKey)
 	value := store.Get(multiStakingUnlockID.ToBytes())
@@ -121,10 +137,25 @@ func (k Keeper) SetMultiStakingUnlock(ctx sdk.Context, unlock types.MultiStaking
 	store.Set(unlock.UnlockID.ToBytes(), bz)
 }
 
-func (k Keeper) DeleteMultiStakingUnlock(ctx sdk.Context, unlockID types.UnlockID) {
+func (k Keeper) RemoveMultiStakingUnlock(ctx sdk.Context, unlockID types.UnlockID) {
 	store := ctx.KVStore(k.storeKey)
 
 	store.Delete(unlockID.ToBytes())
+}
+
+func (k Keeper) MultiStakingUnlockIterator(ctx sdk.Context, cb func(multiStakingUnlock types.MultiStakingUnlock) (stop bool)) {
+	store := ctx.KVStore(k.storeKey)
+	prefixStore := prefix.NewStore(store, types.MultiStakingUnlockPrefix)
+	iterator := sdk.KVStorePrefixIterator(prefixStore, nil)
+
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		var multiStakingUnlock types.MultiStakingUnlock
+		k.cdc.MustUnmarshal(iterator.Value(), &multiStakingUnlock)
+		if cb(multiStakingUnlock) {
+			break
+		}
+	}
 }
 
 func (k Keeper) GetDVPairSDKBondTokens(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) sdk.Coin {
