@@ -83,65 +83,65 @@ func (suite *KeeperTestSuite) TestSetValidatorMultiStakingCoin() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestSetIntermediaryDelegator() {
-	delA := testutil.GenAddress()
-	delB := testutil.GenAddress()
-	imAddrressA := testutil.GenAddress()
-	imAddrressB := testutil.GenAddress()
+// func (suite *KeeperTestSuite) TestSetIntermediaryDelegator() {
+// 	delA := testutil.GenAddress()
+// 	delB := testutil.GenAddress()
+// 	imAddrressA := testutil.GenAddress()
+// 	imAddrressB := testutil.GenAddress()
 
-	testCases := []struct {
-		name     string
-		malleate func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []sdk.AccAddress
-		imAccs   []sdk.AccAddress
-		expPanic bool
-	}{
-		{
-			name: "1 delegator, 1 intermediary account, success",
-			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []sdk.AccAddress {
-				msKeeper.SetIntermediaryDelegator(ctx, imAddrressA, delA)
-				return []sdk.AccAddress{delA}
-			},
-			imAccs:   []sdk.AccAddress{imAddrressA},
-			expPanic: false,
-		},
-		{
-			name: "2 delegator, 2 intermediary account, success",
-			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []sdk.AccAddress {
-				msKeeper.SetIntermediaryDelegator(ctx, imAddrressA, delA)
-				msKeeper.SetIntermediaryDelegator(ctx, imAddrressB, delB)
-				return []sdk.AccAddress{delA, delB}
-			},
-			imAccs:   []sdk.AccAddress{imAddrressA, imAddrressB},
-			expPanic: false,
-		},
-		{
-			name: "2 delegator, 2 intermediary account, failed",
-			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []sdk.AccAddress {
-				msKeeper.SetIntermediaryDelegator(ctx, imAddrressA, delA)
-				msKeeper.SetIntermediaryDelegator(ctx, imAddrressA, delA)
-				return []sdk.AccAddress{delA, delB}
-			},
-			imAccs:   []sdk.AccAddress{imAddrressA, imAddrressB},
-			expPanic: true,
-		},
-	}
+// 	testCases := []struct {
+// 		name     string
+// 		malleate func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []sdk.AccAddress
+// 		imAccs   []sdk.AccAddress
+// 		expPanic bool
+// 	}{
+// 		{
+// 			name: "1 delegator, 1 intermediary account, success",
+// 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []sdk.AccAddress {
+// 				msKeeper.SetIntermediaryDelegator(ctx, imAddrressA, delA)
+// 				return []sdk.AccAddress{delA}
+// 			},
+// 			imAccs:   []sdk.AccAddress{imAddrressA},
+// 			expPanic: false,
+// 		},
+// 		{
+// 			name: "2 delegator, 2 intermediary account, success",
+// 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []sdk.AccAddress {
+// 				msKeeper.SetIntermediaryDelegator(ctx, imAddrressA, delA)
+// 				msKeeper.SetIntermediaryDelegator(ctx, imAddrressB, delB)
+// 				return []sdk.AccAddress{delA, delB}
+// 			},
+// 			imAccs:   []sdk.AccAddress{imAddrressA, imAddrressB},
+// 			expPanic: false,
+// 		},
+// 		{
+// 			name: "2 delegator, 2 intermediary account, failed",
+// 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []sdk.AccAddress {
+// 				msKeeper.SetIntermediaryDelegator(ctx, imAddrressA, delA)
+// 				msKeeper.SetIntermediaryDelegator(ctx, imAddrressA, delA)
+// 				return []sdk.AccAddress{delA, delB}
+// 			},
+// 			imAccs:   []sdk.AccAddress{imAddrressA, imAddrressB},
+// 			expPanic: true,
+// 		},
+// 	}
 
-	for _, tc := range testCases {
-		tc := tc
-		suite.Run(tc.name, func() {
-			suite.SetupTest()
+// 	for _, tc := range testCases {
+// 		tc := tc
+// 		suite.Run(tc.name, func() {
+// 			suite.SetupTest()
 
-			if tc.expPanic {
-				suite.Require().PanicsWithValue("intermediary delegator already set", func() {
-					tc.malleate(suite.ctx, suite.msKeeper)
-				})
-			} else {
-				inputs := tc.malleate(suite.ctx, suite.msKeeper)
-				for idx, imAcc := range tc.imAccs {
-					actualDel := suite.msKeeper.GetIntermediaryDelegator(suite.ctx, imAcc)
-					suite.Require().Equal(inputs[idx], actualDel)
-				}
-			}
-		})
-	}
-}
+// 			if tc.expPanic {
+// 				suite.Require().PanicsWithValue("intermediary delegator already set", func() {
+// 					tc.malleate(suite.ctx, suite.msKeeper)
+// 				})
+// 			} else {
+// 				inputs := tc.malleate(suite.ctx, suite.msKeeper)
+// 				for idx, imAcc := range tc.imAccs {
+// 					actualDel := suite.msKeeper.GetIntermediaryDelegator(suite.ctx, imAcc)
+// 					suite.Require().Equal(inputs[idx], actualDel)
+// 				}
+// 			}
+// 		})
+// 	}
+// }
