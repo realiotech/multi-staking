@@ -49,8 +49,8 @@ func GetValidatorMultiStakingCoinKey(operatorAddr sdk.ValAddress) []byte {
 }
 
 // GetIntermediaryDelegatorKey returns a key for an index containing the delegator of an intermediary account
-func GetIntermediaryDelegatorKey(intermediaryAccount sdk.AccAddress) []byte {
-	return append(IntermediaryDelegatorKey, intermediaryAccount...)
+func GetIntermediaryDelegatorKey(intermediaryDelegator sdk.AccAddress) []byte {
+	return append(IntermediaryDelegatorKey, intermediaryDelegator...)
 }
 
 func GetDVPairSDKBondTokensKey(delAddr sdk.AccAddress, valAddr sdk.ValAddress) []byte {

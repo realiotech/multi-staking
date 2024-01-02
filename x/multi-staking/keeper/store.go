@@ -49,21 +49,21 @@ func (k Keeper) SetValidatorMultiStakingCoin(ctx sdk.Context, operatorAddr sdk.V
 	store.Set(types.GetValidatorMultiStakingCoinKey(operatorAddr), []byte(bondDenom))
 }
 
-func (k Keeper) GetIntermediaryDelegator(ctx sdk.Context, intermediaryAccount sdk.AccAddress) sdk.AccAddress {
+func (k Keeper) GetIntermediaryDelegator(ctx sdk.Context, intermediaryDelegator sdk.AccAddress) sdk.AccAddress {
 	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.GetIntermediaryDelegatorKey(intermediaryAccount))
+	bz := store.Get(types.GetIntermediaryDelegatorKey(intermediaryDelegator))
 
 	return bz
 }
 
-func (k Keeper) SetIntermediaryDelegator(ctx sdk.Context, intermediaryAccount sdk.AccAddress, delegator sdk.AccAddress) {
-	if k.GetIntermediaryDelegator(ctx, intermediaryAccount) != nil {
+func (k Keeper) SetIntermediaryDelegator(ctx sdk.Context, intermediaryDelegator sdk.AccAddress, delegator sdk.AccAddress) {
+	if k.GetIntermediaryDelegator(ctx, intermediaryDelegator) != nil {
 		panic("intermediary delegator already set")
 	}
 
 	store := ctx.KVStore(k.storeKey)
 
-	store.Set(types.GetIntermediaryDelegatorKey(intermediaryAccount), delegator)
+	store.Set(types.GetIntermediaryDelegatorKey(intermediaryDelegator), delegator)
 }
 
 func (k Keeper) GetDVPairSDKBondTokens(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) sdk.Coin {
