@@ -5,7 +5,7 @@
 Check if there's any completed unbonding delegations. 
 If so, for each of the unbonding delegation:
 
-* Get the `delegator account` from `IntermediaryAccountDelegator` store.
+* Get the `delegator account` from `IntermediaryDelegator` store.
 
 * Update `CompletedDelegations`.
 

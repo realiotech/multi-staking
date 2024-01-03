@@ -7,42 +7,34 @@ import "cosmos_proto/cosmos.proto";
 
 option go_package = "github.com/realiotech/multi-staking/x/multi-staking/types";
 
-// AddBondTokenProposal is a gov v1beta1 Content type to add a token as a bond
-// token
-message AddBondTokenProposal {
+// AddMultiStakingCoinProposal is a gov v1beta1 Content type to add a token as a
+// bond token
+message AddMultiStakingCoinProposal {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (gogoproto.goproto_stringer) = false;
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
-  // title of the proposal
   string title = 1;
-  // description of the proposal
   string description = 2;
-  // the token
-  string bond_token = 3;
-  // the bond token weight
-  string token_weight = 4 [
+  string denom = 3;
+  string bond_weight = 4 [
     (cosmos_proto.scalar) = "cosmos.Dec",
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec"
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
   ];
 }
 
-// ChangeBondTokenWeightProposal is a gov v1beta1 Content type to change the
+// UpdateBondWeightProposal is a gov v1beta1 Content type to change the
 // weight of a bond token
-message ChangeBondTokenWeightProposal {
+message UpdateBondWeightProposal {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (gogoproto.goproto_stringer) = false;
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
-  // title of the proposal
   string title = 1;
-  // description of the proposal
   string description = 2;
-  // the token
-  string bond_token = 3;
-  // the bond token weight
-  string token_weight = 4 [
+  string denom = 3;
+  string updated_bond_weight = 4 [
     (cosmos_proto.scalar) = "cosmos.Dec",
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec"
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
   ];
 }
