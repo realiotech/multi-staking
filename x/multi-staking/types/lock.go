@@ -37,7 +37,7 @@ func (m MultiStakingLock) GetBondWeight() sdk.Dec {
 }
 
 func (multiStakingLock MultiStakingLock) LockedAmountToBondAmount(amount math.Int) sdk.Int {
-	return multiStakingLock.LockedCoin.WithAmount(amount).BondAmount()
+	return multiStakingLock.LockedCoin.WithAmount(amount).BondValue()
 }
 
 func (fromLock *MultiStakingLock) MoveCoinToLock(toLock *MultiStakingLock, coin MultiStakingCoin) error {
