@@ -17,8 +17,11 @@ func (suite *KeeperTestSuite) TestSetBondWeight() {
 	suite.msKeeper.SetBondWeight(suite.ctx, gasDenom, gasWeight)
 	suite.msKeeper.SetBondWeight(suite.ctx, govDenom, govWeight)
 
-	suite.Equal(gasWeight, suite.msKeeper.GetBondWeight(suite.ctx, gasDenom))
-	suite.Equal(govWeight, suite.msKeeper.GetBondWeight(suite.ctx, govDenom))
+	expectedGasWeight, _ := suite.msKeeper.GetBondWeight(suite.ctx, gasDenom)
+	expectedGovWeight, _ := suite.msKeeper.GetBondWeight(suite.ctx, govDenom)
+
+	suite.Equal(gasWeight, expectedGasWeight)
+	suite.Equal(govWeight, expectedGovWeight)
 }
 
 func (suite *KeeperTestSuite) TestSetValidatorMultiStakingCoin() {
@@ -84,166 +87,12 @@ func (suite *KeeperTestSuite) TestSetValidatorMultiStakingCoin() {
 }
 
 func (suite *KeeperTestSuite) TestSetIntermediaryDelegator() {
-	delA := testutil.GenAddress()
-	delB := testutil.GenAddress()
-	imAddrressA := testutil.GenAddress()
-	imAddrressB := testutil.GenAddress()
+	imAddrress := testutil.GenAddress()
 
-	testCases := []struct {
-		name     string
-		malleate func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []sdk.AccAddress
-		imAccs   []sdk.AccAddress
-		expPanic bool
-	}{
-		{
-			name: "1 delegator, 1 intermediary account, success",
-			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []sdk.AccAddress {
-				msKeeper.SetIntermediaryDelegator(ctx, imAddrressA)
-				return []sdk.AccAddress{delA}
-			},
-			imAccs:   []sdk.AccAddress{imAddrressA},
-			expPanic: false,
-		},
-		{
-			name: "2 delegator, 2 intermediary account, success",
-			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []sdk.AccAddress {
-				msKeeper.SetIntermediaryDelegator(ctx, imAddrressA)
-				msKeeper.SetIntermediaryDelegator(ctx, imAddrressB)
-				return []sdk.AccAddress{delA, delB}
-			},
-			imAccs:   []sdk.AccAddress{imAddrressA, imAddrressB},
-			expPanic: false,
-		},
-		{
-			name: "2 delegator, 2 intermediary account, failed",
-			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []sdk.AccAddress {
-				msKeeper.SetIntermediaryDelegator(ctx, imAddrressA)
-				msKeeper.SetIntermediaryDelegator(ctx, imAddrressA)
-				return []sdk.AccAddress{delA, delB}
-			},
-			imAccs:   []sdk.AccAddress{imAddrressA, imAddrressB},
-			expPanic: true,
-		},
-	}
-
-	for _, tc := range testCases {
-		tc := tc
-		suite.Run(tc.name, func() {
-			suite.SetupTest()
-
-			if tc.expPanic {
-				suite.Require().PanicsWithValue("intermediary delegator already set", func() {
-					tc.malleate(suite.ctx, suite.msKeeper)
-				})
-			} else {
-				inputs := tc.malleate(suite.ctx, suite.msKeeper)
-				for idx, imAcc := range tc.imAccs {
-					actualDel := suite.msKeeper.GetIntermediaryDelegator(suite.ctx, imAcc)
-					suite.Require().Equal(inputs[idx], actualDel)
-				}
-			}
-		})
-	}
-}
-
-func (suite *KeeperTestSuite) TestSetDVPairSDKBondTokens() {
-	delA := testutil.GenAddress()
-	delB := testutil.GenAddress()
-	valA := testutil.GenValAddress()
-	valB := testutil.GenValAddress()
-
-	bondSDKAmountA := sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(100))
-	bondSDKAmountB := sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(200))
-
-	testCases := []struct {
-		name     string
-		malleate func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []sdk.Coin
-		dels     []sdk.AccAddress
-		vals     []sdk.ValAddress
-		expPanic bool
-	}{
-		{
-			name: "1 delegator, 1 validator, success",
-			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []sdk.Coin {
-				msKeeper.SetDVPairSDKBondTokens(ctx, delA, valA, bondSDKAmountA)
-				return []sdk.Coin{bondSDKAmountA}
-			},
-			dels:     []sdk.AccAddress{delA},
-			vals:     []sdk.ValAddress{valA},
-			expPanic: false,
-		},
-		{
-			name: "2 delegator, 2 validator, success",
-			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []sdk.Coin {
-				msKeeper.SetDVPairSDKBondTokens(ctx, delA, valA, bondSDKAmountA)
-				msKeeper.SetDVPairSDKBondTokens(ctx, delB, valB, bondSDKAmountB)
-				return []sdk.Coin{bondSDKAmountA, bondSDKAmountB}
-			},
-			dels:     []sdk.AccAddress{delA, delB},
-			vals:     []sdk.ValAddress{valA, valB},
-			expPanic: false,
-		},
-		{
-			name: "1 delegator, 2 validator, success",
-			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []sdk.Coin {
-				msKeeper.SetDVPairSDKBondTokens(ctx, delA, valA, bondSDKAmountA)
-				msKeeper.SetDVPairSDKBondTokens(ctx, delA, valB, bondSDKAmountB)
-				return []sdk.Coin{bondSDKAmountA, bondSDKAmountB}
-			},
-			dels:     []sdk.AccAddress{delA, delA},
-			vals:     []sdk.ValAddress{valA, valB},
-			expPanic: false,
-		},
-		{
-			name: "1 delegator, 1 validator, 2 bond amounts failed",
-			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []sdk.Coin {
-				msKeeper.SetDVPairSDKBondTokens(ctx, delA, valA, bondSDKAmountA)
-				msKeeper.SetDVPairSDKBondTokens(ctx, delA, valA, bondSDKAmountB)
-				return []sdk.Coin{bondSDKAmountB}
-			},
-			dels:     []sdk.AccAddress{delA},
-			vals:     []sdk.ValAddress{valA},
-			expPanic: false,
-		},
-	}
-
-	for _, tc := range testCases {
-		tc := tc
-		suite.Run(tc.name, func() {
-			suite.SetupTest()
-
-			if tc.expPanic {
-				suite.Require().PanicsWithValue("input token is not sdk bond token", func() {
-					tc.malleate(suite.ctx, suite.msKeeper)
-				})
-			} else {
-				inputs := tc.malleate(suite.ctx, suite.msKeeper)
-				for idx, expOut := range inputs {
-					actualCoin := suite.msKeeper.GetDVPairSDKBondTokens(suite.ctx, tc.dels[idx], tc.vals[idx])
-					suite.Require().Equal(expOut, actualCoin)
-				}
-			}
-		})
-	}
-}
-
-func (suite *KeeperTestSuite) TestSetDVPairBondTokens() {
 	suite.SetupTest()
 
-	delA := testutil.GenAddress()
-	delB := testutil.GenAddress()
-	valA := testutil.GenValAddress()
-	valB := testutil.GenValAddress()
+	suite.msKeeper.SetIntermediaryDelegator(suite.ctx, imAddrress)
+	isIntermediaryDelegator := suite.msKeeper.IsIntermediaryDelegator(suite.ctx, imAddrress)
+	suite.Require().Equal(isIntermediaryDelegator, true)
 
-	bondAmountA := sdk.NewCoin("ario", sdk.NewInt(100))
-	bondAmountB := sdk.NewCoin("arst", sdk.NewInt(200))
-
-	suite.msKeeper.SetDVPairBondTokens(suite.ctx, delA, valA, bondAmountA)
-	suite.msKeeper.SetDVPairBondTokens(suite.ctx, delB, valB, bondAmountB)
-
-	suite.Equal(bondAmountA, suite.msKeeper.GetDVPairBondTokens(suite.ctx, delA, valA))
-	suite.Equal(bondAmountB, suite.msKeeper.GetDVPairBondTokens(suite.ctx, delB, valB))
-
-	suite.msKeeper.SetDVPairBondTokens(suite.ctx, delA, valB, bondAmountB)
-	suite.Equal(bondAmountB, suite.msKeeper.GetDVPairBondTokens(suite.ctx, delA, valB))
 }
