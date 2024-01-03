@@ -218,16 +218,6 @@ func convertBankState(
 
 		delegationLockAmount = delegationLockAmount.Add(delegationAmount...)
 
-		// move delegate token
-		if validator.Status == stakingtypes.BondStatusBonded {
-			// Caculate new bonded token amount in bondedPoolAddress
-			bondedPoolBalance = bondedPoolBalance.Add(sdk.NewCoin(newBondedTokenDenom, tokenAmount)) // TODO: need to add ratio. Current ratio is 1
-		} else {
-			// Caculate new bonded token amount in unbondedPoolAddress
-			ubdPoolBalance = ubdPoolBalance.Add(sdk.NewCoin(newBondedTokenDenom, tokenAmount)) // TODO: need to add ratio. Current ratio is 1
-		}
-		totalNewBondedTokenAmount = totalNewBondedTokenAmount.Add(sdk.NewCoin(newBondedTokenDenom, tokenAmount)) // TODO: need to add ratio. Current ratio is 1
-
 		// update validator
 		validatorMap[delegation.ValidatorAddress] = val
 
@@ -266,8 +256,7 @@ func convertBankState(
 			// move balance in entry from unbondedPoolAddress to intermediary address
 			delegationStakeAmount = delegationStakeAmount.Add(entry.Balance)
 			// Caculate new bonded token amount in unbondedPoolAddress
-			ubdPoolBalance = ubdPoolBalance.Add(sdk.NewCoin(newBondedTokenDenom, entry.Balance.Amount))                       // TODO: need to add ratio. Current ratio is 1
-			totalNewBondedTokenAmount = totalNewBondedTokenAmount.Add(sdk.NewCoin(newBondedTokenDenom, entry.Balance.Amount)) // TODO: need to add ratio. Current ratio is 1
+			ubdPoolBalance = ubdPoolBalance.Add(sdk.NewCoin(newBondedTokenDenom, entry.Balance.Amount)) // TODO: need to add ratio. Current ratio is 1
 		}
 
 		index, found := balancesIndexMap[intermediaryBech32Addr]
@@ -292,6 +281,18 @@ func convertBankState(
 			newBalances[index] = balance
 		}
 	}
+
+	for _, validator := range oldStakingState.Validators {
+		if validator.Status == stakingtypes.BondStatusBonded {
+			// Caculate new bonded token amount in bondedPoolAddress
+			bondedPoolBalance = bondedPoolBalance.Add(sdk.NewCoin(newBondedTokenDenom, validator.Tokens)) // TODO: need to add ratio. Current ratio is 1
+		} else {
+			// Caculate new bonded token amount in unbondedPoolAddress
+			ubdPoolBalance = ubdPoolBalance.Add(sdk.NewCoin(newBondedTokenDenom, validator.Tokens))
+		}
+	}
+
+	totalNewBondedTokenAmount = totalNewBondedTokenAmount.Add(bondedPoolBalance...).Add(ubdPoolBalance...)
 
 	// append with oldBalances
 	for _, balance := range oldBalances {
@@ -380,7 +381,7 @@ func migrateStaking(genesisState AppMap) (AppMap, error) {
 
 	for _, val := range oldState.Validators {
 		allowedToken := types.ValidatorMultiStakingCoin{
-			ValAddr:    val.OperatorAddress,
+			ValAddr:   val.OperatorAddress,
 			CoinDenom: val.BondDenom,
 		}
 		newState.ValidatorMultiStakingCoins = append(newState.ValidatorMultiStakingCoins, allowedToken)
@@ -395,11 +396,11 @@ func migrateStaking(genesisState AppMap) (AppMap, error) {
 				lock := types.MultiStakingLock{
 					LockID: &types.LockID{
 						MultiStakerAddr: del.DelegatorAddress,
-						ValAddr: del.ValidatorAddress,
+						ValAddr:         del.ValidatorAddress,
 					},
 					LockedCoin: types.MultiStakingCoin{
-						Denom: val.BondDenom,
-						Amount: amount,
+						Denom:      val.BondDenom,
+						Amount:     amount,
 						BondWeight: sdk.OneDec(),
 					},
 				}
@@ -582,9 +583,9 @@ func migrateDistribution(genesisState AppMap) (AppMap, error) {
 		oldValPeriod, _ := strconv.ParseUint(info.ValidatorSlashEvent.ValidatorPeriod, 10, 64)
 
 		newRecord := distrtypes.ValidatorSlashEventRecord{
-			ValidatorAddress: info.ValidatorAddress,
-			Height: oldHeight,
-			Period: oldPeriod,
+			ValidatorAddress:    info.ValidatorAddress,
+			Height:              oldHeight,
+			Period:              oldPeriod,
 			ValidatorSlashEvent: distrtypes.NewValidatorSlashEvent(oldValPeriod, info.ValidatorSlashEvent.Fraction),
 		}
 		newValSlashEvents = append(newValSlashEvents, newRecord)

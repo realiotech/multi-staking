@@ -8,13 +8,13 @@ import (
 	"testing"
 
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	"github.com/realio-tech/multi-staking-module/testing/simapp"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	"github.com/stretchr/testify/require"
-	"github.com/realio-tech/multi-staking-module/testing/simapp"
-	tmtypes "github.com/tendermint/tendermint/types"
-	"github.com/tendermint/tendermint/libs/log"
-	dbm "github.com/tendermint/tm-db"
 	abci "github.com/tendermint/tendermint/abci/types"
+	"github.com/tendermint/tendermint/libs/log"
+	tmtypes "github.com/tendermint/tendermint/types"
+	dbm "github.com/tendermint/tm-db"
 )
 
 func TestMigrateStakingModule(t *testing.T) {
@@ -73,17 +73,17 @@ func TestMigrateFull(t *testing.T) {
 	app := simapp.NewSimApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, map[int64]bool{}, "", 1, simapp.MakeEncodingConfig(), simapp.EmptyAppOptions{})
 	res := app.InitChain(
 		abci.RequestInitChain{
-			Validators:      []abci.ValidatorUpdate{},
+			Validators: []abci.ValidatorUpdate{},
 			ConsensusParams: &abci.ConsensusParams{
 				Block: &abci.BlockParams{
 					MaxBytes: genDoc.ConsensusParams.Block.MaxBytes,
-					MaxGas: genDoc.ConsensusParams.Block.MaxGas,
+					MaxGas:   genDoc.ConsensusParams.Block.MaxGas,
 				},
-				Evidence: &genDoc.ConsensusParams.Evidence,
+				Evidence:  &genDoc.ConsensusParams.Evidence,
 				Validator: &genDoc.ConsensusParams.Validator,
-				Version: &genDoc.ConsensusParams.Version,
+				Version:   &genDoc.ConsensusParams.Version,
 			},
-			AppStateBytes:   genDoc.AppState,
+			AppStateBytes: genDoc.AppState,
 		},
 	)
 	fmt.Println("res", res)
