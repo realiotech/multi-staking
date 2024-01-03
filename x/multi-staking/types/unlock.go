@@ -92,7 +92,7 @@ func (unlock MultiStakingUnlock) String() string {
 	for i, entry := range unlock.Entries {
 		out += fmt.Sprintf(`    Unbonding Delegation %d:
       Creation Height:           %v
-      Expected balance:          %s`, i, entry.CreationHeight,
+     `, i, entry.CreationHeight,
 		)
 	}
 
