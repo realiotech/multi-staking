@@ -98,7 +98,7 @@ func (suite *KeeperTestSuite) TestSetIntermediaryDelegator() {
 		{
 			name: "1 delegator, 1 intermediary account, success",
 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []sdk.AccAddress {
-				msKeeper.SetIntermediaryDelegator(ctx, imAddrressA, delA)
+				msKeeper.SetIntermediaryDelegator(ctx, imAddrressA)
 				return []sdk.AccAddress{delA}
 			},
 			imAccs:   []sdk.AccAddress{imAddrressA},
@@ -107,8 +107,8 @@ func (suite *KeeperTestSuite) TestSetIntermediaryDelegator() {
 		{
 			name: "2 delegator, 2 intermediary account, success",
 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []sdk.AccAddress {
-				msKeeper.SetIntermediaryDelegator(ctx, imAddrressA, delA)
-				msKeeper.SetIntermediaryDelegator(ctx, imAddrressB, delB)
+				msKeeper.SetIntermediaryDelegator(ctx, imAddrressA)
+				msKeeper.SetIntermediaryDelegator(ctx, imAddrressB)
 				return []sdk.AccAddress{delA, delB}
 			},
 			imAccs:   []sdk.AccAddress{imAddrressA, imAddrressB},
@@ -117,8 +117,8 @@ func (suite *KeeperTestSuite) TestSetIntermediaryDelegator() {
 		{
 			name: "2 delegator, 2 intermediary account, failed",
 			malleate: func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []sdk.AccAddress {
-				msKeeper.SetIntermediaryDelegator(ctx, imAddrressA, delA)
-				msKeeper.SetIntermediaryDelegator(ctx, imAddrressA, delA)
+				msKeeper.SetIntermediaryDelegator(ctx, imAddrressA)
+				msKeeper.SetIntermediaryDelegator(ctx, imAddrressA)
 				return []sdk.AccAddress{delA, delB}
 			},
 			imAccs:   []sdk.AccAddress{imAddrressA, imAddrressB},
