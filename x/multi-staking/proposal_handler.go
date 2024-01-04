@@ -15,10 +15,19 @@ func NewMultiStakingProposalHandler(k *keeper.Keeper) govv1beta1.Handler {
 
 		switch c := content.(type) {
 		case *types.AddMultiStakingCoinProposal:
+			if err := c.ValidateBasic(); err != nil {
+				return err
+			}
 			return handleAddMultiStakingCoinProposal(ctx, k, c)
 		case *types.UpdateBondWeightProposal:
+			if err := c.ValidateBasic(); err != nil {
+				return err
+			}
 			return handleChangeTokenWeightProposal(ctx, k, c)
 		case *types.RemoveMultiStakingCoinProposal:
+			if err := c.ValidateBasic(); err != nil {
+				return err
+			}
 			return handleRemoveMultiStakingCoinProposal(ctx, k, c)
 		default:
 			return sdkerrors.Wrapf(errortypes.ErrUnknownRequest, "unrecognized %s proposal content type: %T", types.ModuleName, c)
