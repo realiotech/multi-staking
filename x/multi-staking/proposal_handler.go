@@ -31,7 +31,7 @@ func handleAddMultiStakingCoinProposal(
 	p *types.AddMultiStakingCoinProposal,
 ) error {
 
-	k.SetBondWeight(ctx, p.Denom, *p.BondWeight)
+	k.SetBondWeight(ctx, p.Denom, p.BondWeight)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
@@ -50,7 +50,7 @@ func handleChangeTokenWeightProposal(
 	p *types.UpdateBondWeightProposal,
 ) error {
 
-	k.SetBondWeight(ctx, p.Denom, *p.UpdatedBondWeight)
+	k.SetBondWeight(ctx, p.Denom, p.UpdatedBondWeight)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(

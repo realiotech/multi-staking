@@ -31,7 +31,7 @@ func NewAddMultiStakingCoinProposal(title, description, denom string, bondWeight
 		Title:       title,
 		Description: description,
 		Denom:       denom,
-		BondWeight:  &bondWeight,
+		BondWeight:  bondWeight,
 	}
 }
 
@@ -78,7 +78,7 @@ func NewUpdateBondWeightProposal(title, description, denom string, bondWeight sd
 		Title:             title,
 		Description:       description,
 		Denom:             denom,
-		UpdatedBondWeight: &bondWeight,
+		UpdatedBondWeight: bondWeight,
 	}
 }
 
