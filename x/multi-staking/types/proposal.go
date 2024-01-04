@@ -159,3 +159,8 @@ func (abtp *RemoveMultiStakingCoinProposal) ValidateBasic() error {
 
 	return nil
 }
+
+// String implements the Stringer interface.
+func (abtp RemoveMultiStakingCoinProposal) String() string {
+	return fmt.Sprintf("AddMultiStakingCoinProposal: Title: %s Description: %s Denom: %s", abtp.Title, abtp.Description, abtp.Denom)
+}
