@@ -10,19 +10,23 @@ import (
 
 // Proposal types
 const (
-	ProposalTypeAddMultiStakingCoin string = "AddMultiStakingCoin"
-	ProposalTypeUpdateBondWeight    string = "UpdateBondWeight"
+	ProposalTypeAddMultiStakingCoin    string = "AddMultiStakingCoin"
+	ProposalTypeUpdateBondWeight       string = "UpdateBondWeight"
+	ProposalTypeRemoveMultiStakingCoin string = "RemoveMultiStakingCoin"
 )
 
 // Assert module proposals implement govtypes.Content at compile-time
 var (
 	_ govv1beta1.Content = &AddMultiStakingCoinProposal{}
 	_ govv1beta1.Content = &UpdateBondWeightProposal{}
+	_ govv1beta1.Content = &RemoveMultiStakingCoinProposal{}
 )
 
 func init() {
 	govv1beta1.RegisterProposalType(ProposalTypeAddMultiStakingCoin)
 	govv1beta1.RegisterProposalType(ProposalTypeUpdateBondWeight)
+	govv1beta1.RegisterProposalType(ProposalTypeRemoveMultiStakingCoin)
+
 }
 
 // NewAddMultiStakingCoinProposal returns new instance of AddMultiStakingCoinProposal
@@ -114,6 +118,43 @@ func (cbtp *UpdateBondWeightProposal) ValidateBasic() error {
 
 	if !cbtp.UpdatedBondWeight.IsPositive() {
 		return sdkerrors.Wrap(ErrInvalidUpdateBondWeightProposal, "proposal bond token weight must be positive")
+	}
+
+	return nil
+}
+
+// NewRemoveMultiStakingCoinProposal returns new instance of RemoveMultiStakingCoinProposal
+func NewRemoveMultiStakingCoinProposal(title, description, denom string) govv1beta1.Content {
+	return &RemoveMultiStakingCoinProposal{
+		Title:       title,
+		Description: description,
+		Denom:       denom,
+	}
+}
+
+// GetTitle returns the title of a RemoveMultiStakingCoinProposal
+func (abtp *RemoveMultiStakingCoinProposal) GetTitle() string { return abtp.Title }
+
+// GetDescription returns the description of a RemoveMultiStakingCoinProposal
+func (abtp *RemoveMultiStakingCoinProposal) GetDescription() string { return abtp.Description }
+
+// ProposalRoute returns router key for a RemoveMultiStakingCoinProposal
+func (*RemoveMultiStakingCoinProposal) ProposalRoute() string { return RouterKey }
+
+// ProposalType returns proposal type for a RemoveMultiStakingCoinProposal
+func (*RemoveMultiStakingCoinProposal) ProposalType() string {
+	return ProposalTypeAddMultiStakingCoin
+}
+
+// ValidateBasic runs basic stateless validity checks
+func (abtp *RemoveMultiStakingCoinProposal) ValidateBasic() error {
+	err := govv1beta1.ValidateAbstract(abtp)
+	if err != nil {
+		return err
+	}
+
+	if abtp.Denom == "" {
+		return sdkerrors.Wrap(ErrInvalidRemoveMultiStakingCoinProposal, "proposal bond token cannot be blank")
 	}
 
 	return nil

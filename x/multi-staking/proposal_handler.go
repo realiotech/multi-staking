@@ -18,6 +18,8 @@ func NewMultiStakingProposalHandler(k *keeper.Keeper) govv1beta1.Handler {
 			return handleAddMultiStakingCoinProposal(ctx, k, c)
 		case *types.UpdateBondWeightProposal:
 			return handleChangeTokenWeightProposal(ctx, k, c)
+		case *types.RemoveMultiStakingCoinProposal:
+			return handleRemoveMultiStakingCoinProposal(ctx, k, c)
 		default:
 			return sdkerrors.Wrapf(errortypes.ErrUnknownRequest, "unrecognized %s proposal content type: %T", types.ModuleName, c)
 		}
@@ -57,6 +59,24 @@ func handleChangeTokenWeightProposal(
 			types.EventTypeUpdateBondWeight,
 			sdk.NewAttribute(types.AttributeKeyDenom, p.Denom),
 			sdk.NewAttribute(types.AttributeKeyBondWeight, p.UpdatedBondWeight.String()),
+		),
+	)
+	return nil
+}
+
+// handleRemoveMultiStakingCoinProposal handles the proposals to add a new bond token
+func handleRemoveMultiStakingCoinProposal(
+	ctx sdk.Context,
+	k *keeper.Keeper,
+	p *types.RemoveMultiStakingCoinProposal,
+) error {
+
+	k.RemoveBondWeight(ctx, p.Denom)
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeRemoveMultiStakingCoin,
+			sdk.NewAttribute(types.AttributeKeyDenom, p.Denom),
 		),
 	)
 	return nil
