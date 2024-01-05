@@ -7,6 +7,31 @@ import (
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
 
+func (k Keeper) GetUnlockEntryAtCreationHeight(ctx sdk.Context, unlockID types.UnlockID, creationHeight int64) (types.UnlockEntry, bool) {
+	// get unbonded record
+	unlock, found := k.GetMultiStakingUnlock(ctx, unlockID)
+	if !found {
+		return types.UnlockEntry{}, false
+	}
+	var (
+		unlockEntry      types.UnlockEntry
+		foundUnlockEntry bool = false
+	)
+
+	for _, entry := range unlock.Entries {
+		if entry.CreationHeight == creationHeight {
+			unlockEntry = entry
+			foundUnlockEntry = true
+			break
+		}
+	}
+	if !foundUnlockEntry {
+		return types.UnlockEntry{}, false
+	}
+
+	return unlockEntry, foundUnlockEntry
+}
+
 // SetMultiStakingUnlockEntry adds an entry to the unbonding delegation at
 // the given addresses. It creates the unbonding delegation if it does not exist.
 func (k Keeper) SetMultiStakingUnlockEntry(
