@@ -404,22 +404,22 @@ func (m *QueryMultiStakingUnlockResponse) GetFound() bool {
 	return false
 }
 
-type QueryBondTokenWeight struct {
+type QueryBondWeight struct {
 	Denom string `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
 }
 
-func (m *QueryBondTokenWeight) Reset()         { *m = QueryBondTokenWeight{} }
-func (m *QueryBondTokenWeight) String() string { return proto.CompactTextString(m) }
-func (*QueryBondTokenWeight) ProtoMessage()    {}
-func (*QueryBondTokenWeight) Descriptor() ([]byte, []int) {
+func (m *QueryBondWeight) Reset()         { *m = QueryBondWeight{} }
+func (m *QueryBondWeight) String() string { return proto.CompactTextString(m) }
+func (*QueryBondWeight) ProtoMessage()    {}
+func (*QueryBondWeight) Descriptor() ([]byte, []int) {
 	return fileDescriptor_82d174b604da394d, []int{8}
 }
-func (m *QueryBondTokenWeight) XXX_Unmarshal(b []byte) error {
+func (m *QueryBondWeight) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryBondTokenWeight) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryBondWeight) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryBondTokenWeight.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryBondWeight.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -429,42 +429,42 @@ func (m *QueryBondTokenWeight) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return b[:n], nil
 	}
 }
-func (m *QueryBondTokenWeight) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryBondTokenWeight.Merge(m, src)
+func (m *QueryBondWeight) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryBondWeight.Merge(m, src)
 }
-func (m *QueryBondTokenWeight) XXX_Size() int {
+func (m *QueryBondWeight) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryBondTokenWeight) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryBondTokenWeight.DiscardUnknown(m)
+func (m *QueryBondWeight) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryBondWeight.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryBondTokenWeight proto.InternalMessageInfo
+var xxx_messageInfo_QueryBondWeight proto.InternalMessageInfo
 
-func (m *QueryBondTokenWeight) GetDenom() string {
+func (m *QueryBondWeight) GetDenom() string {
 	if m != nil {
 		return m.Denom
 	}
 	return ""
 }
 
-type QueryBondTokenWeightResponse struct {
+type QueryBondWeightResponse struct {
 	Weight github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,1,opt,name=weight,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"weight"`
 	Found  bool                                   `protobuf:"varint,2,opt,name=found,proto3" json:"found,omitempty"`
 }
 
-func (m *QueryBondTokenWeightResponse) Reset()         { *m = QueryBondTokenWeightResponse{} }
-func (m *QueryBondTokenWeightResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryBondTokenWeightResponse) ProtoMessage()    {}
-func (*QueryBondTokenWeightResponse) Descriptor() ([]byte, []int) {
+func (m *QueryBondWeightResponse) Reset()         { *m = QueryBondWeightResponse{} }
+func (m *QueryBondWeightResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryBondWeightResponse) ProtoMessage()    {}
+func (*QueryBondWeightResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_82d174b604da394d, []int{9}
 }
-func (m *QueryBondTokenWeightResponse) XXX_Unmarshal(b []byte) error {
+func (m *QueryBondWeightResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryBondTokenWeightResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryBondWeightResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryBondTokenWeightResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryBondWeightResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -474,41 +474,41 @@ func (m *QueryBondTokenWeightResponse) XXX_Marshal(b []byte, deterministic bool)
 		return b[:n], nil
 	}
 }
-func (m *QueryBondTokenWeightResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryBondTokenWeightResponse.Merge(m, src)
+func (m *QueryBondWeightResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryBondWeightResponse.Merge(m, src)
 }
-func (m *QueryBondTokenWeightResponse) XXX_Size() int {
+func (m *QueryBondWeightResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryBondTokenWeightResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryBondTokenWeightResponse.DiscardUnknown(m)
+func (m *QueryBondWeightResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryBondWeightResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryBondTokenWeightResponse proto.InternalMessageInfo
+var xxx_messageInfo_QueryBondWeightResponse proto.InternalMessageInfo
 
-func (m *QueryBondTokenWeightResponse) GetFound() bool {
+func (m *QueryBondWeightResponse) GetFound() bool {
 	if m != nil {
 		return m.Found
 	}
 	return false
 }
 
-type QueryValidatorAllowedToken struct {
+type QueryValidatorMultiStakingCoin struct {
 	ValidatorAddr string `protobuf:"bytes,1,opt,name=validator_addr,json=validatorAddr,proto3" json:"validator_addr,omitempty"`
 }
 
-func (m *QueryValidatorAllowedToken) Reset()         { *m = QueryValidatorAllowedToken{} }
-func (m *QueryValidatorAllowedToken) String() string { return proto.CompactTextString(m) }
-func (*QueryValidatorAllowedToken) ProtoMessage()    {}
-func (*QueryValidatorAllowedToken) Descriptor() ([]byte, []int) {
+func (m *QueryValidatorMultiStakingCoin) Reset()         { *m = QueryValidatorMultiStakingCoin{} }
+func (m *QueryValidatorMultiStakingCoin) String() string { return proto.CompactTextString(m) }
+func (*QueryValidatorMultiStakingCoin) ProtoMessage()    {}
+func (*QueryValidatorMultiStakingCoin) Descriptor() ([]byte, []int) {
 	return fileDescriptor_82d174b604da394d, []int{10}
 }
-func (m *QueryValidatorAllowedToken) XXX_Unmarshal(b []byte) error {
+func (m *QueryValidatorMultiStakingCoin) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryValidatorAllowedToken) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryValidatorMultiStakingCoin) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryValidatorAllowedToken.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryValidatorMultiStakingCoin.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -518,34 +518,36 @@ func (m *QueryValidatorAllowedToken) XXX_Marshal(b []byte, deterministic bool) (
 		return b[:n], nil
 	}
 }
-func (m *QueryValidatorAllowedToken) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryValidatorAllowedToken.Merge(m, src)
+func (m *QueryValidatorMultiStakingCoin) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryValidatorMultiStakingCoin.Merge(m, src)
 }
-func (m *QueryValidatorAllowedToken) XXX_Size() int {
+func (m *QueryValidatorMultiStakingCoin) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryValidatorAllowedToken) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryValidatorAllowedToken.DiscardUnknown(m)
+func (m *QueryValidatorMultiStakingCoin) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryValidatorMultiStakingCoin.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryValidatorAllowedToken proto.InternalMessageInfo
+var xxx_messageInfo_QueryValidatorMultiStakingCoin proto.InternalMessageInfo
 
-type QueryValidatorAllowedTokenResponse struct {
+type QueryValidatorMultiStakingCoinResponse struct {
 	Denom string `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
 }
 
-func (m *QueryValidatorAllowedTokenResponse) Reset()         { *m = QueryValidatorAllowedTokenResponse{} }
-func (m *QueryValidatorAllowedTokenResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryValidatorAllowedTokenResponse) ProtoMessage()    {}
-func (*QueryValidatorAllowedTokenResponse) Descriptor() ([]byte, []int) {
+func (m *QueryValidatorMultiStakingCoinResponse) Reset() {
+	*m = QueryValidatorMultiStakingCoinResponse{}
+}
+func (m *QueryValidatorMultiStakingCoinResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryValidatorMultiStakingCoinResponse) ProtoMessage()    {}
+func (*QueryValidatorMultiStakingCoinResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_82d174b604da394d, []int{11}
 }
-func (m *QueryValidatorAllowedTokenResponse) XXX_Unmarshal(b []byte) error {
+func (m *QueryValidatorMultiStakingCoinResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryValidatorAllowedTokenResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryValidatorMultiStakingCoinResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryValidatorAllowedTokenResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryValidatorMultiStakingCoinResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -555,19 +557,19 @@ func (m *QueryValidatorAllowedTokenResponse) XXX_Marshal(b []byte, deterministic
 		return b[:n], nil
 	}
 }
-func (m *QueryValidatorAllowedTokenResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryValidatorAllowedTokenResponse.Merge(m, src)
+func (m *QueryValidatorMultiStakingCoinResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryValidatorMultiStakingCoinResponse.Merge(m, src)
 }
-func (m *QueryValidatorAllowedTokenResponse) XXX_Size() int {
+func (m *QueryValidatorMultiStakingCoinResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryValidatorAllowedTokenResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryValidatorAllowedTokenResponse.DiscardUnknown(m)
+func (m *QueryValidatorMultiStakingCoinResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryValidatorMultiStakingCoinResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryValidatorAllowedTokenResponse proto.InternalMessageInfo
+var xxx_messageInfo_QueryValidatorMultiStakingCoinResponse proto.InternalMessageInfo
 
-func (m *QueryValidatorAllowedTokenResponse) GetDenom() string {
+func (m *QueryValidatorMultiStakingCoinResponse) GetDenom() string {
 	if m != nil {
 		return m.Denom
 	}
@@ -583,69 +585,69 @@ func init() {
 	proto.RegisterType((*QueryMultiStakingUnlocksResponse)(nil), "multistaking.v1.QueryMultiStakingUnlocksResponse")
 	proto.RegisterType((*QueryMultiStakingUnlock)(nil), "multistaking.v1.QueryMultiStakingUnlock")
 	proto.RegisterType((*QueryMultiStakingUnlockResponse)(nil), "multistaking.v1.QueryMultiStakingUnlockResponse")
-	proto.RegisterType((*QueryBondTokenWeight)(nil), "multistaking.v1.QueryBondTokenWeight")
-	proto.RegisterType((*QueryBondTokenWeightResponse)(nil), "multistaking.v1.QueryBondTokenWeightResponse")
-	proto.RegisterType((*QueryValidatorAllowedToken)(nil), "multistaking.v1.QueryValidatorAllowedToken")
-	proto.RegisterType((*QueryValidatorAllowedTokenResponse)(nil), "multistaking.v1.QueryValidatorAllowedTokenResponse")
+	proto.RegisterType((*QueryBondWeight)(nil), "multistaking.v1.QueryBondWeight")
+	proto.RegisterType((*QueryBondWeightResponse)(nil), "multistaking.v1.QueryBondWeightResponse")
+	proto.RegisterType((*QueryValidatorMultiStakingCoin)(nil), "multistaking.v1.QueryValidatorMultiStakingCoin")
+	proto.RegisterType((*QueryValidatorMultiStakingCoinResponse)(nil), "multistaking.v1.QueryValidatorMultiStakingCoinResponse")
 }
 
 func init() { proto.RegisterFile("multistaking/v1/query.proto", fileDescriptor_82d174b604da394d) }
 
 var fileDescriptor_82d174b604da394d = []byte{
-	// 838 bytes of a gzipped FileDescriptorProto
+	// 836 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x56, 0xcf, 0x6f, 0xd3, 0x48,
-	0x14, 0xce, 0x74, 0xb7, 0xdd, 0xee, 0x54, 0xbb, 0xdd, 0x1d, 0x52, 0x08, 0xa6, 0x24, 0x6d, 0xa2,
-	0xfe, 0x6e, 0x6c, 0x92, 0x0a, 0x21, 0x4a, 0x01, 0x11, 0x45, 0x45, 0x42, 0x45, 0x02, 0xb7, 0x80,
-	0xc4, 0xa5, 0x38, 0xf1, 0xe0, 0x5a, 0x71, 0x3c, 0x69, 0xec, 0xa4, 0x54, 0x55, 0x2f, 0x9c, 0x10,
-	0x27, 0x24, 0x2e, 0x48, 0x1c, 0xa8, 0x40, 0x5c, 0x38, 0x57, 0x1c, 0xe1, 0xda, 0x63, 0x55, 0x2e,
-	0x88, 0x43, 0x85, 0x5a, 0x0e, 0xfc, 0x19, 0xc8, 0x33, 0x13, 0x37, 0x71, 0x9c, 0xc4, 0xa0, 0x1e,
-	0x38, 0x25, 0x33, 0xf3, 0xbd, 0xf7, 0x7d, 0xef, 0x7b, 0x33, 0x2f, 0x81, 0x67, 0x8a, 0x15, 0xc3,
-	0xd6, 0x2d, 0x5b, 0x29, 0xe8, 0xa6, 0x26, 0x55, 0x53, 0xd2, 0x6a, 0x05, 0x97, 0xd7, 0xc5, 0x52,
-	0x99, 0xd8, 0x04, 0xf5, 0xd7, 0x1f, 0x8a, 0xd5, 0x94, 0x10, 0xd6, 0x88, 0x46, 0xe8, 0x99, 0xe4,
-	0x7c, 0x63, 0x30, 0xe1, 0x74, 0x9e, 0x58, 0x45, 0x62, 0x2d, 0xb3, 0x03, 0xb6, 0xe0, 0x47, 0x09,
-	0x6f, 0x7a, 0xba, 0x5e, 0xae, 0xa5, 0x64, 0xa0, 0x49, 0x16, 0x22, 0xe5, 0x14, 0x0b, 0x33, 0x7e,
-	0xa9, 0x9a, 0xca, 0x61, 0x5b, 0x49, 0x49, 0x25, 0x45, 0xd3, 0x4d, 0xc5, 0xd6, 0x89, 0xc9, 0xb1,
-	0x83, 0x1a, 0x21, 0x9a, 0x81, 0x25, 0xa5, 0xa4, 0x4b, 0x8a, 0x69, 0x12, 0x9b, 0x1e, 0x72, 0xba,
-	0xf8, 0x03, 0x78, 0xf2, 0xb6, 0x13, 0x7f, 0xd3, 0x61, 0x59, 0x64, 0x24, 0x0b, 0x24, 0x5f, 0xb0,
-	0xd0, 0x3c, 0x84, 0x47, 0xb9, 0x22, 0x60, 0x08, 0x8c, 0xf7, 0xa5, 0x47, 0x45, 0xae, 0xd5, 0x21,
-	0x16, 0x59, 0xe1, 0x9c, 0x58, 0xbc, 0xa5, 0x68, 0x58, 0xc6, 0xab, 0x15, 0x6c, 0xd9, 0x72, 0x5d,
-	0x64, 0xfc, 0x35, 0x80, 0x51, 0x7f, 0x0a, 0x19, 0x5b, 0x25, 0x62, 0x5a, 0x18, 0x5d, 0x80, 0xdd,
-	0x86, 0xb3, 0x11, 0x01, 0x43, 0x7f, 0x8c, 0xf7, 0xa5, 0x87, 0x45, 0x8f, 0x8b, 0xa2, 0x37, 0x54,
-	0x66, 0x78, 0x74, 0xbd, 0x41, 0x63, 0x17, 0xd5, 0x38, 0xd6, 0x51, 0x23, 0x63, 0x6d, 0x10, 0xf9,
-	0x06, 0xc0, 0x01, 0x5f, 0x91, 0xe8, 0x2a, 0xfc, 0x57, 0xc5, 0x06, 0xd6, 0x14, 0x9b, 0x94, 0x97,
-	0x15, 0x55, 0x2d, 0x53, 0x2b, 0xfe, 0xce, 0x44, 0xf6, 0xb6, 0x93, 0x61, 0xce, 0x74, 0x4d, 0x55,
-	0xcb, 0xd8, 0xb2, 0x16, 0xed, 0xb2, 0x6e, 0x6a, 0xf2, 0x3f, 0x2e, 0xde, 0xd9, 0x77, 0x12, 0x54,
-	0x15, 0x43, 0x57, 0x8f, 0x12, 0x74, 0x75, 0x4a, 0xe0, 0xe2, 0x9d, 0xfd, 0xd9, 0xde, 0x27, 0x5b,
-	0xb1, 0xd0, 0xf7, 0xad, 0x58, 0x28, 0x6e, 0xc0, 0xb3, 0xbe, 0x22, 0x5d, 0x23, 0xcf, 0xc3, 0x3f,
-	0x1d, 0x63, 0x78, 0xb7, 0x02, 0xf8, 0x48, 0xe1, 0x28, 0x0c, 0xbb, 0x1f, 0x92, 0x8a, 0xa9, 0x52,
-	0x65, 0xbd, 0x32, 0x5b, 0xc4, 0x73, 0x30, 0xd2, 0xc4, 0x76, 0xc7, 0x34, 0x8e, 0xf5, 0x72, 0xbc,
-	0x03, 0x70, 0xa8, 0x15, 0x89, 0x5b, 0xd5, 0x65, 0xf8, 0x57, 0xc5, 0xac, 0xbf, 0x20, 0x89, 0xb6,
-	0x85, 0xb1, 0x70, 0xb9, 0x16, 0x73, 0x7c, 0x97, 0xe4, 0x2d, 0x80, 0xa7, 0x5a, 0x88, 0xfd, 0xad,
-	0xae, 0x89, 0x0d, 0x63, 0x2d, 0x64, 0xba, 0x96, 0x5e, 0x82, 0x3d, 0xcc, 0x1e, 0xde, 0xbb, 0x40,
-	0x8e, 0xf2, 0x90, 0x16, 0xd7, 0x65, 0x1a, 0x86, 0x29, 0x6b, 0x86, 0x98, 0xea, 0x12, 0x29, 0x60,
-	0xf3, 0x1e, 0xd6, 0xb5, 0x15, 0xdb, 0x41, 0xab, 0xd8, 0x24, 0x45, 0x66, 0x88, 0xcc, 0x16, 0xf1,
-	0xa7, 0x00, 0x0e, 0xfa, 0xc1, 0x5d, 0x85, 0x4b, 0xb0, 0x67, 0x8d, 0xee, 0x70, 0x23, 0xe7, 0x76,
-	0xf6, 0x63, 0xa1, 0x2f, 0xfb, 0xb1, 0x51, 0x4d, 0xb7, 0x57, 0x2a, 0x39, 0x31, 0x4f, 0x8a, 0x7c,
-	0x70, 0xf2, 0x8f, 0xa4, 0xa5, 0x16, 0x24, 0x7b, 0xbd, 0x84, 0x2d, 0x31, 0x8b, 0xf3, 0x7b, 0xdb,
-	0x49, 0xc8, 0x5d, 0xcb, 0xe2, 0xbc, 0xcc, 0x73, 0xb5, 0x90, 0xae, 0x41, 0x81, 0x6a, 0xb9, 0xeb,
-	0x1a, 0x6a, 0x18, 0x64, 0x0d, 0x33, 0x5d, 0x3e, 0x9d, 0x01, 0xbf, 0xda, 0x99, 0x59, 0x18, 0x6f,
-	0x4d, 0xe4, 0x96, 0xee, 0xeb, 0x58, 0xfa, 0x55, 0x2f, 0xec, 0xa6, 0xc1, 0xe8, 0x05, 0x80, 0xff,
-	0x37, 0xcf, 0xeb, 0xb1, 0xa6, 0x16, 0xfa, 0x4f, 0x5d, 0x41, 0x0a, 0x08, 0xac, 0xe9, 0x89, 0x4f,
-	0x3c, 0xfe, 0xf4, 0xed, 0x79, 0x57, 0x02, 0x0d, 0x4b, 0x65, 0xac, 0x18, 0x3a, 0xb1, 0x71, 0x7e,
-	0x45, 0xf2, 0xfe, 0x4c, 0xb1, 0xb7, 0xf6, 0x1e, 0xc0, 0xff, 0x9a, 0x46, 0xe8, 0x68, 0x30, 0x42,
-	0x41, 0x0c, 0x86, 0x73, 0x75, 0xdd, 0xa0, 0xba, 0xb2, 0x28, 0xd3, 0x49, 0x97, 0xb4, 0xd1, 0xd8,
-	0xc0, 0x4d, 0x69, 0xa3, 0xf1, 0xb1, 0x6e, 0xa2, 0x2d, 0x00, 0x4f, 0xf8, 0x0d, 0xba, 0x89, 0xce,
-	0x9a, 0x38, 0x54, 0x48, 0x05, 0x86, 0xba, 0x15, 0x4c, 0xd1, 0x0a, 0x46, 0x50, 0xa2, 0x5d, 0x05,
-	0xb5, 0x39, 0xf6, 0x01, 0x40, 0xe4, 0x33, 0x79, 0xc6, 0x83, 0xd2, 0x0a, 0xe7, 0x82, 0x22, 0x5d,
-	0x7d, 0x0b, 0x54, 0xdf, 0x3c, 0xca, 0x76, 0xd6, 0x17, 0xc0, 0xe3, 0x8f, 0x00, 0x0e, 0xf8, 0x3f,
-	0xb1, 0x29, 0x7f, 0x65, 0xbe, 0x60, 0x61, 0xe6, 0x27, 0xc0, 0x6e, 0x25, 0x59, 0x5a, 0xc9, 0x15,
-	0x34, 0xd7, 0xae, 0x12, 0xb7, 0x82, 0xa4, 0xed, 0x04, 0x37, 0x95, 0x84, 0x5e, 0x02, 0xd8, 0xef,
-	0x9d, 0x6f, 0x23, 0xfe, 0x72, 0x3c, 0x30, 0x21, 0x19, 0x08, 0xe6, 0xea, 0x4d, 0x53, 0xbd, 0xd3,
-	0x68, 0xb2, 0x9d, 0x5e, 0x36, 0xd4, 0x1c, 0xa3, 0x4d, 0x52, 0xdc, 0xcc, 0x2c, 0xee, 0x1c, 0x44,
-	0xc1, 0xee, 0x41, 0x14, 0x7c, 0x3d, 0x88, 0x82, 0x67, 0x87, 0xd1, 0xd0, 0xee, 0x61, 0x34, 0xf4,
-	0xf9, 0x30, 0x1a, 0xba, 0x7f, 0xb1, 0x6e, 0x68, 0x7a, 0xf3, 0x25, 0x6b, 0x09, 0x1f, 0x79, 0xd6,
-	0x74, 0x96, 0xe6, 0x7a, 0xe8, 0xff, 0xc4, 0x99, 0x1f, 0x01, 0x00, 0x00, 0xff, 0xff, 0x44, 0x71,
-	0x34, 0x00, 0xf7, 0x0a, 0x00, 0x00,
+	0x14, 0xce, 0x74, 0xb7, 0xdd, 0xee, 0x54, 0xbb, 0xdd, 0x9d, 0xed, 0xee, 0xa6, 0x06, 0x92, 0x34,
+	0x11, 0x69, 0x5a, 0x88, 0x4d, 0x82, 0x50, 0x05, 0xa5, 0x20, 0xd2, 0xa8, 0x48, 0xa8, 0x48, 0xe0,
+	0xf2, 0x43, 0xe2, 0x52, 0x9c, 0x78, 0x70, 0xad, 0x38, 0x9e, 0x34, 0x76, 0x02, 0x55, 0xd5, 0x0b,
+	0x12, 0x12, 0x07, 0x0e, 0x48, 0x5c, 0x90, 0xb8, 0x54, 0x20, 0x2e, 0x9c, 0x2b, 0x8e, 0x9c, 0x2b,
+	0x4e, 0x55, 0xb9, 0x20, 0x0e, 0x15, 0x6a, 0x39, 0xf0, 0x67, 0x20, 0xcf, 0x4c, 0x9c, 0x5f, 0x76,
+	0x62, 0x50, 0x0f, 0x9c, 0x92, 0x99, 0xf9, 0xde, 0xfb, 0xbe, 0xf7, 0xcd, 0x9b, 0x97, 0xc0, 0x23,
+	0xe5, 0x9a, 0x61, 0xeb, 0x96, 0xad, 0x94, 0x74, 0x53, 0x93, 0xea, 0x19, 0x69, 0xb5, 0x86, 0xab,
+	0x6b, 0x62, 0xa5, 0x4a, 0x6c, 0x82, 0x46, 0x5b, 0x0f, 0xc5, 0x7a, 0x46, 0x18, 0xd3, 0x88, 0x46,
+	0xe8, 0x99, 0xe4, 0x7c, 0x63, 0x30, 0x61, 0xbc, 0x48, 0xac, 0x32, 0xb1, 0x96, 0xd9, 0x01, 0x5b,
+	0xf0, 0xa3, 0x44, 0x67, 0x7a, 0xba, 0x5e, 0x6e, 0xa4, 0x64, 0xa0, 0x69, 0x16, 0x22, 0x15, 0x14,
+	0x0b, 0x33, 0x7e, 0xa9, 0x9e, 0x29, 0x60, 0x5b, 0xc9, 0x48, 0x15, 0x45, 0xd3, 0x4d, 0xc5, 0xd6,
+	0x89, 0xc9, 0xb1, 0x47, 0x35, 0x42, 0x34, 0x03, 0x4b, 0x4a, 0x45, 0x97, 0x14, 0xd3, 0x24, 0x36,
+	0x3d, 0xe4, 0x74, 0xf1, 0xbb, 0xf0, 0xbf, 0xeb, 0x4e, 0xfc, 0x55, 0x87, 0x65, 0x89, 0x91, 0x2c,
+	0x92, 0x62, 0xc9, 0x42, 0x0b, 0x10, 0x36, 0x73, 0x85, 0x41, 0x0c, 0xa4, 0x46, 0xb2, 0x49, 0x91,
+	0x6b, 0x75, 0x88, 0x45, 0x56, 0x38, 0x27, 0x16, 0xaf, 0x29, 0x1a, 0x96, 0xf1, 0x6a, 0x0d, 0x5b,
+	0xb6, 0xdc, 0x12, 0x19, 0x7f, 0x09, 0x60, 0xc4, 0x9b, 0x42, 0xc6, 0x56, 0x85, 0x98, 0x16, 0x46,
+	0x33, 0x70, 0xd0, 0x70, 0x36, 0xc2, 0x20, 0xf6, 0x4b, 0x6a, 0x24, 0x3b, 0x21, 0x76, 0xb8, 0x28,
+	0x76, 0x86, 0xca, 0x0c, 0x8f, 0x2e, 0xb7, 0x69, 0x1c, 0xa0, 0x1a, 0x27, 0xfb, 0x6a, 0x64, 0xac,
+	0x6d, 0x22, 0x5f, 0x01, 0xf8, 0xaf, 0xa7, 0x48, 0x74, 0x11, 0xfe, 0xa9, 0x62, 0x03, 0x6b, 0x8a,
+	0x4d, 0xaa, 0xcb, 0x8a, 0xaa, 0x56, 0xa9, 0x15, 0xbf, 0xe7, 0xc2, 0xbb, 0x5b, 0xe9, 0x31, 0xce,
+	0x74, 0x49, 0x55, 0xab, 0xd8, 0xb2, 0x96, 0xec, 0xaa, 0x6e, 0x6a, 0xf2, 0x1f, 0x2e, 0xde, 0xd9,
+	0x77, 0x12, 0xd4, 0x15, 0x43, 0x57, 0x9b, 0x09, 0x06, 0xfa, 0x25, 0x70, 0xf1, 0xce, 0xfe, 0xb9,
+	0xe1, 0xc7, 0x9b, 0xd1, 0xd0, 0xd7, 0xcd, 0x68, 0x28, 0x6e, 0xc0, 0x63, 0x9e, 0x22, 0x5d, 0x23,
+	0xcf, 0xc0, 0x5f, 0x1d, 0x63, 0xf8, 0x6d, 0x05, 0xf0, 0x91, 0xc2, 0xd1, 0x18, 0x1c, 0xbc, 0x47,
+	0x6a, 0xa6, 0x4a, 0x95, 0x0d, 0xcb, 0x6c, 0x11, 0x2f, 0xc0, 0x70, 0x17, 0xdb, 0x4d, 0xd3, 0x38,
+	0xd4, 0xe6, 0x78, 0x03, 0x60, 0xcc, 0x8f, 0xc4, 0xad, 0x6a, 0x0e, 0xfe, 0x56, 0x33, 0x5b, 0x1b,
+	0x24, 0xd1, 0xb3, 0x30, 0x16, 0x2e, 0x37, 0x62, 0x0e, 0xaf, 0x49, 0x5e, 0x03, 0xf8, 0xbf, 0x8f,
+	0xd8, 0x9f, 0xaa, 0x4d, 0x6c, 0x18, 0xf5, 0x91, 0xe9, 0x5a, 0x3a, 0x0b, 0x87, 0x98, 0x3d, 0xfc,
+	0xee, 0x02, 0x39, 0xca, 0x43, 0x7c, 0xda, 0x65, 0x12, 0x8e, 0x52, 0xd6, 0x1c, 0x31, 0xd5, 0xdb,
+	0x58, 0xd7, 0x56, 0x6c, 0x07, 0xa8, 0x62, 0x93, 0x94, 0x99, 0x17, 0x32, 0x5b, 0xc4, 0x1f, 0x35,
+	0x6c, 0x6c, 0x22, 0x5d, 0x5d, 0x37, 0xe0, 0xd0, 0x7d, 0xba, 0xc3, 0xed, 0x3b, 0xbf, 0xbd, 0x17,
+	0x0d, 0x7d, 0xda, 0x8b, 0x26, 0x35, 0xdd, 0x5e, 0xa9, 0x15, 0xc4, 0x22, 0x29, 0xf3, 0x71, 0xc9,
+	0x3f, 0xd2, 0x96, 0x5a, 0x92, 0xec, 0xb5, 0x0a, 0xb6, 0xc4, 0x3c, 0x2e, 0xee, 0x6e, 0xa5, 0x21,
+	0xf7, 0x2a, 0x8f, 0x8b, 0x32, 0xcf, 0xe5, 0x23, 0xb8, 0xc4, 0xe7, 0xd2, 0xad, 0x86, 0x8d, 0xad,
+	0x25, 0xcf, 0x13, 0xdd, 0xf4, 0xb8, 0x13, 0xf0, 0xa3, 0x77, 0x72, 0x01, 0x26, 0x7b, 0x93, 0xb9,
+	0x16, 0x78, 0x9a, 0x96, 0x7d, 0x31, 0x0c, 0x07, 0x69, 0x02, 0xf4, 0x1c, 0xc0, 0xbf, 0xbb, 0xa7,
+	0xf5, 0x64, 0xd7, 0x05, 0x7a, 0xcf, 0x5c, 0x41, 0x0a, 0x08, 0x6c, 0xe8, 0x89, 0x4f, 0x3d, 0xfc,
+	0xf0, 0xe5, 0xd9, 0x40, 0x02, 0x4d, 0x48, 0x55, 0xac, 0x18, 0x3a, 0xb1, 0x71, 0x71, 0x45, 0xea,
+	0xfc, 0x91, 0x62, 0x2f, 0xed, 0x2d, 0x80, 0x7f, 0x75, 0x0d, 0xd0, 0x64, 0x30, 0x42, 0x41, 0x0c,
+	0x86, 0x73, 0x75, 0x5d, 0xa1, 0xba, 0xf2, 0x28, 0xd7, 0x4f, 0x97, 0xb4, 0xde, 0x7e, 0x89, 0x1b,
+	0xd2, 0x7a, 0xfb, 0x53, 0xdd, 0x40, 0x9b, 0x00, 0xfe, 0xe3, 0x35, 0xe6, 0xa6, 0xfa, 0x6b, 0xe2,
+	0x50, 0x21, 0x13, 0x18, 0xea, 0x56, 0x70, 0x82, 0x56, 0x70, 0x1c, 0x25, 0x7a, 0x55, 0xd0, 0x98,
+	0x62, 0xef, 0x00, 0x44, 0x1e, 0x73, 0x27, 0x15, 0x94, 0x56, 0x38, 0x15, 0x14, 0xe9, 0xea, 0x5b,
+	0xa4, 0xfa, 0x16, 0x50, 0xbe, 0xbf, 0xbe, 0x00, 0x1e, 0xbf, 0x07, 0x70, 0xdc, 0xff, 0xa9, 0xf9,
+	0xb4, 0xa5, 0x6f, 0x80, 0x30, 0xf3, 0x9d, 0x01, 0x6e, 0x55, 0xf3, 0xb4, 0xaa, 0x39, 0x34, 0xdb,
+	0xab, 0x2a, 0xb7, 0x9a, 0x74, 0x91, 0xe8, 0x66, 0x57, 0x75, 0xe8, 0x09, 0x80, 0xb0, 0x65, 0xd0,
+	0xc5, 0xbc, 0xc5, 0x34, 0x11, 0x42, 0xaa, 0x1f, 0xc2, 0xd5, 0x97, 0xa5, 0xfa, 0x4e, 0xa2, 0xe9,
+	0x5e, 0xfa, 0xd8, 0x60, 0x73, 0x4c, 0x36, 0x49, 0x79, 0x23, 0xb7, 0xb4, 0xbd, 0x1f, 0x01, 0x3b,
+	0xfb, 0x11, 0xf0, 0x79, 0x3f, 0x02, 0x9e, 0x1e, 0x44, 0x42, 0x3b, 0x07, 0x91, 0xd0, 0xc7, 0x83,
+	0x48, 0xe8, 0xce, 0xd9, 0x96, 0xc1, 0xd9, 0x99, 0x2f, 0xdd, 0x48, 0xf8, 0xa0, 0x63, 0x4d, 0xe7,
+	0x69, 0x61, 0x88, 0xfe, 0x43, 0x3c, 0xfd, 0x2d, 0x00, 0x00, 0xff, 0xff, 0xc7, 0x86, 0xba, 0x33,
+	0xf1, 0x0a, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -664,8 +666,8 @@ type QueryClient interface {
 	MultiStakingLock(ctx context.Context, in *QueryMultiStakingLock, opts ...grpc.CallOption) (*QueryMultiStakingLockResponse, error)
 	MultiStakingUnlocks(ctx context.Context, in *QueryMultiStakingUnlocks, opts ...grpc.CallOption) (*QueryMultiStakingUnlocksResponse, error)
 	MultiStakingUnlock(ctx context.Context, in *QueryMultiStakingUnlock, opts ...grpc.CallOption) (*QueryMultiStakingUnlockResponse, error)
-	ValidatorAllowedToken(ctx context.Context, in *QueryValidatorAllowedToken, opts ...grpc.CallOption) (*QueryValidatorAllowedTokenResponse, error)
-	BondTokenWeight(ctx context.Context, in *QueryBondTokenWeight, opts ...grpc.CallOption) (*QueryBondTokenWeightResponse, error)
+	ValidatorMultiStakingCoin(ctx context.Context, in *QueryValidatorMultiStakingCoin, opts ...grpc.CallOption) (*QueryValidatorMultiStakingCoinResponse, error)
+	BondWeight(ctx context.Context, in *QueryBondWeight, opts ...grpc.CallOption) (*QueryBondWeightResponse, error)
 }
 
 type queryClient struct {
@@ -712,18 +714,18 @@ func (c *queryClient) MultiStakingUnlock(ctx context.Context, in *QueryMultiStak
 	return out, nil
 }
 
-func (c *queryClient) ValidatorAllowedToken(ctx context.Context, in *QueryValidatorAllowedToken, opts ...grpc.CallOption) (*QueryValidatorAllowedTokenResponse, error) {
-	out := new(QueryValidatorAllowedTokenResponse)
-	err := c.cc.Invoke(ctx, "/multistaking.v1.Query/ValidatorAllowedToken", in, out, opts...)
+func (c *queryClient) ValidatorMultiStakingCoin(ctx context.Context, in *QueryValidatorMultiStakingCoin, opts ...grpc.CallOption) (*QueryValidatorMultiStakingCoinResponse, error) {
+	out := new(QueryValidatorMultiStakingCoinResponse)
+	err := c.cc.Invoke(ctx, "/multistaking.v1.Query/ValidatorMultiStakingCoin", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *queryClient) BondTokenWeight(ctx context.Context, in *QueryBondTokenWeight, opts ...grpc.CallOption) (*QueryBondTokenWeightResponse, error) {
-	out := new(QueryBondTokenWeightResponse)
-	err := c.cc.Invoke(ctx, "/multistaking.v1.Query/BondTokenWeight", in, out, opts...)
+func (c *queryClient) BondWeight(ctx context.Context, in *QueryBondWeight, opts ...grpc.CallOption) (*QueryBondWeightResponse, error) {
+	out := new(QueryBondWeightResponse)
+	err := c.cc.Invoke(ctx, "/multistaking.v1.Query/BondWeight", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -736,8 +738,8 @@ type QueryServer interface {
 	MultiStakingLock(context.Context, *QueryMultiStakingLock) (*QueryMultiStakingLockResponse, error)
 	MultiStakingUnlocks(context.Context, *QueryMultiStakingUnlocks) (*QueryMultiStakingUnlocksResponse, error)
 	MultiStakingUnlock(context.Context, *QueryMultiStakingUnlock) (*QueryMultiStakingUnlockResponse, error)
-	ValidatorAllowedToken(context.Context, *QueryValidatorAllowedToken) (*QueryValidatorAllowedTokenResponse, error)
-	BondTokenWeight(context.Context, *QueryBondTokenWeight) (*QueryBondTokenWeightResponse, error)
+	ValidatorMultiStakingCoin(context.Context, *QueryValidatorMultiStakingCoin) (*QueryValidatorMultiStakingCoinResponse, error)
+	BondWeight(context.Context, *QueryBondWeight) (*QueryBondWeightResponse, error)
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
@@ -756,11 +758,11 @@ func (*UnimplementedQueryServer) MultiStakingUnlocks(ctx context.Context, req *Q
 func (*UnimplementedQueryServer) MultiStakingUnlock(ctx context.Context, req *QueryMultiStakingUnlock) (*QueryMultiStakingUnlockResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method MultiStakingUnlock not implemented")
 }
-func (*UnimplementedQueryServer) ValidatorAllowedToken(ctx context.Context, req *QueryValidatorAllowedToken) (*QueryValidatorAllowedTokenResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ValidatorAllowedToken not implemented")
+func (*UnimplementedQueryServer) ValidatorMultiStakingCoin(ctx context.Context, req *QueryValidatorMultiStakingCoin) (*QueryValidatorMultiStakingCoinResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ValidatorMultiStakingCoin not implemented")
 }
-func (*UnimplementedQueryServer) BondTokenWeight(ctx context.Context, req *QueryBondTokenWeight) (*QueryBondTokenWeightResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method BondTokenWeight not implemented")
+func (*UnimplementedQueryServer) BondWeight(ctx context.Context, req *QueryBondWeight) (*QueryBondWeightResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BondWeight not implemented")
 }
 
 func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
@@ -839,38 +841,38 @@ func _Query_MultiStakingUnlock_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Query_ValidatorAllowedToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryValidatorAllowedToken)
+func _Query_ValidatorMultiStakingCoin_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryValidatorMultiStakingCoin)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServer).ValidatorAllowedToken(ctx, in)
+		return srv.(QueryServer).ValidatorMultiStakingCoin(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/multistaking.v1.Query/ValidatorAllowedToken",
+		FullMethod: "/multistaking.v1.Query/ValidatorMultiStakingCoin",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).ValidatorAllowedToken(ctx, req.(*QueryValidatorAllowedToken))
+		return srv.(QueryServer).ValidatorMultiStakingCoin(ctx, req.(*QueryValidatorMultiStakingCoin))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Query_BondTokenWeight_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryBondTokenWeight)
+func _Query_BondWeight_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryBondWeight)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServer).BondTokenWeight(ctx, in)
+		return srv.(QueryServer).BondWeight(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/multistaking.v1.Query/BondTokenWeight",
+		FullMethod: "/multistaking.v1.Query/BondWeight",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).BondTokenWeight(ctx, req.(*QueryBondTokenWeight))
+		return srv.(QueryServer).BondWeight(ctx, req.(*QueryBondWeight))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -896,12 +898,12 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Query_MultiStakingUnlock_Handler,
 		},
 		{
-			MethodName: "ValidatorAllowedToken",
-			Handler:    _Query_ValidatorAllowedToken_Handler,
+			MethodName: "ValidatorMultiStakingCoin",
+			Handler:    _Query_ValidatorMultiStakingCoin_Handler,
 		},
 		{
-			MethodName: "BondTokenWeight",
-			Handler:    _Query_BondTokenWeight_Handler,
+			MethodName: "BondWeight",
+			Handler:    _Query_BondWeight_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -1240,7 +1242,7 @@ func (m *QueryMultiStakingUnlockResponse) MarshalToSizedBuffer(dAtA []byte) (int
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryBondTokenWeight) Marshal() (dAtA []byte, err error) {
+func (m *QueryBondWeight) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1250,12 +1252,12 @@ func (m *QueryBondTokenWeight) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryBondTokenWeight) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryBondWeight) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryBondTokenWeight) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryBondWeight) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1270,7 +1272,7 @@ func (m *QueryBondTokenWeight) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryBondTokenWeightResponse) Marshal() (dAtA []byte, err error) {
+func (m *QueryBondWeightResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1280,12 +1282,12 @@ func (m *QueryBondTokenWeightResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryBondTokenWeightResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryBondWeightResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryBondTokenWeightResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryBondWeightResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1313,7 +1315,7 @@ func (m *QueryBondTokenWeightResponse) MarshalToSizedBuffer(dAtA []byte) (int, e
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryValidatorAllowedToken) Marshal() (dAtA []byte, err error) {
+func (m *QueryValidatorMultiStakingCoin) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1323,12 +1325,12 @@ func (m *QueryValidatorAllowedToken) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryValidatorAllowedToken) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryValidatorMultiStakingCoin) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryValidatorAllowedToken) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryValidatorMultiStakingCoin) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1343,7 +1345,7 @@ func (m *QueryValidatorAllowedToken) MarshalToSizedBuffer(dAtA []byte) (int, err
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryValidatorAllowedTokenResponse) Marshal() (dAtA []byte, err error) {
+func (m *QueryValidatorMultiStakingCoinResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1353,12 +1355,12 @@ func (m *QueryValidatorAllowedTokenResponse) Marshal() (dAtA []byte, err error) 
 	return dAtA[:n], nil
 }
 
-func (m *QueryValidatorAllowedTokenResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryValidatorMultiStakingCoinResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryValidatorAllowedTokenResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryValidatorMultiStakingCoinResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1514,7 +1516,7 @@ func (m *QueryMultiStakingUnlockResponse) Size() (n int) {
 	return n
 }
 
-func (m *QueryBondTokenWeight) Size() (n int) {
+func (m *QueryBondWeight) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1527,7 +1529,7 @@ func (m *QueryBondTokenWeight) Size() (n int) {
 	return n
 }
 
-func (m *QueryBondTokenWeightResponse) Size() (n int) {
+func (m *QueryBondWeightResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1541,7 +1543,7 @@ func (m *QueryBondTokenWeightResponse) Size() (n int) {
 	return n
 }
 
-func (m *QueryValidatorAllowedToken) Size() (n int) {
+func (m *QueryValidatorMultiStakingCoin) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1554,7 +1556,7 @@ func (m *QueryValidatorAllowedToken) Size() (n int) {
 	return n
 }
 
-func (m *QueryValidatorAllowedTokenResponse) Size() (n int) {
+func (m *QueryValidatorMultiStakingCoinResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -2425,7 +2427,7 @@ func (m *QueryMultiStakingUnlockResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryBondTokenWeight) Unmarshal(dAtA []byte) error {
+func (m *QueryBondWeight) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2448,10 +2450,10 @@ func (m *QueryBondTokenWeight) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryBondTokenWeight: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryBondWeight: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryBondTokenWeight: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryBondWeight: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -2507,7 +2509,7 @@ func (m *QueryBondTokenWeight) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryBondTokenWeightResponse) Unmarshal(dAtA []byte) error {
+func (m *QueryBondWeightResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2530,10 +2532,10 @@ func (m *QueryBondTokenWeightResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryBondTokenWeightResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryBondWeightResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryBondTokenWeightResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryBondWeightResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -2611,7 +2613,7 @@ func (m *QueryBondTokenWeightResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryValidatorAllowedToken) Unmarshal(dAtA []byte) error {
+func (m *QueryValidatorMultiStakingCoin) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2634,10 +2636,10 @@ func (m *QueryValidatorAllowedToken) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryValidatorAllowedToken: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryValidatorMultiStakingCoin: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryValidatorAllowedToken: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryValidatorMultiStakingCoin: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -2693,7 +2695,7 @@ func (m *QueryValidatorAllowedToken) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryValidatorAllowedTokenResponse) Unmarshal(dAtA []byte) error {
+func (m *QueryValidatorMultiStakingCoinResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2716,10 +2718,10 @@ func (m *QueryValidatorAllowedTokenResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryValidatorAllowedTokenResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryValidatorMultiStakingCoinResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryValidatorAllowedTokenResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryValidatorMultiStakingCoinResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:

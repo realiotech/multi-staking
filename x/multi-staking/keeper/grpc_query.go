@@ -26,8 +26,8 @@ func NewQueryServerImpl(keeper Keeper) types.QueryServer {
 
 var _ types.QueryServer = queryServer{}
 
-// BondTokenWeight implements types.QueryServer.
-func (k queryServer) BondTokenWeight(c context.Context, req *types.QueryBondTokenWeight) (*types.QueryBondTokenWeightResponse, error) {
+// BondWeight implements types.QueryServer.
+func (k queryServer) BondWeight(c context.Context, req *types.QueryBondWeight) (*types.QueryBondWeightResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -36,7 +36,7 @@ func (k queryServer) BondTokenWeight(c context.Context, req *types.QueryBondToke
 
 	weight, found := k.Keeper.GetBondWeight(ctx, req.Denom)
 
-	return &types.QueryBondTokenWeightResponse{
+	return &types.QueryBondWeightResponse{
 		Weight: weight,
 		Found:  found,
 	}, nil
@@ -134,8 +134,8 @@ func (k queryServer) MultiStakingUnlocks(c context.Context, req *types.QueryMult
 	return &types.QueryMultiStakingUnlocksResponse{Unlocks: unlocks, Pagination: pageRes}, nil
 }
 
-// ValidatorAllowedToken implements types.QueryServer.
-func (k queryServer) ValidatorAllowedToken(c context.Context, req *types.QueryValidatorAllowedToken) (*types.QueryValidatorAllowedTokenResponse, error) {
+// ValidatorMultiStakingCoin implements types.QueryServer.
+func (k queryServer) ValidatorMultiStakingCoin(c context.Context, req *types.QueryValidatorMultiStakingCoin) (*types.QueryValidatorMultiStakingCoinResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -144,7 +144,7 @@ func (k queryServer) ValidatorAllowedToken(c context.Context, req *types.QueryVa
 
 	denom := k.Keeper.GetValidatorMultiStakingCoin(ctx, sdk.ValAddress(req.ValidatorAddr))
 
-	return &types.QueryValidatorAllowedTokenResponse{
+	return &types.QueryValidatorMultiStakingCoinResponse{
 		Denom: denom,
 	}, nil
 }
