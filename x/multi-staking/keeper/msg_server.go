@@ -297,7 +297,7 @@ func (k msgServer) SetWithdrawAddress(goCtx context.Context, msg *types.MsgSetWi
 	return &types.MsgSetWithdrawAddressResponse{}, nil
 }
 
-func (k msgServer) WithdrawDelegatorReward(goCtx context.Context, msg *types.MsgWithdrawDelegatorReward) (*types.MsgWithdrawDelegatorRewardResponse, error) {
+func (k msgServer) WithdrawDelegatorReward(goCtx context.Context, msg *types.MsgWithdrawReward) (*types.MsgWithdrawRewardResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	multiStakerAddr, err := sdk.AccAddressFromBech32(msg.MultiStakerAddress)
 	if err != nil {
@@ -324,7 +324,7 @@ func (k msgServer) WithdrawDelegatorReward(goCtx context.Context, msg *types.Msg
 	if err != nil {
 		return nil, err
 	}
-	return &types.MsgWithdrawDelegatorRewardResponse{Amount: resp.Amount}, nil
+	return &types.MsgWithdrawRewardResponse{Amount: resp.Amount}, nil
 }
 
 func (k msgServer) Vote(goCtx context.Context, msg *types.MsgVote) (*types.MsgVoteResponse, error) {

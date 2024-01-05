@@ -24,7 +24,7 @@ const (
 	TypeMsgVote                      = "vote"
 	TypeMsgVoteWeighted              = "weighted_vote"
 	TypeMsgSetWithdrawAddress        = "set_withdraw_address"
-	TypeMsgWithdrawDelegatorReward   = "withdraw_delegator_reward"
+	TypeMsgWithdrawReward            = "withdraw_delegator_reward"
 )
 
 var (
@@ -39,7 +39,7 @@ var (
 	_ sdk.Msg                            = &MsgVote{}
 	_ sdk.Msg                            = &MsgVoteWeighted{}
 	_ sdk.Msg                            = &MsgSetWithdrawAddress{}
-	_ sdk.Msg                            = &MsgWithdrawDelegatorReward{}
+	_ sdk.Msg                            = &MsgWithdrawReward{}
 )
 
 // NewMsgCreateValidator creates a new MsgCreateValidator instance.
@@ -535,30 +535,30 @@ func (msg MsgSetWithdrawAddress) ValidateBasic() error {
 	return nil
 }
 
-func NewMsgWithdrawDelegatorReward(multiStakerAddr sdk.AccAddress, valAddr sdk.ValAddress) *MsgWithdrawDelegatorReward {
-	return &MsgWithdrawDelegatorReward{
+func NewMsgWithdrawReward(multiStakerAddr sdk.AccAddress, valAddr sdk.ValAddress) *MsgWithdrawReward {
+	return &MsgWithdrawReward{
 		MultiStakerAddress: multiStakerAddr.String(),
 		ValidatorAddress:   valAddr.String(),
 	}
 }
 
-func (msg MsgWithdrawDelegatorReward) Route() string { return ModuleName }
-func (msg MsgWithdrawDelegatorReward) Type() string  { return TypeMsgWithdrawDelegatorReward }
+func (msg MsgWithdrawReward) Route() string { return ModuleName }
+func (msg MsgWithdrawReward) Type() string  { return TypeMsgWithdrawReward }
 
 // Return address that must sign over msg.GetSignBytes()
-func (msg MsgWithdrawDelegatorReward) GetSigners() []sdk.AccAddress {
+func (msg MsgWithdrawReward) GetSigners() []sdk.AccAddress {
 	delegator, _ := sdk.AccAddressFromBech32(msg.MultiStakerAddress)
 	return []sdk.AccAddress{delegator}
 }
 
 // get the bytes for the message signer to sign on
-func (msg MsgWithdrawDelegatorReward) GetSignBytes() []byte {
+func (msg MsgWithdrawReward) GetSignBytes() []byte {
 	bz := ModuleCdc.MustMarshalJSON(&msg)
 	return sdk.MustSortJSON(bz)
 }
 
 // quick validity check
-func (msg MsgWithdrawDelegatorReward) ValidateBasic() error {
+func (msg MsgWithdrawReward) ValidateBasic() error {
 	if _, _, err := AccAddrAndValAddrFromStrings(msg.MultiStakerAddress, msg.ValidatorAddress); err != nil {
 		return err
 	}
