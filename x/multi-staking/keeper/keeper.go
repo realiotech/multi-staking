@@ -55,6 +55,25 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", "x/"+types.ModuleName)
 }
 
+func (k Keeper) GetMatureUnbondingDelegations(ctx sdk.Context) []stakingtypes.UnbondingDelegation {
+	var matureUnbondingDelegations []stakingtypes.UnbondingDelegation
+	matureUnbonds := k.stakingKeeper.DequeueAllMatureUBDQueue(ctx, ctx.BlockHeader().Time)
+	for _, dvPair := range matureUnbonds {
+		delAddr, valAddr, err := types.AccAddrAndValAddrFromStrings(dvPair.DelegatorAddress, dvPair.ValidatorAddress)
+		if err != nil {
+			panic(err)
+		}
+
+		unbondingDelegation, found := k.stakingKeeper.GetUnbondingDelegation(ctx, delAddr, valAddr) // ??
+		if !found {
+			continue
+		}
+
+		matureUnbondingDelegations = append(matureUnbondingDelegations, unbondingDelegation)
+	}
+	return matureUnbondingDelegations
+}
+
 func (k Keeper) GetUnbondingEntryAtCreationHeight(ctx sdk.Context, delAcc sdk.AccAddress, valAcc sdk.ValAddress, creationHeight int64) (stakingtypes.UnbondingDelegationEntry, bool) {
 	ubd, found := k.stakingKeeper.GetUnbondingDelegation(ctx, delAcc, valAcc)
 	if !found {
@@ -75,6 +94,18 @@ func (k Keeper) GetUnbondingEntryAtCreationHeight(ctx sdk.Context, delAcc sdk.Ac
 	}
 
 	return unbondingEntryAtHeight, found
+}
+
+func (k Keeper) BurnCoin(ctx sdk.Context, accAddr sdk.AccAddress, coin sdk.Coins) error {
+	err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, accAddr, types.ModuleName, coin)
+	if err != nil {
+		return err
+	}
+	err = k.bankKeeper.BurnCoins(ctx, types.ModuleName, coin)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (k Keeper) isValMultiStakingCoin(ctx sdk.Context, valAcc sdk.ValAddress, lockedCoin sdk.Coin) bool {
