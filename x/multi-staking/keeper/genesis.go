@@ -30,6 +30,9 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) (res []abc
 		k.SetValidatorMultiStakingCoin(ctx, valAddr, valMultiStakingCoin.CoinDenom)
 	}
 
+	k.SetBondWeight(ctx, "ario", sdk.OneDec())
+	k.SetBondWeight(ctx, "arst", sdk.OneDec())
+
 	return k.stakingKeeper.InitGenesis(ctx, data.StakingGenesisState)
 }
 
