@@ -1,0 +1,103 @@
+syntax = "proto3";
+package multistaking.v1;
+
+import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
+import "multistaking/v1/multi_staking.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "google/api/annotations.proto";
+
+option go_package = "github.com/realiotech/multi-staking/x/multi-staking/types";
+
+// Query defines the gRPC querier service.
+service Query {
+  rpc MultiStakingLocks(QueryMultiStakingLocks)
+      returns (QueryMultiStakingLocksResponse) {
+    option (google.api.http).get = "/realiotech/multistaking/v1/locks";
+  }
+  rpc MultiStakingLock(QueryMultiStakingLock)
+      returns (QueryMultiStakingLockResponse) {
+    option (google.api.http).get =
+        "/realiotech/multistaking/v1/lock/{validator_addr}/{delegator_addr}";
+  }
+  rpc MultiStakingUnlocks(QueryMultiStakingUnlocks)
+      returns (QueryMultiStakingUnlocksResponse) {
+    option (google.api.http).get = "/realiotech/multistaking/v1/unlocks";
+  }
+  rpc MultiStakingUnlock(QueryMultiStakingUnlock)
+      returns (QueryMultiStakingUnlockResponse) {
+    option (google.api.http).get =
+        "/realiotech/multistaking/v1/unlock/{validator_addr}/{delegator_addr}";
+  }
+  rpc ValidatorAllowedToken(QueryValidatorAllowedToken)
+      returns (QueryValidatorAllowedTokenResponse) {
+    option (google.api.http).get =
+        "/realiotech/multistaking/v1/validator-token/{validator_addr}";
+  }
+  rpc BondTokenWeight(QueryBondTokenWeight)
+      returns (QueryBondTokenWeightResponse) {
+    option (google.api.http).get = "/realiotech/multistaking/v1/weight/{denom}";
+  }
+}
+
+message QueryMultiStakingLocks {
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryMultiStakingLocksResponse {
+  repeated MultiStakingLock locks = 1;
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+message QueryMultiStakingLock {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  string delegator_addr = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  string validator_addr = 2 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+}
+
+message QueryMultiStakingLockResponse {
+  MultiStakingLock lock = 1;
+  bool found = 2;
+}
+
+message QueryMultiStakingUnlocks {
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryMultiStakingUnlocksResponse {
+  repeated MultiStakingUnlock unlocks = 1;
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+message QueryMultiStakingUnlock {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  string delegator_addr = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  string validator_addr = 2 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+}
+
+message QueryMultiStakingUnlockResponse {
+  MultiStakingUnlock unlock = 1;
+  bool found = 2;
+}
+
+message QueryBondTokenWeight { string denom = 1; }
+
+message QueryBondTokenWeightResponse {
+  string weight = 1 [
+    (cosmos_proto.scalar) = "cosmos.Dec",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+
+  bool found = 2;
+}
+
+message QueryValidatorAllowedToken {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  string validator_addr = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+}
+
+message QueryValidatorAllowedTokenResponse { string denom = 1; }
