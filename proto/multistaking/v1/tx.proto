@@ -38,8 +38,8 @@ service Msg {
   // unbonding delegation and delegate back to previous validator.
   //
   // Since: cosmos-sdk 0.46
-  rpc CancelUnbondingDelegation(MsgCancelUnbondingDelegation)
-      returns (MsgCancelUnbondingDelegationResponse);
+  rpc CancelUnbondingDelegation(MsgCancelUnbonding)
+      returns (MsgCancelUnbondingResponse);
 
   // SetWithdrawAddress defines a method to change the withdraw address
   // for a delegator (or validator self-delegation).
@@ -179,11 +179,11 @@ message MsgUndelegateResponse {
       [ (gogoproto.nullable) = false, (gogoproto.stdtime) = true ];
 }
 
-// MsgCancelUnbondingDelegation defines the SDK message for performing a cancel
+// MsgCancelUnbonding defines the SDK message for performing a cancel
 // unbonding delegation for delegator
 //
 // Since: cosmos-sdk 0.46
-message MsgCancelUnbondingDelegation {
+message MsgCancelUnbonding {
   option (cosmos.msg.v1.signer) = "multi_staker_address";
   option (gogoproto.equal) = false;
 
@@ -197,10 +197,10 @@ message MsgCancelUnbondingDelegation {
   int64 creation_height = 4;
 }
 
-// MsgCancelUnbondingDelegationResponse
+// MsgCancelUnbondingResponse
 //
 // Since: cosmos-sdk 0.46
-message MsgCancelUnbondingDelegationResponse {}
+message MsgCancelUnbondingResponse {}
 
 // MsgSetWithdrawAddress sets the withdraw address for
 // a delegator (or validator self-delegation).

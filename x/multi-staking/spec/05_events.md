@@ -59,7 +59,7 @@ The multi-staking module emits the following events:
 
 * [0] Time is formatted in the RFC3339 standard
 
-### MsgCancelUnbondingDelegation
+### MsgCancelUnbonding
 
 | Type                          | Attribute Key       | Attribute Value                     |
 | ----------------------------- | ------------------  | ------------------------------------|

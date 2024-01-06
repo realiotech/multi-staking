@@ -237,7 +237,7 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (
 
 // // CancelUnbondingDelegation defines a method for canceling the unbonding delegation
 // // and delegate back to the validator.
-func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.MsgCancelUnbondingDelegation) (*types.MsgCancelUnbondingDelegationResponse, error) {
+func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.MsgCancelUnbonding) (*types.MsgCancelUnbondingResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	multiStakerAddr, valAcc, err := types.AccAddrAndValAddrFromStrings(msg.MultiStakerAddress, msg.ValidatorAddress)
@@ -273,7 +273,7 @@ func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.M
 		return nil, err
 	}
 
-	return &types.MsgCancelUnbondingDelegationResponse{}, nil
+	return &types.MsgCancelUnbondingResponse{}, nil
 }
 
 // SetWithdrawAddress defines a method for performing an undelegation from a delegate and a validator

@@ -76,9 +76,9 @@ Logic flow:
 
 The rest of the unbonding logic such as sending locked coins back to user will happens at `EndBlock()`
 
-## MsgCancelUnbondingDelegation 
+## MsgCancelUnbonding 
 
-The `MsgCancelUnbondingDelegation` message allows delegators to cancel the `unbondingDelegation` entry and deleagate back to a previous validator.
+The `MsgCancelUnbonding` message allows delegators to cancel the `unbondingDelegation` entry and deleagate back to a previous validator.
 
 Logic flow:
 
