@@ -17,8 +17,8 @@ service Query {
   }
   rpc MultiStakingLock(QueryMultiStakingLock)
       returns (QueryMultiStakingLockResponse) {
-    option (google.api.http).get =
-        "/realiotech/multistaking/v1/lock/{validator_addr}/{delegator_addr}";
+    option (google.api.http).get = "/realiotech/multistaking/v1/lock/"
+                                   "{validator_address}/{multi_staker_address}";
   }
   rpc MultiStakingUnlocks(QueryMultiStakingUnlocks)
       returns (QueryMultiStakingUnlocksResponse) {
@@ -26,8 +26,8 @@ service Query {
   }
   rpc MultiStakingUnlock(QueryMultiStakingUnlock)
       returns (QueryMultiStakingUnlockResponse) {
-    option (google.api.http).get =
-        "/realiotech/multistaking/v1/unlock/{validator_addr}/{delegator_addr}";
+    option (google.api.http).get = "/realiotech/multistaking/v1/unlock/"
+                                   "{validator_address}/{multi_staker_address}";
   }
   rpc ValidatorMultiStakingCoin(QueryValidatorMultiStakingCoin)
       returns (QueryValidatorMultiStakingCoinResponse) {
@@ -51,8 +51,10 @@ message QueryMultiStakingLocksResponse {
 message QueryMultiStakingLock {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
-  string delegator_addr = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
-  string validator_addr = 2 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  string multi_staker_address = 1
+      [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  string validator_address = 2
+      [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
 }
 
 message QueryMultiStakingLockResponse {
@@ -72,8 +74,10 @@ message QueryMultiStakingUnlocksResponse {
 message QueryMultiStakingUnlock {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
-  string delegator_addr = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
-  string validator_addr = 2 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  string multi_staker_address = 1
+      [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  string validator_address = 2
+      [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
 }
 
 message QueryMultiStakingUnlockResponse {

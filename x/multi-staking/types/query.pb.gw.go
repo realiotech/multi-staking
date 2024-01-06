@@ -80,26 +80,26 @@ func request_Query_MultiStakingLock_0(ctx context.Context, marshaler runtime.Mar
 		_   = err
 	)
 
-	val, ok = pathParams["validator_addr"]
+	val, ok = pathParams["validator_address"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "validator_addr")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "validator_address")
 	}
 
-	protoReq.ValidatorAddr, err = runtime.String(val)
+	protoReq.ValidatorAddress, err = runtime.String(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "validator_addr", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "validator_address", err)
 	}
 
-	val, ok = pathParams["delegator_addr"]
+	val, ok = pathParams["multi_staker_address"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "delegator_addr")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "multi_staker_address")
 	}
 
-	protoReq.DelegatorAddr, err = runtime.String(val)
+	protoReq.MultiStakerAddress, err = runtime.String(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "delegator_addr", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "multi_staker_address", err)
 	}
 
 	msg, err := client.MultiStakingLock(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -118,26 +118,26 @@ func local_request_Query_MultiStakingLock_0(ctx context.Context, marshaler runti
 		_   = err
 	)
 
-	val, ok = pathParams["validator_addr"]
+	val, ok = pathParams["validator_address"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "validator_addr")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "validator_address")
 	}
 
-	protoReq.ValidatorAddr, err = runtime.String(val)
+	protoReq.ValidatorAddress, err = runtime.String(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "validator_addr", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "validator_address", err)
 	}
 
-	val, ok = pathParams["delegator_addr"]
+	val, ok = pathParams["multi_staker_address"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "delegator_addr")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "multi_staker_address")
 	}
 
-	protoReq.DelegatorAddr, err = runtime.String(val)
+	protoReq.MultiStakerAddress, err = runtime.String(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "delegator_addr", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "multi_staker_address", err)
 	}
 
 	msg, err := server.MultiStakingLock(ctx, &protoReq)
@@ -192,26 +192,26 @@ func request_Query_MultiStakingUnlock_0(ctx context.Context, marshaler runtime.M
 		_   = err
 	)
 
-	val, ok = pathParams["validator_addr"]
+	val, ok = pathParams["validator_address"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "validator_addr")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "validator_address")
 	}
 
-	protoReq.ValidatorAddr, err = runtime.String(val)
+	protoReq.ValidatorAddress, err = runtime.String(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "validator_addr", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "validator_address", err)
 	}
 
-	val, ok = pathParams["delegator_addr"]
+	val, ok = pathParams["multi_staker_address"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "delegator_addr")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "multi_staker_address")
 	}
 
-	protoReq.DelegatorAddr, err = runtime.String(val)
+	protoReq.MultiStakerAddress, err = runtime.String(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "delegator_addr", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "multi_staker_address", err)
 	}
 
 	msg, err := client.MultiStakingUnlock(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -230,26 +230,26 @@ func local_request_Query_MultiStakingUnlock_0(ctx context.Context, marshaler run
 		_   = err
 	)
 
-	val, ok = pathParams["validator_addr"]
+	val, ok = pathParams["validator_address"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "validator_addr")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "validator_address")
 	}
 
-	protoReq.ValidatorAddr, err = runtime.String(val)
+	protoReq.ValidatorAddress, err = runtime.String(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "validator_addr", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "validator_address", err)
 	}
 
-	val, ok = pathParams["delegator_addr"]
+	val, ok = pathParams["multi_staker_address"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "delegator_addr")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "multi_staker_address")
 	}
 
-	protoReq.DelegatorAddr, err = runtime.String(val)
+	protoReq.MultiStakerAddress, err = runtime.String(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "delegator_addr", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "multi_staker_address", err)
 	}
 
 	msg, err := server.MultiStakingUnlock(ctx, &protoReq)
@@ -676,11 +676,11 @@ func RegisterQueryHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 var (
 	pattern_Query_MultiStakingLocks_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"realiotech", "multistaking", "v1", "locks"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_MultiStakingLock_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 1, 0, 4, 1, 5, 5}, []string{"realiotech", "multistaking", "v1", "lock", "validator_addr", "delegator_addr"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_MultiStakingLock_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 1, 0, 4, 1, 5, 5}, []string{"realiotech", "multistaking", "v1", "lock", "validator_address", "multi_staker_address"}, "", runtime.AssumeColonVerbOpt(false)))
 
 	pattern_Query_MultiStakingUnlocks_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"realiotech", "multistaking", "v1", "unlocks"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_MultiStakingUnlock_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 1, 0, 4, 1, 5, 5}, []string{"realiotech", "multistaking", "v1", "unlock", "validator_addr", "delegator_addr"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_MultiStakingUnlock_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 1, 0, 4, 1, 5, 5}, []string{"realiotech", "multistaking", "v1", "unlock", "validator_address", "multi_staker_address"}, "", runtime.AssumeColonVerbOpt(false)))
 
 	pattern_Query_ValidatorMultiStakingCoin_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"realiotech", "multistaking", "v1", "validator-coin", "validator_addr"}, "", runtime.AssumeColonVerbOpt(false)))
 

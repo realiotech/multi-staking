@@ -50,7 +50,7 @@ func (k queryServer) MultiStakingLock(c context.Context, req *types.QueryMultiSt
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	lockId := types.MultiStakingLockID(req.DelegatorAddr, req.ValidatorAddr)
+	lockId := types.MultiStakingLockID(req.MultiStakerAddress, req.ValidatorAddress)
 	lock, found := k.Keeper.GetMultiStakingLock(ctx, lockId)
 
 	return &types.QueryMultiStakingLockResponse{
@@ -96,7 +96,7 @@ func (k queryServer) MultiStakingUnlock(c context.Context, req *types.QueryMulti
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	unlockId := types.MultiStakingUnlockID(req.DelegatorAddr, req.ValidatorAddr)
+	unlockId := types.MultiStakingUnlockID(req.MultiStakerAddress, req.ValidatorAddress)
 	unlock, found := k.Keeper.GetMultiStakingUnlock(ctx, unlockId)
 
 	return &types.QueryMultiStakingUnlockResponse{
