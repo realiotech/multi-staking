@@ -19,11 +19,11 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	legacy.RegisterAminoMsg(cdc, &MsgDelegate{}, "multi-staking/MsgDelegate")
 	legacy.RegisterAminoMsg(cdc, &MsgUndelegate{}, "multi-staking/MsgUndelegate")
 	legacy.RegisterAminoMsg(cdc, &MsgBeginRedelegate{}, "multi-staking/MsgBeginRedelegate")
-	legacy.RegisterAminoMsg(cdc, &MsgCancelUnbondingDelegation{}, "multi-staking/MsgCancelUnbondDelegation")
+	legacy.RegisterAminoMsg(cdc, &MsgCancelUnbonding{}, "multi-staking/MsgCancelUnbondDelegation")
 	legacy.RegisterAminoMsg(cdc, &MsgVoteWeighted{}, "multi-staking/MsgVoteWeighted")
 	legacy.RegisterAminoMsg(cdc, &MsgVote{}, "multi-staking/MsgVote")
 	legacy.RegisterAminoMsg(cdc, &MsgSetWithdrawAddress{}, "multi-staking/MsgSetWithdrawAddress")
-	legacy.RegisterAminoMsg(cdc, &MsgWithdrawDelegatorReward{}, "multi-staking/MsgWithdrawDelegatorReward")
+	legacy.RegisterAminoMsg(cdc, &MsgWithdrawReward{}, "multi-staking/MsgWithdrawReward")
 }
 
 // RegisterInterfaces registers the x/staking interfaces types with the interface registry
@@ -34,11 +34,11 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgDelegate{},
 		&MsgUndelegate{},
 		&MsgBeginRedelegate{},
-		&MsgCancelUnbondingDelegation{},
+		&MsgCancelUnbonding{},
 		&MsgVoteWeighted{},
 		&MsgVote{},
 		&MsgSetWithdrawAddress{},
-		&MsgWithdrawDelegatorReward{},
+		&MsgWithdrawReward{},
 	)
 	registry.RegisterImplementations(
 		(*authz.Authorization)(nil),

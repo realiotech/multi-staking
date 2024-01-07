@@ -237,7 +237,7 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (
 
 // // CancelUnbondingDelegation defines a method for canceling the unbonding delegation
 // // and delegate back to the validator.
-func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.MsgCancelUnbondingDelegation) (*types.MsgCancelUnbondingDelegationResponse, error) {
+func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.MsgCancelUnbonding) (*types.MsgCancelUnbondingResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	multiStakerAddr, valAcc, err := types.AccAddrAndValAddrFromStrings(msg.MultiStakerAddress, msg.ValidatorAddress)
@@ -273,7 +273,7 @@ func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.M
 		return nil, err
 	}
 
-	return &types.MsgCancelUnbondingDelegationResponse{}, nil
+	return &types.MsgCancelUnbondingResponse{}, nil
 }
 
 // SetWithdrawAddress defines a method for performing an undelegation from a delegate and a validator
@@ -297,7 +297,7 @@ func (k msgServer) SetWithdrawAddress(goCtx context.Context, msg *types.MsgSetWi
 	return &types.MsgSetWithdrawAddressResponse{}, nil
 }
 
-func (k msgServer) WithdrawDelegatorReward(goCtx context.Context, msg *types.MsgWithdrawDelegatorReward) (*types.MsgWithdrawDelegatorRewardResponse, error) {
+func (k msgServer) WithdrawDelegatorReward(goCtx context.Context, msg *types.MsgWithdrawReward) (*types.MsgWithdrawRewardResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	multiStakerAddr, err := sdk.AccAddressFromBech32(msg.MultiStakerAddress)
 	if err != nil {
@@ -324,7 +324,7 @@ func (k msgServer) WithdrawDelegatorReward(goCtx context.Context, msg *types.Msg
 	if err != nil {
 		return nil, err
 	}
-	return &types.MsgWithdrawDelegatorRewardResponse{Amount: resp.Amount}, nil
+	return &types.MsgWithdrawRewardResponse{Amount: resp.Amount}, nil
 }
 
 func (k msgServer) Vote(goCtx context.Context, msg *types.MsgVote) (*types.MsgVoteResponse, error) {

@@ -15,16 +15,16 @@ import (
 
 // staking message types
 const (
-	TypeMsgUndelegate                = "begin_unbonding"
-	TypeMsgCancelUnbondingDelegation = "cancel_unbond"
-	TypeMsgEditValidator             = "edit_validator"
-	TypeMsgCreateValidator           = "create_validator"
-	TypeMsgDelegate                  = "delegate"
-	TypeMsgBeginRedelegate           = "begin_redelegate"
-	TypeMsgVote                      = "vote"
-	TypeMsgVoteWeighted              = "weighted_vote"
-	TypeMsgSetWithdrawAddress        = "set_withdraw_address"
-	TypeMsgWithdrawDelegatorReward   = "withdraw_delegator_reward"
+	TypeMsgUndelegate         = "begin_unbonding"
+	TypeMsgCancelUnbonding    = "cancel_unbond"
+	TypeMsgEditValidator      = "edit_validator"
+	TypeMsgCreateValidator    = "create_validator"
+	TypeMsgDelegate           = "delegate"
+	TypeMsgBeginRedelegate    = "begin_redelegate"
+	TypeMsgVote               = "vote"
+	TypeMsgVoteWeighted       = "weighted_vote"
+	TypeMsgSetWithdrawAddress = "set_withdraw_address"
+	TypeMsgWithdrawReward     = "withdraw_delegator_reward"
 )
 
 var (
@@ -35,11 +35,11 @@ var (
 	_ sdk.Msg                            = &MsgDelegate{}
 	_ sdk.Msg                            = &MsgUndelegate{}
 	_ sdk.Msg                            = &MsgBeginRedelegate{}
-	_ sdk.Msg                            = &MsgCancelUnbondingDelegation{}
+	_ sdk.Msg                            = &MsgCancelUnbonding{}
 	_ sdk.Msg                            = &MsgVote{}
 	_ sdk.Msg                            = &MsgVoteWeighted{}
 	_ sdk.Msg                            = &MsgSetWithdrawAddress{}
-	_ sdk.Msg                            = &MsgWithdrawDelegatorReward{}
+	_ sdk.Msg                            = &MsgWithdrawReward{}
 )
 
 // NewMsgCreateValidator creates a new MsgCreateValidator instance.
@@ -347,11 +347,11 @@ func (msg MsgUndelegate) ValidateBasic() error {
 	return nil
 }
 
-// NewMsgCancelUnbondingDelegation creates a new MsgCancelUnbondingDelegation instance.
+// NewMsgCancelUnbonding creates a new MsgCancelUnbonding instance.
 //
 //nolint:interfacer
-func NewMsgCancelUnbondingDelegation(multiStakerAddr sdk.AccAddress, valAddr sdk.ValAddress, creationHeight int64, amount sdk.Coin) *MsgCancelUnbondingDelegation {
-	return &MsgCancelUnbondingDelegation{
+func NewMsgCancelUnbonding(multiStakerAddr sdk.AccAddress, valAddr sdk.ValAddress, creationHeight int64, amount sdk.Coin) *MsgCancelUnbonding {
+	return &MsgCancelUnbonding{
 		MultiStakerAddress: multiStakerAddr.String(),
 		ValidatorAddress:   valAddr.String(),
 		Amount:             amount,
@@ -360,24 +360,24 @@ func NewMsgCancelUnbondingDelegation(multiStakerAddr sdk.AccAddress, valAddr sdk
 }
 
 // Route implements the sdk.Msg interface.
-func (msg MsgCancelUnbondingDelegation) Route() string { return RouterKey }
+func (msg MsgCancelUnbonding) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface.
-func (msg MsgCancelUnbondingDelegation) Type() string { return TypeMsgCancelUnbondingDelegation }
+func (msg MsgCancelUnbonding) Type() string { return TypeMsgCancelUnbonding }
 
 // GetSigners implements the sdk.Msg interface.
-func (msg MsgCancelUnbondingDelegation) GetSigners() []sdk.AccAddress {
+func (msg MsgCancelUnbonding) GetSigners() []sdk.AccAddress {
 	delegator, _ := sdk.AccAddressFromBech32(msg.MultiStakerAddress)
 	return []sdk.AccAddress{delegator}
 }
 
 // GetSignBytes implements the sdk.Msg interface.
-func (msg MsgCancelUnbondingDelegation) GetSignBytes() []byte {
+func (msg MsgCancelUnbonding) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&msg))
 }
 
 // ValidateBasic implements the sdk.Msg interface.
-func (msg MsgCancelUnbondingDelegation) ValidateBasic() error {
+func (msg MsgCancelUnbonding) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.MultiStakerAddress); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid delegator address: %s", err)
 	}
@@ -535,30 +535,30 @@ func (msg MsgSetWithdrawAddress) ValidateBasic() error {
 	return nil
 }
 
-func NewMsgWithdrawDelegatorReward(multiStakerAddr sdk.AccAddress, valAddr sdk.ValAddress) *MsgWithdrawDelegatorReward {
-	return &MsgWithdrawDelegatorReward{
+func NewMsgWithdrawReward(multiStakerAddr sdk.AccAddress, valAddr sdk.ValAddress) *MsgWithdrawReward {
+	return &MsgWithdrawReward{
 		MultiStakerAddress: multiStakerAddr.String(),
 		ValidatorAddress:   valAddr.String(),
 	}
 }
 
-func (msg MsgWithdrawDelegatorReward) Route() string { return ModuleName }
-func (msg MsgWithdrawDelegatorReward) Type() string  { return TypeMsgWithdrawDelegatorReward }
+func (msg MsgWithdrawReward) Route() string { return ModuleName }
+func (msg MsgWithdrawReward) Type() string  { return TypeMsgWithdrawReward }
 
 // Return address that must sign over msg.GetSignBytes()
-func (msg MsgWithdrawDelegatorReward) GetSigners() []sdk.AccAddress {
+func (msg MsgWithdrawReward) GetSigners() []sdk.AccAddress {
 	delegator, _ := sdk.AccAddressFromBech32(msg.MultiStakerAddress)
 	return []sdk.AccAddress{delegator}
 }
 
 // get the bytes for the message signer to sign on
-func (msg MsgWithdrawDelegatorReward) GetSignBytes() []byte {
+func (msg MsgWithdrawReward) GetSignBytes() []byte {
 	bz := ModuleCdc.MustMarshalJSON(&msg)
 	return sdk.MustSortJSON(bz)
 }
 
 // quick validity check
-func (msg MsgWithdrawDelegatorReward) ValidateBasic() error {
+func (msg MsgWithdrawReward) ValidateBasic() error {
 	if _, _, err := AccAddrAndValAddrFromStrings(msg.MultiStakerAddress, msg.ValidatorAddress); err != nil {
 		return err
 	}
