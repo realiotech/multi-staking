@@ -37,30 +37,25 @@ func GetUnbondingHeightsAndUnbondedAmounts(ctx sdk.Context, unbondingDelegation 
 
 func (k Keeper) EndBlocker(ctx sdk.Context, matureUnbondingDelegations []stakingtypes.UnbondingDelegation) {
 	for _, unlock := range matureUnbondingDelegations {
-		intermediaryDelegator, valAcc, err := types.AccAddrAndValAddrFromStrings(unlock.DelegatorAddress, unlock.ValidatorAddress)
+		delAcc, valAcc, err := types.AccAddrAndValAddrFromStrings(unlock.DelegatorAddress, unlock.ValidatorAddress)
 		if err != nil {
 			panic(err)
 		}
-		if !k.IsIntermediaryDelegator(ctx, intermediaryDelegator) {
-			continue
-		}
+
 		unbondingHeightsAndUnbondedAmounts := GetUnbondingHeightsAndUnbondedAmounts(ctx, unlock)
 		for unbondingHeight, unbondedAmount := range unbondingHeightsAndUnbondedAmounts {
-			k.BurnUnbondedCoinAndUnlockedMultiStakingCoin(ctx, intermediaryDelegator, valAcc, unbondingHeight, unbondedAmount)
+			k.BurnUnbondedCoinAndUnlockedMultiStakingCoin(ctx, delAcc, valAcc, unbondingHeight, unbondedAmount)
 		}
 	}
 }
 
 func (k Keeper) BurnUnbondedCoinAndUnlockedMultiStakingCoin(
 	ctx sdk.Context,
-	intermediaryDelegator sdk.AccAddress,
+	multiStakerAddr sdk.AccAddress,
 	valAddr sdk.ValAddress,
 	unbondingHeight int64,
 	unbondAmount math.Int,
 ) (unlockedCoin sdk.Coin, err error) {
-	// get multiStakerAddr
-	multiStakerAddr := types.MultiStakerAddress(intermediaryDelegator)
-
 	// get unlock record
 	unlockID := types.MultiStakingUnlockID(multiStakerAddr.String(), valAddr.String())
 	unlockEntry, found := k.GetUnlockEntryAtCreationHeight(ctx, unlockID, unbondingHeight)
@@ -79,7 +74,7 @@ func (k Keeper) BurnUnbondedCoinAndUnlockedMultiStakingCoin(
 
 	// burn bonded coin
 	burnCoin := sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), unbondAmount)
-	err = k.BurnCoin(ctx, intermediaryDelegator, burnCoin)
+	err = k.BurnCoin(ctx, multiStakerAddr, burnCoin)
 	if err != nil {
 		return sdk.Coin{}, err
 	}

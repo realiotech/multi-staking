@@ -113,7 +113,7 @@ func (k Keeper) isValMultiStakingCoin(ctx sdk.Context, valAcc sdk.ValAddress, lo
 }
 
 func (k Keeper) AdjustUnbondAmount(ctx sdk.Context, delAcc sdk.AccAddress, valAcc sdk.ValAddress, amount math.Int) (adjustedAmount math.Int, err error) {
-	delegation, found := k.stakingKeeper.GetDelegation(ctx, types.IntermediaryDelegator(delAcc), valAcc)
+	delegation, found := k.stakingKeeper.GetDelegation(ctx, delAcc, valAcc)
 	if !found {
 		return math.Int{}, fmt.Errorf("delegation not found")
 	}

@@ -27,9 +27,7 @@ var (
 
 	ValidatorMultiStakingCoinKey = []byte{0x01}
 
-	IntermediaryDelegatorKey = []byte{0x02}
-
-	MultiStakingLockPrefix = []byte{0x03}
+	MultiStakingLockPrefix = []byte{0x02}
 
 	MultiStakingUnlockPrefix = []byte{0x11} // key for an unbonding-delegation
 )
@@ -46,11 +44,6 @@ func GetBondWeightKey(tokenDenom string) []byte {
 // GetValidatorMultiStakingCoinKey returns a key for an index containing the bond denom of a validator
 func GetValidatorMultiStakingCoinKey(valAddr sdk.ValAddress) []byte {
 	return append(ValidatorMultiStakingCoinKey, []byte(valAddr)...)
-}
-
-// GetIntermediaryDelegatorDelegatorKey returns a key for an index containing the delegator of an intermediary account
-func GetIntermediaryDelegatorKey(intermediaryDelegator sdk.AccAddress) []byte {
-	return append(IntermediaryDelegatorKey, intermediaryDelegator...)
 }
 
 func MultiStakingLockID(multiStakerAddr string, valAddr string) LockID {
