@@ -68,7 +68,7 @@ func (k Keeper) LockCoinAndMintBondCoin(
 	mintedBondAmount := multiStakingCoin.BondValue()
 	mintedBondCoin = sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), mintedBondAmount)
 
-	// mint bond coin to intermediary account
+	// mint bond coin to delegator account
 	err = k.MintCoin(ctx, mintedTo, mintedBondCoin)
 	if err != nil {
 		return sdk.Coin{}, err
