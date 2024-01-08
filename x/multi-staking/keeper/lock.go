@@ -26,12 +26,11 @@ func (k Keeper) WithdrawEscrowCoinTo(ctx sdk.Context, toAcc sdk.AccAddress, coin
 func (k Keeper) LockCoinAndMintBondCoin(
 	ctx sdk.Context,
 	lockID types.LockID,
-	fromAcc sdk.AccAddress,
-	mintedTo sdk.AccAddress,
+	delAcc sdk.AccAddress,
 	coin sdk.Coin,
 ) (mintedBondCoin sdk.Coin, err error) {
 	// escrow coin
-	err = k.EscrowCoinFromAcc(ctx, fromAcc, coin)
+	err = k.EscrowCoinFromAcc(ctx, delAcc, coin)
 	if err != nil {
 		return sdk.Coin{}, err
 	}
@@ -61,7 +60,7 @@ func (k Keeper) LockCoinAndMintBondCoin(
 
 	// mint bond coin to intermediary account
 	k.bankKeeper.MintCoins(ctx, types.ModuleName, sdk.NewCoins(mintedBondCoin))
-	k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, mintedTo, sdk.NewCoins(mintedBondCoin))
+	k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, delAcc, sdk.NewCoins(mintedBondCoin))
 
 	return mintedBondCoin, nil
 }

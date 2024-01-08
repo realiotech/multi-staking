@@ -34,14 +34,9 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 		return nil, err
 	}
 
-	intermediaryDelegator := types.IntermediaryDelegator(multiStakerAddr)
-	if !k.IsIntermediaryDelegator(ctx, intermediaryDelegator) {
-		k.SetIntermediaryDelegator(ctx, intermediaryDelegator)
-	}
-
 	lockID := types.MultiStakingLockID(msg.MultiStakerAddress, msg.ValidatorAddress)
 
-	mintedBondCoin, err := k.Keeper.LockCoinAndMintBondCoin(ctx, lockID, multiStakerAddr, intermediaryDelegator, msg.Value)
+	mintedBondCoin, err := k.Keeper.LockCoinAndMintBondCoin(ctx, lockID, multiStakerAddr, msg.Value)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +45,7 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 		Description:       msg.Description,
 		Commission:        msg.Commission,
 		MinSelfDelegation: msg.MinSelfDelegation,
-		DelegatorAddress:  intermediaryDelegator.String(),
+		DelegatorAddress:  multiStakerAddr.String(),
 		ValidatorAddress:  msg.ValidatorAddress,
 		Pubkey:            msg.Pubkey,
 		Value:             mintedBondCoin,
@@ -98,20 +93,15 @@ func (k msgServer) Delegate(goCtx context.Context, msg *types.MsgDelegate) (*typ
 		return nil, fmt.Errorf("not allowed coin")
 	}
 
-	intermediaryDelegator := types.IntermediaryDelegator(multiStakerAddr)
-	if !k.IsIntermediaryDelegator(ctx, intermediaryDelegator) {
-		k.SetIntermediaryDelegator(ctx, intermediaryDelegator)
-	}
-
 	lockID := types.MultiStakingLockID(msg.MultiStakerAddress, msg.ValidatorAddress)
 
-	mintedBondCoin, err := k.Keeper.LockCoinAndMintBondCoin(ctx, lockID, multiStakerAddr, intermediaryDelegator, msg.Amount)
+	mintedBondCoin, err := k.Keeper.LockCoinAndMintBondCoin(ctx, lockID, multiStakerAddr, msg.Amount)
 	if err != nil {
 		return nil, err
 	}
 
 	sdkMsg := stakingtypes.MsgDelegate{
-		DelegatorAddress: intermediaryDelegator.String(),
+		DelegatorAddress: multiStakerAddr.String(),
 		ValidatorAddress: msg.ValidatorAddress,
 		Amount:           mintedBondCoin,
 	}
