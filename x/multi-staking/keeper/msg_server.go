@@ -129,7 +129,6 @@ func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRed
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	multiStakerAddr := sdk.MustAccAddressFromBech32(msg.MultiStakerAddress)
-	intermediaryDelegator := types.IntermediaryDelegator(multiStakerAddr)
 
 	srcValAcc, err := sdk.ValAddressFromBech32(msg.ValidatorSrcAddress)
 	if err != nil {
@@ -171,7 +170,7 @@ func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRed
 	bondCoin := sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), redelegateAmount)
 
 	sdkMsg := &stakingtypes.MsgBeginRedelegate{
-		DelegatorAddress:    intermediaryDelegator.String(),
+		DelegatorAddress:    multiStakerAddr.String(),
 		ValidatorSrcAddress: msg.ValidatorSrcAddress,
 		ValidatorDstAddress: msg.ValidatorDstAddress,
 		Amount:              bondCoin,
