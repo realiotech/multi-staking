@@ -15,12 +15,21 @@ func (k Keeper) GetOrCreateMultiStakingLock(ctx sdk.Context, lockID types.LockID
 	return multiStakingLock
 }
 
-func (k Keeper) EscrowCoinFromAcc(ctx sdk.Context, fromAcc sdk.AccAddress, coin sdk.Coin) error {
+func (k Keeper) EscrowCoinFrom(ctx sdk.Context, fromAcc sdk.AccAddress, coin sdk.Coin) error {
 	return k.bankKeeper.SendCoinsFromAccountToModule(ctx, fromAcc, types.ModuleName, sdk.NewCoins(coin))
 }
 
-func (k Keeper) WithdrawEscrowCoinTo(ctx sdk.Context, toAcc sdk.AccAddress, coin sdk.Coin) error {
+func (k Keeper) UnescrowCoinTo(ctx sdk.Context, toAcc sdk.AccAddress, coin sdk.Coin) error {
 	return k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, toAcc, sdk.NewCoins(coin))
+}
+
+func (k Keeper) MintCoin(ctx sdk.Context, toAcc sdk.AccAddress, coin sdk.Coin) error {
+	err := k.bankKeeper.MintCoins(ctx, types.ModuleName, sdk.NewCoins(coin))
+	if err != nil {
+		return nil
+	}
+	err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, toAcc, sdk.NewCoins(coin))
+	return err
 }
 
 func (k Keeper) LockCoinAndMintBondCoin(
@@ -31,7 +40,7 @@ func (k Keeper) LockCoinAndMintBondCoin(
 	coin sdk.Coin,
 ) (mintedBondCoin sdk.Coin, err error) {
 	// escrow coin
-	err = k.EscrowCoinFromAcc(ctx, fromAcc, coin)
+	err = k.EscrowCoinFrom(ctx, fromAcc, coin)
 	if err != nil {
 		return sdk.Coin{}, err
 	}
@@ -60,8 +69,10 @@ func (k Keeper) LockCoinAndMintBondCoin(
 	mintedBondCoin = sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), mintedBondAmount)
 
 	// mint bond coin to intermediary account
-	k.bankKeeper.MintCoins(ctx, types.ModuleName, sdk.NewCoins(mintedBondCoin))
-	k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, mintedTo, sdk.NewCoins(mintedBondCoin))
+	err = k.MintCoin(ctx, mintedTo, mintedBondCoin)
+	if err != nil {
+		return sdk.Coin{}, err
+	}
 
 	return mintedBondCoin, nil
 }

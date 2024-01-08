@@ -78,10 +78,13 @@ func (k Keeper) BurnUnbondedCoinAndUnlockedMultiStakingCoin(
 	}
 
 	// burn bonded coin
-	burnCoin := sdk.NewCoins(sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), unbondAmount))
-	k.BurnCoin(ctx, intermediaryDelegator, burnCoin)
+	burnCoin := sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), unbondAmount)
+	err = k.BurnCoin(ctx, intermediaryDelegator, burnCoin)
+	if err != nil {
+		return sdk.Coin{}, err
+	}
 
-	err = k.bankKeeper.SendCoins(ctx, intermediaryDelegator, multiStakerAddr, sdk.NewCoins(unlockedCoin))
+	err = k.UnescrowCoinTo(ctx, multiStakerAddr, unlockedCoin)
 	if err != nil {
 		return sdk.Coin{}, err
 	}
