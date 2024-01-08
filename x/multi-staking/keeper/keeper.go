@@ -96,12 +96,12 @@ func (k Keeper) GetUnbondingEntryAtCreationHeight(ctx sdk.Context, delAcc sdk.Ac
 	return unbondingEntryAtHeight, found
 }
 
-func (k Keeper) BurnCoin(ctx sdk.Context, accAddr sdk.AccAddress, coin sdk.Coins) error {
-	err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, accAddr, types.ModuleName, coin)
+func (k Keeper) BurnCoin(ctx sdk.Context, accAddr sdk.AccAddress, coin sdk.Coin) error {
+	err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, accAddr, types.ModuleName, sdk.NewCoins(coin))
 	if err != nil {
 		return err
 	}
-	err = k.bankKeeper.BurnCoins(ctx, types.ModuleName, coin)
+	err = k.bankKeeper.BurnCoins(ctx, types.ModuleName, sdk.NewCoins(coin))
 	if err != nil {
 		return err
 	}
