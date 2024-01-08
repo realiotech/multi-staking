@@ -162,6 +162,10 @@ func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRed
 	k.SetMultiStakingLock(ctx, toLock)
 
 	redelegateAmount := multiStakingCoin.BondValue()
+	redelegateAmount, err = k.AdjustUnbondAmount(ctx, multiStakerAddr, srcValAcc, redelegateAmount)
+	if err != nil {
+		return nil, err
+	}
 
 	bondCoin := sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), redelegateAmount)
 
