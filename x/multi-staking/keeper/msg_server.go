@@ -3,11 +3,13 @@ package keeper
 import (
 	"context"
 
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 type msgServer struct {
-	Keeper
+	keeper           Keeper
+	stakingMsgServer stakingtypes.MsgServer
 }
 
 var _ stakingtypes.MsgServer = msgServer{}
@@ -16,7 +18,8 @@ var _ stakingtypes.MsgServer = msgServer{}
 // for the provided Keeper.
 func NewMsgServerImpl(keeper Keeper) stakingtypes.MsgServer {
 	return &msgServer{
-		Keeper: keeper,
+		keeper:           keeper,
+		stakingMsgServer: stakingkeeper.NewMsgServerImpl(keeper.stakingKeeper),
 	}
 }
 

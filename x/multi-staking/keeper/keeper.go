@@ -22,7 +22,7 @@ type Keeper struct {
 	storeKey         storetypes.StoreKey
 	memKey           storetypes.StoreKey
 	cdc              codec.BinaryCodec
-	stakingKeeper    types.StakingKeeper
+	stakingKeeper    stakingkeeper.Keeper
 	stakingMsgServer stakingtypes.MsgServer
 	distrMsgServer   distrtypes.MsgServer
 	govMsgServer     govtypes.MsgServer
