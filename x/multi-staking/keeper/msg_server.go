@@ -3,8 +3,10 @@ package keeper
 import (
 	"context"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
 
 type msgServer struct {
@@ -25,57 +27,38 @@ func NewMsgServerImpl(keeper Keeper) stakingtypes.MsgServer {
 
 // CreateValidator defines a method for creating a new validator
 func (k msgServer) CreateValidator(goCtx context.Context, msg *stakingtypes.MsgCreateValidator) (*stakingtypes.MsgCreateValidatorResponse, error) {
-	// ctx := sdk.UnwrapSDKContext(goCtx)
+	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// multiStakerAddr, valAcc, err := types.AccAddrAndValAddrFromStrings(msg.MultiStakerAddress, msg.ValidatorAddress)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	multiStakerAddr, valAcc, err := types.AccAddrAndValAddrFromStrings(msg.DelegatorAddress, msg.ValidatorAddress)
+	if err != nil {
+		return nil, err
+	}
 
-	// lockID := types.MultiStakingLockID(msg.MultiStakerAddress, msg.ValidatorAddress)
+	lockID := types.MultiStakingLockID(msg.DelegatorAddress, msg.ValidatorAddress)
 
-	// mintedBondCoin, err := k.Keeper.LockCoinAndMintBondCoin(ctx, lockID, multiStakerAddr, multiStakerAddr, msg.Value)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	mintedBondCoin, err := k.keeper.LockCoinAndMintBondCoin(ctx, lockID, multiStakerAddr, multiStakerAddr, msg.Value)
+	if err != nil {
+		return nil, err
+	}
 
-	// sdkMsg := stakingtypes.MsgCreateValidator{
-	// 	Description:       msg.Description,
-	// 	Commission:        msg.Commission,
-	// 	MinSelfDelegation: msg.MinSelfDelegation,
-	// 	DelegatorAddress:  msg.MultiStakerAddress,
-	// 	ValidatorAddress:  msg.ValidatorAddress,
-	// 	Pubkey:            msg.Pubkey,
-	// 	Value:             mintedBondCoin,
-	// }
+	sdkMsg := stakingtypes.MsgCreateValidator{
+		Description:       msg.Description,
+		Commission:        msg.Commission,
+		MinSelfDelegation: msg.MinSelfDelegation,
+		DelegatorAddress:  msg.DelegatorAddress,
+		ValidatorAddress:  msg.ValidatorAddress,
+		Pubkey:            msg.Pubkey,
+		Value:             mintedBondCoin,
+	}
 
-	// k.SetValidatorMultiStakingCoin(ctx, valAcc, msg.Value.Denom)
+	k.keeper.SetValidatorMultiStakingCoin(ctx, valAcc, msg.Value.Denom)
 
-	// _, err = k.stakingMsgServer.CreateValidator(ctx, &sdkMsg)
-
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	return &stakingtypes.MsgCreateValidatorResponse{}, nil
+	return k.stakingMsgServer.CreateValidator(sdk.WrapSDKContext(ctx), &sdkMsg)
 }
 
 // EditValidator defines a method for editing an existing validator
 func (k msgServer) EditValidator(goCtx context.Context, msg *stakingtypes.MsgEditValidator) (*stakingtypes.MsgEditValidatorResponse, error) {
-	// ctx := sdk.UnwrapSDKContext(goCtx)
-
-	// sdkMsg := stakingtypes.MsgEditValidator{
-	// 	Description:       msg.Description,
-	// 	CommissionRate:    msg.CommissionRate,
-	// 	MinSelfDelegation: msg.MinSelfDelegation,
-	// 	ValidatorAddress:  msg.ValidatorAddress,
-	// }
-
-	// _, err := k.stakingMsgServer.EditValidator(ctx, &sdkMsg)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	return &stakingtypes.MsgEditValidatorResponse{}, nil
+	return k.stakingMsgServer.EditValidator(goCtx, msg)
 }
 
 // Delegate defines a method for performing a delegation of coins from a delegator to a validator
