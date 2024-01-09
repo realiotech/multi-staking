@@ -93,61 +93,57 @@ func (k msgServer) Delegate(goCtx context.Context, msg *stakingtypes.MsgDelegate
 
 // BeginRedelegate defines a method for performing a redelegation of coins from a delegator and source validator to a destination validator
 func (k msgServer) BeginRedelegate(goCtx context.Context, msg *stakingtypes.MsgBeginRedelegate) (*stakingtypes.MsgBeginRedelegateResponse, error) {
-	// ctx := sdk.UnwrapSDKContext(goCtx)
+	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// multiStakerAddr := sdk.MustAccAddressFromBech32(msg.MultiStakerAddress)
+	multiStakerAddr := sdk.MustAccAddressFromBech32(msg.DelegatorAddress)
 
-	// srcValAcc, err := sdk.ValAddressFromBech32(msg.ValidatorSrcAddress)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// dstValAcc, err := sdk.ValAddressFromBech32(msg.ValidatorDstAddress)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	srcValAcc, err := sdk.ValAddressFromBech32(msg.ValidatorSrcAddress)
+	if err != nil {
+		return nil, err
+	}
+	dstValAcc, err := sdk.ValAddressFromBech32(msg.ValidatorDstAddress)
+	if err != nil {
+		return nil, err
+	}
 
-	// if !k.isValMultiStakingCoin(ctx, srcValAcc, msg.Amount) || !k.isValMultiStakingCoin(ctx, dstValAcc, msg.Amount) {
-	// 	return nil, fmt.Errorf("not allowed Coin")
-	// }
+	if !k.keeper.isValMultiStakingCoin(ctx, srcValAcc, msg.Amount) || !k.keeper.isValMultiStakingCoin(ctx, dstValAcc, msg.Amount) {
+		return nil, fmt.Errorf("not allowed Coin")
+	}
 
-	// fromLockID := types.MultiStakingLockID(msg.MultiStakerAddress, msg.ValidatorSrcAddress)
-	// fromLock, found := k.GetMultiStakingLock(ctx, fromLockID)
-	// if !found {
-	// 	return nil, fmt.Errorf("lock not found")
-	// }
+	fromLockID := types.MultiStakingLockID(msg.DelegatorAddress, msg.ValidatorSrcAddress)
+	fromLock, found := k.keeper.GetMultiStakingLock(ctx, fromLockID)
+	if !found {
+		return nil, fmt.Errorf("lock not found")
+	}
 
-	// toLockID := types.MultiStakingLockID(msg.MultiStakerAddress, msg.ValidatorDstAddress)
-	// toLock := k.GetOrCreateMultiStakingLock(ctx, toLockID)
+	toLockID := types.MultiStakingLockID(msg.DelegatorAddress, msg.ValidatorDstAddress)
+	toLock := k.keeper.GetOrCreateMultiStakingLock(ctx, toLockID)
 
-	// multiStakingCoin := fromLock.MultiStakingCoin(msg.Amount.Amount)
+	multiStakingCoin := fromLock.MultiStakingCoin(msg.Amount.Amount)
 
-	// err = fromLock.MoveCoinToLock(&toLock, multiStakingCoin)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// k.SetMultiStakingLock(ctx, fromLock)
-	// k.SetMultiStakingLock(ctx, toLock)
+	err = fromLock.MoveCoinToLock(&toLock, multiStakingCoin)
+	if err != nil {
+		return nil, err
+	}
+	k.keeper.SetMultiStakingLock(ctx, fromLock)
+	k.keeper.SetMultiStakingLock(ctx, toLock)
 
-	// redelegateAmount := multiStakingCoin.BondValue()
-	// redelegateAmount, err = k.AdjustUnbondAmount(ctx, multiStakerAddr, srcValAcc, redelegateAmount)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	redelegateAmount := multiStakingCoin.BondValue()
+	redelegateAmount, err = k.keeper.AdjustUnbondAmount(ctx, multiStakerAddr, srcValAcc, redelegateAmount)
+	if err != nil {
+		return nil, err
+	}
 
-	// bondCoin := sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), redelegateAmount)
+	bondCoin := sdk.NewCoin(k.keeper.stakingKeeper.BondDenom(ctx), redelegateAmount)
 
-	// sdkMsg := &stakingtypes.MsgBeginRedelegate{
-	// 	DelegatorAddress:    msg.MultiStakerAddress,
-	// 	ValidatorSrcAddress: msg.ValidatorSrcAddress,
-	// 	ValidatorDstAddress: msg.ValidatorDstAddress,
-	// 	Amount:              bondCoin,
-	// }
-	// _, err = k.stakingMsgServer.BeginRedelegate(goCtx, sdkMsg)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	sdkMsg := &stakingtypes.MsgBeginRedelegate{
+		DelegatorAddress:    msg.DelegatorAddress,
+		ValidatorSrcAddress: msg.ValidatorSrcAddress,
+		ValidatorDstAddress: msg.ValidatorDstAddress,
+		Amount:              bondCoin, // replace lockCoin with bondCoin
+	}
 
-	return &stakingtypes.MsgBeginRedelegateResponse{}, nil
+	return k.stakingMsgServer.BeginRedelegate(sdk.WrapSDKContext(ctx), sdkMsg)
 }
 
 // Undelegate defines a method for performing an undelegation from a delegate and a validator
