@@ -73,27 +73,6 @@ func (k Keeper) ValidatorMultiStakingCoinIterator(ctx sdk.Context, cb func(valAd
 	}
 }
 
-func (k Keeper) GetIntermediaryDelegatorKey(ctx sdk.Context, multiStakerAddr sdk.AccAddress) sdk.AccAddress {
-	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.GetIntermediaryDelegatorKey(multiStakerAddr))
-
-	return bz
-}
-
-func (k Keeper) IsIntermediaryDelegator(ctx sdk.Context, intermediaryDelegator sdk.AccAddress) bool {
-	store := ctx.KVStore(k.storeKey)
-
-	bz := store.Get(types.GetIntermediaryDelegatorKey(intermediaryDelegator))
-
-	return bz != nil
-}
-
-func (k Keeper) SetIntermediaryDelegator(ctx sdk.Context, intermediaryDelegator sdk.AccAddress) {
-	store := ctx.KVStore(k.storeKey)
-
-	store.Set(types.GetIntermediaryDelegatorKey(intermediaryDelegator), []byte{0x1})
-}
-
 func (k Keeper) GetMultiStakingLock(ctx sdk.Context, multiStakingLockID types.LockID) (types.MultiStakingLock, bool) {
 	store := ctx.KVStore(k.storeKey)
 
@@ -171,20 +150,6 @@ func (k Keeper) BondWeightIterator(ctx sdk.Context, cb func(denom string, bondWe
 
 		}
 		if cb(denom, *bondWeight) {
-			break
-		}
-	}
-}
-
-func (k Keeper) IntermediaryDelegatorIterator(ctx sdk.Context, cb func(intermediaryDelegator sdk.AccAddress) (stop bool)) {
-	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStorePrefixIterator(store, types.IntermediaryDelegatorKey)
-
-	defer iterator.Close()
-	for ; iterator.Valid(); iterator.Next() {
-		intermediaryDelegator := sdk.AccAddress(iterator.Key())
-
-		if cb(intermediaryDelegator) {
 			break
 		}
 	}

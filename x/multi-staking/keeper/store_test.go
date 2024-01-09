@@ -85,14 +85,3 @@ func (suite *KeeperTestSuite) TestSetValidatorMultiStakingCoin() {
 		})
 	}
 }
-
-func (suite *KeeperTestSuite) TestSetIntermediaryDelegator() {
-	imAddrress := testutil.GenAddress()
-
-	suite.SetupTest()
-
-	suite.msKeeper.SetIntermediaryDelegator(suite.ctx, imAddrress)
-	isIntermediaryDelegator := suite.msKeeper.IsIntermediaryDelegator(suite.ctx, imAddrress)
-	suite.Require().Equal(isIntermediaryDelegator, true)
-
-}
