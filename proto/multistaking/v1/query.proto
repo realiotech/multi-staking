@@ -11,35 +11,35 @@ option go_package = "github.com/realiotech/multi-staking/x/multi-staking/types";
 
 // Query defines the gRPC querier service.
 service Query {
-  rpc MultiStakingLocks(QueryMultiStakingLocks)
+  rpc MultiStakingLocks(QueryMultiStakingLocksRequest)
       returns (QueryMultiStakingLocksResponse) {
     option (google.api.http).get = "/realiotech/multistaking/v1/locks";
   }
-  rpc MultiStakingLock(QueryMultiStakingLock)
+  rpc MultiStakingLock(QueryMultiStakingLockRequest)
       returns (QueryMultiStakingLockResponse) {
     option (google.api.http).get = "/realiotech/multistaking/v1/lock/"
                                    "{validator_address}/{multi_staker_address}";
   }
-  rpc MultiStakingUnlocks(QueryMultiStakingUnlocks)
+  rpc MultiStakingUnlocks(QueryMultiStakingUnlocksRequest)
       returns (QueryMultiStakingUnlocksResponse) {
     option (google.api.http).get = "/realiotech/multistaking/v1/unlocks";
   }
-  rpc MultiStakingUnlock(QueryMultiStakingUnlock)
+  rpc MultiStakingUnlock(QueryMultiStakingUnlockRequest)
       returns (QueryMultiStakingUnlockResponse) {
     option (google.api.http).get = "/realiotech/multistaking/v1/unlock/"
                                    "{validator_address}/{multi_staker_address}";
   }
-  rpc ValidatorMultiStakingCoin(QueryValidatorMultiStakingCoin)
+  rpc ValidatorMultiStakingCoin(QueryValidatorMultiStakingCoinRequest)
       returns (QueryValidatorMultiStakingCoinResponse) {
     option (google.api.http).get =
         "/realiotech/multistaking/v1/validator-coin/{validator_addr}";
   }
-  rpc BondWeight(QueryBondWeight) returns (QueryBondWeightResponse) {
+  rpc BondWeight(QueryBondWeightRequest) returns (QueryBondWeightResponse) {
     option (google.api.http).get = "/realiotech/multistaking/v1/weight/{denom}";
   }
 }
 
-message QueryMultiStakingLocks {
+message QueryMultiStakingLocksRequest {
   cosmos.base.query.v1beta1.PageRequest pagination = 1;
 }
 
@@ -48,7 +48,7 @@ message QueryMultiStakingLocksResponse {
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
-message QueryMultiStakingLock {
+message QueryMultiStakingLockRequest {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   string multi_staker_address = 1
@@ -62,7 +62,7 @@ message QueryMultiStakingLockResponse {
   bool found = 2;
 }
 
-message QueryMultiStakingUnlocks {
+message QueryMultiStakingUnlocksRequest {
   cosmos.base.query.v1beta1.PageRequest pagination = 1;
 }
 
@@ -71,7 +71,7 @@ message QueryMultiStakingUnlocksResponse {
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
-message QueryMultiStakingUnlock {
+message QueryMultiStakingUnlockRequest {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   string multi_staker_address = 1
@@ -85,7 +85,7 @@ message QueryMultiStakingUnlockResponse {
   bool found = 2;
 }
 
-message QueryBondWeight { string denom = 1; }
+message QueryBondWeightRequest { string denom = 1; }
 
 message QueryBondWeightResponse {
   string weight = 1 [
@@ -97,7 +97,7 @@ message QueryBondWeightResponse {
   bool found = 2;
 }
 
-message QueryValidatorMultiStakingCoin {
+message QueryValidatorMultiStakingCoinRequest {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   string validator_addr = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];

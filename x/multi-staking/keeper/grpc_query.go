@@ -27,7 +27,7 @@ func NewQueryServerImpl(keeper Keeper) types.QueryServer {
 var _ types.QueryServer = queryServer{}
 
 // BondWeight implements types.QueryServer.
-func (k queryServer) BondWeight(c context.Context, req *types.QueryBondWeight) (*types.QueryBondWeightResponse, error) {
+func (k queryServer) BondWeight(c context.Context, req *types.QueryBondWeightRequest) (*types.QueryBondWeightResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -43,7 +43,7 @@ func (k queryServer) BondWeight(c context.Context, req *types.QueryBondWeight) (
 }
 
 // MultiStakingLock implements types.QueryServer.
-func (k queryServer) MultiStakingLock(c context.Context, req *types.QueryMultiStakingLock) (*types.QueryMultiStakingLockResponse, error) {
+func (k queryServer) MultiStakingLock(c context.Context, req *types.QueryMultiStakingLockRequest) (*types.QueryMultiStakingLockResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -60,7 +60,7 @@ func (k queryServer) MultiStakingLock(c context.Context, req *types.QueryMultiSt
 }
 
 // MultiStakingLocks implements types.QueryServer.
-func (k queryServer) MultiStakingLocks(c context.Context, req *types.QueryMultiStakingLocks) (*types.QueryMultiStakingLocksResponse, error) {
+func (k queryServer) MultiStakingLocks(c context.Context, req *types.QueryMultiStakingLocksRequest) (*types.QueryMultiStakingLocksResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -89,7 +89,7 @@ func (k queryServer) MultiStakingLocks(c context.Context, req *types.QueryMultiS
 }
 
 // MultiStakingUnlock implements types.QueryServer.
-func (k queryServer) MultiStakingUnlock(c context.Context, req *types.QueryMultiStakingUnlock) (*types.QueryMultiStakingUnlockResponse, error) {
+func (k queryServer) MultiStakingUnlock(c context.Context, req *types.QueryMultiStakingUnlockRequest) (*types.QueryMultiStakingUnlockResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -106,7 +106,7 @@ func (k queryServer) MultiStakingUnlock(c context.Context, req *types.QueryMulti
 }
 
 // MultiStakingUnlocks implements types.QueryServer.
-func (k queryServer) MultiStakingUnlocks(c context.Context, req *types.QueryMultiStakingUnlocks) (*types.QueryMultiStakingUnlocksResponse, error) {
+func (k queryServer) MultiStakingUnlocks(c context.Context, req *types.QueryMultiStakingUnlocksRequest) (*types.QueryMultiStakingUnlocksResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -135,7 +135,7 @@ func (k queryServer) MultiStakingUnlocks(c context.Context, req *types.QueryMult
 }
 
 // ValidatorMultiStakingCoin implements types.QueryServer.
-func (k queryServer) ValidatorMultiStakingCoin(c context.Context, req *types.QueryValidatorMultiStakingCoin) (*types.QueryValidatorMultiStakingCoinResponse, error) {
+func (k queryServer) ValidatorMultiStakingCoin(c context.Context, req *types.QueryValidatorMultiStakingCoinRequest) (*types.QueryValidatorMultiStakingCoinResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}

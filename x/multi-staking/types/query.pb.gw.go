@@ -38,7 +38,7 @@ var (
 )
 
 func request_Query_MultiStakingLocks_0(ctx context.Context, marshaler runtime.Marshaler, client QueryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryMultiStakingLocks
+	var protoReq QueryMultiStakingLocksRequest
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
@@ -54,7 +54,7 @@ func request_Query_MultiStakingLocks_0(ctx context.Context, marshaler runtime.Ma
 }
 
 func local_request_Query_MultiStakingLocks_0(ctx context.Context, marshaler runtime.Marshaler, server QueryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryMultiStakingLocks
+	var protoReq QueryMultiStakingLocksRequest
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
@@ -70,7 +70,7 @@ func local_request_Query_MultiStakingLocks_0(ctx context.Context, marshaler runt
 }
 
 func request_Query_MultiStakingLock_0(ctx context.Context, marshaler runtime.Marshaler, client QueryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryMultiStakingLock
+	var protoReq QueryMultiStakingLockRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -108,7 +108,7 @@ func request_Query_MultiStakingLock_0(ctx context.Context, marshaler runtime.Mar
 }
 
 func local_request_Query_MultiStakingLock_0(ctx context.Context, marshaler runtime.Marshaler, server QueryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryMultiStakingLock
+	var protoReq QueryMultiStakingLockRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -150,7 +150,7 @@ var (
 )
 
 func request_Query_MultiStakingUnlocks_0(ctx context.Context, marshaler runtime.Marshaler, client QueryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryMultiStakingUnlocks
+	var protoReq QueryMultiStakingUnlocksRequest
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
@@ -166,7 +166,7 @@ func request_Query_MultiStakingUnlocks_0(ctx context.Context, marshaler runtime.
 }
 
 func local_request_Query_MultiStakingUnlocks_0(ctx context.Context, marshaler runtime.Marshaler, server QueryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryMultiStakingUnlocks
+	var protoReq QueryMultiStakingUnlocksRequest
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
@@ -182,7 +182,7 @@ func local_request_Query_MultiStakingUnlocks_0(ctx context.Context, marshaler ru
 }
 
 func request_Query_MultiStakingUnlock_0(ctx context.Context, marshaler runtime.Marshaler, client QueryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryMultiStakingUnlock
+	var protoReq QueryMultiStakingUnlockRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -220,7 +220,7 @@ func request_Query_MultiStakingUnlock_0(ctx context.Context, marshaler runtime.M
 }
 
 func local_request_Query_MultiStakingUnlock_0(ctx context.Context, marshaler runtime.Marshaler, server QueryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryMultiStakingUnlock
+	var protoReq QueryMultiStakingUnlockRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -258,7 +258,7 @@ func local_request_Query_MultiStakingUnlock_0(ctx context.Context, marshaler run
 }
 
 func request_Query_ValidatorMultiStakingCoin_0(ctx context.Context, marshaler runtime.Marshaler, client QueryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryValidatorMultiStakingCoin
+	var protoReq QueryValidatorMultiStakingCoinRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -285,7 +285,7 @@ func request_Query_ValidatorMultiStakingCoin_0(ctx context.Context, marshaler ru
 }
 
 func local_request_Query_ValidatorMultiStakingCoin_0(ctx context.Context, marshaler runtime.Marshaler, server QueryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryValidatorMultiStakingCoin
+	var protoReq QueryValidatorMultiStakingCoinRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -312,7 +312,7 @@ func local_request_Query_ValidatorMultiStakingCoin_0(ctx context.Context, marsha
 }
 
 func request_Query_BondWeight_0(ctx context.Context, marshaler runtime.Marshaler, client QueryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryBondWeight
+	var protoReq QueryBondWeightRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -339,7 +339,7 @@ func request_Query_BondWeight_0(ctx context.Context, marshaler runtime.Marshaler
 }
 
 func local_request_Query_BondWeight_0(ctx context.Context, marshaler runtime.Marshaler, server QueryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryBondWeight
+	var protoReq QueryBondWeightRequest
 	var metadata runtime.ServerMetadata
 
 	var (

@@ -32,22 +32,22 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-type QueryMultiStakingLocks struct {
+type QueryMultiStakingLocksRequest struct {
 	Pagination *query.PageRequest `protobuf:"bytes,1,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
-func (m *QueryMultiStakingLocks) Reset()         { *m = QueryMultiStakingLocks{} }
-func (m *QueryMultiStakingLocks) String() string { return proto.CompactTextString(m) }
-func (*QueryMultiStakingLocks) ProtoMessage()    {}
-func (*QueryMultiStakingLocks) Descriptor() ([]byte, []int) {
+func (m *QueryMultiStakingLocksRequest) Reset()         { *m = QueryMultiStakingLocksRequest{} }
+func (m *QueryMultiStakingLocksRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryMultiStakingLocksRequest) ProtoMessage()    {}
+func (*QueryMultiStakingLocksRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_82d174b604da394d, []int{0}
 }
-func (m *QueryMultiStakingLocks) XXX_Unmarshal(b []byte) error {
+func (m *QueryMultiStakingLocksRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryMultiStakingLocks) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryMultiStakingLocksRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryMultiStakingLocks.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryMultiStakingLocksRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -57,19 +57,19 @@ func (m *QueryMultiStakingLocks) XXX_Marshal(b []byte, deterministic bool) ([]by
 		return b[:n], nil
 	}
 }
-func (m *QueryMultiStakingLocks) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryMultiStakingLocks.Merge(m, src)
+func (m *QueryMultiStakingLocksRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryMultiStakingLocksRequest.Merge(m, src)
 }
-func (m *QueryMultiStakingLocks) XXX_Size() int {
+func (m *QueryMultiStakingLocksRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryMultiStakingLocks) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryMultiStakingLocks.DiscardUnknown(m)
+func (m *QueryMultiStakingLocksRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryMultiStakingLocksRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryMultiStakingLocks proto.InternalMessageInfo
+var xxx_messageInfo_QueryMultiStakingLocksRequest proto.InternalMessageInfo
 
-func (m *QueryMultiStakingLocks) GetPagination() *query.PageRequest {
+func (m *QueryMultiStakingLocksRequest) GetPagination() *query.PageRequest {
 	if m != nil {
 		return m.Pagination
 	}
@@ -128,23 +128,23 @@ func (m *QueryMultiStakingLocksResponse) GetPagination() *query.PageResponse {
 	return nil
 }
 
-type QueryMultiStakingLock struct {
+type QueryMultiStakingLockRequest struct {
 	MultiStakerAddress string `protobuf:"bytes,1,opt,name=multi_staker_address,json=multiStakerAddress,proto3" json:"multi_staker_address,omitempty"`
 	ValidatorAddress   string `protobuf:"bytes,2,opt,name=validator_address,json=validatorAddress,proto3" json:"validator_address,omitempty"`
 }
 
-func (m *QueryMultiStakingLock) Reset()         { *m = QueryMultiStakingLock{} }
-func (m *QueryMultiStakingLock) String() string { return proto.CompactTextString(m) }
-func (*QueryMultiStakingLock) ProtoMessage()    {}
-func (*QueryMultiStakingLock) Descriptor() ([]byte, []int) {
+func (m *QueryMultiStakingLockRequest) Reset()         { *m = QueryMultiStakingLockRequest{} }
+func (m *QueryMultiStakingLockRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryMultiStakingLockRequest) ProtoMessage()    {}
+func (*QueryMultiStakingLockRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_82d174b604da394d, []int{2}
 }
-func (m *QueryMultiStakingLock) XXX_Unmarshal(b []byte) error {
+func (m *QueryMultiStakingLockRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryMultiStakingLock) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryMultiStakingLockRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryMultiStakingLock.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryMultiStakingLockRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -154,17 +154,17 @@ func (m *QueryMultiStakingLock) XXX_Marshal(b []byte, deterministic bool) ([]byt
 		return b[:n], nil
 	}
 }
-func (m *QueryMultiStakingLock) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryMultiStakingLock.Merge(m, src)
+func (m *QueryMultiStakingLockRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryMultiStakingLockRequest.Merge(m, src)
 }
-func (m *QueryMultiStakingLock) XXX_Size() int {
+func (m *QueryMultiStakingLockRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryMultiStakingLock) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryMultiStakingLock.DiscardUnknown(m)
+func (m *QueryMultiStakingLockRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryMultiStakingLockRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryMultiStakingLock proto.InternalMessageInfo
+var xxx_messageInfo_QueryMultiStakingLockRequest proto.InternalMessageInfo
 
 type QueryMultiStakingLockResponse struct {
 	Lock  *MultiStakingLock `protobuf:"bytes,1,opt,name=lock,proto3" json:"lock,omitempty"`
@@ -218,22 +218,22 @@ func (m *QueryMultiStakingLockResponse) GetFound() bool {
 	return false
 }
 
-type QueryMultiStakingUnlocks struct {
+type QueryMultiStakingUnlocksRequest struct {
 	Pagination *query.PageRequest `protobuf:"bytes,1,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
-func (m *QueryMultiStakingUnlocks) Reset()         { *m = QueryMultiStakingUnlocks{} }
-func (m *QueryMultiStakingUnlocks) String() string { return proto.CompactTextString(m) }
-func (*QueryMultiStakingUnlocks) ProtoMessage()    {}
-func (*QueryMultiStakingUnlocks) Descriptor() ([]byte, []int) {
+func (m *QueryMultiStakingUnlocksRequest) Reset()         { *m = QueryMultiStakingUnlocksRequest{} }
+func (m *QueryMultiStakingUnlocksRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryMultiStakingUnlocksRequest) ProtoMessage()    {}
+func (*QueryMultiStakingUnlocksRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_82d174b604da394d, []int{4}
 }
-func (m *QueryMultiStakingUnlocks) XXX_Unmarshal(b []byte) error {
+func (m *QueryMultiStakingUnlocksRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryMultiStakingUnlocks) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryMultiStakingUnlocksRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryMultiStakingUnlocks.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryMultiStakingUnlocksRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -243,19 +243,19 @@ func (m *QueryMultiStakingUnlocks) XXX_Marshal(b []byte, deterministic bool) ([]
 		return b[:n], nil
 	}
 }
-func (m *QueryMultiStakingUnlocks) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryMultiStakingUnlocks.Merge(m, src)
+func (m *QueryMultiStakingUnlocksRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryMultiStakingUnlocksRequest.Merge(m, src)
 }
-func (m *QueryMultiStakingUnlocks) XXX_Size() int {
+func (m *QueryMultiStakingUnlocksRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryMultiStakingUnlocks) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryMultiStakingUnlocks.DiscardUnknown(m)
+func (m *QueryMultiStakingUnlocksRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryMultiStakingUnlocksRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryMultiStakingUnlocks proto.InternalMessageInfo
+var xxx_messageInfo_QueryMultiStakingUnlocksRequest proto.InternalMessageInfo
 
-func (m *QueryMultiStakingUnlocks) GetPagination() *query.PageRequest {
+func (m *QueryMultiStakingUnlocksRequest) GetPagination() *query.PageRequest {
 	if m != nil {
 		return m.Pagination
 	}
@@ -314,23 +314,23 @@ func (m *QueryMultiStakingUnlocksResponse) GetPagination() *query.PageResponse {
 	return nil
 }
 
-type QueryMultiStakingUnlock struct {
+type QueryMultiStakingUnlockRequest struct {
 	MultiStakerAddress string `protobuf:"bytes,1,opt,name=multi_staker_address,json=multiStakerAddress,proto3" json:"multi_staker_address,omitempty"`
 	ValidatorAddress   string `protobuf:"bytes,2,opt,name=validator_address,json=validatorAddress,proto3" json:"validator_address,omitempty"`
 }
 
-func (m *QueryMultiStakingUnlock) Reset()         { *m = QueryMultiStakingUnlock{} }
-func (m *QueryMultiStakingUnlock) String() string { return proto.CompactTextString(m) }
-func (*QueryMultiStakingUnlock) ProtoMessage()    {}
-func (*QueryMultiStakingUnlock) Descriptor() ([]byte, []int) {
+func (m *QueryMultiStakingUnlockRequest) Reset()         { *m = QueryMultiStakingUnlockRequest{} }
+func (m *QueryMultiStakingUnlockRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryMultiStakingUnlockRequest) ProtoMessage()    {}
+func (*QueryMultiStakingUnlockRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_82d174b604da394d, []int{6}
 }
-func (m *QueryMultiStakingUnlock) XXX_Unmarshal(b []byte) error {
+func (m *QueryMultiStakingUnlockRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryMultiStakingUnlock) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryMultiStakingUnlockRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryMultiStakingUnlock.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryMultiStakingUnlockRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -340,17 +340,17 @@ func (m *QueryMultiStakingUnlock) XXX_Marshal(b []byte, deterministic bool) ([]b
 		return b[:n], nil
 	}
 }
-func (m *QueryMultiStakingUnlock) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryMultiStakingUnlock.Merge(m, src)
+func (m *QueryMultiStakingUnlockRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryMultiStakingUnlockRequest.Merge(m, src)
 }
-func (m *QueryMultiStakingUnlock) XXX_Size() int {
+func (m *QueryMultiStakingUnlockRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryMultiStakingUnlock) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryMultiStakingUnlock.DiscardUnknown(m)
+func (m *QueryMultiStakingUnlockRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryMultiStakingUnlockRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryMultiStakingUnlock proto.InternalMessageInfo
+var xxx_messageInfo_QueryMultiStakingUnlockRequest proto.InternalMessageInfo
 
 type QueryMultiStakingUnlockResponse struct {
 	Unlock *MultiStakingUnlock `protobuf:"bytes,1,opt,name=unlock,proto3" json:"unlock,omitempty"`
@@ -404,22 +404,22 @@ func (m *QueryMultiStakingUnlockResponse) GetFound() bool {
 	return false
 }
 
-type QueryBondWeight struct {
+type QueryBondWeightRequest struct {
 	Denom string `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
 }
 
-func (m *QueryBondWeight) Reset()         { *m = QueryBondWeight{} }
-func (m *QueryBondWeight) String() string { return proto.CompactTextString(m) }
-func (*QueryBondWeight) ProtoMessage()    {}
-func (*QueryBondWeight) Descriptor() ([]byte, []int) {
+func (m *QueryBondWeightRequest) Reset()         { *m = QueryBondWeightRequest{} }
+func (m *QueryBondWeightRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryBondWeightRequest) ProtoMessage()    {}
+func (*QueryBondWeightRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_82d174b604da394d, []int{8}
 }
-func (m *QueryBondWeight) XXX_Unmarshal(b []byte) error {
+func (m *QueryBondWeightRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryBondWeight) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryBondWeightRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryBondWeight.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryBondWeightRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -429,19 +429,19 @@ func (m *QueryBondWeight) XXX_Marshal(b []byte, deterministic bool) ([]byte, err
 		return b[:n], nil
 	}
 }
-func (m *QueryBondWeight) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryBondWeight.Merge(m, src)
+func (m *QueryBondWeightRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryBondWeightRequest.Merge(m, src)
 }
-func (m *QueryBondWeight) XXX_Size() int {
+func (m *QueryBondWeightRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryBondWeight) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryBondWeight.DiscardUnknown(m)
+func (m *QueryBondWeightRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryBondWeightRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryBondWeight proto.InternalMessageInfo
+var xxx_messageInfo_QueryBondWeightRequest proto.InternalMessageInfo
 
-func (m *QueryBondWeight) GetDenom() string {
+func (m *QueryBondWeightRequest) GetDenom() string {
 	if m != nil {
 		return m.Denom
 	}
@@ -493,22 +493,22 @@ func (m *QueryBondWeightResponse) GetFound() bool {
 	return false
 }
 
-type QueryValidatorMultiStakingCoin struct {
+type QueryValidatorMultiStakingCoinRequest struct {
 	ValidatorAddr string `protobuf:"bytes,1,opt,name=validator_addr,json=validatorAddr,proto3" json:"validator_addr,omitempty"`
 }
 
-func (m *QueryValidatorMultiStakingCoin) Reset()         { *m = QueryValidatorMultiStakingCoin{} }
-func (m *QueryValidatorMultiStakingCoin) String() string { return proto.CompactTextString(m) }
-func (*QueryValidatorMultiStakingCoin) ProtoMessage()    {}
-func (*QueryValidatorMultiStakingCoin) Descriptor() ([]byte, []int) {
+func (m *QueryValidatorMultiStakingCoinRequest) Reset()         { *m = QueryValidatorMultiStakingCoinRequest{} }
+func (m *QueryValidatorMultiStakingCoinRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryValidatorMultiStakingCoinRequest) ProtoMessage()    {}
+func (*QueryValidatorMultiStakingCoinRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_82d174b604da394d, []int{10}
 }
-func (m *QueryValidatorMultiStakingCoin) XXX_Unmarshal(b []byte) error {
+func (m *QueryValidatorMultiStakingCoinRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryValidatorMultiStakingCoin) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryValidatorMultiStakingCoinRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryValidatorMultiStakingCoin.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryValidatorMultiStakingCoinRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -518,17 +518,17 @@ func (m *QueryValidatorMultiStakingCoin) XXX_Marshal(b []byte, deterministic boo
 		return b[:n], nil
 	}
 }
-func (m *QueryValidatorMultiStakingCoin) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryValidatorMultiStakingCoin.Merge(m, src)
+func (m *QueryValidatorMultiStakingCoinRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryValidatorMultiStakingCoinRequest.Merge(m, src)
 }
-func (m *QueryValidatorMultiStakingCoin) XXX_Size() int {
+func (m *QueryValidatorMultiStakingCoinRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryValidatorMultiStakingCoin) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryValidatorMultiStakingCoin.DiscardUnknown(m)
+func (m *QueryValidatorMultiStakingCoinRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryValidatorMultiStakingCoinRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryValidatorMultiStakingCoin proto.InternalMessageInfo
+var xxx_messageInfo_QueryValidatorMultiStakingCoinRequest proto.InternalMessageInfo
 
 type QueryValidatorMultiStakingCoinResponse struct {
 	Denom string `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
@@ -577,77 +577,78 @@ func (m *QueryValidatorMultiStakingCoinResponse) GetDenom() string {
 }
 
 func init() {
-	proto.RegisterType((*QueryMultiStakingLocks)(nil), "multistaking.v1.QueryMultiStakingLocks")
+	proto.RegisterType((*QueryMultiStakingLocksRequest)(nil), "multistaking.v1.QueryMultiStakingLocksRequest")
 	proto.RegisterType((*QueryMultiStakingLocksResponse)(nil), "multistaking.v1.QueryMultiStakingLocksResponse")
-	proto.RegisterType((*QueryMultiStakingLock)(nil), "multistaking.v1.QueryMultiStakingLock")
+	proto.RegisterType((*QueryMultiStakingLockRequest)(nil), "multistaking.v1.QueryMultiStakingLockRequest")
 	proto.RegisterType((*QueryMultiStakingLockResponse)(nil), "multistaking.v1.QueryMultiStakingLockResponse")
-	proto.RegisterType((*QueryMultiStakingUnlocks)(nil), "multistaking.v1.QueryMultiStakingUnlocks")
+	proto.RegisterType((*QueryMultiStakingUnlocksRequest)(nil), "multistaking.v1.QueryMultiStakingUnlocksRequest")
 	proto.RegisterType((*QueryMultiStakingUnlocksResponse)(nil), "multistaking.v1.QueryMultiStakingUnlocksResponse")
-	proto.RegisterType((*QueryMultiStakingUnlock)(nil), "multistaking.v1.QueryMultiStakingUnlock")
+	proto.RegisterType((*QueryMultiStakingUnlockRequest)(nil), "multistaking.v1.QueryMultiStakingUnlockRequest")
 	proto.RegisterType((*QueryMultiStakingUnlockResponse)(nil), "multistaking.v1.QueryMultiStakingUnlockResponse")
-	proto.RegisterType((*QueryBondWeight)(nil), "multistaking.v1.QueryBondWeight")
+	proto.RegisterType((*QueryBondWeightRequest)(nil), "multistaking.v1.QueryBondWeightRequest")
 	proto.RegisterType((*QueryBondWeightResponse)(nil), "multistaking.v1.QueryBondWeightResponse")
-	proto.RegisterType((*QueryValidatorMultiStakingCoin)(nil), "multistaking.v1.QueryValidatorMultiStakingCoin")
+	proto.RegisterType((*QueryValidatorMultiStakingCoinRequest)(nil), "multistaking.v1.QueryValidatorMultiStakingCoinRequest")
 	proto.RegisterType((*QueryValidatorMultiStakingCoinResponse)(nil), "multistaking.v1.QueryValidatorMultiStakingCoinResponse")
 }
 
 func init() { proto.RegisterFile("multistaking/v1/query.proto", fileDescriptor_82d174b604da394d) }
 
 var fileDescriptor_82d174b604da394d = []byte{
-	// 847 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x56, 0xcf, 0x4f, 0x13, 0x5b,
-	0x14, 0xee, 0xe5, 0x3d, 0x78, 0xbc, 0x4b, 0xde, 0x03, 0xee, 0xeb, 0xd3, 0x32, 0x6a, 0x5b, 0xda,
-	0x58, 0x0a, 0xda, 0x19, 0x5b, 0x63, 0x88, 0x22, 0x1a, 0x01, 0x35, 0x51, 0x89, 0x3a, 0x15, 0x4d,
-	0xdc, 0xe0, 0xb4, 0xbd, 0x0e, 0x93, 0xb6, 0x73, 0x4b, 0x67, 0x5a, 0x25, 0xa4, 0x1b, 0x13, 0x13,
-	0x17, 0x2e, 0x4c, 0xdc, 0xb8, 0x24, 0x2e, 0x4d, 0xdc, 0x11, 0xb7, 0x2e, 0x25, 0xae, 0x08, 0x6e,
-	0x8c, 0x0b, 0x62, 0xc0, 0x85, 0x7f, 0x86, 0xe9, 0xbd, 0x77, 0xa6, 0xbf, 0x66, 0xda, 0x21, 0x61,
-	0xe1, 0x0a, 0xee, 0x9c, 0xef, 0x9c, 0xef, 0x3b, 0xdf, 0xb9, 0xf7, 0x00, 0x3c, 0x56, 0xac, 0x14,
-	0x4c, 0xcd, 0x30, 0x95, 0xbc, 0xa6, 0xab, 0x52, 0x35, 0x29, 0xad, 0x56, 0x70, 0x79, 0x4d, 0x2c,
-	0x95, 0x89, 0x49, 0xd0, 0x70, 0x73, 0x50, 0xac, 0x26, 0x05, 0xbf, 0x4a, 0x54, 0x42, 0x63, 0x52,
-	0xfd, 0x37, 0x06, 0x13, 0xc6, 0xb2, 0xc4, 0x28, 0x12, 0x63, 0x99, 0x05, 0xd8, 0x81, 0x87, 0xa2,
-	0xed, 0xe5, 0xe9, 0x79, 0xd9, 0x2a, 0xc9, 0x40, 0x53, 0x2c, 0x45, 0xca, 0x28, 0x06, 0x66, 0xfc,
-	0x52, 0x35, 0x99, 0xc1, 0xa6, 0x92, 0x94, 0x4a, 0x8a, 0xaa, 0xe9, 0x8a, 0xa9, 0x11, 0x9d, 0x63,
-	0x8f, 0xab, 0x84, 0xa8, 0x05, 0x2c, 0x29, 0x25, 0x4d, 0x52, 0x74, 0x9d, 0x98, 0x34, 0xc8, 0xe9,
-	0x22, 0x8f, 0xe0, 0x91, 0xbb, 0xf5, 0xfc, 0xc5, 0x3a, 0x4b, 0x9a, 0x91, 0xdc, 0x22, 0xd9, 0xbc,
-	0x81, 0xae, 0x41, 0xd8, 0xa8, 0x15, 0x00, 0x61, 0x10, 0x1f, 0x4a, 0xc5, 0x44, 0xae, 0xb5, 0x4e,
-	0x2c, 0xb2, 0xc6, 0x39, 0xb1, 0x78, 0x47, 0x51, 0xb1, 0x8c, 0x57, 0x2b, 0xd8, 0x30, 0xe5, 0xa6,
-	0xcc, 0xc8, 0x5b, 0x00, 0x83, 0xce, 0x14, 0x32, 0x36, 0x4a, 0x44, 0x37, 0x30, 0x9a, 0x86, 0xfd,
-	0x85, 0xfa, 0x87, 0x00, 0x08, 0xff, 0x11, 0x1f, 0x4a, 0x8d, 0x8b, 0x6d, 0x2e, 0x8a, 0xed, 0xa9,
-	0x32, 0xc3, 0xa3, 0xeb, 0x2d, 0x1a, 0xfb, 0xa8, 0xc6, 0x89, 0x9e, 0x1a, 0x19, 0x6b, 0x8b, 0xc8,
-	0x4d, 0x00, 0xff, 0x77, 0x14, 0x89, 0x6e, 0x40, 0x7f, 0x63, 0x02, 0xb8, 0xbc, 0xac, 0xe4, 0x72,
-	0x65, 0x6c, 0x18, 0xd4, 0x90, 0xbf, 0xe7, 0x02, 0x3b, 0x9b, 0x09, 0x3f, 0xe7, 0xbb, 0xc2, 0x22,
-	0x69, 0xb3, 0xac, 0xe9, 0xaa, 0x8c, 0x8a, 0x56, 0x25, 0x5c, 0xe6, 0x11, 0x74, 0x15, 0x8e, 0x56,
-	0x95, 0x82, 0x96, 0x53, 0x4c, 0xd2, 0x28, 0xd4, 0xd7, 0xa3, 0xd0, 0x88, 0x9d, 0xc2, 0xbf, 0x5f,
-	0x18, 0x7c, 0xb1, 0x11, 0xf2, 0xfd, 0xdc, 0x08, 0xf9, 0x22, 0x05, 0x78, 0xc2, 0x51, 0xb5, 0xed,
-	0xec, 0x39, 0xf8, 0x67, 0xdd, 0x29, 0x3e, 0x3e, 0x0f, 0xc6, 0x52, 0x38, 0xf2, 0xc3, 0xfe, 0xc7,
-	0xa4, 0xa2, 0xe7, 0xa8, 0xb8, 0x41, 0x99, 0x1d, 0x22, 0x19, 0x18, 0xe8, 0x60, 0x5b, 0xd2, 0x0b,
-	0x87, 0x7a, 0x5b, 0xde, 0x01, 0x18, 0x76, 0x23, 0xb1, 0xbb, 0x9a, 0x85, 0x7f, 0x55, 0xf4, 0xe6,
-	0x1b, 0x13, 0xed, 0xda, 0x18, 0x4b, 0x97, 0xad, 0x9c, 0xc3, 0xbb, 0x35, 0x1f, 0x00, 0x3c, 0xea,
-	0x22, 0xf6, 0xf7, 0xbe, 0x37, 0x26, 0x0c, 0xb9, 0xe8, 0xb6, 0x3d, 0x9e, 0x81, 0x03, 0xcc, 0x2f,
-	0x3e, 0x4c, 0x4f, 0x16, 0xf3, 0x14, 0x97, 0xfb, 0x33, 0x01, 0x87, 0x29, 0xeb, 0x1c, 0xd1, 0x73,
-	0x0f, 0xb0, 0xa6, 0xae, 0x98, 0x75, 0x60, 0x0e, 0xeb, 0xa4, 0xc8, 0x6c, 0x91, 0xd9, 0x21, 0xf2,
-	0xdc, 0xf2, 0xb5, 0x81, 0xb4, 0x75, 0xdd, 0x83, 0x03, 0x4f, 0xe8, 0x17, 0xee, 0xe4, 0xc5, 0xad,
-	0xdd, 0x90, 0xef, 0xdb, 0x6e, 0x28, 0xa6, 0x6a, 0xe6, 0x4a, 0x25, 0x23, 0x66, 0x49, 0x91, 0x2f,
-	0x54, 0xfe, 0x23, 0x61, 0xe4, 0xf2, 0x92, 0xb9, 0x56, 0xc2, 0x86, 0xb8, 0x80, 0xb3, 0x3b, 0x9b,
-	0x09, 0xc8, 0xed, 0x5a, 0xc0, 0x59, 0x99, 0xd7, 0x72, 0x11, 0x9c, 0xe7, 0x9b, 0xeb, 0xbe, 0xe5,
-	0x64, 0x73, 0xcb, 0xf3, 0x44, 0xd3, 0xd1, 0x65, 0xf8, 0x6f, 0xeb, 0x64, 0x7a, 0xce, 0xf7, 0x9f,
-	0x96, 0xb1, 0x34, 0xcd, 0xe4, 0x12, 0x8c, 0x75, 0x27, 0xb3, 0x2d, 0x70, 0x34, 0x2d, 0xf5, 0x7e,
-	0x10, 0xf6, 0xd3, 0x02, 0xe8, 0x0d, 0x80, 0xa3, 0x9d, 0xfb, 0x7c, 0xa2, 0x63, 0x80, 0xce, 0x5b,
-	0x59, 0x90, 0x3c, 0x02, 0x2d, 0x3d, 0x91, 0xc9, 0x67, 0x5f, 0x7e, 0xbc, 0xee, 0x8b, 0xa2, 0x71,
-	0xa9, 0x8c, 0x95, 0x82, 0x46, 0x4c, 0x9c, 0x5d, 0x91, 0xda, 0xff, 0x8c, 0xb1, 0xa7, 0xf7, 0x11,
-	0xc0, 0x91, 0x8e, 0x15, 0x1b, 0xf3, 0x46, 0x28, 0x88, 0xde, 0x70, 0xb6, 0xae, 0x34, 0xd5, 0xb5,
-	0x88, 0x6e, 0xf6, 0xd2, 0x25, 0xad, 0x77, 0x3c, 0xaf, 0x9a, 0xb4, 0xee, 0xf4, 0x7c, 0x6b, 0x68,
-	0x03, 0xc0, 0xff, 0x9c, 0x16, 0xe0, 0x64, 0x6f, 0x71, 0x1c, 0x2a, 0x24, 0x3d, 0x43, 0xed, 0x56,
-	0x4e, 0xd1, 0x56, 0x4e, 0xa2, 0x68, 0xb7, 0x56, 0xac, 0xfd, 0xf6, 0x09, 0x40, 0xe4, 0xb0, 0x91,
-	0xe2, 0x5e, 0x69, 0x85, 0x33, 0x5e, 0x91, 0xb6, 0xbe, 0x25, 0xaa, 0xef, 0x36, 0x5a, 0xec, 0xad,
-	0xef, 0x20, 0x66, 0x7f, 0x06, 0x70, 0xcc, 0xfd, 0xf1, 0xb9, 0x5c, 0x54, 0xd7, 0x04, 0x61, 0xfa,
-	0x80, 0x09, 0x76, 0x7b, 0xf3, 0xb4, 0xbd, 0x59, 0x34, 0xd3, 0xad, 0x3d, 0xbb, 0xad, 0x44, 0x96,
-	0x68, 0x7a, 0x7b, 0x9b, 0x35, 0xf4, 0x12, 0x40, 0xd8, 0xb4, 0xfa, 0xc2, 0xce, 0x62, 0x1a, 0x08,
-	0x21, 0xde, 0x0b, 0x61, 0xeb, 0x4b, 0x51, 0x7d, 0xa7, 0xd1, 0x54, 0x37, 0x7d, 0x6c, 0xd5, 0x49,
-	0xeb, 0x74, 0x5d, 0xd4, 0xe6, 0xd2, 0x5b, 0x7b, 0x41, 0xb0, 0xbd, 0x17, 0x04, 0xdf, 0xf7, 0x82,
-	0xe0, 0xd5, 0x7e, 0xd0, 0xb7, 0xbd, 0x1f, 0xf4, 0x7d, 0xdd, 0x0f, 0xfa, 0x1e, 0x9e, 0x6f, 0x5a,
-	0xa5, 0xed, 0xf5, 0x12, 0x56, 0xc1, 0xa7, 0x6d, 0x67, 0xba, 0x61, 0x33, 0x03, 0xf4, 0xbf, 0xca,
-	0xb3, 0xbf, 0x02, 0x00, 0x00, 0xff, 0xff, 0x4f, 0xb0, 0x37, 0xb8, 0x25, 0x0b, 0x00, 0x00,
+	// 859 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xd4, 0x56, 0xcd, 0x4f, 0x1b, 0x47,
+	0x14, 0xf7, 0xd0, 0x9a, 0xd2, 0x87, 0xda, 0xc2, 0xd4, 0x6a, 0xc1, 0xa5, 0x36, 0xd8, 0xe2, 0xa3,
+	0xb4, 0xde, 0xc1, 0xae, 0x5a, 0xd4, 0x52, 0x5a, 0x15, 0x68, 0x2b, 0x35, 0x41, 0x49, 0xd6, 0x21,
+	0x91, 0x72, 0x41, 0x6b, 0x7b, 0xb2, 0xac, 0xb0, 0x77, 0xcc, 0xee, 0xda, 0x09, 0x42, 0xbe, 0x44,
+	0x8a, 0x94, 0x63, 0x24, 0xfe, 0x80, 0xa0, 0x5c, 0x22, 0xe5, 0xcc, 0x2d, 0xca, 0x35, 0xe2, 0x14,
+	0x11, 0x72, 0x48, 0x94, 0x03, 0x8a, 0x20, 0x87, 0xfc, 0x19, 0x91, 0x67, 0x66, 0xfd, 0xb1, 0xfe,
+	0x58, 0x23, 0x25, 0x87, 0x9c, 0x60, 0x66, 0xde, 0x7b, 0xbf, 0x8f, 0x37, 0xf3, 0xd6, 0xf0, 0x5d,
+	0xa1, 0x94, 0x77, 0x0c, 0xdb, 0xd1, 0x36, 0x0d, 0x53, 0x27, 0xe5, 0x24, 0xd9, 0x2a, 0x51, 0x6b,
+	0x5b, 0x29, 0x5a, 0xcc, 0x61, 0xf8, 0xab, 0xc6, 0x43, 0xa5, 0x9c, 0x0c, 0x87, 0x74, 0xa6, 0x33,
+	0x7e, 0x46, 0xaa, 0xff, 0x89, 0xb0, 0xf0, 0x68, 0x96, 0xd9, 0x05, 0x66, 0xaf, 0x8b, 0x03, 0xb1,
+	0x90, 0x47, 0x71, 0x6f, 0x79, 0xbe, 0x5e, 0x77, 0x4b, 0x8a, 0xa0, 0x59, 0x91, 0x42, 0x32, 0x9a,
+	0x4d, 0x05, 0x3e, 0x29, 0x27, 0x33, 0xd4, 0xd1, 0x92, 0xa4, 0xa8, 0xe9, 0x86, 0xa9, 0x39, 0x06,
+	0x33, 0x65, 0xec, 0x98, 0xce, 0x98, 0x9e, 0xa7, 0x44, 0x2b, 0x1a, 0x44, 0x33, 0x4d, 0xe6, 0xf0,
+	0x43, 0x09, 0x17, 0xd3, 0xe1, 0xfb, 0x4b, 0xd5, 0xfc, 0xd5, 0x2a, 0x4a, 0x5a, 0x80, 0x9c, 0x67,
+	0xd9, 0x4d, 0x5b, 0xa5, 0x5b, 0x25, 0x6a, 0x3b, 0xf8, 0x5f, 0x80, 0x7a, 0xc9, 0x11, 0x34, 0x8e,
+	0x66, 0x06, 0x53, 0x53, 0x8a, 0xa4, 0x5c, 0xc5, 0x57, 0x84, 0x7e, 0x89, 0xaf, 0x5c, 0xd4, 0x74,
+	0x2a, 0x73, 0xd5, 0x86, 0xcc, 0xd8, 0x7d, 0x04, 0x91, 0x4e, 0x48, 0x76, 0x91, 0x99, 0x36, 0xc5,
+	0xf3, 0x10, 0xcc, 0x57, 0x37, 0x46, 0xd0, 0xf8, 0x27, 0x33, 0x83, 0xa9, 0x09, 0xc5, 0x63, 0xa6,
+	0xe2, 0x4d, 0x55, 0x45, 0x3c, 0xfe, 0xaf, 0x89, 0x63, 0x1f, 0xe7, 0x38, 0xed, 0xcb, 0x51, 0xa0,
+	0x36, 0x91, 0x7c, 0x84, 0x60, 0xac, 0x2d, 0x49, 0xd7, 0x8d, 0xff, 0x21, 0x54, 0xef, 0x07, 0xb5,
+	0xd6, 0xb5, 0x5c, 0xce, 0xa2, 0xb6, 0xcd, 0x7d, 0xf9, 0x7c, 0x69, 0xe4, 0x68, 0x3f, 0x11, 0x92,
+	0xb0, 0x7f, 0x8b, 0x93, 0xb4, 0x63, 0x19, 0xa6, 0xae, 0xe2, 0x82, 0x5b, 0x90, 0x5a, 0xf2, 0x04,
+	0xff, 0x03, 0xc3, 0x65, 0x2d, 0x6f, 0xe4, 0x34, 0x87, 0xd5, 0x0b, 0xf5, 0xf9, 0x14, 0x1a, 0xaa,
+	0xa5, 0xc8, 0xfd, 0xdf, 0x07, 0xee, 0xec, 0x45, 0x03, 0x6f, 0xf7, 0xa2, 0x81, 0x58, 0xbe, 0x43,
+	0x2f, 0x6b, 0x06, 0xff, 0x02, 0x9f, 0x56, 0x0d, 0x93, 0x5d, 0xec, 0xc1, 0x5f, 0x1e, 0x8e, 0x43,
+	0x10, 0xbc, 0xce, 0x4a, 0x66, 0x8e, 0x93, 0x1b, 0x50, 0xc5, 0x22, 0x66, 0x40, 0xb4, 0x05, 0x6d,
+	0xcd, 0xcc, 0x7f, 0x88, 0xbb, 0xf3, 0x10, 0xc1, 0x78, 0x67, 0x2c, 0x29, 0x6e, 0x11, 0x3e, 0x2b,
+	0x99, 0x8d, 0xf7, 0x27, 0xde, 0x55, 0x9f, 0x48, 0x57, 0xdd, 0x9c, 0xf7, 0x77, 0x87, 0x1e, 0xb7,
+	0xbb, 0xe8, 0x12, 0xed, 0x63, 0xb8, 0x45, 0x4e, 0xc7, 0xbe, 0xd6, 0xac, 0x5e, 0x80, 0x7e, 0x61,
+	0x9b, 0xec, 0x69, 0x4f, 0x4e, 0xcb, 0x94, 0x0e, 0xb7, 0x49, 0x81, 0x6f, 0x38, 0xea, 0x12, 0x33,
+	0x73, 0x57, 0xa9, 0xa1, 0x6f, 0x38, 0xae, 0x59, 0x21, 0x08, 0xe6, 0xa8, 0xc9, 0x0a, 0xc2, 0x1d,
+	0x55, 0x2c, 0x62, 0xb7, 0x11, 0x7c, 0xdb, 0x92, 0x20, 0xe9, 0x5d, 0x86, 0xfe, 0x1b, 0x7c, 0x47,
+	0x1a, 0xfa, 0xc7, 0xc1, 0x71, 0x34, 0xf0, 0xea, 0x38, 0x3a, 0xa5, 0x1b, 0xce, 0x46, 0x29, 0xa3,
+	0x64, 0x59, 0x41, 0xce, 0x5c, 0xf9, 0x27, 0x61, 0xe7, 0x36, 0x89, 0xb3, 0x5d, 0xa4, 0xb6, 0xb2,
+	0x42, 0xb3, 0x47, 0xfb, 0x09, 0x90, 0xae, 0xad, 0xd0, 0xac, 0x2a, 0x6b, 0x75, 0xe0, 0x6d, 0xc1,
+	0x24, 0xa7, 0x71, 0xc5, 0x35, 0xb4, 0x51, 0xf9, 0x32, 0x33, 0x4c, 0x57, 0xc6, 0x5f, 0xf0, 0x65,
+	0x73, 0x9f, 0x7c, 0xbb, 0xfd, 0x45, 0x53, 0x93, 0x1a, 0x3a, 0xf4, 0x27, 0x4c, 0xf9, 0x61, 0x4a,
+	0x27, 0xda, 0x7a, 0x97, 0x7a, 0x31, 0x00, 0x41, 0x5e, 0x00, 0xdf, 0x43, 0x30, 0xdc, 0x32, 0x8f,
+	0xb1, 0xd2, 0xd2, 0xce, 0xae, 0x9f, 0x88, 0x30, 0xe9, 0x39, 0x5e, 0xd0, 0x8a, 0xfd, 0x70, 0xeb,
+	0xf9, 0x9b, 0xdd, 0xbe, 0x38, 0x9e, 0x20, 0x16, 0xd5, 0xf2, 0x06, 0x73, 0x68, 0x76, 0x83, 0x78,
+	0xbf, 0x7b, 0xe2, 0x59, 0x3e, 0x41, 0x30, 0xe4, 0x2d, 0x84, 0x13, 0xbd, 0x01, 0xba, 0xfc, 0x94,
+	0x5e, 0xc3, 0x25, 0xbd, 0x34, 0xa7, 0xb7, 0x8a, 0xcf, 0xf9, 0xd1, 0x23, 0x3b, 0x2d, 0x4f, 0xaf,
+	0x42, 0x76, 0xda, 0x3d, 0xed, 0x0a, 0x7e, 0x80, 0xe0, 0xeb, 0x36, 0xe3, 0x0b, 0xcf, 0xf9, 0x93,
+	0x6b, 0x9e, 0xaa, 0xe1, 0xe4, 0x19, 0x32, 0xa4, 0xa2, 0x1f, 0xb9, 0xa2, 0x49, 0x1c, 0xef, 0xa6,
+	0xc8, 0x9d, 0x84, 0x4f, 0x11, 0xe0, 0xd6, 0x62, 0x98, 0xf4, 0x0a, 0xeb, 0xf2, 0x9c, 0xeb, 0x3d,
+	0x41, 0xd2, 0x5c, 0xe3, 0x34, 0x2f, 0xe0, 0x55, 0x7f, 0x9a, 0x67, 0xb1, 0xfe, 0x19, 0x82, 0xd1,
+	0x8e, 0x6f, 0x05, 0xff, 0xda, 0x9e, 0xa6, 0xdf, 0x83, 0x0e, 0xcf, 0x9f, 0x39, 0x4f, 0xaa, 0x5c,
+	0xe6, 0x2a, 0x17, 0xf1, 0x42, 0x37, 0x95, 0x35, 0x75, 0x89, 0x2c, 0x33, 0x4c, 0xaf, 0xda, 0x0a,
+	0xde, 0x45, 0x00, 0xf5, 0xd1, 0x87, 0xa7, 0xdb, 0x93, 0x69, 0x99, 0xa6, 0xe1, 0x19, 0xff, 0x40,
+	0x49, 0x33, 0xc5, 0x69, 0xfe, 0x84, 0x67, 0xbb, 0xd1, 0x14, 0xb3, 0x91, 0xec, 0xf0, 0xc1, 0x52,
+	0x59, 0x4a, 0x1f, 0x9c, 0x44, 0xd0, 0xe1, 0x49, 0x04, 0xbd, 0x3e, 0x89, 0xa0, 0xbb, 0xa7, 0x91,
+	0xc0, 0xe1, 0x69, 0x24, 0xf0, 0xf2, 0x34, 0x12, 0xb8, 0xf6, 0x5b, 0xc3, 0xec, 0xf5, 0xd6, 0x4b,
+	0xb8, 0x05, 0x6f, 0x7a, 0xd6, 0x7c, 0x24, 0x67, 0xfa, 0xf9, 0x2f, 0xd5, 0x9f, 0xdf, 0x05, 0x00,
+	0x00, 0xff, 0xff, 0x1b, 0x51, 0x91, 0x9a, 0x79, 0x0b, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -662,12 +663,12 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
-	MultiStakingLocks(ctx context.Context, in *QueryMultiStakingLocks, opts ...grpc.CallOption) (*QueryMultiStakingLocksResponse, error)
-	MultiStakingLock(ctx context.Context, in *QueryMultiStakingLock, opts ...grpc.CallOption) (*QueryMultiStakingLockResponse, error)
-	MultiStakingUnlocks(ctx context.Context, in *QueryMultiStakingUnlocks, opts ...grpc.CallOption) (*QueryMultiStakingUnlocksResponse, error)
-	MultiStakingUnlock(ctx context.Context, in *QueryMultiStakingUnlock, opts ...grpc.CallOption) (*QueryMultiStakingUnlockResponse, error)
-	ValidatorMultiStakingCoin(ctx context.Context, in *QueryValidatorMultiStakingCoin, opts ...grpc.CallOption) (*QueryValidatorMultiStakingCoinResponse, error)
-	BondWeight(ctx context.Context, in *QueryBondWeight, opts ...grpc.CallOption) (*QueryBondWeightResponse, error)
+	MultiStakingLocks(ctx context.Context, in *QueryMultiStakingLocksRequest, opts ...grpc.CallOption) (*QueryMultiStakingLocksResponse, error)
+	MultiStakingLock(ctx context.Context, in *QueryMultiStakingLockRequest, opts ...grpc.CallOption) (*QueryMultiStakingLockResponse, error)
+	MultiStakingUnlocks(ctx context.Context, in *QueryMultiStakingUnlocksRequest, opts ...grpc.CallOption) (*QueryMultiStakingUnlocksResponse, error)
+	MultiStakingUnlock(ctx context.Context, in *QueryMultiStakingUnlockRequest, opts ...grpc.CallOption) (*QueryMultiStakingUnlockResponse, error)
+	ValidatorMultiStakingCoin(ctx context.Context, in *QueryValidatorMultiStakingCoinRequest, opts ...grpc.CallOption) (*QueryValidatorMultiStakingCoinResponse, error)
+	BondWeight(ctx context.Context, in *QueryBondWeightRequest, opts ...grpc.CallOption) (*QueryBondWeightResponse, error)
 }
 
 type queryClient struct {
@@ -678,7 +679,7 @@ func NewQueryClient(cc grpc1.ClientConn) QueryClient {
 	return &queryClient{cc}
 }
 
-func (c *queryClient) MultiStakingLocks(ctx context.Context, in *QueryMultiStakingLocks, opts ...grpc.CallOption) (*QueryMultiStakingLocksResponse, error) {
+func (c *queryClient) MultiStakingLocks(ctx context.Context, in *QueryMultiStakingLocksRequest, opts ...grpc.CallOption) (*QueryMultiStakingLocksResponse, error) {
 	out := new(QueryMultiStakingLocksResponse)
 	err := c.cc.Invoke(ctx, "/multistaking.v1.Query/MultiStakingLocks", in, out, opts...)
 	if err != nil {
@@ -687,7 +688,7 @@ func (c *queryClient) MultiStakingLocks(ctx context.Context, in *QueryMultiStaki
 	return out, nil
 }
 
-func (c *queryClient) MultiStakingLock(ctx context.Context, in *QueryMultiStakingLock, opts ...grpc.CallOption) (*QueryMultiStakingLockResponse, error) {
+func (c *queryClient) MultiStakingLock(ctx context.Context, in *QueryMultiStakingLockRequest, opts ...grpc.CallOption) (*QueryMultiStakingLockResponse, error) {
 	out := new(QueryMultiStakingLockResponse)
 	err := c.cc.Invoke(ctx, "/multistaking.v1.Query/MultiStakingLock", in, out, opts...)
 	if err != nil {
@@ -696,7 +697,7 @@ func (c *queryClient) MultiStakingLock(ctx context.Context, in *QueryMultiStakin
 	return out, nil
 }
 
-func (c *queryClient) MultiStakingUnlocks(ctx context.Context, in *QueryMultiStakingUnlocks, opts ...grpc.CallOption) (*QueryMultiStakingUnlocksResponse, error) {
+func (c *queryClient) MultiStakingUnlocks(ctx context.Context, in *QueryMultiStakingUnlocksRequest, opts ...grpc.CallOption) (*QueryMultiStakingUnlocksResponse, error) {
 	out := new(QueryMultiStakingUnlocksResponse)
 	err := c.cc.Invoke(ctx, "/multistaking.v1.Query/MultiStakingUnlocks", in, out, opts...)
 	if err != nil {
@@ -705,7 +706,7 @@ func (c *queryClient) MultiStakingUnlocks(ctx context.Context, in *QueryMultiSta
 	return out, nil
 }
 
-func (c *queryClient) MultiStakingUnlock(ctx context.Context, in *QueryMultiStakingUnlock, opts ...grpc.CallOption) (*QueryMultiStakingUnlockResponse, error) {
+func (c *queryClient) MultiStakingUnlock(ctx context.Context, in *QueryMultiStakingUnlockRequest, opts ...grpc.CallOption) (*QueryMultiStakingUnlockResponse, error) {
 	out := new(QueryMultiStakingUnlockResponse)
 	err := c.cc.Invoke(ctx, "/multistaking.v1.Query/MultiStakingUnlock", in, out, opts...)
 	if err != nil {
@@ -714,7 +715,7 @@ func (c *queryClient) MultiStakingUnlock(ctx context.Context, in *QueryMultiStak
 	return out, nil
 }
 
-func (c *queryClient) ValidatorMultiStakingCoin(ctx context.Context, in *QueryValidatorMultiStakingCoin, opts ...grpc.CallOption) (*QueryValidatorMultiStakingCoinResponse, error) {
+func (c *queryClient) ValidatorMultiStakingCoin(ctx context.Context, in *QueryValidatorMultiStakingCoinRequest, opts ...grpc.CallOption) (*QueryValidatorMultiStakingCoinResponse, error) {
 	out := new(QueryValidatorMultiStakingCoinResponse)
 	err := c.cc.Invoke(ctx, "/multistaking.v1.Query/ValidatorMultiStakingCoin", in, out, opts...)
 	if err != nil {
@@ -723,7 +724,7 @@ func (c *queryClient) ValidatorMultiStakingCoin(ctx context.Context, in *QueryVa
 	return out, nil
 }
 
-func (c *queryClient) BondWeight(ctx context.Context, in *QueryBondWeight, opts ...grpc.CallOption) (*QueryBondWeightResponse, error) {
+func (c *queryClient) BondWeight(ctx context.Context, in *QueryBondWeightRequest, opts ...grpc.CallOption) (*QueryBondWeightResponse, error) {
 	out := new(QueryBondWeightResponse)
 	err := c.cc.Invoke(ctx, "/multistaking.v1.Query/BondWeight", in, out, opts...)
 	if err != nil {
@@ -734,34 +735,34 @@ func (c *queryClient) BondWeight(ctx context.Context, in *QueryBondWeight, opts 
 
 // QueryServer is the server API for Query service.
 type QueryServer interface {
-	MultiStakingLocks(context.Context, *QueryMultiStakingLocks) (*QueryMultiStakingLocksResponse, error)
-	MultiStakingLock(context.Context, *QueryMultiStakingLock) (*QueryMultiStakingLockResponse, error)
-	MultiStakingUnlocks(context.Context, *QueryMultiStakingUnlocks) (*QueryMultiStakingUnlocksResponse, error)
-	MultiStakingUnlock(context.Context, *QueryMultiStakingUnlock) (*QueryMultiStakingUnlockResponse, error)
-	ValidatorMultiStakingCoin(context.Context, *QueryValidatorMultiStakingCoin) (*QueryValidatorMultiStakingCoinResponse, error)
-	BondWeight(context.Context, *QueryBondWeight) (*QueryBondWeightResponse, error)
+	MultiStakingLocks(context.Context, *QueryMultiStakingLocksRequest) (*QueryMultiStakingLocksResponse, error)
+	MultiStakingLock(context.Context, *QueryMultiStakingLockRequest) (*QueryMultiStakingLockResponse, error)
+	MultiStakingUnlocks(context.Context, *QueryMultiStakingUnlocksRequest) (*QueryMultiStakingUnlocksResponse, error)
+	MultiStakingUnlock(context.Context, *QueryMultiStakingUnlockRequest) (*QueryMultiStakingUnlockResponse, error)
+	ValidatorMultiStakingCoin(context.Context, *QueryValidatorMultiStakingCoinRequest) (*QueryValidatorMultiStakingCoinResponse, error)
+	BondWeight(context.Context, *QueryBondWeightRequest) (*QueryBondWeightResponse, error)
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
 type UnimplementedQueryServer struct {
 }
 
-func (*UnimplementedQueryServer) MultiStakingLocks(ctx context.Context, req *QueryMultiStakingLocks) (*QueryMultiStakingLocksResponse, error) {
+func (*UnimplementedQueryServer) MultiStakingLocks(ctx context.Context, req *QueryMultiStakingLocksRequest) (*QueryMultiStakingLocksResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method MultiStakingLocks not implemented")
 }
-func (*UnimplementedQueryServer) MultiStakingLock(ctx context.Context, req *QueryMultiStakingLock) (*QueryMultiStakingLockResponse, error) {
+func (*UnimplementedQueryServer) MultiStakingLock(ctx context.Context, req *QueryMultiStakingLockRequest) (*QueryMultiStakingLockResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method MultiStakingLock not implemented")
 }
-func (*UnimplementedQueryServer) MultiStakingUnlocks(ctx context.Context, req *QueryMultiStakingUnlocks) (*QueryMultiStakingUnlocksResponse, error) {
+func (*UnimplementedQueryServer) MultiStakingUnlocks(ctx context.Context, req *QueryMultiStakingUnlocksRequest) (*QueryMultiStakingUnlocksResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method MultiStakingUnlocks not implemented")
 }
-func (*UnimplementedQueryServer) MultiStakingUnlock(ctx context.Context, req *QueryMultiStakingUnlock) (*QueryMultiStakingUnlockResponse, error) {
+func (*UnimplementedQueryServer) MultiStakingUnlock(ctx context.Context, req *QueryMultiStakingUnlockRequest) (*QueryMultiStakingUnlockResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method MultiStakingUnlock not implemented")
 }
-func (*UnimplementedQueryServer) ValidatorMultiStakingCoin(ctx context.Context, req *QueryValidatorMultiStakingCoin) (*QueryValidatorMultiStakingCoinResponse, error) {
+func (*UnimplementedQueryServer) ValidatorMultiStakingCoin(ctx context.Context, req *QueryValidatorMultiStakingCoinRequest) (*QueryValidatorMultiStakingCoinResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ValidatorMultiStakingCoin not implemented")
 }
-func (*UnimplementedQueryServer) BondWeight(ctx context.Context, req *QueryBondWeight) (*QueryBondWeightResponse, error) {
+func (*UnimplementedQueryServer) BondWeight(ctx context.Context, req *QueryBondWeightRequest) (*QueryBondWeightResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BondWeight not implemented")
 }
 
@@ -770,7 +771,7 @@ func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
 }
 
 func _Query_MultiStakingLocks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryMultiStakingLocks)
+	in := new(QueryMultiStakingLocksRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -782,13 +783,13 @@ func _Query_MultiStakingLocks_Handler(srv interface{}, ctx context.Context, dec 
 		FullMethod: "/multistaking.v1.Query/MultiStakingLocks",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).MultiStakingLocks(ctx, req.(*QueryMultiStakingLocks))
+		return srv.(QueryServer).MultiStakingLocks(ctx, req.(*QueryMultiStakingLocksRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Query_MultiStakingLock_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryMultiStakingLock)
+	in := new(QueryMultiStakingLockRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -800,13 +801,13 @@ func _Query_MultiStakingLock_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: "/multistaking.v1.Query/MultiStakingLock",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).MultiStakingLock(ctx, req.(*QueryMultiStakingLock))
+		return srv.(QueryServer).MultiStakingLock(ctx, req.(*QueryMultiStakingLockRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Query_MultiStakingUnlocks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryMultiStakingUnlocks)
+	in := new(QueryMultiStakingUnlocksRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -818,13 +819,13 @@ func _Query_MultiStakingUnlocks_Handler(srv interface{}, ctx context.Context, de
 		FullMethod: "/multistaking.v1.Query/MultiStakingUnlocks",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).MultiStakingUnlocks(ctx, req.(*QueryMultiStakingUnlocks))
+		return srv.(QueryServer).MultiStakingUnlocks(ctx, req.(*QueryMultiStakingUnlocksRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Query_MultiStakingUnlock_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryMultiStakingUnlock)
+	in := new(QueryMultiStakingUnlockRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -836,13 +837,13 @@ func _Query_MultiStakingUnlock_Handler(srv interface{}, ctx context.Context, dec
 		FullMethod: "/multistaking.v1.Query/MultiStakingUnlock",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).MultiStakingUnlock(ctx, req.(*QueryMultiStakingUnlock))
+		return srv.(QueryServer).MultiStakingUnlock(ctx, req.(*QueryMultiStakingUnlockRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Query_ValidatorMultiStakingCoin_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryValidatorMultiStakingCoin)
+	in := new(QueryValidatorMultiStakingCoinRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -854,13 +855,13 @@ func _Query_ValidatorMultiStakingCoin_Handler(srv interface{}, ctx context.Conte
 		FullMethod: "/multistaking.v1.Query/ValidatorMultiStakingCoin",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).ValidatorMultiStakingCoin(ctx, req.(*QueryValidatorMultiStakingCoin))
+		return srv.(QueryServer).ValidatorMultiStakingCoin(ctx, req.(*QueryValidatorMultiStakingCoinRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Query_BondWeight_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryBondWeight)
+	in := new(QueryBondWeightRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -872,7 +873,7 @@ func _Query_BondWeight_Handler(srv interface{}, ctx context.Context, dec func(in
 		FullMethod: "/multistaking.v1.Query/BondWeight",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).BondWeight(ctx, req.(*QueryBondWeight))
+		return srv.(QueryServer).BondWeight(ctx, req.(*QueryBondWeightRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -910,7 +911,7 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 	Metadata: "multistaking/v1/query.proto",
 }
 
-func (m *QueryMultiStakingLocks) Marshal() (dAtA []byte, err error) {
+func (m *QueryMultiStakingLocksRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -920,12 +921,12 @@ func (m *QueryMultiStakingLocks) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryMultiStakingLocks) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryMultiStakingLocksRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryMultiStakingLocks) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryMultiStakingLocksRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -994,7 +995,7 @@ func (m *QueryMultiStakingLocksResponse) MarshalToSizedBuffer(dAtA []byte) (int,
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryMultiStakingLock) Marshal() (dAtA []byte, err error) {
+func (m *QueryMultiStakingLockRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1004,12 +1005,12 @@ func (m *QueryMultiStakingLock) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryMultiStakingLock) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryMultiStakingLockRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryMultiStakingLock) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryMultiStakingLockRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1076,7 +1077,7 @@ func (m *QueryMultiStakingLockResponse) MarshalToSizedBuffer(dAtA []byte) (int, 
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryMultiStakingUnlocks) Marshal() (dAtA []byte, err error) {
+func (m *QueryMultiStakingUnlocksRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1086,12 +1087,12 @@ func (m *QueryMultiStakingUnlocks) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryMultiStakingUnlocks) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryMultiStakingUnlocksRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryMultiStakingUnlocks) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryMultiStakingUnlocksRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1160,7 +1161,7 @@ func (m *QueryMultiStakingUnlocksResponse) MarshalToSizedBuffer(dAtA []byte) (in
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryMultiStakingUnlock) Marshal() (dAtA []byte, err error) {
+func (m *QueryMultiStakingUnlockRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1170,12 +1171,12 @@ func (m *QueryMultiStakingUnlock) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryMultiStakingUnlock) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryMultiStakingUnlockRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryMultiStakingUnlock) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryMultiStakingUnlockRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1242,7 +1243,7 @@ func (m *QueryMultiStakingUnlockResponse) MarshalToSizedBuffer(dAtA []byte) (int
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryBondWeight) Marshal() (dAtA []byte, err error) {
+func (m *QueryBondWeightRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1252,12 +1253,12 @@ func (m *QueryBondWeight) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryBondWeight) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryBondWeightRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryBondWeight) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryBondWeightRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1315,7 +1316,7 @@ func (m *QueryBondWeightResponse) MarshalToSizedBuffer(dAtA []byte) (int, error)
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryValidatorMultiStakingCoin) Marshal() (dAtA []byte, err error) {
+func (m *QueryValidatorMultiStakingCoinRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1325,12 +1326,12 @@ func (m *QueryValidatorMultiStakingCoin) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryValidatorMultiStakingCoin) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryValidatorMultiStakingCoinRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryValidatorMultiStakingCoin) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryValidatorMultiStakingCoinRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1386,7 +1387,7 @@ func encodeVarintQuery(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *QueryMultiStakingLocks) Size() (n int) {
+func (m *QueryMultiStakingLocksRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1418,7 +1419,7 @@ func (m *QueryMultiStakingLocksResponse) Size() (n int) {
 	return n
 }
 
-func (m *QueryMultiStakingLock) Size() (n int) {
+func (m *QueryMultiStakingLockRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1451,7 +1452,7 @@ func (m *QueryMultiStakingLockResponse) Size() (n int) {
 	return n
 }
 
-func (m *QueryMultiStakingUnlocks) Size() (n int) {
+func (m *QueryMultiStakingUnlocksRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1483,7 +1484,7 @@ func (m *QueryMultiStakingUnlocksResponse) Size() (n int) {
 	return n
 }
 
-func (m *QueryMultiStakingUnlock) Size() (n int) {
+func (m *QueryMultiStakingUnlockRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1516,7 +1517,7 @@ func (m *QueryMultiStakingUnlockResponse) Size() (n int) {
 	return n
 }
 
-func (m *QueryBondWeight) Size() (n int) {
+func (m *QueryBondWeightRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1543,7 +1544,7 @@ func (m *QueryBondWeightResponse) Size() (n int) {
 	return n
 }
 
-func (m *QueryValidatorMultiStakingCoin) Size() (n int) {
+func (m *QueryValidatorMultiStakingCoinRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1575,7 +1576,7 @@ func sovQuery(x uint64) (n int) {
 func sozQuery(x uint64) (n int) {
 	return sovQuery(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *QueryMultiStakingLocks) Unmarshal(dAtA []byte) error {
+func (m *QueryMultiStakingLocksRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1598,10 +1599,10 @@ func (m *QueryMultiStakingLocks) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryMultiStakingLocks: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryMultiStakingLocksRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryMultiStakingLocks: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryMultiStakingLocksRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -1781,7 +1782,7 @@ func (m *QueryMultiStakingLocksResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryMultiStakingLock) Unmarshal(dAtA []byte) error {
+func (m *QueryMultiStakingLockRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1804,10 +1805,10 @@ func (m *QueryMultiStakingLock) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryMultiStakingLock: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryMultiStakingLockRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryMultiStakingLock: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryMultiStakingLockRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -2001,7 +2002,7 @@ func (m *QueryMultiStakingLockResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryMultiStakingUnlocks) Unmarshal(dAtA []byte) error {
+func (m *QueryMultiStakingUnlocksRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2024,10 +2025,10 @@ func (m *QueryMultiStakingUnlocks) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryMultiStakingUnlocks: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryMultiStakingUnlocksRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryMultiStakingUnlocks: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryMultiStakingUnlocksRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -2207,7 +2208,7 @@ func (m *QueryMultiStakingUnlocksResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryMultiStakingUnlock) Unmarshal(dAtA []byte) error {
+func (m *QueryMultiStakingUnlockRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2230,10 +2231,10 @@ func (m *QueryMultiStakingUnlock) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryMultiStakingUnlock: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryMultiStakingUnlockRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryMultiStakingUnlock: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryMultiStakingUnlockRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -2427,7 +2428,7 @@ func (m *QueryMultiStakingUnlockResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryBondWeight) Unmarshal(dAtA []byte) error {
+func (m *QueryBondWeightRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2450,10 +2451,10 @@ func (m *QueryBondWeight) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryBondWeight: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryBondWeightRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryBondWeight: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryBondWeightRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -2613,7 +2614,7 @@ func (m *QueryBondWeightResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryValidatorMultiStakingCoin) Unmarshal(dAtA []byte) error {
+func (m *QueryValidatorMultiStakingCoinRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2636,10 +2637,10 @@ func (m *QueryValidatorMultiStakingCoin) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryValidatorMultiStakingCoin: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryValidatorMultiStakingCoinRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryValidatorMultiStakingCoin: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryValidatorMultiStakingCoinRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
