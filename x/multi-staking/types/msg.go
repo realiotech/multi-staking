@@ -94,7 +94,7 @@ func (msg MsgCreateValidator) ValidateBasic() error {
 	// note that unmarshaling from bech32 ensures both non-empty and valid
 	multiStakerAddr, valAddr, err := AccAddrAndValAddrFromStrings(msg.MultiStakerAddress, msg.ValidatorAddress)
 	if err != nil {
-		return err
+		return sdkerrors.ErrInvalidAddress.Wrap(err.Error())
 	}
 
 	if !sdk.AccAddress(valAddr).Equals(multiStakerAddr) {
@@ -229,7 +229,7 @@ func (msg MsgDelegate) GetSignBytes() []byte {
 // ValidateBasic implements the sdk.Msg interface.
 func (msg MsgDelegate) ValidateBasic() error {
 	if _, _, err := AccAddrAndValAddrFromStrings(msg.MultiStakerAddress, msg.ValidatorAddress); err != nil {
-		return err
+		return sdkerrors.ErrInvalidAddress.Wrap(err.Error())
 	}
 
 	if !msg.Amount.IsValid() || !msg.Amount.Amount.IsPositive() {
@@ -328,7 +328,7 @@ func (msg MsgUndelegate) GetSignBytes() []byte {
 // ValidateBasic implements the sdk.Msg interface.
 func (msg MsgUndelegate) ValidateBasic() error {
 	if _, _, err := AccAddrAndValAddrFromStrings(msg.MultiStakerAddress, msg.ValidatorAddress); err != nil {
-		return err
+		return sdkerrors.ErrInvalidAddress.Wrap(err.Error())
 	}
 
 	if !msg.Amount.IsValid() || !msg.Amount.Amount.IsPositive() {
