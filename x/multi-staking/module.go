@@ -27,7 +27,8 @@ var (
 
 // AppModule embeds the Cosmos SDK's x/staking AppModuleBasic.
 type AppModuleBasic struct {
-	cdc codec.Codec
+	cdc                codec.Codec
+	stakingAppModBasic staking.AppModuleBasic
 }
 
 // Name returns the staking module's name.
@@ -36,13 +37,13 @@ func (AppModuleBasic) Name() string {
 }
 
 // RegisterLegacyAminoCodec register module codec
-func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	types.RegisterLegacyAminoCodec(cdc)
+func (am AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
+	am.stakingAppModBasic.RegisterLegacyAminoCodec(cdc)
 }
 
 // RegisterInterfaces registers the module interface
-func (AppModuleBasic) RegisterInterfaces(reg cdctypes.InterfaceRegistry) {
-	types.RegisterInterfaces(reg)
+func (am AppModuleBasic) RegisterInterfaces(reg cdctypes.InterfaceRegistry) {
+	am.stakingAppModBasic.RegisterInterfaces(reg)
 }
 
 // DefaultGenesis returns feeabs module default genesis state.
