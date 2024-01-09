@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
@@ -48,7 +49,7 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *stakingtypes.MsgC
 		DelegatorAddress:  msg.DelegatorAddress,
 		ValidatorAddress:  msg.ValidatorAddress,
 		Pubkey:            msg.Pubkey,
-		Value:             mintedBondCoin,
+		Value:             mintedBondCoin, // replace lock coin with bond coin
 	}
 
 	k.keeper.SetValidatorMultiStakingCoin(ctx, valAcc, msg.Value.Denom)
@@ -63,36 +64,31 @@ func (k msgServer) EditValidator(goCtx context.Context, msg *stakingtypes.MsgEdi
 
 // Delegate defines a method for performing a delegation of coins from a delegator to a validator
 func (k msgServer) Delegate(goCtx context.Context, msg *stakingtypes.MsgDelegate) (*stakingtypes.MsgDelegateResponse, error) {
-	// ctx := sdk.UnwrapSDKContext(goCtx)
+	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// multiStakerAddr, valAcc, err := types.AccAddrAndValAddrFromStrings(msg.MultiStakerAddress, msg.ValidatorAddress)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	multiStakerAddr, valAcc, err := types.AccAddrAndValAddrFromStrings(msg.DelegatorAddress, msg.ValidatorAddress)
+	if err != nil {
+		return nil, err
+	}
 
-	// if !k.isValMultiStakingCoin(ctx, valAcc, msg.Amount) {
-	// 	return nil, fmt.Errorf("not allowed coin")
-	// }
+	if !k.keeper.isValMultiStakingCoin(ctx, valAcc, msg.Amount) {
+		return nil, fmt.Errorf("not allowed coin")
+	}
 
-	// lockID := types.MultiStakingLockID(msg.MultiStakerAddress, msg.ValidatorAddress)
+	lockID := types.MultiStakingLockID(msg.DelegatorAddress, msg.ValidatorAddress)
 
-	// mintedBondCoin, err := k.Keeper.LockCoinAndMintBondCoin(ctx, lockID, multiStakerAddr, multiStakerAddr, msg.Amount)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	mintedBondCoin, err := k.keeper.LockCoinAndMintBondCoin(ctx, lockID, multiStakerAddr, multiStakerAddr, msg.Amount)
+	if err != nil {
+		return nil, err
+	}
 
-	// sdkMsg := stakingtypes.MsgDelegate{
-	// 	DelegatorAddress: msg.MultiStakerAddress,
-	// 	ValidatorAddress: msg.ValidatorAddress,
-	// 	Amount:           mintedBondCoin,
-	// }
+	sdkMsg := stakingtypes.MsgDelegate{
+		DelegatorAddress: msg.DelegatorAddress,
+		ValidatorAddress: msg.ValidatorAddress,
+		Amount:           mintedBondCoin, // replace lock coin with bond coin
+	}
 
-	// _, err = k.stakingMsgServer.Delegate(ctx, &sdkMsg)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	return &stakingtypes.MsgDelegateResponse{}, nil
+	return k.stakingMsgServer.Delegate(sdk.WrapSDKContext(ctx), &sdkMsg)
 }
 
 // BeginRedelegate defines a method for performing a redelegation of coins from a delegator and source validator to a destination validator
