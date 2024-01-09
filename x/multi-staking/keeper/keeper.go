@@ -19,14 +19,13 @@ import (
 )
 
 type Keeper struct {
-	storeKey         storetypes.StoreKey
-	memKey           storetypes.StoreKey
-	cdc              codec.BinaryCodec
-	stakingKeeper    stakingkeeper.Keeper
-	stakingMsgServer stakingtypes.MsgServer
-	distrMsgServer   distrtypes.MsgServer
-	govMsgServer     govtypes.MsgServer
-	bankKeeper       types.BankKeeper
+	storeKey       storetypes.StoreKey
+	memKey         storetypes.StoreKey
+	cdc            codec.BinaryCodec
+	stakingKeeper  stakingkeeper.Keeper
+	distrMsgServer distrtypes.MsgServer
+	govMsgServer   govtypes.MsgServer
+	bankKeeper     types.BankKeeper
 }
 
 func NewKeeper(
@@ -39,14 +38,13 @@ func NewKeeper(
 	memKey storetypes.StoreKey,
 ) *Keeper {
 	return &Keeper{
-		cdc:              cdc,
-		storeKey:         key,
-		memKey:           memKey,
-		stakingKeeper:    stakingKeeper,
-		stakingMsgServer: stakingkeeper.NewMsgServerImpl(stakingKeeper),
-		distrMsgServer:   distrkeeper.NewMsgServerImpl(distrKeeper),
-		govMsgServer:     govkeeper.NewMsgServerImpl(govKeeper),
-		bankKeeper:       bankKeeper,
+		cdc:            cdc,
+		storeKey:       key,
+		memKey:         memKey,
+		stakingKeeper:  stakingKeeper,
+		distrMsgServer: distrkeeper.NewMsgServerImpl(distrKeeper),
+		govMsgServer:   govkeeper.NewMsgServerImpl(govKeeper),
+		bankKeeper:     bankKeeper,
 	}
 }
 
