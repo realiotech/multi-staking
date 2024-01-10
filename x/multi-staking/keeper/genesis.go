@@ -10,16 +10,12 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) (res []abc
 	// multi-staking state
 	for _, multiStakingLock := range data.MultiStakingLocks {
 		k.SetMultiStakingLock(ctx, multiStakingLock)
-		// set intermediaryDelegator
 	}
 	for _, multiStakingUnlock := range data.MultiStakingUnlocks {
 		k.SetMultiStakingUnlock(ctx, multiStakingUnlock)
 	}
 	for _, multiStakingCoinInfo := range data.MultiStakingCoinInfo {
 		k.SetBondWeight(ctx, multiStakingCoinInfo.Denom, multiStakingCoinInfo.BondWeight)
-	}
-	for _, intermediaryDelegator := range data.IntermediaryDelegators {
-		k.SetIntermediaryDelegator(ctx, sdk.MustAccAddressFromBech32(intermediaryDelegator))
 	}
 
 	for _, valMultiStakingCoin := range data.ValidatorMultiStakingCoins {
@@ -47,12 +43,6 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 		return false
 	})
 
-	var intermediaryDelegators []string
-	k.IntermediaryDelegatorIterator(ctx, func(intermediaryDelegator sdk.AccAddress) bool {
-		intermediaryDelegators = append(intermediaryDelegators, intermediaryDelegator.String())
-		return false
-	})
-
 	var multiStakingCoinInfos []types.MultiStakingCoinInfo
 	k.BondWeightIterator(ctx, func(denom string, bondWeight sdk.Dec) bool {
 		multiStakingCoinInfos = append(multiStakingCoinInfos, types.MultiStakingCoinInfo{
@@ -76,10 +66,8 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 	return &types.GenesisState{
 		MultiStakingLocks:          multiStakingLocks,
 		MultiStakingUnlocks:        multiStakingUnlocks,
-		IntermediaryDelegators:     intermediaryDelegators,
 		MultiStakingCoinInfo:       multiStakingCoinInfos,
 		ValidatorMultiStakingCoins: ValidatorMultiStakingCoinLists,
-
 		StakingGenesisState: k.stakingKeeper.ExportGenesis(ctx),
 	}
 }
