@@ -3,11 +3,11 @@ package types_test
 import (
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
 
 type ProposalTestSuite struct {
@@ -32,11 +32,15 @@ func (suite *ProposalTestSuite) TestProposalString() {
 		proposal      govv1beta1.Content
 		expectedValue string
 	}{
-		{msg: "Add Bond Token Proposal", proposal: &types.AddMultiStakingCoinProposal{Denom: "token", BondWeight: &testTokenWeight, Description: "Add token", Title: "Add #1"},
-			expectedValue: "AddMultiStakingCoinProposal: Title: Add #1 Description: Add token Denom: token TokenWeight: 1.000000000000000000"},
+		{
+			msg: "Add Bond Token Proposal", proposal: &types.AddMultiStakingCoinProposal{Denom: "token", BondWeight: &testTokenWeight, Description: "Add token", Title: "Add #1"},
+			expectedValue: "AddMultiStakingCoinProposal: Title: Add #1 Description: Add token Denom: token TokenWeight: 1.000000000000000000",
+		},
 
-		{msg: "Change Bond Token Weight Proposal", proposal: &types.UpdateBondWeightProposal{Denom: "token", UpdatedBondWeight: &testTokenWeight, Description: "Change Bond token weight", Title: "Change #2"},
-			expectedValue: "UpdateBondWeightProposal: Title: Change #2 Description: Change Bond token weight Denom: token TokenWeight: 1.000000000000000000"},
+		{
+			msg: "Change Bond Token Weight Proposal", proposal: &types.UpdateBondWeightProposal{Denom: "token", UpdatedBondWeight: &testTokenWeight, Description: "Change Bond token weight", Title: "Change #2"},
+			expectedValue: "UpdateBondWeightProposal: Title: Change #2 Description: Change Bond token weight Denom: token TokenWeight: 1.000000000000000000",
+		},
 	}
 
 	for _, tc := range testCases {

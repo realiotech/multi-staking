@@ -1,18 +1,19 @@
 package multistaking
 
 import (
+	"github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
+	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
+
 	sdkerrors "cosmossdk.io/errors"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	"github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
-	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
 
 // NewMultiStakingProposalHandler creates a governance handler to manage Mult-Staking proposals.
 func NewMultiStakingProposalHandler(k *keeper.Keeper) govv1beta1.Handler {
 	return func(ctx sdk.Context, content govv1beta1.Content) error {
-
 		switch c := content.(type) {
 		case *types.AddMultiStakingCoinProposal:
 			return handleAddMultiStakingCoinProposal(ctx, k, c)
@@ -30,7 +31,6 @@ func handleAddMultiStakingCoinProposal(
 	k *keeper.Keeper,
 	p *types.AddMultiStakingCoinProposal,
 ) error {
-
 	k.SetBondWeight(ctx, p.Denom, *p.BondWeight)
 
 	ctx.EventManager().EmitEvent(
@@ -49,7 +49,6 @@ func handleChangeTokenWeightProposal(
 	k *keeper.Keeper,
 	p *types.UpdateBondWeightProposal,
 ) error {
-
 	k.SetBondWeight(ctx, p.Denom, *p.UpdatedBondWeight)
 
 	ctx.EventManager().EmitEvent(

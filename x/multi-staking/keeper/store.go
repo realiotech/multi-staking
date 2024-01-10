@@ -3,9 +3,10 @@ package keeper
 import (
 	"fmt"
 
+	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
+
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
 
 func (k Keeper) GetBondWeight(ctx sdk.Context, tokenDenom string) (sdk.Dec, bool) {
@@ -19,7 +20,6 @@ func (k Keeper) GetBondWeight(ctx sdk.Context, tokenDenom string) (sdk.Dec, bool
 	err := bondCoinWeight.Unmarshal(bz)
 	if err != nil {
 		panic(fmt.Errorf("unable to unmarshal bond coin weight %v", err))
-
 	}
 	return *bondCoinWeight, true
 }
@@ -27,7 +27,6 @@ func (k Keeper) GetBondWeight(ctx sdk.Context, tokenDenom string) (sdk.Dec, bool
 func (k Keeper) SetBondWeight(ctx sdk.Context, tokenDenom string, tokenWeight sdk.Dec) {
 	store := ctx.KVStore(k.storeKey)
 	bz, err := tokenWeight.Marshal()
-
 	if err != nil {
 		panic(fmt.Errorf("unable to marshal bond coin weight %v", err))
 	}
@@ -147,7 +146,6 @@ func (k Keeper) BondWeightIterator(ctx sdk.Context, cb func(denom string, bondWe
 		err := bondWeight.Unmarshal(iterator.Value())
 		if err != nil {
 			panic(fmt.Errorf("unable to unmarshal bond coin weight %v", err))
-
 		}
 		if cb(denom, *bondWeight) {
 			break

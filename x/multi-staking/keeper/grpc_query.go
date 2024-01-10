@@ -3,13 +3,13 @@ package keeper
 import (
 	"context"
 
+	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
-	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
 
 type queryServer struct {
@@ -54,8 +54,8 @@ func (k queryServer) MultiStakingLock(c context.Context, req *types.QueryMultiSt
 	lock, found := k.Keeper.GetMultiStakingLock(ctx, lockId)
 
 	return &types.QueryMultiStakingLockResponse{
-		Lock: &lock,
-		Found:  found,
+		Lock:  &lock,
+		Found: found,
 	}, nil
 }
 
@@ -74,7 +74,6 @@ func (k queryServer) MultiStakingLocks(c context.Context, req *types.QueryMultiS
 	pageRes, err := query.Paginate(lockStore, req.Pagination, func(key []byte, value []byte) error {
 		var lock types.MultiStakingLock
 		err := k.cdc.Unmarshal(value, &lock)
-
 		if err != nil {
 			return err
 		}
@@ -120,7 +119,6 @@ func (k queryServer) MultiStakingUnlocks(c context.Context, req *types.QueryMult
 	pageRes, err := query.Paginate(unlockStore, req.Pagination, func(key []byte, value []byte) error {
 		var unlock types.MultiStakingUnlock
 		err := k.cdc.Unmarshal(value, &unlock)
-
 		if err != nil {
 			return err
 		}
