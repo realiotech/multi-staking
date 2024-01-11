@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	multistakingtypes "github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
@@ -35,8 +36,6 @@ import (
 
 	"github.com/cosmos/ibc-go/v6/testing/mock"
 	"github.com/cosmos/ibc-go/v6/testing/simapp/helpers"
-
-	multistakingtypes "github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
 
 // DefaultConsensusParams defines the default Tendermint consensus params used in
