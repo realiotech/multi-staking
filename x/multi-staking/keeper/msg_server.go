@@ -4,10 +4,11 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
 
 type msgServer struct {

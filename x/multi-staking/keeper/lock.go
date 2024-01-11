@@ -1,10 +1,12 @@
 package keeper
 
 import (
+	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
+
 	"cosmossdk.io/errors"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
 
 func (k Keeper) GetOrCreateMultiStakingLock(ctx sdk.Context, lockID types.LockID) types.MultiStakingLock {

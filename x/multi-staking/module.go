@@ -4,6 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 
+	gwruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/realio-tech/multi-staking-module/x/multi-staking/client/cli"
+	multistakingkeeper "github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
+	multistakingtypes "github.com/realio-tech/multi-staking-module/x/multi-staking/types"
+	"github.com/spf13/cobra"
+	abci "github.com/tendermint/tendermint/abci/types"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -12,12 +19,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	gwruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
-	"github.com/realio-tech/multi-staking-module/x/multi-staking/client/cli"
-	"github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
-	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
-	"github.com/spf13/cobra"
-	abci "github.com/tendermint/tendermint/abci/types"
 )
 
 var (
@@ -33,7 +34,7 @@ type AppModuleBasic struct {
 
 // Name returns the staking module's name.
 func (AppModuleBasic) Name() string {
-	return types.ModuleName
+	return multistakingtypes.ModuleName
 }
 
 // RegisterLegacyAminoCodec register module codec
@@ -48,14 +49,14 @@ func (am AppModuleBasic) RegisterInterfaces(reg cdctypes.InterfaceRegistry) {
 
 // DefaultGenesis returns feeabs module default genesis state.
 func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
-	return cdc.MustMarshalJSON(types.DefaultGenesis())
+	return cdc.MustMarshalJSON(multistakingtypes.DefaultGenesis())
 }
 
 // ValidateGenesis validate genesis state for feeabs module
 func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncodingConfig, bz json.RawMessage) error {
-	var genState types.GenesisState
+	var genState multistakingtypes.GenesisState
 	if err := cdc.UnmarshalJSON(bz, &genState); err != nil {
-		return fmt.Errorf("failed to unmarshal %s genesis state: %w", types.ModuleName, err)
+		return fmt.Errorf("failed to unmarshal %s genesis state: %w", multistakingtypes.ModuleName, err)
 	}
 	return genState.Validate()
 }
@@ -80,7 +81,7 @@ type AppModule struct {
 	// embed the Cosmos SDK's x/staking AppModule
 	skAppModule staking.AppModule
 
-	keeper keeper.Keeper
+	keeper multistakingkeeper.Keeper
 	sk     stakingkeeper.Keeper
 	ak     stakingtypes.AccountKeeper
 	bk     stakingtypes.BankKeeper
@@ -88,7 +89,7 @@ type AppModule struct {
 
 // NewAppModule creates a new AppModule object using the native x/staking module
 // AppModule constructor.
-func NewAppModule(cdc codec.Codec, keeper keeper.Keeper, sk stakingkeeper.Keeper, ak stakingtypes.AccountKeeper, bk stakingtypes.BankKeeper) AppModule {
+func NewAppModule(cdc codec.Codec, keeper multistakingkeeper.Keeper, sk stakingkeeper.Keeper, ak stakingtypes.AccountKeeper, bk stakingtypes.BankKeeper) AppModule {
 	stakingAppMod := staking.NewAppModule(cdc, sk, ak, bk)
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{cdc: cdc},
@@ -102,7 +103,7 @@ func NewAppModule(cdc codec.Codec, keeper keeper.Keeper, sk stakingkeeper.Keeper
 
 // Name returns the staking module's name.
 func (AppModule) Name() string {
-	return types.ModuleName
+	return multistakingtypes.ModuleName
 }
 
 // RegisterInvariants registers the staking module invariants.
@@ -117,7 +118,7 @@ func (am AppModule) Route() sdk.Route {
 
 // QuerierRoute returns the staking module's querier route name.
 func (AppModule) QuerierRoute() string {
-	return types.QuerierRoute
+	return multistakingtypes.QuerierRoute
 }
 
 // LegacyQuerierHandler returns the staking module sdk.Querier.
@@ -129,13 +130,13 @@ func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sd
 // RegisterServices registers a GRPC query service to respond to the
 // module-specific GRPC queries.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
-	stakingtypes.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
-	types.RegisterQueryServer(cfg.QueryServer(), keeper.NewQueryServerImpl(am.keeper))
+	stakingtypes.RegisterMsgServer(cfg.MsgServer(), multistakingkeeper.NewMsgServerImpl(am.keeper))
+	multistakingtypes.RegisterQueryServer(cfg.QueryServer(), multistakingkeeper.NewQueryServerImpl(am.keeper))
 }
 
 // InitGenesis initial genesis state for feeabs module
 func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {
-	var genesisState types.GenesisState
+	var genesisState multistakingtypes.GenesisState
 	cdc.MustUnmarshalJSON(data, &genesisState)
 	am.keeper.InitGenesis(ctx, genesisState)
 

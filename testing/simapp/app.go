@@ -7,9 +7,20 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/gorilla/mux"
+	"github.com/rakyll/statik/fs"
+	multistakingkeeper "github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
+	multistakingtypes "github.com/realio-tech/multi-staking-module/x/multi-staking/types"
+	"github.com/spf13/cast"
+	abci "github.com/tendermint/tendermint/abci/types"
+	"github.com/tendermint/tendermint/libs/log"
+	tmos "github.com/tendermint/tendermint/libs/os"
+	dbm "github.com/tendermint/tm-db"
+
+	_ "github.com/cosmos/cosmos-sdk/client/docs/statik" // this is used for serving docs
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
-	_ "github.com/cosmos/cosmos-sdk/client/docs/statik" // this is used for serving docs
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
@@ -80,15 +91,6 @@ import (
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	"github.com/gorilla/mux"
-	"github.com/rakyll/statik/fs"
-	multistakingkeeper "github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
-	multistakingtypes "github.com/realio-tech/multi-staking-module/x/multi-staking/types"
-	"github.com/spf13/cast"
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/libs/log"
-	tmos "github.com/tendermint/tendermint/libs/os"
-	dbm "github.com/tendermint/tm-db"
 
 	ica "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts"
 	icacontroller "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/controller"
