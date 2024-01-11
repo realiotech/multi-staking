@@ -69,12 +69,15 @@ func setup(withGenesis bool, invCheckPeriod uint) (*SimApp, GenesisState) {
 
 // Setup initializes a new SimApp. A Nop logger is set in SimApp.
 func Setup(isCheckTx bool) *SimApp {
-	privVal := mock.NewPV()
-	pubKey, _ := privVal.GetPubKey()
+	privVal0 := mock.NewPV()
+	privVal1 := mock.NewPV()
+
+	pubKey0, _ := privVal0.GetPubKey()
+	pubKey1, _ := privVal1.GetPubKey()
 
 	// create validator set with single validator
-	val0 := tmtypes.NewValidator(pubKey, 1)
-	val1 := tmtypes.NewValidator(pubKey, 1)
+	val0 := tmtypes.NewValidator(pubKey0, 1)
+	val1 := tmtypes.NewValidator(pubKey1, 1)
 
 	valSet := tmtypes.NewValidatorSet([]*tmtypes.Validator{val0, val1})
 
@@ -186,8 +189,8 @@ func genesisStateWithValSet(app *SimApp, genesisState GenesisState,
 		validators = append(validators, validator)
 		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress(), val.Address.Bytes(), sdk.OneDec()))
 
-		lockCoins.Add(sdk.NewCoin(lockCoin.Denom, lockCoin.Amount))
-		bondCoins.Add(sdk.NewCoin(sdk.DefaultBondDenom, valTokens))
+		lockCoins = lockCoins.Add(sdk.NewCoin(lockCoin.Denom, lockCoin.Amount))
+		bondCoins = bondCoins.Add(sdk.NewCoin(sdk.DefaultBondDenom, valTokens))
 	}
 
 	// set validators and delegations
