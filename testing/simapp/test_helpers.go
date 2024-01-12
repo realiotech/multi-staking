@@ -138,15 +138,15 @@ func genesisStateWithValSet(app *SimApp, genesisState GenesisState,
 	genesisState[authtypes.ModuleName] = app.AppCodec().MustMarshalJSON(authGenesis)
 
 	// set multi staking genesis state
-	baseInfo := multistakingtypes.MultiStakingCoinInfo{
+	msCoinAInfo := multistakingtypes.MultiStakingCoinInfo{
 		Denom:      testutil.MultistakingDenomA,
 		BondWeight: sdk.OneDec(),
 	}
-	govInfo := multistakingtypes.MultiStakingCoinInfo{
+	msCoinBInfo := multistakingtypes.MultiStakingCoinInfo{
 		Denom:      testutil.MultistakingDenomB,
 		BondWeight: sdk.MustNewDecFromStr("0.5"),
 	}
-	coinInfos := []multistakingtypes.MultiStakingCoinInfo{baseInfo, govInfo}
+	coinInfos := []multistakingtypes.MultiStakingCoinInfo{msCoinAInfo, msCoinBInfo}
 	validatorCoins := make([]multistakingtypes.ValidatorMultiStakingCoin, 0, len(valSet.Validators))
 	validators := make([]stakingtypes.Validator, 0, len(valSet.Validators))
 	delegations := make([]stakingtypes.Delegation, 0, len(valSet.Validators))
