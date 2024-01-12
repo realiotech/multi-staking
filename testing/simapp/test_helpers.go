@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/realio-tech/multi-staking-module/testutil"
 	multistakingtypes "github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -87,8 +88,8 @@ func Setup(isCheckTx bool) *SimApp {
 	balance := banktypes.Balance{
 		Address: acc.GetAddress().String(),
 		Coins: sdk.NewCoins(
-			sdk.NewCoin(multistakingtypes.BaseDenom, sdk.NewInt(100000000000000)),
-			sdk.NewCoin(multistakingtypes.GovDenom, sdk.NewInt(100000000000000)),
+			sdk.NewCoin(testutil.MultistakingDenomA, sdk.NewInt(100000000000000)),
+			sdk.NewCoin(testutil.MultistakingDenomB, sdk.NewInt(100000000000000)),
 		),
 	}
 
@@ -138,11 +139,11 @@ func genesisStateWithValSet(app *SimApp, genesisState GenesisState,
 
 	// set multi staking genesis state
 	baseInfo := multistakingtypes.MultiStakingCoinInfo{
-		Denom:      multistakingtypes.BaseDenom,
+		Denom:      testutil.MultistakingDenomA,
 		BondWeight: sdk.OneDec(),
 	}
 	govInfo := multistakingtypes.MultiStakingCoinInfo{
-		Denom:      multistakingtypes.GovDenom,
+		Denom:      testutil.MultistakingDenomB,
 		BondWeight: sdk.MustNewDecFromStr("0.5"),
 	}
 	coinInfos := []multistakingtypes.MultiStakingCoinInfo{baseInfo, govInfo}
@@ -155,9 +156,9 @@ func genesisStateWithValSet(app *SimApp, genesisState GenesisState,
 
 	bondAmt := sdk.DefaultPowerReduction
 	for i, val := range valSet.Validators {
-		valDenom := multistakingtypes.BaseDenom
+		valDenom := testutil.MultistakingDenomA
 		if i%2 == 1 {
-			valDenom = multistakingtypes.GovDenom
+			valDenom = testutil.MultistakingDenomB
 		}
 		validatorCoins = append(validatorCoins, multistakingtypes.ValidatorMultiStakingCoin{
 			ValAddr:   sdk.ValAddress(val.Address).String(),
