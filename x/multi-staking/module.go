@@ -6,6 +6,7 @@ import (
 
 	gwruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/client/cli"
+	"github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
 	multistakingkeeper "github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
 	multistakingtypes "github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	"github.com/spf13/cobra"
@@ -109,6 +110,8 @@ func (AppModule) Name() string {
 // RegisterInvariants registers the staking module invariants.
 // TODO: Need to implement invariants
 func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
+	am.skAppModule.RegisterInvariants(ir)
+	keeper.RegisterInvariants(ir, am.keeper)
 }
 
 // Deprecated: Route returns the message routing key for the staking module.
