@@ -1,11 +1,29 @@
 package simapp
 
 import (
+	multistakingtypes "github.com/realio-tech/multi-staking-module/x/multi-staking/types"
+	abci "github.com/tendermint/tendermint/abci/types"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	abci "github.com/tendermint/tendermint/abci/types"
+)
+
+var (
+	MultiStakingCoinA = multistakingtypes.MultiStakingCoin{
+		Denom:      "ario",
+		Amount:     sdk.NewIntFromUint64(100000000),
+		BondWeight: sdk.MustNewDecFromStr("1.23"),
+	}
+	MultiStakingCoinB = multistakingtypes.MultiStakingCoin{
+		Denom:      "arst",
+		Amount:     sdk.NewIntFromUint64(100000000),
+		BondWeight: sdk.MustNewDecFromStr("0.12"),
+	}
+	MultiStakingCoins = []multistakingtypes.MultiStakingCoin{
+		MultiStakingCoinA, MultiStakingCoinB,
+	}
 )
 
 // App implements the common methods for a Cosmos SDK-based application

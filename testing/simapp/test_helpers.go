@@ -9,7 +9,17 @@ import (
 	"testing"
 	"time"
 
+	multistakingtypes "github.com/realio-tech/multi-staking-module/x/multi-staking/types"
+	"github.com/stretchr/testify/require"
+	abci "github.com/tendermint/tendermint/abci/types"
+	"github.com/tendermint/tendermint/libs/log"
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	tmtypes "github.com/tendermint/tendermint/types"
+	dbm "github.com/tendermint/tm-db"
+
+	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
+
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -23,12 +33,6 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/stretchr/testify/require"
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/libs/log"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	tmtypes "github.com/tendermint/tendermint/types"
-	dbm "github.com/tendermint/tm-db"
 
 	"github.com/cosmos/ibc-go/v6/testing/mock"
 	"github.com/cosmos/ibc-go/v6/testing/simapp/helpers"
@@ -65,23 +69,9 @@ func setup(withGenesis bool, invCheckPeriod uint) (*SimApp, GenesisState) {
 
 // Setup initializes a new SimApp. A Nop logger is set in SimApp.
 func Setup(isCheckTx bool) *SimApp {
-	privVal := mock.NewPV()
-	pubKey, _ := privVal.GetPubKey()
+	valSet := GenValSet()
 
-	// create validator set with single validator
-	validator := tmtypes.NewValidator(pubKey, 1)
-	valSet := tmtypes.NewValidatorSet([]*tmtypes.Validator{validator})
-
-	// generate genesis account
-	senderPrivKey := secp256k1.GenPrivKey()
-	acc := authtypes.NewBaseAccount(senderPrivKey.PubKey().Address().Bytes(), senderPrivKey.PubKey(), 0, 0)
-	balance := banktypes.Balance{
-		Address: acc.GetAddress().String(),
-		Coins:   sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(100000000000000))),
-	}
-
-	app := SetupWithGenesisValSet(valSet, []authtypes.GenesisAccount{acc}, balance)
-
+	app := SetupWithGenesisValSet(valSet)
 	return app
 }
 
@@ -89,9 +79,9 @@ func Setup(isCheckTx bool) *SimApp {
 // that also act as delegators. For simplicity, each validator is bonded with a delegation
 // of one consensus engine unit in the default coin of the simapp from first genesis
 // account. A Nop logger is set in SimApp.
-func SetupWithGenesisValSet(valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) *SimApp {
+func SetupWithGenesisValSet(valSet *tmtypes.ValidatorSet) *SimApp {
 	app, genesisState := setup(true, 5)
-	genesisState = genesisStateWithValSet(app, genesisState, valSet, genAccs, balances...)
+	genesisState = genesisStateWithValSet(app, genesisState, valSet)
 
 	stateBytes, _ := json.MarshalIndent(genesisState, "", " ")
 
@@ -116,20 +106,51 @@ func SetupWithGenesisValSet(valSet *tmtypes.ValidatorSet, genAccs []authtypes.Ge
 	return app
 }
 
-func genesisStateWithValSet(app *SimApp, genesisState GenesisState,
-	valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount,
-	balances ...banktypes.Balance,
-) GenesisState {
+func genesisStateWithValSet(app *SimApp, genesisState GenesisState, valSet *tmtypes.ValidatorSet) GenesisState {
+	genAcc := GenAcc()
+	genAccs := []authtypes.GenesisAccount{genAcc}
+	balances := []banktypes.Balance{}
+
 	// set genesis accounts
 	authGenesis := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccs)
 	genesisState[authtypes.ModuleName] = app.AppCodec().MustMarshalJSON(authGenesis)
 
+	// set multi staking genesis state
+	msCoinAInfo := multistakingtypes.MultiStakingCoinInfo{
+		Denom:      MultiStakingCoinA.Denom,
+		BondWeight: MultiStakingCoinA.BondWeight,
+	}
+	msCoinBInfo := multistakingtypes.MultiStakingCoinInfo{
+		Denom:      MultiStakingCoinB.Denom,
+		BondWeight: MultiStakingCoinB.BondWeight,
+	}
+	msCoinInfos := []multistakingtypes.MultiStakingCoinInfo{msCoinAInfo, msCoinBInfo}
+	validatorMsCoins := make([]multistakingtypes.ValidatorMultiStakingCoin, 0, len(valSet.Validators))
+	locks := make([]multistakingtypes.MultiStakingLock, 0, len(valSet.Validators))
+	lockCoins := sdk.NewCoins()
+
+	// staking genesis state
 	validators := make([]stakingtypes.Validator, 0, len(valSet.Validators))
 	delegations := make([]stakingtypes.Delegation, 0, len(valSet.Validators))
+	bondCoins := sdk.NewCoins()
 
-	bondAmt := sdk.DefaultPowerReduction
+	for i, val := range valSet.Validators {
+		valMsCoin := MultiStakingCoinA
+		if i%2 == 1 {
+			valMsCoin = MultiStakingCoinB
+		}
 
-	for _, val := range valSet.Validators {
+		validatorMsCoins = append(validatorMsCoins, multistakingtypes.ValidatorMultiStakingCoin{
+			ValAddr:   sdk.ValAddress(val.Address).String(),
+			CoinDenom: valMsCoin.Denom,
+		})
+
+		lockId := multistakingtypes.MultiStakingLockID(genAcc.GetAddress().String(), sdk.ValAddress(val.Address).String())
+		lockRecord := multistakingtypes.NewMultiStakingLock(&lockId, valMsCoin)
+
+		locks = append(locks, lockRecord)
+		lockCoins = lockCoins.Add(valMsCoin.ToCoin())
+
 		pk, _ := cryptocodec.FromTmPubKeyInterface(val.PubKey)
 		pkAny, _ := codectypes.NewAnyWithValue(pk)
 		validator := stakingtypes.Validator{
@@ -137,7 +158,7 @@ func genesisStateWithValSet(app *SimApp, genesisState GenesisState,
 			ConsensusPubkey:   pkAny,
 			Jailed:            false,
 			Status:            stakingtypes.Bonded,
-			Tokens:            bondAmt,
+			Tokens:            valMsCoin.BondValue(),
 			DelegatorShares:   sdk.OneDec(),
 			Description:       stakingtypes.Description{},
 			UnbondingHeight:   int64(0),
@@ -145,30 +166,40 @@ func genesisStateWithValSet(app *SimApp, genesisState GenesisState,
 			Commission:        stakingtypes.NewCommission(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()),
 			MinSelfDelegation: sdk.ZeroInt(),
 		}
-		validators = append(validators, validator)
-		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress(), val.Address.Bytes(), sdk.OneDec()))
 
+		validators = append(validators, validator)
+		delegations = append(delegations, stakingtypes.NewDelegation(genAcc.GetAddress(), val.Address.Bytes(), sdk.OneDec()))
+
+		bondCoins = bondCoins.Add(sdk.NewCoin(sdk.DefaultBondDenom, valMsCoin.BondValue()))
 	}
+
 	// set validators and delegations
 	stakingGenesis := stakingtypes.NewGenesisState(stakingtypes.DefaultParams(), validators, delegations)
 	genesisState[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
+
+	multistakingGenesis := multistakingtypes.GenesisState{
+		MultiStakingLocks:          locks,
+		MultiStakingUnlocks:        []multistakingtypes.MultiStakingUnlock{},
+		MultiStakingCoinInfo:       msCoinInfos,
+		ValidatorMultiStakingCoins: validatorMsCoins,
+		StakingGenesisState:        stakingGenesis,
+	}
+	genesisState[multistakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(&multistakingGenesis)
+
+	balances = append(balances, banktypes.Balance{
+		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),
+		Coins:   bondCoins,
+	})
+	balances = append(balances, banktypes.Balance{
+		Address: authtypes.NewModuleAddress(multistakingtypes.ModuleName).String(),
+		Coins:   lockCoins,
+	})
 
 	totalSupply := sdk.NewCoins()
 	for _, b := range balances {
 		// add genesis acc tokens to total supply
 		totalSupply = totalSupply.Add(b.Coins...)
 	}
-
-	for range delegations {
-		// add delegated tokens to total supply
-		totalSupply = totalSupply.Add(sdk.NewCoin(sdk.DefaultBondDenom, bondAmt))
-	}
-
-	// add bonded amount to bonded pool module account
-	balances = append(balances, banktypes.Balance{
-		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),
-		Coins:   sdk.Coins{sdk.NewCoin(sdk.DefaultBondDenom, bondAmt)},
-	})
 
 	// update total supply
 	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, totalSupply, []banktypes.Metadata{})
@@ -232,9 +263,15 @@ func createIncrementalAccounts(accNum int) []sdk.AccAddress {
 	// start at 100 so we can make up to 999 test addresses with valid test addresses
 	for i := 100; i < (accNum + 100); i++ {
 		numString := strconv.Itoa(i)
-		buffer.WriteString("A58856F0FD53BF058B4909A21AEC019107BA6") // base address string
+		_, err := buffer.WriteString("A58856F0FD53BF058B4909A21AEC019107BA6") // base address string
+		if err != nil {
+			panic(err)
+		}
 
-		buffer.WriteString(numString) // adding on final two digits to make addresses unique
+		_, err = buffer.WriteString(numString) // adding on final two digits to make addresses unique
+		if err != nil {
+			panic(err)
+		}
 		res, _ := sdk.AccAddressFromHexUnsafe(buffer.String())
 		bech := res.String()
 		addr, _ := TestAddr(buffer.String(), bech)
@@ -325,6 +362,7 @@ func TestAddr(addr string, bech string) (sdk.AccAddress, error) {
 
 // CheckBalance checks the balance of an account.
 func CheckBalance(t *testing.T, app *SimApp, addr sdk.AccAddress, balances sdk.Coins) {
+	t.Helper()
 	ctxCheck := app.BaseApp.NewContext(true, tmproto.Header{})
 	require.True(t, balances.IsEqual(app.BankKeeper.GetAllBalances(ctxCheck, addr)))
 }
@@ -337,6 +375,7 @@ func SignAndDeliver(
 	t *testing.T, txCfg client.TxConfig, app *bam.BaseApp, header tmproto.Header, msgs []sdk.Msg,
 	chainID string, accNums, accSeqs []uint64, expSimPass, expPass bool, priv ...cryptotypes.PrivKey,
 ) (sdk.GasInfo, *sdk.Result, error) {
+	t.Helper()
 	tx, err := helpers.GenTx(
 		txCfg,
 		msgs,
@@ -403,8 +442,15 @@ func CreateTestPubKeys(numPubKeys int) []cryptotypes.PubKey {
 	// start at 10 to avoid changing 1 to 01, 2 to 02, etc
 	for i := 100; i < (numPubKeys + 100); i++ {
 		numString := strconv.Itoa(i)
-		buffer.WriteString("0B485CFC0EECC619440448436F8FC9DF40566F2369E72400281454CB552AF") // base pubkey string
-		buffer.WriteString(numString)                                                       // adding on final two digits to make pubkeys unique
+
+		_, err := buffer.WriteString("0B485CFC0EECC619440448436F8FC9DF40566F2369E72400281454CB552AF") // base pubkey string
+		if err != nil {
+			panic(err)
+		}
+		_, err = buffer.WriteString(numString) // adding on final two digits to make pubkeys unique
+		if err != nil {
+			panic(err)
+		}
 		publicKeys = append(publicKeys, NewPubKeyFromHex(buffer.String()))
 		buffer.Reset()
 	}
@@ -419,7 +465,7 @@ func NewPubKeyFromHex(pk string) (res cryptotypes.PubKey) {
 		panic(err)
 	}
 	if len(pkBytes) != ed25519.PubKeySize {
-		panic(errors.Wrap(errors.ErrInvalidPubKey, "invalid pubkey size"))
+		panic(errorsmod.Wrap(errors.ErrInvalidPubKey, "invalid pubkey size"))
 	}
 	return &ed25519.PubKey{Key: pkBytes}
 }
@@ -440,4 +486,25 @@ func FundAccount(app *SimApp, ctx sdk.Context, addr sdk.AccAddress, amounts sdk.
 		return err
 	}
 	return app.BankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, addr, amounts)
+}
+
+func GenValSet() *tmtypes.ValidatorSet {
+	privVal0 := mock.NewPV()
+	privVal1 := mock.NewPV()
+
+	pubKey0, _ := privVal0.GetPubKey()
+	pubKey1, _ := privVal1.GetPubKey()
+
+	// create validator set with single validator
+	val0 := tmtypes.NewValidator(pubKey0, 1)
+	val1 := tmtypes.NewValidator(pubKey1, 1)
+
+	valSet := tmtypes.NewValidatorSet([]*tmtypes.Validator{val0, val1})
+
+	return valSet
+}
+
+func GenAcc() authtypes.GenesisAccount {
+	senderPrivKey := secp256k1.GenPrivKey()
+	return authtypes.NewBaseAccount(senderPrivKey.PubKey().Address().Bytes(), senderPrivKey.PubKey(), 0, 0)
 }

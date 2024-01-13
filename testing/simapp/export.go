@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 	"log"
 
+	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 )
 
 // ExportAppStateAndValidators exports the state of the application for a genesis

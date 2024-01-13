@@ -3,15 +3,15 @@ package keeper
 import (
 	"fmt"
 
-	"cosmossdk.io/math"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
+
+	"cosmossdk.io/math"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 func (k Keeper) BeginBlocker(ctx sdk.Context) {
-
 }
 
 // need a way to better name this func
@@ -44,7 +44,10 @@ func (k Keeper) EndBlocker(ctx sdk.Context, matureUnbondingDelegations []staking
 
 		unbondingHeightsAndUnbondedAmounts := GetUnbondingHeightsAndUnbondedAmounts(ctx, unbond)
 		for unbondingHeight, unbondedAmount := range unbondingHeightsAndUnbondedAmounts {
-			k.BurnUnbondedCoinAndUnlockedMultiStakingCoin(ctx, multiStakerAddr, valAcc, unbondingHeight, unbondedAmount)
+			_, err := k.BurnUnbondedCoinAndUnlockedMultiStakingCoin(ctx, multiStakerAddr, valAcc, unbondingHeight, unbondedAmount)
+			if err != nil {
+				panic(err)
+			}
 		}
 	}
 }

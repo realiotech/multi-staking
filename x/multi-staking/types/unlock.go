@@ -3,8 +3,11 @@ package types
 import (
 	"fmt"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"sigs.k8s.io/yaml"
+
+	"cosmossdk.io/math"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func NewUnlockEntry(creationHeight int64, weightedCoin MultiStakingCoin) UnlockEntry {
@@ -77,11 +80,11 @@ func (u UnlockEntry) GetBondWeight() sdk.Dec {
 	return u.UnlockingCoin.BondWeight
 }
 
-func (unlockEntry UnlockEntry) UnbondAmountToUnlockAmount(unbondAmount sdk.Int) sdk.Int {
+func (unlockEntry UnlockEntry) UnbondAmountToUnlockAmount(unbondAmount math.Int) math.Int {
 	return sdk.NewDecFromInt(unbondAmount).Quo(unlockEntry.GetBondWeight()).RoundInt()
 }
 
-func (unlockEntry UnlockEntry) UnlockAmountToUnbondAmount(unlockAmount sdk.Int) sdk.Int {
+func (unlockEntry UnlockEntry) UnlockAmountToUnbondAmount(unlockAmount math.Int) math.Int {
 	return unlockEntry.GetBondWeight().MulInt(unlockAmount).RoundInt()
 }
 
