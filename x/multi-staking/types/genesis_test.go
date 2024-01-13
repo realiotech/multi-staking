@@ -12,8 +12,7 @@ import (
 
 func TestGenesisState_Validate(t *testing.T) {
 	multiStakerAddress := testutil.GenAddress()
-	valPubKey := testutil.GenPubKey()
-	valAddr := sdk.ValAddress(valPubKey.Address())
+	valAddr := testutil.GenValAddress()
 	denom := "ario"
 
 	for _, tc := range []struct {

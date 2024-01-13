@@ -17,8 +17,7 @@ func (suite *KeeperTestSuite) TestEndBlocker() {
 	suite.SetupTest()
 
 	mulStaker := testutil.GenAddress()
-	valPubKey := testutil.GenPubKey()
-	valAddr := sdk.ValAddress(valPubKey.Address())
+	valAddr := testutil.GenValAddress()
 	gasDenom := "ario"
 
 	suite.msKeeper.SetValidatorMultiStakingCoin(suite.ctx, valAddr, gasDenom)
