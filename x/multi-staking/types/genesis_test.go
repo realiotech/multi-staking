@@ -3,11 +3,11 @@ package types_test
 import (
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/require"
-
 	"github.com/realio-tech/multi-staking-module/testutil"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
+	"github.com/stretchr/testify/require"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func TestGenesisState_Validate(t *testing.T) {

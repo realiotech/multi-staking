@@ -1,16 +1,14 @@
 package keeper_test
 
 import (
-	// "fmt"
-
 	"fmt"
+
+	"github.com/realio-tech/multi-staking-module/testutil"
+	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-
-	"github.com/realio-tech/multi-staking-module/testutil"
-	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
 
 func (suite *KeeperTestSuite) TestEndBlocker() {
@@ -18,7 +16,7 @@ func (suite *KeeperTestSuite) TestEndBlocker() {
 
 	mulStaker := testutil.GenAddress()
 	valAddr := testutil.GenValAddress()
-	gasDenom := "ario"
+	const gasDenom = "ario"
 
 	suite.msKeeper.SetValidatorMultiStakingCoin(suite.ctx, valAddr, gasDenom)
 
@@ -68,5 +66,4 @@ func (suite *KeeperTestSuite) TestEndBlocker() {
 		fmt.Println("nill")
 	}
 	suite.msKeeper.EndBlocker(suite.ctx, matureUnbondingDelegations)
-
 }
