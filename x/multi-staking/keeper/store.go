@@ -87,7 +87,7 @@ func (k Keeper) GetMultiStakingLock(ctx sdk.Context, multiStakingLockID types.Lo
 
 func (k Keeper) SetMultiStakingLock(ctx sdk.Context, multiStakingLock types.MultiStakingLock) {
 	if multiStakingLock.IsEmpty() {
-		k.RemoveMultiStakingLock(ctx, *multiStakingLock.LockID)
+		k.RemoveMultiStakingLock(ctx, multiStakingLock.LockID)
 		return
 	}
 

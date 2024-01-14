@@ -31,7 +31,8 @@ message MultiStakingLock {
   option (gogoproto.goproto_getters) = false;
   //   option (gogoproto.goproto_stringer) = false;
 
-  LockID lockID = 1;
+  LockID lockID = 1 [ (gogoproto.nullable) = false ];
+  ;
 
   MultiStakingCoin locked_coin = 2 [ (gogoproto.nullable) = false ];
 };
@@ -50,7 +51,8 @@ message MultiStakingUnlock {
   option (gogoproto.goproto_getters) = false;
   option (gogoproto.goproto_stringer) = false;
 
-  UnlockID unlockID = 1;
+  UnlockID unlockID = 1 [ (gogoproto.nullable) = false ];
+  ;
 
   repeated UnlockEntry entries = 2 [ (gogoproto.nullable) = false ];
 }
