@@ -36,7 +36,7 @@ func ModuleAccountInvariants(k Keeper) sdk.Invariant {
 			}
 			return false
 		})
-		totalLockCoinAmount = lockCoinAmount.Add(unlockingCoinAmount...)
+		totalLockCoinAmount = totalLockCoinAmount.Add(unlockingCoinAmount...)
 
 		moduleAccount := authtypes.NewModuleAddress(types.ModuleName)
 		escrowBalances := k.bankKeeper.GetAllBalances(ctx, moduleAccount)
@@ -55,5 +55,50 @@ func ModuleAccountInvariants(k Keeper) sdk.Invariant {
 }
 
 func ValidatorLockDenomInvariants(k Keeper) sdk.Invariant {
+	return func(ctx sdk.Context) (string, bool) {
+		var (
+			msg    string
+			broken bool
+		)
 
+		var multiStakingLocks []types.MultiStakingLock
+		k.MultiStakingLockIterator(ctx, func(stakingLock types.MultiStakingLock) bool {
+			multiStakingLocks = append(multiStakingLocks, stakingLock)
+			return false
+		})
+
+		for _, lock := range multiStakingLocks {
+			valAddr := lock.LockID.ValAddr
+			if valAllowedDenom := k.GetValidatorMultiStakingCoin(ctx, sdk.ValAddress(valAddr)); valAllowedDenom != lock.LockedCoin.Denom {
+				broken = true
+				msg += fmt.Sprintf("validator lock denom invariants:\n\t lock denom: %v"+
+					"\n\tvalidator allow denom: %v\n",
+					lock.LockedCoin.Denom, valAllowedDenom)
+			}
+		}
+
+		var multiStakingUnlocks []types.MultiStakingUnlock
+		k.MultiStakingUnlockIterator(ctx, func(stakingUnlock types.MultiStakingUnlock) bool {
+			multiStakingUnlocks = append(multiStakingUnlocks, stakingUnlock)
+			return false
+		})
+
+		for _, unlock := range multiStakingUnlocks {
+			valAddr := unlock.UnlockID.ValAddr
+			valAllowedDenom := k.GetValidatorMultiStakingCoin(ctx, sdk.ValAddress(valAddr))
+
+			for _, entry := range unlock.Entries {
+				if entry.UnlockingCoin.Denom != valAllowedDenom {
+					broken = true
+					msg += fmt.Sprintf("validator unlock denom invariants:\n\t unlock denom: %v"+
+						"\n\tvalidator allow denom: %v\n"+
+						"\n\t entry height %v"+
+						"\n\t validator address %s deladdress %s",
+						entry.UnlockingCoin.Denom, valAllowedDenom, entry.CreationHeight, unlock.UnlockID.ValAddr, unlock.UnlockID.MultiStakerAddr)
+				}
+			}
+		}
+
+		return sdk.FormatInvariant(types.ModuleName, "validator lock denom", fmt.Sprintf("found invalid validator lock denom\n%s", msg)), broken
+	}
 }
