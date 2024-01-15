@@ -3,9 +3,10 @@ package keeper
 import (
 	"fmt"
 
+	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
 
 // RegisterInvariants registers all staking invariants
