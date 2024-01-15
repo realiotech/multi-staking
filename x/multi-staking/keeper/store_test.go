@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"github.com/realio-tech/multi-staking-module/testutil"
 	multistakingkeeper "github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
+	mulStakingtypes "github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -85,4 +86,41 @@ func (suite *KeeperTestSuite) TestSetValidatorMultiStakingCoin() {
 			}
 		})
 	}
+}
+
+func (suite *KeeperTestSuite) TestSetAndGetMultiStakingUnlock() {
+	suite.SetupTest()
+	val := testutil.GenValAddress()
+	del := testutil.GenAddress()
+	denom := "ario"
+
+	// set:
+	unLockID := mulStakingtypes.UnlockID{
+		MultiStakerAddr: del.String(),
+		ValAddr:         val.String(),
+	}
+
+	Entries := []mulStakingtypes.UnlockEntry{
+		{
+			CreationHeight: 1,
+			UnlockingCoin: mulStakingtypes.MultiStakingCoin{
+				Denom: denom,
+			},
+		},
+	}
+
+	mulStakingUnllock := mulStakingtypes.MultiStakingUnlock{
+		UnlockID: &unLockID,
+		Entries:  Entries,
+	}
+
+	unLocks, found := suite.msKeeper.GetMultiStakingUnlock(suite.ctx, unLockID)
+	suite.Require().False(found)
+
+	suite.msKeeper.SetMultiStakingUnlock(suite.ctx, mulStakingUnllock)
+
+	unLocks, found = suite.msKeeper.GetMultiStakingUnlock(suite.ctx, unLockID)
+	suite.Require().True(found)
+
+	suite.Require().Equal(unLocks.Entries[0].CreationHeight, Entries[0].CreationHeight)
 }

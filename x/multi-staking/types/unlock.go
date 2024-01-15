@@ -27,9 +27,11 @@ func (e UnlockEntry) String() string {
 //
 //nolint:interfacer
 func NewMultiStakingUnlock(
+	unlockID *UnlockID,
 	creationHeight int64, weightedCoin MultiStakingCoin,
 ) MultiStakingUnlock {
 	return MultiStakingUnlock{
+		UnlockID: unlockID,
 		Entries: []UnlockEntry{
 			NewUnlockEntry(creationHeight, weightedCoin),
 		},

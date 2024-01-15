@@ -43,7 +43,7 @@ func (k Keeper) SetMultiStakingUnlockEntry(
 	if found {
 		unlock.AddEntry(ctx.BlockHeight(), multistakingCoin)
 	} else {
-		unlock = types.NewMultiStakingUnlock(ctx.BlockHeight(), multistakingCoin)
+		unlock = types.NewMultiStakingUnlock(&unlockID, ctx.BlockHeight(), multistakingCoin)
 	}
 
 	k.SetMultiStakingUnlock(ctx, unlock)
