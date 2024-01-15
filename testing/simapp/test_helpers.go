@@ -182,7 +182,7 @@ func genesisStateWithValSet(app *SimApp, genesisState GenesisState, valSet *tmty
 		MultiStakingUnlocks:        []multistakingtypes.MultiStakingUnlock{},
 		MultiStakingCoinInfo:       msCoinInfos,
 		ValidatorMultiStakingCoins: validatorMsCoins,
-		StakingGenesisState:        stakingGenesis,
+		StakingGenesisState:        *stakingGenesis,
 	}
 	genesisState[multistakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(&multistakingGenesis)
 
