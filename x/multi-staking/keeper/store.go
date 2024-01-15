@@ -155,7 +155,7 @@ func (k Keeper) BondWeightIterator(ctx sdk.Context, cb func(denom string, bondWe
 
 func (k Keeper) GetMultiStakingUnlock(ctx sdk.Context, multiStakingUnlockID types.UnlockID) (unlock types.MultiStakingUnlock, found bool) {
 	store := ctx.KVStore(k.storeKey)
-	value := store.Get(multiStakingUnlockID.ToBytes())
+	value := store.Get(multiStakingUnlockID.ToByte())
 
 	if value == nil {
 		return unlock, false
@@ -173,11 +173,11 @@ func (k Keeper) SetMultiStakingUnlock(ctx sdk.Context, unlock types.MultiStaking
 
 	bz := k.cdc.MustMarshal(&unlock)
 
-	store.Set(unlock.UnlockID.ToBytes(), bz)
+	store.Set(unlock.UnlockID.ToByte(), bz)
 }
 
 func (k Keeper) DeleteMultiStakingUnlock(ctx sdk.Context, unlockID types.UnlockID) {
 	store := ctx.KVStore(k.storeKey)
 
-	store.Delete(unlockID.ToBytes())
+	store.Delete(unlockID.ToByte())
 }
