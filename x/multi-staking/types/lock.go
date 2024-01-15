@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func NewMultiStakingLock(lockID *LockID, lockedCoin MultiStakingCoin) MultiStakingLock {
+func NewMultiStakingLock(lockID LockID, lockedCoin MultiStakingCoin) MultiStakingLock {
 	return MultiStakingLock{
 		LockID:     lockID,
 		LockedCoin: lockedCoin,
