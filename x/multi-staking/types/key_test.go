@@ -3,10 +3,9 @@ package types_test
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/realio-tech/multi-staking-module/testutil"
 	mulStakingtypes "github.com/realio-tech/multi-staking-module/x/multi-staking/types"
+	"github.com/stretchr/testify/require"
 )
 
 func TestDelAddrAndValAddrFromLockID(t *testing.T) {

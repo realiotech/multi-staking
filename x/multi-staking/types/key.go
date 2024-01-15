@@ -86,7 +86,6 @@ func DelAddrAndValAddrFromUnlockID(unlockIDByte []byte) (multiStakerAddr sdk.Acc
 
 func (l LockID) ToByte() []byte {
 	bz, err := json.Marshal(l)
-
 	if err != nil {
 		panic("can not Marshal")
 	}
@@ -95,7 +94,6 @@ func (l LockID) ToByte() []byte {
 
 func (l UnlockID) ToByte() []byte {
 	bz, err := json.Marshal(l)
-
 	if err != nil {
 		panic("can not Marshal")
 	}
