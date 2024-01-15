@@ -11,7 +11,7 @@ import (
 func (suite *KeeperTestSuite) TestSetBondWeight() {
 	suite.SetupTest()
 
-	gasDenom := "ario"
+	const gasDenom = "ario"
 	govDenom := "arst"
 	gasWeight := sdk.OneDec()
 	govWeight := sdk.NewDecWithPrec(2, 4)
@@ -114,12 +114,12 @@ func (suite *KeeperTestSuite) TestSetAndGetMultiStakingUnlock() {
 		Entries:  Entries,
 	}
 
-	unLocks, found := suite.msKeeper.GetMultiStakingUnlock(suite.ctx, unLockID)
+	_, found := suite.msKeeper.GetMultiStakingUnlock(suite.ctx, unLockID)
 	suite.Require().False(found)
 
 	suite.msKeeper.SetMultiStakingUnlock(suite.ctx, mulStakingUnllock)
 
-	unLocks, found = suite.msKeeper.GetMultiStakingUnlock(suite.ctx, unLockID)
+	unLocks, found := suite.msKeeper.GetMultiStakingUnlock(suite.ctx, unLockID)
 	suite.Require().True(found)
 
 	suite.Require().Equal(unLocks.Entries[0].CreationHeight, Entries[0].CreationHeight)
