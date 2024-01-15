@@ -17,9 +17,10 @@ func TestDelAddrAndValAddrFromLockID(t *testing.T) {
 
 	toByte := lockID.ToByte()
 
-	rsDel, rsVal := mulStakingtypes.DelAddrAndValAddrFromLockID(toByte)
-	require.NotEqual(t, del, rsDel)
-	require.NotEqual(t, val, rsVal)
+	rsDel, rsVal, err := mulStakingtypes.DelAddrAndValAddrFromLockID(toByte)
+	require.NoError(t, err)
+	require.Equal(t, del, rsDel)
+	require.Equal(t, val, rsVal)
 }
 
 func TestMultiStakingLockIterator(t *testing.T) {
@@ -38,5 +39,5 @@ func TestMultiStakingLockIterator(t *testing.T) {
 	}
 
 	require.NotEqual(t, lockID1, lockID2)
-	require.Equal(t, lockID1.ToByte(), lockID2.ToByte())
+	require.NotEqual(t, lockID1.ToByte(), lockID2.ToByte())
 }

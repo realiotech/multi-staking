@@ -1,6 +1,8 @@
 package types
 
 import (
+	"encoding/json"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -54,24 +56,26 @@ func MultiStakingUnlockID(multiStakerAddr string, valAddr string) UnlockID {
 	return UnlockID{MultiStakerAddr: multiStakerAddr, ValAddr: valAddr}
 }
 
-func DelAddrAndValAddrFromLockID(lockID []byte) (multiStakerAddr sdk.AccAddress, valAddr sdk.ValAddress) {
-	lenMultiStakerAddr := lockID[0]
+func DelAddrAndValAddrFromLockID(lockIDByte []byte) (multiStakerAddr sdk.AccAddress, valAddr sdk.ValAddress, err error) {
+	var newLockID LockID
 
-	multiStakerAddr = lockID[1 : lenMultiStakerAddr+1]
+	err = json.Unmarshal(lockIDByte, &newLockID)
+	if err != nil {
+		return nil, nil, err
+	}
 
-	valAddr = lockID[1+lenMultiStakerAddr:]
-
-	return multiStakerAddr, valAddr
+	return AccAddrAndValAddrFromStrings(newLockID.MultiStakerAddr, newLockID.ValAddr)
 }
 
-func DelAddrAndValAddrFromUnlockID(unlockID []byte) (multiStakerAddr sdk.AccAddress, valAddr sdk.ValAddress) {
-	lenMultiStakerAddr := unlockID[0]
+func DelAddrAndValAddrFromUnlockID(unlockIDByte []byte) (multiStakerAddr sdk.AccAddress, valAddr sdk.ValAddress, err error) {
+	var newUnlockID UnlockID
 
-	multiStakerAddr = unlockID[1 : lenMultiStakerAddr+1]
+	err = json.Unmarshal(unlockIDByte, &newUnlockID)
+	if err != nil {
+		return nil, nil, err
+	}
 
-	valAddr = unlockID[1+lenMultiStakerAddr:]
-
-	return multiStakerAddr, valAddr
+	return AccAddrAndValAddrFromStrings(newUnlockID.MultiStakerAddr, newUnlockID.ValAddr)
 }
 
 // // GetUBDKey creates the key for an unbonding delegation by delegator and validator addr
@@ -81,39 +85,19 @@ func DelAddrAndValAddrFromUnlockID(unlockID []byte) (multiStakerAddr sdk.AccAddr
 // }
 
 func (l LockID) ToByte() []byte {
-	multiStakerAddr, valAcc, err := AccAddrAndValAddrFromStrings(l.MultiStakerAddr, l.ValAddr)
+	bz, err := json.Marshal(l)
+
 	if err != nil {
-		panic(err)
+		panic("can not Marshal")
 	}
-
-	lenMultiStakerAddr := len(multiStakerAddr)
-
-	DVPair := make([]byte, 1+lenMultiStakerAddr+len(valAcc))
-
-	DVPair[0] = uint8(lenMultiStakerAddr)
-
-	copy(multiStakerAddr[:], DVPair[1:])
-
-	copy(multiStakerAddr[:], DVPair[1+lenMultiStakerAddr:])
-
-	return append(MultiStakingLockPrefix, DVPair...)
+	return bz
 }
 
-func (l UnlockID) ToBytes() []byte {
-	multiStakerAddr, valAcc, err := AccAddrAndValAddrFromStrings(l.MultiStakerAddr, l.ValAddr)
+func (l UnlockID) ToByte() []byte {
+	bz, err := json.Marshal(l)
+
 	if err != nil {
-		panic(err)
+		panic("can not Marshal")
 	}
-
-	lenMultiStakerAddr := len(multiStakerAddr)
-
-	DVPair := make([]byte, 1+lenMultiStakerAddr+len(valAcc))
-
-	DVPair[0] = uint8(lenMultiStakerAddr)
-
-	copy(multiStakerAddr[:], DVPair[1:])
-
-	copy(multiStakerAddr[:], DVPair[1+lenMultiStakerAddr:])
-
-	return append(MultiStakingLockPrefix, DVPair...)
+	return bz
 }
