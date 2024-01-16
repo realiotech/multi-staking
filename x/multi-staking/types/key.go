@@ -55,21 +55,21 @@ func MultiStakingUnlockID(multiStakerAddr string, valAddr string) UnlockID {
 }
 
 func DelAddrAndValAddrFromLockID(lockID []byte) (multiStakerAddr sdk.AccAddress, valAddr sdk.ValAddress) {
-	lenMultiStakerAddr := lockID[0]
+	lenMultiStakerAddr := lockID[1]
 
-	multiStakerAddr = lockID[1 : lenMultiStakerAddr+1]
+	multiStakerAddr = lockID[2 : lenMultiStakerAddr+2]
 
-	valAddr = lockID[1+lenMultiStakerAddr:]
+	valAddr = lockID[2+lenMultiStakerAddr:]
 
 	return multiStakerAddr, valAddr
 }
 
 func DelAddrAndValAddrFromUnlockID(unlockID []byte) (multiStakerAddr sdk.AccAddress, valAddr sdk.ValAddress) {
-	lenMultiStakerAddr := unlockID[0]
+	lenMultiStakerAddr := unlockID[1]
 
-	multiStakerAddr = unlockID[1 : lenMultiStakerAddr+1]
+	multiStakerAddr = unlockID[2 : lenMultiStakerAddr+2]
 
-	valAddr = unlockID[1+lenMultiStakerAddr:]
+	valAddr = unlockID[2+lenMultiStakerAddr:]
 
 	return multiStakerAddr, valAddr
 }
@@ -80,7 +80,7 @@ func DelAddrAndValAddrFromUnlockID(unlockID []byte) (multiStakerAddr sdk.AccAddr
 // 	return append(GetUBDsKey(delAddr.Bytes()), address.MustLengthPrefix(valAddr)...)
 // }
 
-func (l LockID) ToByte() []byte {
+func (l LockID) ToBytes() []byte {
 	multiStakerAddr, valAcc, err := AccAddrAndValAddrFromStrings(l.MultiStakerAddr, l.ValAddr)
 	if err != nil {
 		panic(err)
@@ -92,9 +92,9 @@ func (l LockID) ToByte() []byte {
 
 	DVPair[0] = uint8(lenMultiStakerAddr)
 
-	copy(multiStakerAddr[:], DVPair[1:])
+	copy(DVPair[1:], multiStakerAddr[:])
 
-	copy(multiStakerAddr[:], DVPair[1+lenMultiStakerAddr:])
+	copy(DVPair[1+lenMultiStakerAddr:], valAcc[:])
 
 	return append(MultiStakingLockPrefix, DVPair...)
 }
@@ -111,9 +111,9 @@ func (l UnlockID) ToBytes() []byte {
 
 	DVPair[0] = uint8(lenMultiStakerAddr)
 
-	copy(multiStakerAddr[:], DVPair[1:])
+	copy(DVPair[1:], multiStakerAddr[:])
 
-	copy(multiStakerAddr[:], DVPair[1+lenMultiStakerAddr:])
+	copy(DVPair[1+lenMultiStakerAddr:], valAcc[:])
 
-	return append(MultiStakingLockPrefix, DVPair...)
+	return append(MultiStakingUnlockPrefix, DVPair...)
 }
