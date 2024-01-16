@@ -1,8 +1,6 @@
 package keeper_test
 
 import (
-	"fmt"
-
 	"github.com/realio-tech/multi-staking-module/testutil"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 
@@ -16,11 +14,11 @@ func (suite *KeeperTestSuite) TestEndBlocker() {
 
 	mulStaker := testutil.GenAddress()
 	valAddr := testutil.GenValAddress()
-	const gasDenom = "ario"
+	const multiStakingDenom = "ario"
 
-	suite.msKeeper.SetValidatorMultiStakingCoin(suite.ctx, valAddr, gasDenom)
+	suite.msKeeper.SetValidatorMultiStakingCoin(suite.ctx, valAddr, multiStakingDenom)
 
-	mulBalance := sdk.NewCoins(sdk.NewCoin(stakingtypes.DefaultParams().BondDenom, sdk.NewInt(10000)), sdk.NewCoin(gasDenom, sdk.NewInt(10000)))
+	mulBalance := sdk.NewCoins(sdk.NewCoin(stakingtypes.DefaultParams().BondDenom, sdk.NewInt(10000)), sdk.NewCoin(multiStakingDenom, sdk.NewInt(10000)))
 	err := suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, mulBalance)
 	suite.NoError(err)
 	err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, minttypes.ModuleName, mulStaker, mulBalance)
@@ -29,13 +27,13 @@ func (suite *KeeperTestSuite) TestEndBlocker() {
 	unlockEntry := types.UnlockEntry{
 		CreationHeight: suite.ctx.BlockHeight(),
 		UnlockingCoin: types.MultiStakingCoin{
-			Denom:      gasDenom,
+			Denom:      multiStakingDenom,
 			Amount:     sdk.NewInt(10000),
 			BondWeight: sdk.NewDec(1),
 		},
 	}
 	newUbd := types.MultiStakingUnlock{
-		UnlockID: &types.UnlockID{
+		UnlockID: types.UnlockID{
 			MultiStakerAddr: mulStaker.String(),
 			ValAddr:         valAddr.String(),
 		},
@@ -46,24 +44,20 @@ func (suite *KeeperTestSuite) TestEndBlocker() {
 	matureUnbondingDelegations := suite.msKeeper.GetMatureUnbondingDelegations(suite.ctx)
 	completionTime := suite.ctx.BlockHeader().Time
 
-	unDT := stakingtypes.UnbondingDelegationEntry{
+	unbondingDelegationEntry := stakingtypes.UnbondingDelegationEntry{
 		CreationHeight: suite.ctx.BlockHeight(),
 		CompletionTime: completionTime,
 		InitialBalance: sdk.NewInt(1000),
 		Balance:        sdk.NewInt(1000),
 	}
 
-	unD := stakingtypes.UnbondingDelegation{
+	unbondingDelegation := stakingtypes.UnbondingDelegation{
 		DelegatorAddress: mulStaker.String(),
 		ValidatorAddress: valAddr.String(),
-		Entries:          []stakingtypes.UnbondingDelegationEntry{unDT},
+		Entries:          []stakingtypes.UnbondingDelegationEntry{unbondingDelegationEntry},
 	}
 
-	matureUnbondingDelegations = append(matureUnbondingDelegations, unD)
+	matureUnbondingDelegations = append(matureUnbondingDelegations, unbondingDelegation)
 
-	a := suite.app.AccountKeeper.GetModuleAccount(suite.ctx, "mint")
-	if a == nil {
-		fmt.Println("nill")
-	}
 	suite.msKeeper.EndBlocker(suite.ctx, matureUnbondingDelegations)
 }

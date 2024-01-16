@@ -13,7 +13,7 @@ import (
 func TestGenesisState_Validate(t *testing.T) {
 	multiStakerAddress := testutil.GenAddress()
 	valAddr := testutil.GenValAddress()
-	denom := "ario"
+	const multiStakingDenom = "ario"
 
 	for _, tc := range []struct {
 		desc     string
@@ -30,12 +30,12 @@ func TestGenesisState_Validate(t *testing.T) {
 			genState: &types.GenesisState{
 				MultiStakingLocks: []types.MultiStakingLock{
 					{
-						LockID: &types.LockID{
+						LockID: types.LockID{
 							MultiStakerAddr: multiStakerAddress.String(),
 							ValAddr:         valAddr.String(),
 						},
 						LockedCoin: types.MultiStakingCoin{
-							Denom:      denom,
+							Denom:      multiStakingDenom,
 							Amount:     sdk.NewInt(1000),
 							BondWeight: sdk.NewDec(1),
 						},
@@ -44,14 +44,13 @@ func TestGenesisState_Validate(t *testing.T) {
 				ValidatorMultiStakingCoins: []types.ValidatorMultiStakingCoin{
 					{
 						ValAddr:   valAddr.String(),
-						CoinDenom: denom,
+						CoinDenom: multiStakingDenom,
 					},
 				},
 				StakingGenesisState: types.DefaultGenesis().StakingGenesisState,
 			},
 			valid: true,
 		},
-		// this line is used by starport scaffolding # types/genesis/testcase
 	} {
 		t.Run(tc.desc, func(t *testing.T) {
 			err := tc.genState.Validate()
