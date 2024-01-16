@@ -54,7 +54,7 @@ func MultiStakingUnlockID(multiStakerAddr string, valAddr string) UnlockID {
 	return UnlockID{MultiStakerAddr: multiStakerAddr, ValAddr: valAddr}
 }
 
-func  DelAddrAndValAddrFromLockID(lockID []byte) (multiStakerAddr sdk.AccAddress, valAddr sdk.ValAddress) {
+func DelAddrAndValAddrFromLockID(lockID []byte) (multiStakerAddr sdk.AccAddress, valAddr sdk.ValAddress) {
 	lenMultiStakerAddr := lockID[1]
 
 	multiStakerAddr = lockID[2 : lenMultiStakerAddr+2]
