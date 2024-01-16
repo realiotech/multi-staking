@@ -8,7 +8,7 @@ func DefaultGenesis() *GenesisState {
 	stakingGenesis := stakingtypes.DefaultGenesisState()
 
 	return &GenesisState{
-		StakingGenesisState: stakingGenesis,
+		StakingGenesisState: *stakingGenesis,
 	}
 }
 

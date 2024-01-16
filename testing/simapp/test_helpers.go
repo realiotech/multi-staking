@@ -146,7 +146,7 @@ func genesisStateWithValSet(app *SimApp, genesisState GenesisState, valSet *tmty
 		})
 
 		lockId := multistakingtypes.MultiStakingLockID(genAcc.GetAddress().String(), sdk.ValAddress(val.Address).String())
-		lockRecord := multistakingtypes.NewMultiStakingLock(&lockId, valMsCoin)
+		lockRecord := multistakingtypes.NewMultiStakingLock(lockId, valMsCoin)
 
 		locks = append(locks, lockRecord)
 		lockCoins = lockCoins.Add(valMsCoin.ToCoin())
@@ -182,7 +182,7 @@ func genesisStateWithValSet(app *SimApp, genesisState GenesisState, valSet *tmty
 		MultiStakingUnlocks:        []multistakingtypes.MultiStakingUnlock{},
 		MultiStakingCoinInfo:       msCoinInfos,
 		ValidatorMultiStakingCoins: validatorMsCoins,
-		StakingGenesisState:        stakingGenesis,
+		StakingGenesisState:        *stakingGenesis,
 	}
 	genesisState[multistakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(&multistakingGenesis)
 

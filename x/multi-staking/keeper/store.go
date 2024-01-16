@@ -75,7 +75,7 @@ func (k Keeper) ValidatorMultiStakingCoinIterator(ctx sdk.Context, cb func(valAd
 func (k Keeper) GetMultiStakingLock(ctx sdk.Context, multiStakingLockID types.LockID) (types.MultiStakingLock, bool) {
 	store := ctx.KVStore(k.storeKey)
 
-	bz := store.Get(multiStakingLockID.ToByte())
+	bz := store.Get(multiStakingLockID.ToBytes())
 	if bz == nil {
 		return types.MultiStakingLock{}, false
 	}
@@ -87,7 +87,7 @@ func (k Keeper) GetMultiStakingLock(ctx sdk.Context, multiStakingLockID types.Lo
 
 func (k Keeper) SetMultiStakingLock(ctx sdk.Context, multiStakingLock types.MultiStakingLock) {
 	if multiStakingLock.IsEmpty() {
-		k.RemoveMultiStakingLock(ctx, *multiStakingLock.LockID)
+		k.RemoveMultiStakingLock(ctx, multiStakingLock.LockID)
 		return
 	}
 
@@ -95,13 +95,13 @@ func (k Keeper) SetMultiStakingLock(ctx sdk.Context, multiStakingLock types.Mult
 
 	bz := k.cdc.MustMarshal(&multiStakingLock)
 
-	store.Set(multiStakingLock.LockID.ToByte(), bz)
+	store.Set(multiStakingLock.LockID.ToBytes(), bz)
 }
 
 func (k Keeper) RemoveMultiStakingLock(ctx sdk.Context, multiStakingLockID types.LockID) {
 	store := ctx.KVStore(k.storeKey)
 
-	store.Delete(multiStakingLockID.ToByte())
+	store.Delete(multiStakingLockID.ToBytes())
 }
 
 func (k Keeper) MultiStakingLockIterator(ctx sdk.Context, cb func(stakingLock types.MultiStakingLock) (stop bool)) {
