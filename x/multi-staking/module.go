@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/cosmos/cosmos-sdk/x/staking/client/cli"
 	gwruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
 	multistakingkeeper "github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
 	multistakingtypes "github.com/realio-tech/multi-staking-module/x/multi-staking/types"
@@ -17,6 +16,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/staking"
+	"github.com/cosmos/cosmos-sdk/x/staking/client/cli"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
