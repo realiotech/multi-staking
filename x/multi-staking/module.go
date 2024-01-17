@@ -107,7 +107,6 @@ func (AppModule) Name() string {
 }
 
 // RegisterInvariants registers the staking module invariants.
-// TODO: Need to implement invariants
 func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
 	am.skAppModule.RegisterInvariants(ir)
 	multistakingkeeper.RegisterInvariants(ir, am.keeper)

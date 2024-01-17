@@ -86,16 +86,16 @@ func ValidatorLockDenomInvariants(k Keeper) sdk.Invariant {
 
 		for _, unlock := range multiStakingUnlocks {
 			valAddr := unlock.UnlockID.ValAddr
-			valAllowedDenom := k.GetValidatorMultiStakingCoin(ctx, sdk.ValAddress(valAddr))
+			valMsDenom := k.GetValidatorMultiStakingCoin(ctx, sdk.ValAddress(valAddr))
 
 			for _, entry := range unlock.Entries {
-				if entry.UnlockingCoin.Denom != valAllowedDenom {
+				if entry.UnlockingCoin.Denom != valMsDenom {
 					broken = true
 					msg += fmt.Sprintf("validator unlock denom invariants:\n\t unlock denom: %v"+
 						"\n\tvalidator allow denom: %v\n"+
 						"\n\t entry height %v"+
 						"\n\t validator address %s deladdress %s",
-						entry.UnlockingCoin.Denom, valAllowedDenom, entry.CreationHeight, unlock.UnlockID.ValAddr, unlock.UnlockID.MultiStakerAddr)
+						entry.UnlockingCoin.Denom, valMsDenom, entry.CreationHeight, unlock.UnlockID.ValAddr, unlock.UnlockID.MultiStakerAddr)
 				}
 			}
 		}

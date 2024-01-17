@@ -95,11 +95,6 @@ func (k Keeper) BurnUnbondedCoinAndUnlockedMultiStakingCoin(
 		return sdk.Coin{}, err
 	}
 
-	err = k.UnescrowCoinTo(ctx, multiStakerAddr, slashCoin)
-	if err != nil {
-		return sdk.Coin{}, err
-	}
-
 	err = k.DeleteUnlockEntryAtCreationHeight(ctx, unlockID, unbondingHeight)
 	if err != nil {
 		return sdk.Coin{}, err
