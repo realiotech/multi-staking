@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	gwruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/realio-tech/multi-staking-module/x/multi-staking/client/cli"
 	multistakingkeeper "github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
 	multistakingtypes "github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	"github.com/spf13/cobra"
@@ -16,7 +17,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/staking"
-	"github.com/cosmos/cosmos-sdk/x/staking/client/cli"
+
+	stakingcli "github.com/cosmos/cosmos-sdk/x/staking/client/cli"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
@@ -66,12 +68,17 @@ func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *g
 
 // GetTxCmd returns the feeabs module's root tx command.
 func (AppModuleBasic) GetTxCmd() *cobra.Command {
-	return cli.NewTxCmd()
+	return stakingcli.NewTxCmd()
 }
 
 // GetQueryCmd returns the feeabs module's root query command.
-func (AppModuleBasic) GetQueryCmd() *cobra.Command {
-	return cli.GetQueryCmd()
+func (AppModuleBasic) GetQueryCmd() (queryCmd *cobra.Command) {
+	queryCmd.AddCommand(
+		stakingcli.GetQueryCmd(),
+		cli.GetQueryCmd(),
+	)
+
+	return queryCmd
 }
 
 // AppModule embeds the Cosmos SDK's x/staking AppModule where we only override
