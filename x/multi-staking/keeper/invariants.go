@@ -70,11 +70,11 @@ func ValidatorLockDenomInvariants(k Keeper) sdk.Invariant {
 
 		for _, lock := range multiStakingLocks {
 			valAddr := lock.LockID.ValAddr
-			if valAllowedDenom := k.GetValidatorMultiStakingCoin(ctx, sdk.ValAddress(valAddr)); valAllowedDenom != lock.LockedCoin.Denom {
+			if valMsDenom := k.GetValidatorMultiStakingCoin(ctx, sdk.ValAddress(valAddr)); valMsDenom != lock.LockedCoin.Denom {
 				broken = true
 				msg += fmt.Sprintf("validator lock denom invariants:\n\t lock denom: %v"+
 					"\n\tvalidator allow denom: %v\n",
-					lock.LockedCoin.Denom, valAllowedDenom)
+					lock.LockedCoin.Denom, valMsDenom)
 			}
 		}
 
