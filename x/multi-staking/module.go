@@ -66,12 +66,12 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncod
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the staking module.
 func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *gwruntime.ServeMux) {}
 
-// GetTxCmd returns the feeabs module's root tx command.
+// GetTxCmd returns the staking module's root tx command.
 func (AppModuleBasic) GetTxCmd() *cobra.Command {
 	return stakingcli.NewTxCmd()
 }
 
-// GetQueryCmd returns the feeabs module's root query command.
+// GetQueryCmd returns the multi-staking and staking module's root query command.
 func (AppModuleBasic) GetQueryCmd() (queryCmd *cobra.Command) {
 	queryCmd.AddCommand(
 		stakingcli.GetQueryCmd(),
