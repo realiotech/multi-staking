@@ -27,9 +27,10 @@ func (e UnlockEntry) String() string {
 //
 //nolint:interfacer
 func NewMultiStakingUnlock(
-	creationHeight int64, weightedCoin MultiStakingCoin,
+	unlockID UnlockID, creationHeight int64, weightedCoin MultiStakingCoin,
 ) MultiStakingUnlock {
 	return MultiStakingUnlock{
+		UnlockID: unlockID,
 		Entries: []UnlockEntry{
 			NewUnlockEntry(creationHeight, weightedCoin),
 		},
@@ -60,7 +61,12 @@ func (unlock *MultiStakingUnlock) AddEntry(creationHeight int64, weightedCoin Mu
 	}
 }
 
-// RemoveEntry - remove entry at index i to the unbonding delegation
+// RemoveEntry - remove entry at index i to the multi staking unlock
+func (unlock *MultiStakingUnlock) RemoveEntry(i int) {
+	unlock.Entries = append(unlock.Entries[:i], unlock.Entries[i+1:]...)
+}
+
+// RemoveEntryAtCreationHeight - remove entry at creation height to the multi staking unlock
 func (unlock *MultiStakingUnlock) RemoveEntryAtCreationHeight(creationHeight int64) {
 	// Check the entries exists with creation_height and complete_time
 	entryIndex := -1
@@ -72,7 +78,7 @@ func (unlock *MultiStakingUnlock) RemoveEntryAtCreationHeight(creationHeight int
 	}
 	// entryIndex exists
 	if entryIndex != -1 {
-		unlock.Entries = append(unlock.Entries[:entryIndex], unlock.Entries[entryIndex+1:]...)
+		unlock.RemoveEntry(entryIndex)
 	}
 }
 
