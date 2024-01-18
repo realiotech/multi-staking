@@ -14,6 +14,7 @@ import (
 type KeeperTestSuite struct {
 	suite.Suite
 
+	app      *simapp.SimApp
 	ctx      sdk.Context
 	msKeeper *multistakingkeeper.Keeper
 }
@@ -22,7 +23,7 @@ func (suite *KeeperTestSuite) SetupTest() {
 	app := simapp.Setup(false)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
-	suite.ctx, suite.msKeeper = ctx, &app.MultiStakingKeeper
+	suite.app, suite.ctx, suite.msKeeper = app, ctx, &app.MultiStakingKeeper
 }
 
 func TestKeeperTestSuite(t *testing.T) {
