@@ -25,44 +25,44 @@ func (suite *KeeperTestSuite) TestModuleAccountInvariants() {
 		expPass  bool
 	}{
 		{
-			name:     "Success",
+			name:     "Success Create Validator",
 			malleate: func() {},
 			expPass:  true,
 		},
-		{
-			name: "Success Create Validator",
-			malleate: func() {
-				valCoins := sdk.NewCoins(sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(10000)), sdk.NewCoin(MultiStakingDenomB, sdk.NewInt(10000)))
-				err := simapp.FundAccount(suite.app, suite.ctx, delAddr, valCoins)
-				suite.Require().NoError(err)
+		// {
+		// 	name: "Success Create Validator",
+		// 	malleate: func() {
+		// 		valCoins := sdk.NewCoins(sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(10000)), sdk.NewCoin(MultiStakingDenomB, sdk.NewInt(10000)))
+		// 		err := simapp.FundAccount(suite.app, suite.ctx, delAddr, valCoins)
+		// 		suite.Require().NoError(err)
 
-				suite.msKeeper.SetBondWeight(suite.ctx, MultiStakingDenomA, sdk.MustNewDecFromStr("0.3"))
-				bondAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(3001))
-				msg := stakingtypes.MsgCreateValidator{
-					Description: stakingtypes.Description{
-						Moniker:         "test",
-						Identity:        "test",
-						Website:         "test",
-						SecurityContact: "test",
-						Details:         "test",
-					},
-					Commission: stakingtypes.CommissionRates{
-						Rate:          sdk.MustNewDecFromStr("0.05"),
-						MaxRate:       sdk.MustNewDecFromStr("0.1"),
-						MaxChangeRate: sdk.MustNewDecFromStr("0.05"),
-					},
-					MinSelfDelegation: sdk.NewInt(1),
-					DelegatorAddress:  delAddr.String(),
-					ValidatorAddress:  valAddr.String(),
-					Pubkey:            codectypes.UnsafePackAny(valPubKey),
-					Value:             bondAmount,
-				}
+		// 		suite.msKeeper.SetBondWeight(suite.ctx, MultiStakingDenomA, sdk.MustNewDecFromStr("0.3"))
+		// 		bondAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(3001))
+		// 		msg := stakingtypes.MsgCreateValidator{
+		// 			Description: stakingtypes.Description{
+		// 				Moniker:         "test",
+		// 				Identity:        "test",
+		// 				Website:         "test",
+		// 				SecurityContact: "test",
+		// 				Details:         "test",
+		// 			},
+		// 			Commission: stakingtypes.CommissionRates{
+		// 				Rate:          sdk.MustNewDecFromStr("0.05"),
+		// 				MaxRate:       sdk.MustNewDecFromStr("0.1"),
+		// 				MaxChangeRate: sdk.MustNewDecFromStr("0.05"),
+		// 			},
+		// 			MinSelfDelegation: sdk.NewInt(1),
+		// 			DelegatorAddress:  delAddr.String(),
+		// 			ValidatorAddress:  valAddr.String(),
+		// 			Pubkey:            codectypes.UnsafePackAny(valPubKey),
+		// 			Value:             bondAmount,
+		// 		}
 
-				_, err = suite.msgServer.CreateValidator(suite.ctx, &msg)
-				suite.Require().NoError(err)
-			},
-			expPass: true,
-		},
+		// 		_, err = suite.msgServer.CreateValidator(suite.ctx, &msg)
+		// 		suite.Require().NoError(err)
+		// 	},
+		// 	expPass: true,
+		// },
 		{
 			name: "Success Edit Validator",
 			malleate: func() {
@@ -86,6 +86,36 @@ func (suite *KeeperTestSuite) TestModuleAccountInvariants() {
 	}
 	for _, tc := range testCases {
 		suite.SetupTest() // reset
+
+		valCoins := sdk.NewCoins(sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(10000)), sdk.NewCoin(MultiStakingDenomB, sdk.NewInt(10000)))
+		err := simapp.FundAccount(suite.app, suite.ctx, delAddr, valCoins)
+		suite.Require().NoError(err)
+
+		suite.msKeeper.SetBondWeight(suite.ctx, MultiStakingDenomA, sdk.MustNewDecFromStr("0.3"))
+		bondAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(3001))
+		msg := stakingtypes.MsgCreateValidator{
+			Description: stakingtypes.Description{
+				Moniker:         "test",
+				Identity:        "test",
+				Website:         "test",
+				SecurityContact: "test",
+				Details:         "test",
+			},
+			Commission: stakingtypes.CommissionRates{
+				Rate:          sdk.MustNewDecFromStr("0.05"),
+				MaxRate:       sdk.MustNewDecFromStr("0.1"),
+				MaxChangeRate: sdk.MustNewDecFromStr("0.05"),
+			},
+			MinSelfDelegation: sdk.NewInt(1),
+			DelegatorAddress:  delAddr.String(),
+			ValidatorAddress:  valAddr.String(),
+			Pubkey:            codectypes.UnsafePackAny(valPubKey),
+			Value:             bondAmount,
+		}
+
+		_, err = suite.msgServer.CreateValidator(suite.ctx, &msg)
+		suite.Require().NoError(err)
+
 		tc.malleate()
 		_, broken := keeper.ModuleAccountInvariants(*suite.msKeeper)(suite.ctx)
 
