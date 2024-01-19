@@ -815,64 +815,64 @@ func (suite *KeeperTestSuite) TestCancelUnbondingDelegation() {
 		{
 			name: "undelegate success",
 			malleate: func(ctx sdk.Context, msgServer stakingtypes.MsgServer, msKeeper multistakingkeeper.Keeper) (stakingtypes.MsgCancelUnbondingDelegation, error) {
-				bondAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(500))
-				multiStakingMsg := stakingtypes.NewMsgCancelUnbondingDelegation(delAddr, valAddr, ctx.BlockHeight(), bondAmount)
+				cancelAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(500))
+				multiStakingMsg := stakingtypes.NewMsgCancelUnbondingDelegation(delAddr, valAddr, ctx.BlockHeight(), cancelAmount)
 				_, err := msgServer.CancelUnbondingDelegation(ctx, multiStakingMsg)
 				return *multiStakingMsg, err
 			},
 			expUnlock: sdk.NewInt(500),
-			expLock:   sdk.NewInt(1000),
+			expLock:   sdk.NewInt(1500),
 			expErr:    false,
 		},
-		// {
-		// 	name: "undelegate 250 then undelegate 500",
-		// 	malleate: func(ctx sdk.Context, msgServer stakingtypes.MsgServer, msKeeper multistakingkeeper.Keeper) (stakingtypes.MsgCancelUnbondingDelegation, error) {
-		// 		bondAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(250))
-		// 		multiStakingMsg := stakingtypes.NewMsgCancelUnbondingDelegation(delAddr, valAddr, ctx.BlockHeight(), bondAmount)
-		// 		_, err := msgServer.CancelUnbondingDelegation(ctx, multiStakingMsg)
-		// 		if err != nil {
-		// 			return *multiStakingMsg, err
-		// 		}
-		// 		bondAmount1 := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(500))
-		// 		multiStakingMsg1 := stakingtypes.NewMsgCancelUnbondingDelegation(delAddr, valAddr, ctx.BlockHeight(), bondAmount1)
-		// 		_, err = msgServer.CancelUnbondingDelegation(ctx, multiStakingMsg1)
-		// 		return *multiStakingMsg1, err
-		// 	},
-		// 	expUnlock: sdk.NewInt(250),
-		// 	expLock:   sdk.NewInt(1750),
-		// 	expErr:    false,
-		// },
-		// {
-		// 	name: "not found validator",
-		// 	malleate: func(ctx sdk.Context, msgServer stakingtypes.MsgServer, msKeeper multistakingkeeper.Keeper) (stakingtypes.MsgCancelUnbondingDelegation, error) {
-		// 		bondAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(500))
-		// 		multiStakingMsg := stakingtypes.NewMsgCancelUnbondingDelegation(delAddr, testutil.GenValAddress(), ctx.BlockHeight(), bondAmount)
-		// 		_, err := msgServer.CancelUnbondingDelegation(ctx, multiStakingMsg)
-		// 		return *multiStakingMsg, err
-		// 	},
-		// 	expErr: true,
-		// },
-		// {
-		// 	name: "not allow token",
-		// 	malleate: func(ctx sdk.Context, msgServer stakingtypes.MsgServer, msKeeper multistakingkeeper.Keeper) (stakingtypes.MsgCancelUnbondingDelegation, error) {
-		// 		bondAmount := sdk.NewCoin(MultiStakingDenomB, sdk.NewInt(1000))
+		{
+			name: "undelegate 250 then undelegate 500",
+			malleate: func(ctx sdk.Context, msgServer stakingtypes.MsgServer, msKeeper multistakingkeeper.Keeper) (stakingtypes.MsgCancelUnbondingDelegation, error) {
+				cancelAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(250))
+				multiStakingMsg := stakingtypes.NewMsgCancelUnbondingDelegation(delAddr, valAddr, ctx.BlockHeight(), cancelAmount)
+				_, err := msgServer.CancelUnbondingDelegation(ctx, multiStakingMsg)
+				if err != nil {
+					return *multiStakingMsg, err
+				}
+				cancelAmount1 := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(500))
+				multiStakingMsg1 := stakingtypes.NewMsgCancelUnbondingDelegation(delAddr, valAddr, ctx.BlockHeight(), cancelAmount1)
+				_, err = msgServer.CancelUnbondingDelegation(ctx, multiStakingMsg1)
+				return *multiStakingMsg1, err
+			},
+			expUnlock: sdk.NewInt(250),
+			expLock:   sdk.NewInt(1750),
+			expErr:    false,
+		},
+		{
+			name: "not found validator",
+			malleate: func(ctx sdk.Context, msgServer stakingtypes.MsgServer, msKeeper multistakingkeeper.Keeper) (stakingtypes.MsgCancelUnbondingDelegation, error) {
+				cancelAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(500))
+				multiStakingMsg := stakingtypes.NewMsgCancelUnbondingDelegation(delAddr, testutil.GenValAddress(), ctx.BlockHeight(), cancelAmount)
+				_, err := msgServer.CancelUnbondingDelegation(ctx, multiStakingMsg)
+				return *multiStakingMsg, err
+			},
+			expErr: true,
+		},
+		{
+			name: "not allow token",
+			malleate: func(ctx sdk.Context, msgServer stakingtypes.MsgServer, msKeeper multistakingkeeper.Keeper) (stakingtypes.MsgCancelUnbondingDelegation, error) {
+				cancelAmount := sdk.NewCoin(MultiStakingDenomB, sdk.NewInt(1000))
 
-		// 		multiStakingMsg := stakingtypes.NewMsgCancelUnbondingDelegation(delAddr, valAddr, ctx.BlockHeight(), bondAmount)
-		// 		_, err := msgServer.CancelUnbondingDelegation(ctx, multiStakingMsg)
-		// 		return *multiStakingMsg, err
-		// 	},
-		// 	expErr: true,
-		// },
-		// {
-		// 	name: "not found entry at height 20",
-		// 	malleate: func(ctx sdk.Context, msgServer stakingtypes.MsgServer, msKeeper multistakingkeeper.Keeper) (stakingtypes.MsgCancelUnbondingDelegation, error) {
-		// 		bondAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(500))
-		// 		multiStakingMsg := stakingtypes.NewMsgCancelUnbondingDelegation(delAddr, valAddr, 20, bondAmount)
-		// 		_, err := msgServer.CancelUnbondingDelegation(ctx, multiStakingMsg)
-		// 		return *multiStakingMsg, err
-		// 	},
-		// 	expErr: true,
-		// },
+				multiStakingMsg := stakingtypes.NewMsgCancelUnbondingDelegation(delAddr, valAddr, ctx.BlockHeight(), cancelAmount)
+				_, err := msgServer.CancelUnbondingDelegation(ctx, multiStakingMsg)
+				return *multiStakingMsg, err
+			},
+			expErr: true,
+		},
+		{
+			name: "not found entry at height 20",
+			malleate: func(ctx sdk.Context, msgServer stakingtypes.MsgServer, msKeeper multistakingkeeper.Keeper) (stakingtypes.MsgCancelUnbondingDelegation, error) {
+				cancelAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(500))
+				multiStakingMsg := stakingtypes.NewMsgCancelUnbondingDelegation(delAddr, valAddr, 20, cancelAmount)
+				_, err := msgServer.CancelUnbondingDelegation(ctx, multiStakingMsg)
+				return *multiStakingMsg, err
+			},
+			expErr: true,
+		},
 	}
 
 	for _, tc := range testCases {
@@ -921,10 +921,10 @@ func (suite *KeeperTestSuite) TestCancelUnbondingDelegation() {
 				suite.Require().Error(err)
 			} else {
 				suite.Require().NoError(err)
-				lockId1 := multistakingtypes.MultiStakingLockID(delAddr.String(), valAddr.String())
-				lockRecord1, found := suite.msKeeper.GetMultiStakingLock(suite.ctx, lockId1)
+				lockId := multistakingtypes.MultiStakingLockID(delAddr.String(), valAddr.String())
+				lockRecord, found := suite.msKeeper.GetMultiStakingLock(suite.ctx, lockId)
 				suite.Require().True(found)
-				suite.Require().Equal(tc.expLock, lockRecord1.LockedCoin.Amount)
+				suite.Require().Equal(tc.expLock, lockRecord.LockedCoin.Amount)
 
 				unlockID := multistakingtypes.MultiStakingUnlockID(delAddr.String(), valAddr.String())
 				unbondRecord, found := suite.msKeeper.GetMultiStakingUnlock(suite.ctx, unlockID)
