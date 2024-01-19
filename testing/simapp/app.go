@@ -356,6 +356,7 @@ func NewSimApp(
 
 	app.MultiStakingKeeper = *multistakingkeeper.NewKeeper(
 		appCodec,
+		app.AccountKeeper,
 		app.StakingKeeper,
 		app.BankKeeper,
 		keys[multistakingtypes.StoreKey],
