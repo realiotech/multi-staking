@@ -1,12 +1,15 @@
 package keeper_test
 
 import (
+	"time"
+
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/realio-tech/multi-staking-module/testing/simapp"
 	"github.com/realio-tech/multi-staking-module/testutil"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 )
 
 var (
@@ -66,6 +69,7 @@ func (suite *KeeperTestSuite) TestModuleAccountInvariants() {
 		{
 			name: "Success Edit Validator",
 			malleate: func() {
+				suite.ctx = suite.ctx.WithBlockHeader(tmproto.Header{Time: time.Now()})
 				newRate := sdk.MustNewDecFromStr("0.03")
 				newMinSelfDelegation := sdk.NewInt(300)
 				editMsg := stakingtypes.NewMsgEditValidator(valAddr, stakingtypes.Description{
