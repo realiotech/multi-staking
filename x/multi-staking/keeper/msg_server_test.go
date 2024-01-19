@@ -598,6 +598,8 @@ func (suite *KeeperTestSuite) TestBeginRedelegate() {
 			suite.app.StakingKeeper.SetParams(suite.ctx, newParam)
 			msgServer := multistakingkeeper.NewMsgServerImpl(*suite.msKeeper)
 			suite.msKeeper.SetBondWeight(suite.ctx, MultiStakingDenomA, sdk.OneDec())
+			suite.msKeeper.SetBondWeight(suite.ctx, MultiStakingDenomB, sdk.OneDec())
+
 			bondAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(1000))
 			userBalance := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(10000))
 			err := simapp.FundAccount(suite.app, suite.ctx, delAddr, sdk.NewCoins(userBalance, sdk.NewCoin(MultiStakingDenomB, sdk.NewInt(10000))))
