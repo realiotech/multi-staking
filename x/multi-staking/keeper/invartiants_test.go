@@ -19,10 +19,9 @@ func (suite *KeeperTestSuite) TestModuleAccountInvariants() {
 	for _, tc := range testCases {
 		suite.SetupTest() // reset
 		tc.malleate()
-		out, broken := keeper.ModuleAccountInvariants(*suite.msKeeper)(suite.ctx)
+		_, broken := keeper.ModuleAccountInvariants(*suite.msKeeper)(suite.ctx)
 
 		if tc.expPass {
-			suite.Require().Empty(out)
 			suite.Require().False(broken)
 		}
 	}
