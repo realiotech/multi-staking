@@ -124,6 +124,7 @@ func (suite *KeeperTestSuite) TestSetMultiStakingLock() {
 	}
 	for _, tc := range testCases {
 		if !tc.expError {
+			tc.malleate()
 			msLock, found := suite.msKeeper.GetMultiStakingLock(suite.ctx, lock.LockID)
 			suite.Require().True(found)
 			suite.Require().Equal(lock, msLock)
