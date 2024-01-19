@@ -71,13 +71,11 @@ func (AppModuleBasic) GetTxCmd() *cobra.Command {
 }
 
 // GetQueryCmd returns the multi-staking and staking module's root query command.
-func (AppModuleBasic) GetQueryCmd() (queryCmd *cobra.Command) {
-	queryCmd.AddCommand(
-		stakingcli.GetQueryCmd(),
-		cli.GetQueryCmd(),
-	)
+func (AppModuleBasic) GetQueryCmd() *cobra.Command {
+	cmd := stakingcli.GetQueryCmd()
+	cmd.AddCommand(cli.GetQueryCmd())
 
-	return queryCmd
+	return cmd
 }
 
 // AppModule embeds the Cosmos SDK's x/staking AppModule where we only override
