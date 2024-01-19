@@ -215,6 +215,14 @@ func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *staking
 	cancelBondAmount := cancelMSCoin.BondValue()
 	cancelUnbondingCoin := sdk.NewCoin(k.keeper.stakingKeeper.BondDenom(ctx), cancelBondAmount)
 
+	lockID := types.MultiStakingLockID(msg.DelegatorAddress, msg.ValidatorAddress)
+	lock := k.keeper.GetOrCreateMultiStakingLock(ctx, lockID)
+	err = lock.AddCoinToMultiStakingLock(cancelMSCoin)
+	if err != nil {
+		return nil, err
+	}
+	k.keeper.SetMultiStakingLock(ctx, lock)
+
 	sdkMsg := &stakingtypes.MsgCancelUnbondingDelegation{
 		DelegatorAddress: msg.DelegatorAddress,
 		ValidatorAddress: msg.ValidatorAddress,
