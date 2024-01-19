@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func GenPubKey() cryptotypes.PubKey  {
+func GenPubKey() cryptotypes.PubKey {
 	return secp256k1.GenPrivKey().PubKey()
 }
 
