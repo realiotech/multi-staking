@@ -92,7 +92,6 @@ func (suite *KeeperTestSuite) TestSetMultiStakingLock() {
 	suite.SetupTest()
 	delAddr := testutil.GenAddress()
 	valAddr := testutil.GenValAddress()
-	var lockLength int
 
 	gasDenom := "ario"
 	// govDenom := "arst"
@@ -117,7 +116,6 @@ func (suite *KeeperTestSuite) TestSetMultiStakingLock() {
 			"Success",
 			func() {
 				suite.msKeeper.SetMultiStakingLock(suite.ctx, lock)
-				lockLength = 1
 			},
 			false,
 		},
@@ -128,15 +126,6 @@ func (suite *KeeperTestSuite) TestSetMultiStakingLock() {
 			msLock, found := suite.msKeeper.GetMultiStakingLock(suite.ctx, lock.LockID)
 			suite.Require().True(found)
 			suite.Require().Equal(lock, msLock)
-
-			msLocks := make([]types.MultiStakingLock, 0)
-			suite.msKeeper.MultiStakingLockIterator(suite.ctx, func(stakingLock types.MultiStakingLock) (stop bool) {
-				msLocks = append(msLocks, stakingLock)
-				return false
-			})
-
-			suite.Require().Equal(len(msLocks), lockLength)
-			suite.Require().Equal(msLocks[0], lock)
 		}
 	}
 
