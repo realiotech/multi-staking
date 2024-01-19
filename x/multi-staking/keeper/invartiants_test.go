@@ -4,6 +4,7 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/realio-tech/multi-staking-module/testing/simapp"
 	"github.com/realio-tech/multi-staking-module/testutil"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
 )
@@ -31,6 +32,10 @@ func (suite *KeeperTestSuite) TestModuleAccountInvariants() {
 		{
 			name: "Success",
 			malleate: func() {
+				valCoins := sdk.NewCoins(sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(10000)), sdk.NewCoin(MultiStakingDenomB, sdk.NewInt(10000)))
+				err := simapp.FundAccount(suite.app, suite.ctx, delAddr, valCoins)
+				suite.Require().NoError(err)
+
 				suite.msKeeper.SetBondWeight(suite.ctx, MultiStakingDenomA, sdk.MustNewDecFromStr("0.3"))
 				bondAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(3001))
 				msg := stakingtypes.MsgCreateValidator{
@@ -53,7 +58,7 @@ func (suite *KeeperTestSuite) TestModuleAccountInvariants() {
 					Value:             bondAmount,
 				}
 
-				_, err := suite.msgServer.CreateValidator(suite.ctx, &msg)
+				_, err = suite.msgServer.CreateValidator(suite.ctx, &msg)
 				suite.Require().NoError(err)
 			},
 			expPass: true,

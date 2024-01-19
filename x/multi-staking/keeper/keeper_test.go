@@ -17,6 +17,7 @@ type KeeperTestSuite struct {
 	suite.Suite
 
 	ctx       sdk.Context
+	app       *simapp.SimApp
 	msKeeper  *multistakingkeeper.Keeper
 	msgServer stakingtypes.MsgServer
 }
