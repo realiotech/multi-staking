@@ -23,7 +23,9 @@ func ModuleAccountInvariants(k Keeper) sdk.Invariant {
 
 		// calculate lock amount
 		lockCoinAmount := sdk.NewCoins()
+		var lock types.MultiStakingLock
 		k.MultiStakingLockIterator(ctx, func(stakingLock types.MultiStakingLock) bool {
+			lock = stakingLock
 			lockCoinAmount = lockCoinAmount.Add(sdk.NewCoin(stakingLock.LockedCoin.Denom, stakingLock.LockedCoin.Amount))
 			return false
 		})
@@ -49,8 +51,9 @@ func ModuleAccountInvariants(k Keeper) sdk.Invariant {
 			"ModuleAccountInvariants",
 			fmt.Sprintf(
 				"\tescrow coins balances: %v\n"+
-					"\ttotal lock coin amount: %v\n",
-				escrowBalances, totalLockCoinAmount),
+					"\ttotal lock coin amount: %v\n"+
+					"\t lock: %v\n",
+				escrowBalances, totalLockCoinAmount, lock),
 		), broken
 	}
 }
