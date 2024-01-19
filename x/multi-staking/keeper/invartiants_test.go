@@ -108,6 +108,21 @@ func (suite *KeeperTestSuite) TestModuleAccountInvariants() {
 			},
 			expPass: true,
 		},
+		{
+			name: "Success Undelegate",
+			malleate: func() {
+				bondAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(250))
+				multiStakingMsg := stakingtypes.NewMsgUndelegate(delAddr, valAddr, bondAmount)
+				_, err := suite.msgServer.Undelegate(suite.ctx, multiStakingMsg)
+				suite.Require().NoError(err)
+
+				bondAmount1 := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(500))
+				multiStakingMsg1 := stakingtypes.NewMsgUndelegate(delAddr, valAddr, bondAmount1)
+				_, err = suite.msgServer.Undelegate(suite.ctx, multiStakingMsg1)
+				suite.Require().NoError(err)
+			},
+			expPass: true,
+		},
 	}
 	for _, tc := range testCases {
 		suite.SetupTest() // reset
