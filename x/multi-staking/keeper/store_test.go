@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"github.com/realio-tech/multi-staking-module/testutil"
 	multistakingkeeper "github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
+	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -85,4 +86,57 @@ func (suite *KeeperTestSuite) TestSetValidatorMultiStakingCoin() {
 			}
 		})
 	}
+}
+
+func (suite *KeeperTestSuite) TestSetMultiStakingLock() {
+	suite.SetupTest()
+	delAddr := testutil.GenAddress()
+	valAddr := testutil.GenValAddress()
+	var lockLength int
+
+	gasDenom := "ario"
+	// govDenom := "arst"
+	lock := types.MultiStakingLock{
+		LockID: types.LockID{
+			MultiStakerAddr: delAddr.String(),
+			ValAddr:         valAddr.String(),
+		},
+		LockedCoin: types.MultiStakingCoin{
+			Denom:      gasDenom,
+			Amount:     sdk.NewIntFromUint64(1000000),
+			BondWeight: sdk.NewDec(1),
+		},
+	}
+
+	testCases := []struct {
+		name     string
+		malleate func()
+		expError bool
+	}{
+		{
+			"Success",
+			func() {
+				suite.msKeeper.SetMultiStakingLock(suite.ctx, lock)
+				lockLength = 1
+			},
+			false,
+		},
+	}
+	for _, tc := range testCases {
+		if !tc.expError {
+			msLock, found := suite.msKeeper.GetMultiStakingLock(suite.ctx, lock.LockID)
+			suite.Require().True(found)
+			suite.Require().Equal(lock, msLock)
+
+			msLocks := make([]types.MultiStakingLock, 0)
+			suite.msKeeper.MultiStakingLockIterator(suite.ctx, func(stakingLock types.MultiStakingLock) (stop bool) {
+				msLocks = append(msLocks, stakingLock)
+				return false
+			})
+
+			suite.Require().Equal(len(msLocks), lockLength)
+			suite.Require().Equal(msLocks[0], lock)
+		}
+	}
+
 }
