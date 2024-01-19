@@ -26,6 +26,7 @@ func (suite *KeeperTestSuite) SetupTest() {
 	app := simapp.Setup(false)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
+	suite.app = app
 	suite.ctx, suite.msKeeper = ctx, &app.MultiStakingKeeper
 	suite.msgServer = keeper.NewMsgServerImpl(*suite.msKeeper)
 }
