@@ -63,6 +63,51 @@ func (suite *KeeperTestSuite) TestModuleAccountInvariants() {
 			},
 			expPass: true,
 		},
+		{
+			name: "Success Delegate",
+			malleate: func() {
+				bondAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(1000))
+				delMsg := stakingtypes.NewMsgDelegate(delAddr, valAddr, bondAmount)
+				_, err := suite.msgServer.Delegate(suite.ctx, delMsg)
+				suite.Require().NoError(err)
+			},
+			expPass: true,
+		},
+		{
+			name: "Success BeginRedelegate",
+			malleate: func() {
+				priv, valAddr2 := testutil.GenValAddressWithPrivKey()
+				valPubKey2 := priv.PubKey()
+				bondAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(500))
+				createMsg2 := stakingtypes.MsgCreateValidator{
+					Description: stakingtypes.Description{
+						Moniker:         "test",
+						Identity:        "test",
+						Website:         "test",
+						SecurityContact: "test",
+						Details:         "test",
+					},
+					Commission: stakingtypes.CommissionRates{
+						Rate:          sdk.MustNewDecFromStr("0.05"),
+						MaxRate:       sdk.MustNewDecFromStr("0.1"),
+						MaxChangeRate: sdk.MustNewDecFromStr("0.1"),
+					},
+					MinSelfDelegation: sdk.NewInt(200),
+					DelegatorAddress:  delAddr.String(),
+					ValidatorAddress:  valAddr2.String(),
+					Pubkey:            codectypes.UnsafePackAny(valPubKey2),
+					Value:             bondAmount,
+				}
+
+				_, err := suite.msgServer.CreateValidator(suite.ctx, &createMsg2)
+				suite.Require().NoError(err)
+
+				multiStakingMsg := stakingtypes.NewMsgBeginRedelegate(delAddr, valAddr, valAddr2, bondAmount)
+				_, err = suite.msgServer.BeginRedelegate(suite.ctx, multiStakingMsg)
+				suite.Require().NoError(err)
+			},
+			expPass: true,
+		},
 	}
 	for _, tc := range testCases {
 		suite.SetupTest() // reset
