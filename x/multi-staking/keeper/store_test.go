@@ -128,5 +128,4 @@ func (suite *KeeperTestSuite) TestSetMultiStakingLock() {
 			suite.Require().Equal(lock, msLock)
 		}
 	}
-
 }

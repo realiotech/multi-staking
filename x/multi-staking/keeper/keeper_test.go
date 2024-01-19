@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/realio-tech/multi-staking-module/testing/simapp"
-	"github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
 	multistakingkeeper "github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
 	"github.com/stretchr/testify/suite"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
@@ -28,7 +27,7 @@ func (suite *KeeperTestSuite) SetupTest() {
 
 	suite.app = app
 	suite.ctx, suite.msKeeper = ctx, &app.MultiStakingKeeper
-	suite.msgServer = keeper.NewMsgServerImpl(*suite.msKeeper)
+	suite.msgServer = multistakingkeeper.NewMsgServerImpl(*suite.msKeeper)
 }
 
 func TestKeeperTestSuite(t *testing.T) {
