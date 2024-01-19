@@ -19,7 +19,7 @@ var (
 	MultiStakingCoinB = multistakingtypes.MultiStakingCoin{
 		Denom:      "arst",
 		Amount:     sdk.DefaultPowerReduction,
-		BondWeight: sdk.MustNewDecFromStr("0.12"),
+		BondWeight: sdk.MustNewDecFromStr("1"),
 	}
 	MultiStakingCoins = []multistakingtypes.MultiStakingCoin{
 		MultiStakingCoinA, MultiStakingCoinB,
