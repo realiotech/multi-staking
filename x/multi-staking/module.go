@@ -136,6 +136,9 @@ func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sd
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	stakingtypes.RegisterMsgServer(cfg.MsgServer(), multistakingkeeper.NewMsgServerImpl(am.keeper))
 	multistakingtypes.RegisterQueryServer(cfg.QueryServer(), multistakingkeeper.NewQueryServerImpl(am.keeper))
+
+	querier := stakingkeeper.Querier{Keeper: am.sk}
+	stakingtypes.RegisterQueryServer(cfg.QueryServer(), querier)
 }
 
 // InitGenesis initial genesis state for feeabs module
