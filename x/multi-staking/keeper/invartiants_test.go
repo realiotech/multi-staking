@@ -30,7 +30,7 @@ func (suite *KeeperTestSuite) TestModuleAccountInvariants() {
 			expPass:  true,
 		},
 		{
-			name: "Success",
+			name: "Success Create Validator",
 			malleate: func() {
 				valCoins := sdk.NewCoins(sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(10000)), sdk.NewCoin(MultiStakingDenomB, sdk.NewInt(10000)))
 				err := simapp.FundAccount(suite.app, suite.ctx, delAddr, valCoins)
@@ -59,6 +59,26 @@ func (suite *KeeperTestSuite) TestModuleAccountInvariants() {
 				}
 
 				_, err = suite.msgServer.CreateValidator(suite.ctx, &msg)
+				suite.Require().NoError(err)
+			},
+			expPass: true,
+		},
+		{
+			name: "Success Edit Validator",
+			malleate: func() {
+				newRate := sdk.MustNewDecFromStr("0.03")
+				newMinSelfDelegation := sdk.NewInt(300)
+				editMsg := stakingtypes.NewMsgEditValidator(valAddr, stakingtypes.Description{
+					Moniker:         "test 1",
+					Identity:        "test 1",
+					Website:         "test 1",
+					SecurityContact: "test 1",
+					Details:         "test 1",
+				},
+					&newRate,
+					&newMinSelfDelegation,
+				)
+				_, err := suite.msgServer.EditValidator(suite.ctx, editMsg)
 				suite.Require().NoError(err)
 			},
 			expPass: true,
