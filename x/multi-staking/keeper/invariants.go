@@ -23,9 +23,7 @@ func ModuleAccountInvariants(k Keeper) sdk.Invariant {
 
 		// calculate lock amount
 		lockCoinAmount := sdk.NewCoins()
-		var lock types.MultiStakingLock
 		k.MultiStakingLockIterator(ctx, func(stakingLock types.MultiStakingLock) bool {
-			lock = stakingLock
 			lockCoinAmount = lockCoinAmount.Add(sdk.NewCoin(stakingLock.LockedCoin.Denom, stakingLock.LockedCoin.Amount))
 			return false
 		})
@@ -51,9 +49,8 @@ func ModuleAccountInvariants(k Keeper) sdk.Invariant {
 			"ModuleAccountInvariants",
 			fmt.Sprintf(
 				"\tescrow coins balances: %v\n"+
-					"\ttotal lock coin amount: %v\n"+
-					"\t lock: %v\n",
-				escrowBalances, totalLockCoinAmount, lock),
+					"\ttotal lock coin amount: %v\n",
+				escrowBalances, totalLockCoinAmount),
 		), broken
 	}
 }
@@ -72,8 +69,9 @@ func ValidatorLockDenomInvariants(k Keeper) sdk.Invariant {
 		})
 
 		for _, lock := range multiStakingLocks {
-			valAddr := lock.LockID.ValAddr
-			if valMsDenom := k.GetValidatorMultiStakingCoin(ctx, sdk.ValAddress(valAddr)); valMsDenom != lock.LockedCoin.Denom {
+			valBench32Addr := lock.LockID.ValAddr
+			valAddr, _ := sdk.ValAddressFromBech32(valBench32Addr)
+			if valMsDenom := k.GetValidatorMultiStakingCoin(ctx, valAddr); valMsDenom != lock.LockedCoin.Denom {
 				broken = true
 				msg += fmt.Sprintf("validator lock denom invariants:\n\t"+
 					"\tlock denom: %v allow denom: %v\n"+
@@ -89,8 +87,9 @@ func ValidatorLockDenomInvariants(k Keeper) sdk.Invariant {
 		})
 
 		for _, unlock := range multiStakingUnlocks {
-			valAddr := unlock.UnlockID.ValAddr
-			valMsDenom := k.GetValidatorMultiStakingCoin(ctx, sdk.ValAddress(valAddr))
+			valBench32Addr := unlock.UnlockID.ValAddr
+			valAddr, _ := sdk.ValAddressFromBech32(valBench32Addr)
+			valMsDenom := k.GetValidatorMultiStakingCoin(ctx, valAddr)
 
 			for _, entry := range unlock.Entries {
 				if entry.UnlockingCoin.Denom != valMsDenom {
