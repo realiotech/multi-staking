@@ -13,13 +13,13 @@ import (
 var (
 	MultiStakingCoinA = multistakingtypes.MultiStakingCoin{
 		Denom:      "ario",
-		Amount:     sdk.DefaultPowerReduction,
+		Amount:     sdk.NewIntFromUint64(100000000),
 		BondWeight: sdk.MustNewDecFromStr("1.23"),
 	}
 	MultiStakingCoinB = multistakingtypes.MultiStakingCoin{
 		Denom:      "arst",
-		Amount:     sdk.DefaultPowerReduction,
-		BondWeight: sdk.MustNewDecFromStr("1"),
+		Amount:     sdk.NewIntFromUint64(100000000),
+		BondWeight: sdk.MustNewDecFromStr("0.12"),
 	}
 	MultiStakingCoins = []multistakingtypes.MultiStakingCoin{
 		MultiStakingCoinA, MultiStakingCoinB,
