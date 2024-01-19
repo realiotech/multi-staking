@@ -22,8 +22,8 @@ func (suite *KeeperTestSuite) TestModuleAccountInvariants() {
 		out, broken := keeper.ModuleAccountInvariants(*suite.msKeeper)(suite.ctx)
 
 		if tc.expPass {
-			suite.Require().False(broken)
 			suite.Require().Empty(out)
+			suite.Require().False(broken)
 		}
 	}
 }
