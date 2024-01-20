@@ -284,7 +284,7 @@ func NewSimApp(
 		authzkeeper.StoreKey, ibcfeetypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
-	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey, multistakingtypes.MemStoreKey)
+	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
 
 	app := &SimApp{
 		BaseApp:           bApp,
@@ -359,7 +359,6 @@ func NewSimApp(
 		app.StakingKeeper,
 		app.BankKeeper,
 		keys[multistakingtypes.StoreKey],
-		tkeys[multistakingtypes.MemStoreKey],
 	)
 
 	app.AuthzKeeper = authzkeeper.NewKeeper(keys[authzkeeper.StoreKey], appCodec, app.MsgServiceRouter(), app.AccountKeeper)
