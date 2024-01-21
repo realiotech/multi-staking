@@ -144,9 +144,8 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState multistakingtypes.GenesisState
 	cdc.MustUnmarshalJSON(data, &genesisState)
-	am.keeper.InitGenesis(ctx, genesisState)
 
-	return []abci.ValidatorUpdate{}
+	return am.keeper.InitGenesis(ctx, genesisState)
 }
 
 // ExportGenesis export feeabs state as raw message for feeabs module
