@@ -79,7 +79,7 @@ func (unlock *MultiStakingUnlock) RemoveCoinFromEntry(entryIndex int, amount mat
 	} else {
 		unlock.Entries[entryIndex].UnlockingCoin.Amount = updatedAmount
 	}
-	
+
 	return nil
 }
 
