@@ -5,9 +5,8 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/server"
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
-
-	"github.com/cosmos/ibc-go/v6/testing/simapp"
-	"github.com/cosmos/ibc-go/v6/testing/simapp/simd/cmd"
+	"github.com/realio-tech/multi-staking-module/testing/simapp"
+	"github.com/realio-tech/multi-staking-module/testing/simapp/simd/cmd"
 )
 
 func main() {
