@@ -207,12 +207,12 @@ func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *staking
 	}
 
 	unlockID := types.MultiStakingUnlockID(msg.DelegatorAddress, msg.ValidatorAddress)
-	cancelMSCoin, err := k.keeper.DecreaseUnlockEntryAmount(ctx, unlockID, msg.Amount.Amount, msg.CreationHeight)
+	cancelUnlockingCoin, err := k.keeper.DecreaseUnlockEntryAmount(ctx, unlockID, msg.Amount.Amount, msg.CreationHeight)
 	if err != nil {
 		return nil, err
 	}
 
-	cancelUnbondingAmount := cancelMSCoin.BondValue()
+	cancelUnbondingAmount := cancelUnlockingCoin.BondValue()
 	cancelUnbondingAmount, err = k.keeper.AdjustCancelUnbondingAmount(ctx, delAcc, valAcc, msg.CreationHeight, cancelUnbondingAmount)
 	if err != nil {
 		return nil, err
@@ -221,7 +221,7 @@ func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *staking
 
 	lockID := types.MultiStakingLockID(msg.DelegatorAddress, msg.ValidatorAddress)
 	lock := k.keeper.GetOrCreateMultiStakingLock(ctx, lockID)
-	err = lock.AddCoinToMultiStakingLock(cancelMSCoin)
+	err = lock.AddCoinToMultiStakingLock(cancelUnlockingCoin)
 	if err != nil {
 		return nil, err
 	}
