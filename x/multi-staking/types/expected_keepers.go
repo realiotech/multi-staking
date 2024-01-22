@@ -6,8 +6,14 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
+
+type AccountKeeper interface {
+	GetModuleAddress(moduleName string) sdk.AccAddress
+	GetModuleAccount(ctx sdk.Context, moduleName string) types.ModuleAccountI
+}
 
 type StakingKeeper interface {
 	DequeueAllMatureUBDQueue(ctx sdk.Context, currTime time.Time) (matureUnbonds []stakingtypes.DVPair)
