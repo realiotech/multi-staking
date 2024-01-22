@@ -37,23 +37,21 @@ func NewMultiStakingUnlock(
 	}
 }
 
-func (unlock *MultiStakingUnlock) FindEntryIndexByHeight(creationHeight int64) int {
-	entryIndex := -1
+func (unlock *MultiStakingUnlock) FindEntryIndexByHeight(creationHeight int64) (int, bool) {
 	for index, unlockEntry := range unlock.Entries {
 		if unlockEntry.CreationHeight == creationHeight {
-			entryIndex = index
-			break
+			return index, true
 		}
 	}
-	return entryIndex
+	return -1, false
 }
 
 // AddEntry - append entry to the unbonding delegation
 func (unlock *MultiStakingUnlock) AddEntry(creationHeight int64, weightedCoin MultiStakingCoin) {
 	// Check the entries exists with creation_height and complete_time
-	entryIndex := unlock.FindEntryIndexByHeight(creationHeight)
+	entryIndex, found := unlock.FindEntryIndexByHeight(creationHeight)
 	// entryIndex exists
-	if entryIndex != -1 {
+	if !found {
 		unlockEntry := unlock.Entries[entryIndex]
 		unlockEntry.UnlockingCoin = unlockEntry.UnlockingCoin.Add(weightedCoin)
 
@@ -91,9 +89,9 @@ func (unlock *MultiStakingUnlock) RemoveEntry(i int) {
 // RemoveEntryAtCreationHeight - remove entry at creation height to the multi staking unlock
 func (unlock *MultiStakingUnlock) RemoveEntryAtCreationHeight(creationHeight int64) {
 	// Check the entries exists with creation_height and complete_time
-	entryIndex := unlock.FindEntryIndexByHeight(creationHeight)
+	entryIndex, found := unlock.FindEntryIndexByHeight(creationHeight)
 	// entryIndex exists
-	if entryIndex != -1 {
+	if !found {
 		unlock.RemoveEntry(entryIndex)
 	}
 }

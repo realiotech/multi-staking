@@ -81,8 +81,9 @@ func (k Keeper) DecreaseUnlockEntryAmount(
 		return types.MultiStakingCoin{}, fmt.Errorf("not found unlock recored")
 	}
 
-	unlockEntryIndex := unlockRecord.FindEntryIndexByHeight(creationHeight)
-	if unlockEntryIndex == -1 {
+	unlockEntryIndex, found := unlockRecord.FindEntryIndexByHeight(creationHeight)
+	// entryIndex exists
+	if !found {
 		return types.MultiStakingCoin{}, fmt.Errorf("unbonding delegation entry is not found at block height %d", creationHeight)
 	}
 
@@ -99,5 +100,5 @@ func (k Keeper) DecreaseUnlockEntryAmount(
 		k.SetMultiStakingUnlock(ctx, unlockRecord)
 	}
 
-	return unlockEntry.UnlockingCoin.WithAmount(amount), nil
+	return types.NewMultiStakingCoin(unlockEntry.UnlockingCoin.Denom, amount, unlockEntry.GetBondWeight()), nil
 }
