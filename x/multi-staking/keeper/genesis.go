@@ -27,6 +27,8 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) (res []abc
 		k.SetValidatorMultiStakingCoin(ctx, valAddr, valMultiStakingCoin.CoinDenom)
 	}
 
+	k.accountKeeper.GetModuleAccount(ctx, types.ModuleName)
+
 	return k.stakingKeeper.InitGenesis(ctx, &data.StakingGenesisState)
 }
 
