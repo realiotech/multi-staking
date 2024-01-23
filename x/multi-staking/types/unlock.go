@@ -51,7 +51,7 @@ func (unlock *MultiStakingUnlock) AddEntry(creationHeight int64, weightedCoin Mu
 	// Check the entries exists with creation_height and complete_time
 	entryIndex, found := unlock.FindEntryIndexByHeight(creationHeight)
 	// entryIndex exists
-	if !found {
+	if found {
 		unlockEntry := unlock.Entries[entryIndex]
 		unlockEntry.UnlockingCoin = unlockEntry.UnlockingCoin.Add(weightedCoin)
 
@@ -91,7 +91,7 @@ func (unlock *MultiStakingUnlock) RemoveEntryAtCreationHeight(creationHeight int
 	// Check the entries exists with creation_height and complete_time
 	entryIndex, found := unlock.FindEntryIndexByHeight(creationHeight)
 	// entryIndex exists
-	if !found {
+	if found {
 		unlock.RemoveEntry(entryIndex)
 	}
 }
