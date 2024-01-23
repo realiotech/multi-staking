@@ -77,38 +77,20 @@ func (k Keeper) DecreaseUnlockEntryAmount(
 	amount math.Int, creationHeight int64,
 ) (types.MultiStakingCoin, error) {
 	unlockRecord, found := k.GetMultiStakingUnlock(ctx, unlockID)
-
 	if !found {
 		return types.MultiStakingCoin{}, fmt.Errorf("not found unlock recored")
 	}
-	var (
-		unlockEntry      types.UnlockEntry
-		unlockEntryIndex = -1
-	)
 
-	for i, entry := range unlockRecord.Entries {
-		if entry.CreationHeight == creationHeight {
-			unlockEntry = entry
-			unlockEntryIndex = i
-			break
-		}
-	}
-
-	if unlockEntryIndex == -1 {
+	unlockEntryIndex, found := unlockRecord.FindEntryIndexByHeight(creationHeight)
+	// entryIndex exists
+	if !found {
 		return types.MultiStakingCoin{}, fmt.Errorf("unbonding delegation entry is not found at block height %d", creationHeight)
 	}
 
-	if unlockEntry.UnlockingCoin.Amount.LT(amount) {
-		return types.MultiStakingCoin{}, fmt.Errorf("amount is greater than the unbonding delegation entry balance")
-	}
-
-	updatedEntryAmt := unlockEntry.UnlockingCoin.Amount.Sub(amount)
-	if updatedEntryAmt.IsZero() {
-		unlockRecord.RemoveEntry(unlockEntryIndex)
-	} else {
-		// update the unlocking entry amount for unlocking entry
-		unlockEntry.UnlockingCoin.Amount = updatedEntryAmt
-		unlockRecord.Entries[unlockEntryIndex] = unlockEntry
+	unlockEntry := unlockRecord.Entries[unlockEntryIndex]
+	err := unlockRecord.RemoveCoinFromEntry(unlockEntryIndex, amount)
+	if err != nil {
+		return types.MultiStakingCoin{}, err
 	}
 
 	// set the unlocking record or remove it if there are no more entries
@@ -118,5 +100,5 @@ func (k Keeper) DecreaseUnlockEntryAmount(
 		k.SetMultiStakingUnlock(ctx, unlockRecord)
 	}
 
-	return unlockEntry.UnlockingCoin.WithAmount(amount), nil
+	return types.NewMultiStakingCoin(unlockEntry.UnlockingCoin.Denom, amount, unlockEntry.GetBondWeight()), nil
 }

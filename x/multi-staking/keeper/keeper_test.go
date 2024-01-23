@@ -29,3 +29,5 @@ func (suite *KeeperTestSuite) SetupTest() {
 func TestKeeperTestSuite(t *testing.T) {
 	suite.Run(t, new(KeeperTestSuite))
 }
+
+// Todo: add CheckBalance; AddAccountWithCoin; FundAccount

@@ -17,23 +17,23 @@ import (
 
 type Keeper struct {
 	storeKey      storetypes.StoreKey
-	memKey        storetypes.StoreKey
 	cdc           codec.BinaryCodec
+	accountKeeper types.AccountKeeper
 	stakingKeeper stakingkeeper.Keeper
 	bankKeeper    types.BankKeeper
 }
 
 func NewKeeper(
 	cdc codec.BinaryCodec,
+	accountKeeper types.AccountKeeper,
 	stakingKeeper stakingkeeper.Keeper,
 	bankKeeper types.BankKeeper,
 	key storetypes.StoreKey,
-	memKey storetypes.StoreKey,
 ) *Keeper {
 	return &Keeper{
 		cdc:           cdc,
 		storeKey:      key,
-		memKey:        memKey,
+		accountKeeper: accountKeeper,
 		stakingKeeper: stakingKeeper,
 		bankKeeper:    bankKeeper,
 	}
@@ -126,4 +126,20 @@ func (k Keeper) AdjustUnbondAmount(ctx sdk.Context, delAcc sdk.AccAddress, valAc
 	}
 
 	return validator.TokensFromShares(shares).RoundInt(), nil
+}
+
+func (k Keeper) AdjustCancelUnbondingAmount(ctx sdk.Context, delAcc sdk.AccAddress, valAcc sdk.ValAddress, creationHeight int64, amount math.Int) (adjustedAmount math.Int, err error) {
+	undelegation, found := k.stakingKeeper.GetUnbondingDelegation(ctx, delAcc, valAcc)
+	if !found {
+		return math.Int{}, fmt.Errorf("undelegation not found")
+	}
+
+	totalUnbondingAmount := math.ZeroInt()
+	for _, entry := range undelegation.Entries {
+		if entry.CreationHeight == creationHeight {
+			totalUnbondingAmount = totalUnbondingAmount.Add(entry.Balance)
+		}
+	}
+
+	return math.MinInt(totalUnbondingAmount, amount), nil
 }

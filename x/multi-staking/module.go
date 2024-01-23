@@ -17,6 +17,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/staking"
+	stakingcli "github.com/cosmos/cosmos-sdk/x/staking/client/cli"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
@@ -64,14 +65,19 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncod
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the staking module.
 func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *gwruntime.ServeMux) {}
 
-// GetTxCmd returns the feeabs module's root tx command.
+// GetTxCmd returns the staking module's root tx command.
 func (AppModuleBasic) GetTxCmd() *cobra.Command {
-	return cli.NewTxCmd()
+	return stakingcli.NewTxCmd()
 }
 
-// GetQueryCmd returns the feeabs module's root query command.
-func (AppModuleBasic) GetQueryCmd() *cobra.Command {
-	return cli.GetQueryCmd()
+// GetQueryCmd returns the multi-staking and staking module's root query command.
+func (AppModuleBasic) GetQueryCmd() (queryCmd *cobra.Command) {
+	queryCmd.AddCommand(
+		stakingcli.GetQueryCmd(),
+		cli.GetQueryCmd(),
+	)
+
+	return queryCmd
 }
 
 // AppModule embeds the Cosmos SDK's x/staking AppModule where we only override
@@ -138,9 +144,8 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState multistakingtypes.GenesisState
 	cdc.MustUnmarshalJSON(data, &genesisState)
-	am.keeper.InitGenesis(ctx, genesisState)
 
-	return []abci.ValidatorUpdate{}
+	return am.keeper.InitGenesis(ctx, genesisState)
 }
 
 // ExportGenesis export feeabs state as raw message for feeabs module
