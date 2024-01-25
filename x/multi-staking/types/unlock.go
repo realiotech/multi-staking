@@ -67,7 +67,7 @@ func (unlock *MultiStakingUnlock) AddEntry(creationHeight int64, weightedCoin Mu
 // RemoveCoinFromEntry - remove multi staking coin from unlocking entry
 func (unlock *MultiStakingUnlock) RemoveCoinFromEntry(entryIndex int, amount math.Int) error {
 	entriesLen := len(unlock.Entries)
-	if entriesLen == 0 || entryIndex < 0 || entryIndex >= entriesLen  {
+	if entriesLen == 0 || entryIndex < 0 || entryIndex >= entriesLen {
 		return fmt.Errorf("entry index is out of bound")
 	}
 

@@ -1,12 +1,15 @@
 package types_test
 
 import (
-	"cosmossdk.io/math"
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	"github.com/stretchr/testify/require"
+
+	"cosmossdk.io/math"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func TestBondValue(t *testing.T) {
@@ -23,7 +26,8 @@ func TestBondValue(t *testing.T) {
 		{
 			name:         "604 x 0.2 = 120",
 			msCoin:       types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(604), sdk.MustNewDecFromStr("0.2")),
-			expBondValue: sdk.NewInt(120)},
+			expBondValue: sdk.NewInt(120),
+		},
 	}
 
 	for _, tc := range testCases {

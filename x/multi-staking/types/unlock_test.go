@@ -3,10 +3,11 @@ package types_test
 import (
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/realio-tech/multi-staking-module/testutil"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	"github.com/stretchr/testify/require"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func TestFindEntryIndexByHeight(t *testing.T) {
@@ -20,7 +21,7 @@ func TestFindEntryIndexByHeight(t *testing.T) {
 		types.NewUnlockEntry(4, types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(300000), sdk.MustNewDecFromStr("0.5"))),
 		types.NewUnlockEntry(5, types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(500000), sdk.MustNewDecFromStr("0.2"))),
 	}
-	
+
 	testCases := []struct {
 		name     string
 		height   int64
@@ -146,7 +147,7 @@ func TestRemoveCoinFromEntry(t *testing.T) {
 		types.NewUnlockEntry(4, types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(300000), sdk.MustNewDecFromStr("0.5"))),
 		types.NewUnlockEntry(5, types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(500000), sdk.MustNewDecFromStr("0.2"))),
 	}
-	
+
 	testCases := []struct {
 		name         string
 		index        int
