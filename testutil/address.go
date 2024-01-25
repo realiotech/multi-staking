@@ -21,3 +21,9 @@ func GenValAddress() sdk.ValAddress {
 
 	return sdk.ValAddress(priv.PubKey().Address())
 }
+
+func GenValAddressWithPrivKey() (*secp256k1.PrivKey, sdk.ValAddress) {
+	priv := secp256k1.GenPrivKey()
+
+	return priv, sdk.ValAddress(priv.PubKey().Address())
+}

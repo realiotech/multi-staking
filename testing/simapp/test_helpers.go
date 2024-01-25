@@ -170,7 +170,6 @@ func genesisStateWithValSet(app *SimApp, genesisState GenesisState, valSet *tmty
 
 	// set validators and delegations
 	stakingGenesis := stakingtypes.NewGenesisState(stakingtypes.DefaultParams(), validators, delegations)
-	genesisState[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
 
 	multistakingGenesis := multistakingtypes.GenesisState{
 		MultiStakingLocks:          locks,

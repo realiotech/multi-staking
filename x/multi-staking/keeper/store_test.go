@@ -3,15 +3,19 @@ package keeper_test
 import (
 	"github.com/realio-tech/multi-staking-module/testutil"
 	multistakingkeeper "github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
+	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+)
+
+var (
+	gasDenom = "ario"
+	govDenom = "arst"
 )
 
 func (suite *KeeperTestSuite) TestSetBondWeight() {
 	suite.SetupTest()
 
-	gasDenom := "ario"
-	govDenom := "arst"
 	gasWeight := sdk.OneDec()
 	govWeight := sdk.NewDecWithPrec(2, 4)
 
@@ -28,8 +32,7 @@ func (suite *KeeperTestSuite) TestSetBondWeight() {
 func (suite *KeeperTestSuite) TestSetValidatorMultiStakingCoin() {
 	valA := testutil.GenValAddress()
 	valB := testutil.GenValAddress()
-	gasDenom := "ario"
-	govDenom := "arst"
+
 	testCases := []struct {
 		name     string
 		malleate func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []string
@@ -84,5 +87,45 @@ func (suite *KeeperTestSuite) TestSetValidatorMultiStakingCoin() {
 				}
 			}
 		})
+	}
+}
+
+func (suite *KeeperTestSuite) TestSetMultiStakingLock() {
+	suite.SetupTest()
+	delAddr := testutil.GenAddress()
+	valAddr := testutil.GenValAddress()
+
+	lock := types.MultiStakingLock{
+		LockID: types.LockID{
+			MultiStakerAddr: delAddr.String(),
+			ValAddr:         valAddr.String(),
+		},
+		LockedCoin: types.MultiStakingCoin{
+			Denom:      gasDenom,
+			Amount:     sdk.NewIntFromUint64(1000000),
+			BondWeight: sdk.NewDec(1),
+		},
+	}
+
+	testCases := []struct {
+		name     string
+		malleate func()
+		expError bool
+	}{
+		{
+			"Success",
+			func() {
+				suite.msKeeper.SetMultiStakingLock(suite.ctx, lock)
+			},
+			false,
+		},
+	}
+	for _, tc := range testCases {
+		if !tc.expError {
+			tc.malleate()
+			msLock, found := suite.msKeeper.GetMultiStakingLock(suite.ctx, lock.LockID)
+			suite.Require().True(found)
+			suite.Require().Equal(lock, msLock)
+		}
 	}
 }
