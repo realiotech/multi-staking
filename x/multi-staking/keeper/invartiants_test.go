@@ -5,6 +5,7 @@ import (
 
 	"github.com/realio-tech/multi-staking-module/testutil"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
+	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -117,6 +118,14 @@ func (suite *KeeperTestSuite) TestModuleAccountInvariants() {
 				suite.Require().NoError(err)
 			},
 			expPass: true,
+		},
+		{
+			name: "Fail invariant",
+			malleate: func() {
+				multiStakingLock := types.NewMultiStakingLock(types.MultiStakingLockID(delAddr.String(), valAddr.String()), types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(200), sdk.OneDec()))
+				suite.app.MultiStakingKeeper.SetMultiStakingLock(suite.ctx, multiStakingLock)
+			},
+			expPass: false,
 		},
 	}
 	for _, tc := range testCases {
