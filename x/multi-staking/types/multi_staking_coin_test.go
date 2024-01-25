@@ -2,8 +2,6 @@ package types_test
 
 import (
 	"testing"
-
-
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	"github.com/stretchr/testify/require"
 
