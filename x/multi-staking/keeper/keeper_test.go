@@ -9,14 +9,15 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 type KeeperTestSuite struct {
 	suite.Suite
 
-	ctx       sdk.Context
 	app       *simapp.SimApp
+	ctx       sdk.Context
 	msKeeper  *multistakingkeeper.Keeper
 	msgServer stakingtypes.MsgServer
 }
@@ -24,10 +25,9 @@ type KeeperTestSuite struct {
 func (suite *KeeperTestSuite) SetupTest() {
 	app := simapp.Setup(false)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
+	multiStakingMsgServer := multistakingkeeper.NewMsgServerImpl(app.MultiStakingKeeper)
 
-	suite.app = app
-	suite.ctx, suite.msKeeper = ctx, &app.MultiStakingKeeper
-	suite.msgServer = multistakingkeeper.NewMsgServerImpl(*suite.msKeeper)
+	suite.app, suite.ctx, suite.msKeeper, suite.msgServer = app, ctx, &app.MultiStakingKeeper, multiStakingMsgServer
 }
 
 func TestKeeperTestSuite(t *testing.T) {
@@ -35,3 +35,10 @@ func TestKeeperTestSuite(t *testing.T) {
 }
 
 // Todo: add CheckBalance; AddAccountWithCoin; FundAccount
+func (suite *KeeperTestSuite) FundAccount(addr sdk.AccAddress, amounts sdk.Coins) error {
+	err := suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, amounts)
+	if err != nil {
+		return err
+	}
+	return suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, minttypes.ModuleName, addr, amounts)
+}

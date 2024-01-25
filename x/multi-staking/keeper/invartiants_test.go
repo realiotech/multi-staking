@@ -3,7 +3,6 @@ package keeper_test
 import (
 	"time"
 
-	"github.com/realio-tech/multi-staking-module/testing/simapp"
 	"github.com/realio-tech/multi-staking-module/testutil"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
@@ -11,11 +10,6 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-)
-
-var (
-	MultiStakingDenomA = "ario"
-	MultiStakingDenomB = "arst"
 )
 
 func (suite *KeeperTestSuite) TestModuleAccountInvariants() {
@@ -129,7 +123,7 @@ func (suite *KeeperTestSuite) TestModuleAccountInvariants() {
 		suite.SetupTest() // reset
 
 		valCoins := sdk.NewCoins(sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(10000)), sdk.NewCoin(MultiStakingDenomB, sdk.NewInt(10000)))
-		err := simapp.FundAccount(suite.app, suite.ctx, delAddr, valCoins)
+		err := suite.FundAccount(delAddr, valCoins)
 		suite.Require().NoError(err)
 
 		suite.msKeeper.SetBondWeight(suite.ctx, MultiStakingDenomA, sdk.MustNewDecFromStr("0.3"))
