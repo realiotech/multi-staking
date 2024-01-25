@@ -8,11 +8,14 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+var (
+	gasDenom = "ario"
+	govDenom = "arst"
+)
+
 func (suite *KeeperTestSuite) TestSetBondWeight() {
 	suite.SetupTest()
 
-	gasDenom := "ario"
-	govDenom := "arst"
 	gasWeight := sdk.OneDec()
 	govWeight := sdk.NewDecWithPrec(2, 4)
 
@@ -29,8 +32,7 @@ func (suite *KeeperTestSuite) TestSetBondWeight() {
 func (suite *KeeperTestSuite) TestSetValidatorMultiStakingCoin() {
 	valA := testutil.GenValAddress()
 	valB := testutil.GenValAddress()
-	gasDenom := "ario"
-	govDenom := "arst"
+
 	testCases := []struct {
 		name     string
 		malleate func(ctx sdk.Context, msKeeper *multistakingkeeper.Keeper) []string
@@ -93,8 +95,6 @@ func (suite *KeeperTestSuite) TestSetMultiStakingLock() {
 	delAddr := testutil.GenAddress()
 	valAddr := testutil.GenValAddress()
 
-	gasDenom := "ario"
-	// govDenom := "arst"
 	lock := types.MultiStakingLock{
 		LockID: types.LockID{
 			MultiStakerAddr: delAddr.String(),
