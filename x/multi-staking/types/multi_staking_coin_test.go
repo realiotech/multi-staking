@@ -2,6 +2,7 @@ package types_test
 
 import (
 	"testing"
+
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	"github.com/stretchr/testify/require"
 
@@ -68,7 +69,6 @@ func TestSafeAdd(t *testing.T) {
 			name:         "denom mismatch",
 			originMSCoin: types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(100000), sdk.MustNewDecFromStr("0.3")),
 			addingMSCoin: types.NewMultiStakingCoin(MultiStakingDenomB, sdk.NewInt(23456), sdk.MustNewDecFromStr("0.3")),
-			expMSCoin:    types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(123456), sdk.MustNewDecFromStr("0.3")),
 			expErr:       true,
 		},
 	}
@@ -105,18 +105,16 @@ func TestSafeSub(t *testing.T) {
 			expErr:    false,
 		},
 		{
-			name:      "denom mismatch",
-			msCoinA:   types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(100000), sdk.MustNewDecFromStr("0.3")),
-			msCoinB:   types.NewMultiStakingCoin(MultiStakingDenomB, sdk.NewInt(23456), sdk.MustNewDecFromStr("0.3")),
-			expMSCoin: types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(123456), sdk.MustNewDecFromStr("0.3")),
-			expErr:    true,
+			name:    "denom mismatch",
+			msCoinA: types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(100000), sdk.MustNewDecFromStr("0.3")),
+			msCoinB: types.NewMultiStakingCoin(MultiStakingDenomB, sdk.NewInt(23456), sdk.MustNewDecFromStr("0.3")),
+			expErr:  true,
 		},
 		{
-			name:      "insufficient amount",
-			msCoinA:   types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(100000), sdk.MustNewDecFromStr("0.3")),
-			msCoinB:   types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(234567), sdk.MustNewDecFromStr("0.3")),
-			expMSCoin: types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(123456), sdk.MustNewDecFromStr("0.3")),
-			expErr:    true,
+			name:    "insufficient amount",
+			msCoinA: types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(100000), sdk.MustNewDecFromStr("0.3")),
+			msCoinB: types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(234567), sdk.MustNewDecFromStr("0.3")),
+			expErr:  true,
 		},
 	}
 
