@@ -8,6 +8,7 @@ import (
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
@@ -81,6 +82,9 @@ func (k Keeper) BurnUnbondedCoinAndUnlockedMultiStakingCoin(
 	if err != nil {
 		return sdk.Coin{}, err
 	}
+	// burn remaining coin in unlock
+	remaningCoin := unlockEntry.UnlockingCoin.ToCoin().Sub(unlockedCoin)
+	k.BurnCoin(ctx, authtypes.NewModuleAddress(types.ModuleName), remaningCoin)
 
 	err = k.UnescrowCoinTo(ctx, multiStakerAddr, unlockedCoin)
 	if err != nil {
