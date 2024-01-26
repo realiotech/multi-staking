@@ -3,14 +3,14 @@ package types_test
 import (
 	"testing"
 
-	"github.com/realio-tech/multi-staking-module/testutil"
+	"github.com/realio-tech/multi-staking-module/testing"
 	multistakingtypes "github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	"github.com/stretchr/testify/require"
 )
 
 func TestDelAddrAndValAddrFromLockID(t *testing.T) {
-	val := testutil.GenValAddress()
-	del := testutil.GenAddress()
+	val := testing.GenValAddress()
+	del := testing.GenAddress()
 
 	lockID := multistakingtypes.MultiStakingLockID(del.String(), val.String())
 	lockBytes := lockID.ToBytes()
@@ -21,9 +21,9 @@ func TestDelAddrAndValAddrFromLockID(t *testing.T) {
 }
 
 func TestMultiStakingLockIterator(t *testing.T) {
-	val := testutil.GenValAddress()
-	delA := testutil.GenAddress()
-	delB := testutil.GenAddress()
+	val := testing.GenValAddress()
+	delA := testing.GenAddress()
+	delB := testing.GenAddress()
 
 	lockIDA := multistakingtypes.LockID{
 		MultiStakerAddr: delA.String(),
