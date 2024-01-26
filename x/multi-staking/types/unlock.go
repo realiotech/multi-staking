@@ -66,6 +66,11 @@ func (unlock *MultiStakingUnlock) AddEntry(creationHeight int64, weightedCoin Mu
 
 // RemoveCoinFromEntry - remove multi staking coin from unlocking entry
 func (unlock *MultiStakingUnlock) RemoveCoinFromEntry(entryIndex int, amount math.Int) error {
+	entriesLen := len(unlock.Entries)
+	if entriesLen == 0 || entryIndex < 0 || entryIndex >= entriesLen {
+		return fmt.Errorf("entry index is out of bound")
+	}
+
 	unlockEntry := unlock.Entries[entryIndex]
 	if unlockEntry.UnlockingCoin.Amount.LT(amount) {
 		return fmt.Errorf("cancel amount is greater than the unlocking entry amount")
@@ -101,11 +106,11 @@ func (u UnlockEntry) GetBondWeight() sdk.Dec {
 }
 
 func (unlockEntry UnlockEntry) UnbondAmountToUnlockAmount(unbondAmount math.Int) math.Int {
-	return sdk.NewDecFromInt(unbondAmount).Quo(unlockEntry.GetBondWeight()).RoundInt()
+	return sdk.NewDecFromInt(unbondAmount).Quo(unlockEntry.GetBondWeight()).TruncateInt()
 }
 
 func (unlockEntry UnlockEntry) UnlockAmountToUnbondAmount(unlockAmount math.Int) math.Int {
-	return unlockEntry.GetBondWeight().MulInt(unlockAmount).RoundInt()
+	return unlockEntry.GetBondWeight().MulInt(unlockAmount).TruncateInt()
 }
 
 // String returns a human readable string representation of an MultiStakingUnlock.

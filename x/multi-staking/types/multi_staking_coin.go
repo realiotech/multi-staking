@@ -28,7 +28,7 @@ func NewMultiStakingCoin(denom string, amount math.Int, weight sdk.Dec) MultiSta
 }
 
 func (coin MultiStakingCoin) BondValue() math.Int {
-	return coin.BondWeight.MulInt(coin.Amount).RoundInt()
+	return coin.BondWeight.MulInt(coin.Amount).TruncateInt()
 }
 
 func (coin MultiStakingCoin) WithAmount(amount math.Int) MultiStakingCoin {

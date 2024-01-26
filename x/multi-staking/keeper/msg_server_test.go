@@ -173,7 +173,7 @@ func (suite *KeeperTestSuite) TestCreateValidator() {
 				actualBond, found := suite.app.StakingKeeper.GetDelegation(suite.ctx, delAddr, valAddr)
 				suite.Require().True(found)
 				suite.Require().Equal(bondAmount.Amount, lockRecord.LockedCoin.Amount)
-				suite.Require().Equal(tc.expOut.Amount, actualBond.Shares.RoundInt())
+				suite.Require().Equal(tc.expOut.Amount, actualBond.Shares.TruncateInt())
 			}
 		})
 	}
