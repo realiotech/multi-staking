@@ -139,8 +139,12 @@ func (k queryServer) ValidatorMultiStakingCoin(c context.Context, req *types.Que
 	}
 
 	ctx := sdk.UnwrapSDKContext(c)
+	valAcc, err := sdk.ValAddressFromBech32(req.ValidatorAddr)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid validator address")
+	}
 
-	denom := k.Keeper.GetValidatorMultiStakingCoin(ctx, sdk.ValAddress(req.ValidatorAddr))
+	denom := k.Keeper.GetValidatorMultiStakingCoin(ctx, valAcc)
 
 	return &types.QueryValidatorMultiStakingCoinResponse{
 		Denom: denom,

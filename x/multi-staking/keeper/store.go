@@ -64,7 +64,7 @@ func (k Keeper) ValidatorMultiStakingCoinIterator(ctx sdk.Context, cb func(valAd
 
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
-		valAddr := string(iterator.Key())
+		valAddr := sdk.ValAddress(iterator.Key()).String()
 		denom := string(iterator.Value())
 		if cb(valAddr, denom) {
 			break
