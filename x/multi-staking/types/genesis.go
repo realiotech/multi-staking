@@ -3,10 +3,8 @@ package types
 import (
 	"cosmossdk.io/errors"
 
-	"github.com/cosmos/cosmos-sdk/x/staking"
-
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-
+	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
