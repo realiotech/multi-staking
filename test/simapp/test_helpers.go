@@ -2,6 +2,7 @@ package simapp
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	multistakingtypes "github.com/realio-tech/multi-staking-module/x/multi-staking/types"
@@ -81,6 +82,7 @@ func SetupWithGenesisValSet(valSet *tmtypes.ValidatorSet) *SimApp {
 
 	// commit genesis changes
 	app.Commit()
+	fmt.Println(app.LastBlockHeight(), "last block height")
 	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{
 		Height:             app.LastBlockHeight() + 1,
 		AppHash:            app.LastCommitID().Hash,
@@ -161,7 +163,11 @@ func genesisStateWithValSet(app *SimApp, genesisState GenesisState, valSet *tmty
 			Commission:        stakingtypes.NewCommission(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()),
 			MinSelfDelegation: sdk.ZeroInt(),
 		}
-
+		_, err := validator.GetConsAddr()
+		fmt.Println("pass this")
+		if err != nil {
+			panic(err)
+		}
 		validators = append(validators, validator)
 		delegations = append(delegations, stakingtypes.NewDelegation(genAcc.GetAddress(), val.Address.Bytes(), sdk.OneDec()))
 
@@ -178,7 +184,25 @@ func genesisStateWithValSet(app *SimApp, genesisState GenesisState, valSet *tmty
 		ValidatorMultiStakingCoins: validatorMsCoins,
 		StakingGenesisState:        *stakingGenesis,
 	}
+
+	val := multistakingGenesis.StakingGenesisState.Validators[0]
+	_, err := val.GetConsAddr()
+	fmt.Println("pass this 2")
+	if err != nil {
+		panic(err)
+	}
+
 	genesisState[multistakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(&multistakingGenesis)
+
+	testGen := &multistakingtypes.GenesisState{}
+	app.AppCodec().MustUnmarshalJSON(genesisState[multistakingtypes.ModuleName], testGen)
+
+	val = testGen.StakingGenesisState.Validators[0]
+	_, err = val.GetConsAddr()
+	fmt.Println("pass this 3")
+	if err != nil {
+		panic(err)
+	}
 
 	balances = append(balances, banktypes.Balance{
 		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),

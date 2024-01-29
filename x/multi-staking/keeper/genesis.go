@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"fmt"
+
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 
@@ -28,6 +30,14 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) (res []abc
 	}
 
 	k.accountKeeper.GetModuleAccount(ctx, types.ModuleName)
+
+	fmt.Println(&data.StakingGenesisState.Validators)
+	val := data.StakingGenesisState.Validators[0]
+	_, err := val.GetConsAddr()
+	fmt.Println("pass this 4")
+	if err != nil {
+		panic(err)
+	}
 
 	return k.stakingKeeper.InitGenesis(ctx, &data.StakingGenesisState)
 }

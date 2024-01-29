@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	"github.com/tendermint/tendermint/libs/log"
@@ -44,9 +45,25 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", "x/"+types.ModuleName)
 }
 
+func (k Keeper) DequeueAllMatureUBDQueue(ctx sdk.Context, currTime time.Time) (matureUnbonds []stakingtypes.DVPair) {
+	// gets an iterator for all timeslices from time 0 until the current Blockheader time
+	unbondingTimesliceIterator := k.stakingKeeper.UBDQueueIterator(ctx, currTime)
+	defer unbondingTimesliceIterator.Close()
+
+	for ; unbondingTimesliceIterator.Valid(); unbondingTimesliceIterator.Next() {
+		timeslice := stakingtypes.DVPairs{}
+		value := unbondingTimesliceIterator.Value()
+		k.cdc.MustUnmarshal(value, &timeslice)
+
+		matureUnbonds = append(matureUnbonds, timeslice.Pairs...)
+	}
+
+	return matureUnbonds
+}
+
 func (k Keeper) GetMatureUnbondingDelegations(ctx sdk.Context) []stakingtypes.UnbondingDelegation {
 	var matureUnbondingDelegations []stakingtypes.UnbondingDelegation
-	matureUnbonds := k.stakingKeeper.DequeueAllMatureUBDQueue(ctx, ctx.BlockHeader().Time)
+	matureUnbonds := k.DequeueAllMatureUBDQueue(ctx, ctx.BlockHeader().Time)
 	for _, dvPair := range matureUnbonds {
 		delAddr, valAddr, err := types.AccAddrAndValAddrFromStrings(dvPair.DelegatorAddress, dvPair.ValidatorAddress)
 		if err != nil {

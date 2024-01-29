@@ -82,6 +82,7 @@ func (k msgServer) Delegate(goCtx context.Context, msg *stakingtypes.MsgDelegate
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(mintedBondCoin, "bondCoin")
 
 	sdkMsg := stakingtypes.MsgDelegate{
 		DelegatorAddress: msg.DelegatorAddress,
