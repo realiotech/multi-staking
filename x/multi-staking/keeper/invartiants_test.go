@@ -3,7 +3,7 @@ package keeper_test
 import (
 	"time"
 
-	"github.com/realio-tech/multi-staking-module/testutil"
+	"github.com/realio-tech/multi-staking-module/test"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
@@ -14,8 +14,8 @@ import (
 )
 
 func (suite *KeeperTestSuite) TestModuleAccountInvariants() {
-	delAddr := testutil.GenAddress()
-	priv, valAddr := testutil.GenValAddressWithPrivKey()
+	delAddr := test.GenAddress()
+	priv, valAddr := test.GenValAddressWithPrivKey()
 	valPubKey := priv.PubKey()
 
 	testCases := []struct {
@@ -72,7 +72,7 @@ func (suite *KeeperTestSuite) TestModuleAccountInvariants() {
 		{
 			name: "Success BeginRedelegate",
 			malleate: func() {
-				priv, valAddr2 := testutil.GenValAddressWithPrivKey()
+				priv, valAddr2 := test.GenValAddressWithPrivKey()
 				valPubKey2 := priv.PubKey()
 				bondAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(500))
 				createMsg2 := stakingtypes.MsgCreateValidator{
@@ -132,8 +132,7 @@ func (suite *KeeperTestSuite) TestModuleAccountInvariants() {
 		suite.SetupTest() // reset
 
 		valCoins := sdk.NewCoins(sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(10000)), sdk.NewCoin(MultiStakingDenomB, sdk.NewInt(10000)))
-		err := suite.FundAccount(delAddr, valCoins)
-		suite.Require().NoError(err)
+		suite.FundAccount(delAddr, valCoins)
 
 		suite.msKeeper.SetBondWeight(suite.ctx, MultiStakingDenomA, sdk.MustNewDecFromStr("0.3"))
 		bondAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(3001))
@@ -157,7 +156,7 @@ func (suite *KeeperTestSuite) TestModuleAccountInvariants() {
 			Value:             bondAmount,
 		}
 
-		_, err = suite.msgServer.CreateValidator(suite.ctx, &msg)
+		_, err := suite.msgServer.CreateValidator(suite.ctx, &msg)
 		suite.Require().NoError(err)
 
 		tc.malleate()

@@ -3,7 +3,7 @@ package types_test
 import (
 	"testing"
 
-	"github.com/realio-tech/multi-staking-module/testutil"
+	"github.com/realio-tech/multi-staking-module/test"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	"github.com/stretchr/testify/require"
 
@@ -11,8 +11,8 @@ import (
 )
 
 func TestFindEntryIndexByHeight(t *testing.T) {
-	valAddr := testutil.GenValAddress()
-	delAddr := testutil.GenAddress()
+	valAddr := test.GenValAddress()
+	delAddr := test.GenAddress()
 	unlockID := types.MultiStakingUnlockID(delAddr.String(), valAddr.String())
 	initalEntries := []types.UnlockEntry{
 		types.NewUnlockEntry(1, types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(123456), sdk.MustNewDecFromStr("0.3"))),
@@ -63,8 +63,8 @@ func TestFindEntryIndexByHeight(t *testing.T) {
 }
 
 func TestAddEntry(t *testing.T) {
-	valAddr := testutil.GenValAddress()
-	delAddr := testutil.GenAddress()
+	valAddr := test.GenValAddress()
+	delAddr := test.GenAddress()
 	unlockID := types.MultiStakingUnlockID(delAddr.String(), valAddr.String())
 	initalEntries := []types.UnlockEntry{
 		types.NewUnlockEntry(1, types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(123456), sdk.MustNewDecFromStr("0.3"))),
@@ -137,8 +137,8 @@ func TestAddEntry(t *testing.T) {
 }
 
 func TestRemoveCoinFromEntry(t *testing.T) {
-	valAddr := testutil.GenValAddress()
-	delAddr := testutil.GenAddress()
+	valAddr := test.GenValAddress()
+	delAddr := test.GenAddress()
 	unlockID := types.MultiStakingUnlockID(delAddr.String(), valAddr.String())
 	initalEntries := []types.UnlockEntry{
 		types.NewUnlockEntry(1, types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(123456), sdk.MustNewDecFromStr("0.3"))),
