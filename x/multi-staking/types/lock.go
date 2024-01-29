@@ -13,6 +13,10 @@ func NewMultiStakingLock(lockID LockID, lockedCoin MultiStakingCoin) MultiStakin
 	}
 }
 
+func (lock MultiStakingLock) Validate() error {
+	return lock.LockedCoin.Validate()
+}
+
 func (lock MultiStakingLock) MultiStakingCoin(withAmount math.Int) MultiStakingCoin {
 	return lock.LockedCoin.WithAmount(withAmount)
 }
