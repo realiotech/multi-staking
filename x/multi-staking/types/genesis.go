@@ -2,6 +2,7 @@ package types
 
 import (
 	"cosmossdk.io/errors"
+
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
