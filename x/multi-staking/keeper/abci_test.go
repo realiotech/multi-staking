@@ -1,15 +1,13 @@
 package keeper_test
 
 import (
-	"fmt"
 	"time"
 
 	"cosmossdk.io/math"
-	"github.com/realio-tech/multi-staking-module/testing"
-	"github.com/realio-tech/multi-staking-module/testing/simapp"
 	"github.com/stretchr/testify/require"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 func (suite *KeeperTestSuite) TestMsUnlockEnblocker() {
@@ -25,16 +23,16 @@ func (suite *KeeperTestSuite) TestMsUnlockEnblocker() {
 		lockAmount  math.Int
 		slashFactor sdk.Dec
 	}{
-		{
-			name:        "no slashing",
-			lockAmount:  math.NewInt(3788),
-			slashFactor: sdk.ZeroDec(),
-		},
 		// {
-		// 	name:        "slash half of lock coin",
-		// 	lockAmount:  math.NewInt(123),
-		// 	slashFactor: sdk.MustNewDecFromStr("0.5"),
+		// 	name:        "no slashing",
+		// 	lockAmount:  math.NewInt(3788),
+		// 	slashFactor: sdk.ZeroDec(),
 		// },
+		{
+			name:        "slash half of lock coin",
+			lockAmount:  math.NewInt(123),
+			slashFactor: sdk.MustNewDecFromStr("0.5"),
+		},
 		// {
 		// 	name:        "slash all of lock coin",
 		// 	lockAmount:  math.NewInt(19090),
@@ -45,21 +43,27 @@ func (suite *KeeperTestSuite) TestMsUnlockEnblocker() {
 	for _, tc := range testCases {
 		tc := tc
 		suite.Run(tc.name, func() {
+			// height 1
 			suite.SetupTest()
-
-			// height 0
-			msStaker := testing.GenAddress()
 
 			vals := suite.app.StakingKeeper.GetAllValidators(suite.ctx)
 			val := vals[0]
 
 			msDenom := suite.msKeeper.GetValidatorMultiStakingCoin(suite.ctx, val.GetOperator())
-			fmt.Println(val.GetOperator().String())
-			fmt.Println(msDenom)
+
 			msCoin := sdk.NewCoin(msDenom, tc.lockAmount)
 
-			simapp.FundAccount(suite.app, suite.ctx, msStaker, sdk.NewCoins(msCoin))
+			msStaker := suite.CreateAndFundAccount(sdk.NewCoins(msCoin))
 
+			delegateMsg := &stakingtypes.MsgDelegate{
+				DelegatorAddress: msStaker.String(),
+				ValidatorAddress: val.OperatorAddress,
+				Amount:           msCoin,
+			}
+			_, err := suite.msgServer.Delegate(suite.ctx, delegateMsg)
+			suite.NoError(err)
+
+			// height 2
 			suite.NextBlock(time.Second)
 
 			if !tc.slashFactor.IsZero() {
@@ -71,15 +75,24 @@ func (suite *KeeperTestSuite) TestMsUnlockEnblocker() {
 				valConsAddr, err := val.GetConsAddr()
 				require.NoError(suite.T(), err)
 
-				// height 1
+				// height 3
 				suite.NextBlock(time.Second)
 
-				suite.app.SlashingKeeper.Slash(suite.ctx, valConsAddr, tc.slashFactor, slashedPow, 0)
+				suite.app.SlashingKeeper.Slash(suite.ctx, valConsAddr, tc.slashFactor, slashedPow, 2)
 			} else {
 
-				// height 1
+				// height 3
 				suite.NextBlock(time.Second)
 			}
+
+			undelegateMsg := stakingtypes.MsgUndelegate{
+				DelegatorAddress: msStaker.String(),
+				ValidatorAddress: val.OperatorAddress,
+				Amount:           msCoin,
+			}
+
+			_, err = suite.msgServer.Undelegate(suite.ctx, &undelegateMsg)
+			suite.NoError(err)
 
 			// pass unbonding period
 			suite.NextBlock(time.Duration(1000000000000000000))
@@ -89,7 +102,7 @@ func (suite *KeeperTestSuite) TestMsUnlockEnblocker() {
 
 			expectedUnlockAmount := sdk.NewDecFromInt(tc.lockAmount).Mul(sdk.OneDec().Sub(tc.slashFactor)).TruncateInt()
 
-			require.Equal(suite.T(), unlockAmount, expectedUnlockAmount)
+			require.Equal(suite.T(), expectedUnlockAmount, unlockAmount)
 		})
 	}
 }

@@ -161,7 +161,10 @@ func genesisStateWithValSet(app *SimApp, genesisState GenesisState, valSet *tmty
 			Commission:        stakingtypes.NewCommission(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()),
 			MinSelfDelegation: sdk.ZeroInt(),
 		}
-
+		_, err := validator.GetConsAddr()
+		if err != nil {
+			panic(err)
+		}
 		validators = append(validators, validator)
 		delegations = append(delegations, stakingtypes.NewDelegation(genAcc.GetAddress(), val.Address.Bytes(), sdk.OneDec()))
 
@@ -178,7 +181,23 @@ func genesisStateWithValSet(app *SimApp, genesisState GenesisState, valSet *tmty
 		ValidatorMultiStakingCoins: validatorMsCoins,
 		StakingGenesisState:        *stakingGenesis,
 	}
+
+	val := multistakingGenesis.StakingGenesisState.Validators[0]
+	_, err := val.GetConsAddr()
+	if err != nil {
+		panic(err)
+	}
+
 	genesisState[multistakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(&multistakingGenesis)
+
+	testGen := &multistakingtypes.GenesisState{}
+	app.AppCodec().MustUnmarshalJSON(genesisState[multistakingtypes.ModuleName], testGen)
+
+	val = testGen.StakingGenesisState.Validators[0]
+	_, err = val.GetConsAddr()
+	if err != nil {
+		panic(err)
+	}
 
 	balances = append(balances, banktypes.Balance{
 		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),

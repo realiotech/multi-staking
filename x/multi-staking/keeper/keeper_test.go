@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/realio-tech/multi-staking-module/testing/simapp"
 	"github.com/realio-tech/multi-staking-module/test"
+	"github.com/realio-tech/multi-staking-module/test/simapp"
 	multistakingkeeper "github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -32,7 +32,7 @@ type KeeperTestSuite struct {
 
 func (suite *KeeperTestSuite) SetupTest() {
 	app := simapp.Setup(false)
-	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
+	ctx := app.BaseApp.NewContext(false, tmproto.Header{Height: 1})
 	multiStakingMsgServer := multistakingkeeper.NewMsgServerImpl(app.MultiStakingKeeper)
 
 	suite.app, suite.ctx, suite.msKeeper, suite.msgServer = app, ctx, &app.MultiStakingKeeper, multiStakingMsgServer
@@ -281,6 +281,12 @@ func (suite *KeeperTestSuite) FundAccount(addr sdk.AccAddress, amounts sdk.Coins
 
 	err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, minttypes.ModuleName, addr, amounts)
 	require.NoError(suite.T(), err)
+}
+
+func (suite *KeeperTestSuite) CreateAndFundAccount(amounts sdk.Coins) sdk.AccAddress {
+	addr := test.GenAddress()
+	suite.FundAccount(addr, amounts)
+	return addr
 }
 
 func (suite *KeeperTestSuite) CheckBalance(addr sdk.AccAddress, coins sdk.Coins) {
