@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"cosmossdk.io/math"
 	"github.com/realio-tech/multi-staking-module/test"
 	"github.com/realio-tech/multi-staking-module/test/simapp"
 	multistakingkeeper "github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
@@ -73,4 +74,18 @@ func (suite *KeeperTestSuite) CheckBalance(addr sdk.AccAddress, coins sdk.Coins)
 	accBalance := suite.app.BankKeeper.GetAllBalances(suite.ctx, addr)
 
 	require.Equal(suite.T(), accBalance, coins)
+}
+
+func SoftEqualInt(a math.Int, b math.Int) bool {
+	biggerNum := math.MaxInt(a, b)
+	smallerNum := math.MinInt(a, b)
+
+	biggerNumDec := math.LegacyNewDecFromInt(biggerNum)
+	smallerNumDec := math.LegacyNewDecFromInt(smallerNum)
+
+	return smallerNumDec.Quo(biggerNumDec).GTE(math.LegacyMustNewDecFromStr("0.99"))
+}
+
+func DiffLTEThanOne(a, b math.Int) bool {
+	return a.Sub(b).Abs().LTE(math.OneInt())
 }
