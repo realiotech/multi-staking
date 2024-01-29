@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
-	"github.com/realio-tech/multi-staking-module/testing/simapp"
-	"github.com/realio-tech/multi-staking-module/testing/simapp/simd/cmd"
+	"github.com/realio-tech/multi-staking-module/test/simapp"
+	"github.com/realio-tech/multi-staking-module/test/simapp/simd/cmd"
 
 	"github.com/cosmos/cosmos-sdk/server"
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
