@@ -50,6 +50,12 @@ func NewMultiStakingUnlock(
 }
 
 func (unlock MultiStakingUnlock) Validate() error {
+	if _, err := sdk.AccAddressFromBech32(unlock.UnlockID.MultiStakerAddr); err != nil {
+		return err
+	}
+	if _, err := sdk.ValAddressFromBech32(unlock.UnlockID.ValAddr); err != nil {
+		return err
+	}
 	for _, entry := range unlock.Entries {
 		if entry.CreationHeight <= 0 {
 			return ErrInvalidMultiStakingUnlocksCreationHeight
