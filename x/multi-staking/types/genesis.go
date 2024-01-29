@@ -2,6 +2,7 @@ package types
 
 import (
 	"cosmossdk.io/errors"
+	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
@@ -16,6 +17,11 @@ func DefaultGenesis() *GenesisState {
 // Validate performs basic genesis state validation, returning an error upon any failure.
 // TODO: Add validate genesis
 func (gs GenesisState) Validate() error {
+	// validate staking genesis
+	if err := staking.ValidateGenesis(&gs.StakingGenesisState); err != nil {
+		return err
+	}
+
 	// validate locks
 	if len(gs.MultiStakingLocks) != len(gs.StakingGenesisState.Delegations) {
 		return errors.Wrapf(
