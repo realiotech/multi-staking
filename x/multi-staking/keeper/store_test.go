@@ -1,7 +1,7 @@
 package keeper_test
 
 import (
-	"github.com/realio-tech/multi-staking-module/testutil"
+	"github.com/realio-tech/multi-staking-module/testing"
 	multistakingkeeper "github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 
@@ -30,8 +30,8 @@ func (suite *KeeperTestSuite) TestSetBondWeight() {
 }
 
 func (suite *KeeperTestSuite) TestSetValidatorMultiStakingCoin() {
-	valA := testutil.GenValAddress()
-	valB := testutil.GenValAddress()
+	valA := testing.GenValAddress()
+	valB := testing.GenValAddress()
 
 	testCases := []struct {
 		name     string
@@ -92,8 +92,8 @@ func (suite *KeeperTestSuite) TestSetValidatorMultiStakingCoin() {
 
 func (suite *KeeperTestSuite) TestSetMultiStakingLock() {
 	suite.SetupTest()
-	delAddr := testutil.GenAddress()
-	valAddr := testutil.GenValAddress()
+	delAddr := testing.GenAddress()
+	valAddr := testing.GenValAddress()
 
 	lock := types.MultiStakingLock{
 		LockID: types.LockID{

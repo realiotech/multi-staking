@@ -3,7 +3,7 @@ package types_test
 import (
 	"testing"
 
-	"github.com/realio-tech/multi-staking-module/testutil"
+	"github.com/realio-tech/multi-staking-module/test"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	"github.com/stretchr/testify/require"
 
@@ -16,8 +16,8 @@ var (
 )
 
 func TestAddCoinToMultiStakingLock(t *testing.T) {
-	valAddr := testutil.GenValAddress()
-	delAddr := testutil.GenAddress()
+	valAddr := test.GenValAddress()
+	delAddr := test.GenAddress()
 
 	testCases := []struct {
 		name         string
@@ -75,8 +75,8 @@ func TestAddCoinToMultiStakingLock(t *testing.T) {
 }
 
 func TestRemoveCoinFromMultiStakingLock(t *testing.T) {
-	valAddr := testutil.GenValAddress()
-	delAddr := testutil.GenAddress()
+	valAddr := test.GenValAddress()
+	delAddr := test.GenAddress()
 
 	testCases := []struct {
 		name         string
@@ -126,10 +126,10 @@ func TestRemoveCoinFromMultiStakingLock(t *testing.T) {
 }
 
 func TestMoveCoinToLock(t *testing.T) {
-	valAddrA := testutil.GenValAddress()
-	valAddrB := testutil.GenValAddress()
+	valAddrA := test.GenValAddress()
+	valAddrB := test.GenValAddress()
 
-	delAddr := testutil.GenAddress()
+	delAddr := test.GenAddress()
 
 	testCases := []struct {
 		name          string

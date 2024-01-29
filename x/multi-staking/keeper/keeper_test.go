@@ -2,16 +2,20 @@ package keeper_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/realio-tech/multi-staking-module/testing/simapp"
-	"github.com/realio-tech/multi-staking-module/testutil"
+	"github.com/realio-tech/multi-staking-module/test"
 	multistakingkeeper "github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
+	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
 	"cosmossdk.io/math"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	abci "github.com/tendermint/tendermint/abci/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -39,9 +43,9 @@ func TestKeeperTestSuite(t *testing.T) {
 }
 
 func (suite *KeeperTestSuite) TestAdjustUnbondAmount() {
-	delAddr := testutil.GenAddress()
-	valDelAddr := testutil.GenAddress()
-	valPubKey := testutil.GenPubKey()
+	delAddr := test.GenAddress()
+	valDelAddr := test.GenAddress()
+	valPubKey := test.GenPubKey()
 	valAddr := sdk.ValAddress(valPubKey.Address())
 
 	testCases := []struct {
@@ -96,10 +100,8 @@ func (suite *KeeperTestSuite) TestAdjustUnbondAmount() {
 			suite.msKeeper.SetBondWeight(suite.ctx, MultiStakingDenomA, sdk.OneDec())
 			bondAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(1000))
 			userBalance := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(10000))
-			err := suite.FundAccount(delAddr, sdk.NewCoins(userBalance))
-			suite.Require().NoError(err)
-			err = suite.FundAccount(valDelAddr, sdk.NewCoins(userBalance))
-			suite.Require().NoError(err)
+			suite.FundAccount(delAddr, sdk.NewCoins(userBalance))
+			suite.FundAccount(valDelAddr, sdk.NewCoins(userBalance))
 
 			createMsg := stakingtypes.MsgCreateValidator{
 				Description: stakingtypes.Description{
@@ -120,7 +122,7 @@ func (suite *KeeperTestSuite) TestAdjustUnbondAmount() {
 				Pubkey:            codectypes.UnsafePackAny(valPubKey),
 				Value:             bondAmount,
 			}
-			_, err = suite.msgServer.CreateValidator(suite.ctx, &createMsg)
+			_, err := suite.msgServer.CreateValidator(suite.ctx, &createMsg)
 			suite.Require().NoError(err)
 			_, err = tc.malleate(suite.ctx, suite.msgServer, *suite.msKeeper)
 			suite.Require().NoError(err)
@@ -138,8 +140,8 @@ func (suite *KeeperTestSuite) TestAdjustUnbondAmount() {
 }
 
 func (suite *KeeperTestSuite) TestAdjustCancelUnbondAmount() {
-	delAddr := testutil.GenAddress()
-	valPubKey := testutil.GenPubKey()
+	delAddr := test.GenAddress()
+	valPubKey := test.GenPubKey()
 	valAddr := sdk.ValAddress(valPubKey.Address())
 
 	testCases := []struct {
@@ -218,8 +220,7 @@ func (suite *KeeperTestSuite) TestAdjustCancelUnbondAmount() {
 			suite.msKeeper.SetBondWeight(suite.ctx, MultiStakingDenomA, sdk.OneDec())
 			bondAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(5000))
 			userBalance := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(10000))
-			err := suite.FundAccount(delAddr, sdk.NewCoins(userBalance))
-			suite.Require().NoError(err)
+			suite.FundAccount(delAddr, sdk.NewCoins(userBalance))
 
 			createMsg := stakingtypes.MsgCreateValidator{
 				Description: stakingtypes.Description{
@@ -240,7 +241,7 @@ func (suite *KeeperTestSuite) TestAdjustCancelUnbondAmount() {
 				Pubkey:            codectypes.UnsafePackAny(valPubKey),
 				Value:             bondAmount,
 			}
-			_, err = suite.msgServer.CreateValidator(suite.ctx, &createMsg)
+			_, err := suite.msgServer.CreateValidator(suite.ctx, &createMsg)
 			suite.Require().NoError(err)
 			_, err = tc.malleate(suite.ctx, suite.msgServer, *suite.msKeeper)
 			suite.Require().NoError(err)
@@ -258,10 +259,32 @@ func (suite *KeeperTestSuite) TestAdjustCancelUnbondAmount() {
 }
 
 // Todo: add CheckBalance; AddAccountWithCoin; FundAccount
-func (suite *KeeperTestSuite) FundAccount(addr sdk.AccAddress, amounts sdk.Coins) error {
+func (suite *KeeperTestSuite) NextBlock(jumpTime time.Duration) {
+	app := suite.app
+
+	app.EndBlocker(suite.ctx, abci.RequestEndBlock{Height: suite.ctx.BlockHeight()})
+
+	newBlockTime := suite.ctx.BlockTime().Add(jumpTime)
+	nextHeight := suite.ctx.BlockHeight() + 1
+
+	newCtx := suite.ctx.WithBlockTime(newBlockTime).WithBlockHeight(nextHeight)
+
+	app.BeginBlocker(newCtx, abci.RequestBeginBlock{Header: newCtx.BlockHeader()})
+
+	suite.ctx = app.NewContext(false, newCtx.BlockHeader())
+}
+
+// Todo: add CheckBalance; AddAccountWithCoin; FundAccount
+func (suite *KeeperTestSuite) FundAccount(addr sdk.AccAddress, amounts sdk.Coins) {
 	err := suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, amounts)
-	if err != nil {
-		return err
-	}
-	return suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, minttypes.ModuleName, addr, amounts)
+	require.NoError(suite.T(), err)
+
+	err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, minttypes.ModuleName, addr, amounts)
+	require.NoError(suite.T(), err)
+}
+
+func (suite *KeeperTestSuite) CheckBalance(addr sdk.AccAddress, coins sdk.Coins) {
+	accBalance := suite.app.BankKeeper.GetAllBalances(suite.ctx, addr)
+
+	require.Equal(suite.T(), accBalance, coins)
 }
