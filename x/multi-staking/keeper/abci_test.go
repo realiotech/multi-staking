@@ -1,7 +1,6 @@
 package keeper_test
 
 import (
-	"fmt"
 	"time"
 
 	"cosmossdk.io/math"
@@ -76,7 +75,6 @@ func (suite *KeeperTestSuite) TestMsUnlockEnblocker() {
 				valConsAddr, err := val.GetConsAddr()
 				require.NoError(suite.T(), err)
 
-				fmt.Println(valConsAddr.String())
 				// height 3
 				suite.NextBlock(time.Second)
 
