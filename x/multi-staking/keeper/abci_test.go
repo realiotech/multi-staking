@@ -3,14 +3,15 @@ package keeper_test
 import (
 	"time"
 
-	"cosmossdk.io/math"
 	"github.com/stretchr/testify/require"
+
+	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-func (suite *KeeperTestSuite) TestMsUnlockEnblocker() {
+func (suite *KeeperTestSuite) TestMsUnlockEndBlocker() {
 	// val A
 	// delegate to val A with X ario
 	// undelegate from val A
@@ -80,7 +81,6 @@ func (suite *KeeperTestSuite) TestMsUnlockEnblocker() {
 
 				suite.app.SlashingKeeper.Slash(suite.ctx, valConsAddr, tc.slashFactor, slashedPow, 2)
 			} else {
-
 				// height 3
 				suite.NextBlock(time.Second)
 			}
