@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/realio-tech/multi-staking-module/testing/simapp"
+	"github.com/realio-tech/multi-staking-module/test/simapp"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 	tmcfg "github.com/tendermint/tendermint/config"

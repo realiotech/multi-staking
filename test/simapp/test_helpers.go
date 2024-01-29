@@ -161,7 +161,6 @@ func genesisStateWithValSet(app *SimApp, genesisState GenesisState, valSet *tmty
 			Commission:        stakingtypes.NewCommission(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()),
 			MinSelfDelegation: sdk.ZeroInt(),
 		}
-
 		validators = append(validators, validator)
 		delegations = append(delegations, stakingtypes.NewDelegation(genAcc.GetAddress(), val.Address.Bytes(), sdk.OneDec()))
 
@@ -178,6 +177,7 @@ func genesisStateWithValSet(app *SimApp, genesisState GenesisState, valSet *tmty
 		ValidatorMultiStakingCoins: validatorMsCoins,
 		StakingGenesisState:        *stakingGenesis,
 	}
+
 	genesisState[multistakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(&multistakingGenesis)
 
 	balances = append(balances, banktypes.Balance{
