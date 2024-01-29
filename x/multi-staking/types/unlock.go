@@ -23,6 +23,18 @@ func (e UnlockEntry) String() string {
 	return string(out)
 }
 
+func (u UnlockEntry) GetBondWeight() sdk.Dec {
+	return u.UnlockingCoin.BondWeight
+}
+
+func (unlockEntry UnlockEntry) UnbondAmountToUnlockAmount(unbondAmount math.Int) math.Int {
+	return sdk.NewDecFromInt(unbondAmount).Quo(unlockEntry.GetBondWeight()).TruncateInt()
+}
+
+func (unlockEntry UnlockEntry) UnlockAmountToUnbondAmount(unlockAmount math.Int) math.Int {
+	return unlockEntry.GetBondWeight().MulInt(unlockAmount).TruncateInt()
+}
+
 // NewMultiStakingUnlock - create a new MultiStaking unlock object
 //
 //nolint:interfacer
@@ -35,6 +47,26 @@ func NewMultiStakingUnlock(
 			NewUnlockEntry(creationHeight, weightedCoin),
 		},
 	}
+}
+
+func (unlock MultiStakingUnlock) Validate() error {
+	if _, err := sdk.AccAddressFromBech32(unlock.UnlockID.MultiStakerAddr); err != nil {
+		return err
+	}
+	if _, err := sdk.ValAddressFromBech32(unlock.UnlockID.ValAddr); err != nil {
+		return err
+	}
+	for _, entry := range unlock.Entries {
+		if entry.CreationHeight <= 0 {
+			return ErrInvalidMultiStakingUnlocksCreationHeight
+		}
+
+		if err := entry.UnlockingCoin.Validate(); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (unlock *MultiStakingUnlock) FindEntryIndexByHeight(creationHeight int64) (int, bool) {
@@ -99,18 +131,6 @@ func (unlock *MultiStakingUnlock) RemoveEntryAtCreationHeight(creationHeight int
 	if found {
 		unlock.RemoveEntry(entryIndex)
 	}
-}
-
-func (u UnlockEntry) GetBondWeight() sdk.Dec {
-	return u.UnlockingCoin.BondWeight
-}
-
-func (unlockEntry UnlockEntry) UnbondAmountToUnlockAmount(unbondAmount math.Int) math.Int {
-	return sdk.NewDecFromInt(unbondAmount).Quo(unlockEntry.GetBondWeight()).TruncateInt()
-}
-
-func (unlockEntry UnlockEntry) UnlockAmountToUnbondAmount(unlockAmount math.Int) math.Int {
-	return unlockEntry.GetBondWeight().MulInt(unlockAmount).TruncateInt()
 }
 
 // String returns a human readable string representation of an MultiStakingUnlock.

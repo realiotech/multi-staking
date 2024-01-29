@@ -13,6 +13,16 @@ func NewMultiStakingLock(lockID LockID, lockedCoin MultiStakingCoin) MultiStakin
 	}
 }
 
+func (lock MultiStakingLock) Validate() error {
+	if _, err := sdk.AccAddressFromBech32(lock.LockID.MultiStakerAddr); err != nil {
+		return err
+	}
+	if _, err := sdk.ValAddressFromBech32(lock.LockID.ValAddr); err != nil {
+		return err
+	}
+	return lock.LockedCoin.Validate()
+}
+
 func (lock MultiStakingLock) MultiStakingCoin(withAmount math.Int) MultiStakingCoin {
 	return lock.LockedCoin.WithAmount(withAmount)
 }
