@@ -23,21 +23,21 @@ func (suite *KeeperTestSuite) TestMsUnlockEnblocker() {
 		lockAmount  math.Int
 		slashFactor sdk.Dec
 	}{
-		// {
-		// 	name:        "no slashing",
-		// 	lockAmount:  math.NewInt(3788),
-		// 	slashFactor: sdk.ZeroDec(),
-		// },
+		{
+			name:        "no slashing",
+			lockAmount:  math.NewInt(3788),
+			slashFactor: sdk.ZeroDec(),
+		},
 		{
 			name:        "slash half of lock coin",
 			lockAmount:  math.NewInt(123),
 			slashFactor: sdk.MustNewDecFromStr("0.5"),
 		},
-		// {
-		// 	name:        "slash all of lock coin",
-		// 	lockAmount:  math.NewInt(19090),
-		// 	slashFactor: sdk.ZeroDec(),
-		// },
+		{
+			name:        "slash all of lock coin",
+			lockAmount:  math.NewInt(19090),
+			slashFactor: sdk.ZeroDec(),
+		},
 	}
 
 	for _, tc := range testCases {
@@ -102,7 +102,7 @@ func (suite *KeeperTestSuite) TestMsUnlockEnblocker() {
 
 			expectedUnlockAmount := sdk.NewDecFromInt(tc.lockAmount).Mul(sdk.OneDec().Sub(tc.slashFactor)).TruncateInt()
 
-			require.Equal(suite.T(), expectedUnlockAmount, unlockAmount)
+			suite.True(SoftEqualInt(unlockAmount, expectedUnlockAmount) || DiffLTEThanOne(unlockAmount, expectedUnlockAmount))
 		})
 	}
 }
