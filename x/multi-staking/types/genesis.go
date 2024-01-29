@@ -15,7 +15,6 @@ func DefaultGenesis() *GenesisState {
 }
 
 // Validate performs basic genesis state validation, returning an error upon any failure.
-// TODO: Add validate genesis
 func (gs GenesisState) Validate() error {
 	// validate staking genesis
 	if err := staking.ValidateGenesis(&gs.StakingGenesisState); err != nil {

@@ -8,6 +8,11 @@ import (
 )
 
 func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) (res []abci.ValidatorUpdate) {
+	// validate genesis
+	if err := data.Validate(); err != nil {
+		panic(err)
+	}
+
 	// multi-staking state
 	for _, multiStakingLock := range data.MultiStakingLocks {
 		k.SetMultiStakingLock(ctx, multiStakingLock)
