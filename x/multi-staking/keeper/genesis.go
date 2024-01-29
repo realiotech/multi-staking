@@ -29,12 +29,6 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) (res []abc
 
 	k.accountKeeper.GetModuleAccount(ctx, types.ModuleName)
 
-	val := data.StakingGenesisState.Validators[0]
-	_, err := val.GetConsAddr()
-	if err != nil {
-		panic(err)
-	}
-
 	return k.stakingKeeper.InitGenesis(ctx, &data.StakingGenesisState)
 }
 

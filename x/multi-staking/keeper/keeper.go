@@ -142,7 +142,7 @@ func (k Keeper) AdjustUnbondAmount(ctx sdk.Context, delAcc sdk.AccAddress, valAc
 		shares = delShares
 	}
 
-	return validator.TokensFromShares(shares).TruncateInt(), nil
+	return validator.TokensFromShares(shares).RoundInt().Sub(math.OneInt()), nil
 }
 
 func (k Keeper) AdjustCancelUnbondingAmount(ctx sdk.Context, delAcc sdk.AccAddress, valAcc sdk.ValAddress, creationHeight int64, amount math.Int) (adjustedAmount math.Int, err error) {
