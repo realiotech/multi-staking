@@ -31,7 +31,7 @@ type KeeperTestSuite struct {
 
 func (suite *KeeperTestSuite) SetupTest() {
 	app := simapp.Setup(false)
-	ctx := app.BaseApp.NewContext(false, tmproto.Header{Height: 1})
+	ctx := app.BaseApp.NewContext(false, tmproto.Header{Height: app.LastBlockHeight() + 1})
 	multiStakingMsgServer := multistakingkeeper.NewMsgServerImpl(app.MultiStakingKeeper)
 
 	suite.app, suite.ctx, suite.msKeeper, suite.msgServer = app, ctx, &app.MultiStakingKeeper, multiStakingMsgServer
@@ -260,17 +260,17 @@ func (suite *KeeperTestSuite) TestAdjustCancelUnbondAmount() {
 // Todo: add CheckBalance; AddAccountWithCoin; FundAccount
 func (suite *KeeperTestSuite) NextBlock(jumpTime time.Duration) {
 	app := suite.app
+	app.EndBlock(abci.RequestEndBlock{Height: suite.ctx.BlockHeight()})
 
-	app.EndBlocker(suite.ctx, abci.RequestEndBlock{Height: suite.ctx.BlockHeight()})
+	app.Commit()
 
 	newBlockTime := suite.ctx.BlockTime().Add(jumpTime)
 	nextHeight := suite.ctx.BlockHeight() + 1
+	newHeader := tmproto.Header{Height: nextHeight, Time: newBlockTime}
 
-	newCtx := suite.ctx.WithBlockTime(newBlockTime).WithBlockHeight(nextHeight)
+	app.BeginBlock(abci.RequestBeginBlock{Header: newHeader})
 
-	app.BeginBlocker(newCtx, abci.RequestBeginBlock{Header: newCtx.BlockHeader()})
-
-	suite.ctx = app.NewContext(false, newCtx.BlockHeader())
+	suite.ctx = app.NewContext(false, newHeader)
 }
 
 // Todo: add CheckBalance; AddAccountWithCoin; FundAccount
