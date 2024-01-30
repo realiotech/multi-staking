@@ -129,3 +129,153 @@ func (suite *KeeperTestSuite) TestSetMultiStakingLock() {
 		}
 	}
 }
+
+func (suite *KeeperTestSuite) TestMultiStakingLockIterator() {
+	valA := test.GenValAddress()
+	valB := test.GenValAddress()
+
+	delA := test.GenAddress()
+	delB := test.GenAddress()
+
+	sampleLocks := []types.MultiStakingLock{
+		types.NewMultiStakingLock(
+			types.MultiStakingLockID(delA.String(), valA.String()),
+			types.NewMultiStakingCoin(gasDenom, sdk.NewInt(1000), sdk.OneDec()),
+		),
+		types.NewMultiStakingLock(
+			types.MultiStakingLockID(delA.String(), valB.String()),
+			types.NewMultiStakingCoin(govDenom, sdk.NewInt(1234), sdk.MustNewDecFromStr("0.3")),
+		),
+		types.NewMultiStakingLock(
+			types.MultiStakingLockID(delB.String(), valA.String()),
+			types.NewMultiStakingCoin(gasDenom, sdk.NewInt(5678), sdk.OneDec()),
+		),
+		types.NewMultiStakingLock(
+			types.MultiStakingLockID(delB.String(), valB.String()),
+			types.NewMultiStakingCoin(govDenom, sdk.NewInt(3000), sdk.MustNewDecFromStr("0.3")),
+		),
+	}
+
+	suite.SetupTest()
+	expLocks := make(map[string]types.MultiStakingLock)
+	suite.msKeeper.MultiStakingLockIterator(suite.ctx, func(multiStakingLock types.MultiStakingLock) (stop bool) {
+		mapKey := multiStakingLock.LockID.MultiStakerAddr + multiStakingLock.LockID.ValAddr
+		expLocks[mapKey] = multiStakingLock
+		return false
+	})
+
+	for _, lock := range sampleLocks {
+		suite.msKeeper.SetMultiStakingLock(suite.ctx, lock)
+		mapKey := lock.LockID.MultiStakerAddr + lock.LockID.ValAddr
+		expLocks[mapKey] = lock
+	}
+
+	suite.msKeeper.MultiStakingLockIterator(suite.ctx, func(multiStakingLock types.MultiStakingLock) (stop bool) {
+		mapKey := multiStakingLock.LockID.MultiStakerAddr + multiStakingLock.LockID.ValAddr
+		suite.Require().Equal(expLocks[mapKey], multiStakingLock)
+		return false
+	})
+}
+
+func (suite *KeeperTestSuite) TestMultiStakingUnlockIterator() {
+	valA := test.GenValAddress()
+	valB := test.GenValAddress()
+
+	delA := test.GenAddress()
+	delB := test.GenAddress()
+
+	sampleUnlocks := []types.MultiStakingUnlock{
+		types.NewMultiStakingUnlock(
+			types.MultiStakingUnlockID(delA.String(), valA.String()),
+			1,
+			types.NewMultiStakingCoin(gasDenom, sdk.NewInt(1000), sdk.OneDec()),
+		),
+		types.NewMultiStakingUnlock(
+			types.MultiStakingUnlockID(delA.String(), valB.String()),
+			2,
+			types.NewMultiStakingCoin(govDenom, sdk.NewInt(1234), sdk.MustNewDecFromStr("0.3")),
+		),
+		types.NewMultiStakingUnlock(
+			types.MultiStakingUnlockID(delB.String(), valA.String()),
+			3,
+			types.NewMultiStakingCoin(gasDenom, sdk.NewInt(5678), sdk.OneDec()),
+		),
+		types.NewMultiStakingUnlock(
+			types.MultiStakingUnlockID(delB.String(), valB.String()),
+			4,
+			types.NewMultiStakingCoin(govDenom, sdk.NewInt(3000), sdk.MustNewDecFromStr("0.3")),
+		),
+	}
+
+	suite.SetupTest()
+	expUnlocks := make(map[string]types.MultiStakingUnlock)
+	suite.msKeeper.MultiStakingUnlockIterator(suite.ctx, func(multiStakingUnlock types.MultiStakingUnlock) (stop bool) {
+		mapKey := multiStakingUnlock.UnlockID.MultiStakerAddr + multiStakingUnlock.UnlockID.ValAddr
+		expUnlocks[mapKey] = multiStakingUnlock
+		return false
+	})
+
+	for _, unlock := range sampleUnlocks {
+		suite.msKeeper.SetMultiStakingUnlock(suite.ctx, unlock)
+		mapKey := unlock.UnlockID.MultiStakerAddr + unlock.UnlockID.ValAddr
+		expUnlocks[mapKey] = unlock
+	}
+
+	suite.msKeeper.MultiStakingUnlockIterator(suite.ctx, func(multiStakingUnlock types.MultiStakingUnlock) (stop bool) {
+		mapKey := multiStakingUnlock.UnlockID.MultiStakerAddr + multiStakingUnlock.UnlockID.ValAddr
+		suite.Require().Equal(expUnlocks[mapKey], multiStakingUnlock)
+		return false
+	})
+}
+
+func (suite *KeeperTestSuite) TestValidatorMultiStakingCoinIterator() {
+	valA := test.GenValAddress()
+	valB := test.GenValAddress()
+	valC := test.GenValAddress()
+	valD := test.GenValAddress()
+
+	sampleRecords := []types.ValidatorMultiStakingCoin{
+		{
+			ValAddr:   valA.String(),
+			CoinDenom: gasDenom,
+		},
+		{
+			ValAddr:   valB.String(),
+			CoinDenom: govDenom,
+		},
+		{
+			ValAddr:   valC.String(),
+			CoinDenom: govDenom,
+		},
+		{
+			ValAddr:   valD.String(),
+			CoinDenom: govDenom,
+		},
+	}
+
+	suite.SetupTest()
+
+	expRecords := make(map[string]types.ValidatorMultiStakingCoin)
+	suite.msKeeper.ValidatorMultiStakingCoinIterator(suite.ctx, func(valAddr string, denom string) (stop bool) {
+		expRecords[valAddr] = types.ValidatorMultiStakingCoin{
+			ValAddr:   valAddr,
+			CoinDenom: denom,
+		}
+		return false
+	})
+
+	for _, record := range sampleRecords {
+		valAcc, _ := sdk.ValAddressFromBech32(record.ValAddr)
+		suite.msKeeper.SetValidatorMultiStakingCoin(suite.ctx, valAcc, record.CoinDenom)
+		expRecords[record.ValAddr] = types.ValidatorMultiStakingCoin{
+			ValAddr:   record.ValAddr,
+			CoinDenom: record.CoinDenom,
+		}
+	}
+
+	suite.msKeeper.ValidatorMultiStakingCoinIterator(suite.ctx, func(valAddr string, denom string) (stop bool) {
+		suite.Require().Equal(expRecords[valAddr].ValAddr, valAddr)
+		suite.Require().Equal(expRecords[valAddr].CoinDenom, denom)
+		return false
+	})
+}
