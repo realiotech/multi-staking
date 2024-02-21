@@ -45,7 +45,7 @@ func (k queryServer) BondWeights(c context.Context, req *types.QueryBondWeightsR
 			return err
 		}
 		coinInfo := types.MultiStakingCoinInfo{
-			Denom: string(key),
+			Denom:      string(key),
 			BondWeight: *bondCoinWeight,
 		}
 
