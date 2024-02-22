@@ -5,6 +5,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/x/staking/client/cli"
 )
 
 // NewTxCmd returns a root CLI command handler for all x/exp transaction commands.
@@ -16,6 +17,15 @@ func NewTxCmd() *cobra.Command {
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
+
+	txCmd.AddCommand(
+		cli.NewCreateValidatorCmd(),
+		cli.NewEditValidatorCmd(),
+		cli.NewDelegateCmd(),
+		cli.NewRedelegateCmd(),
+		cli.NewUnbondCmd(),
+		cli.NewCancelUnbondingDelegation(),
+	)
 
 	return txCmd
 }
