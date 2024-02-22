@@ -29,8 +29,7 @@ var (
 
 // AppModule embeds the Cosmos SDK's x/staking AppModuleBasic.
 type AppModuleBasic struct {
-	cdc                codec.Codec
-	stakingAppModBasic staking.AppModuleBasic
+	cdc codec.Codec
 }
 
 // Name returns the staking module's name.
@@ -40,12 +39,10 @@ func (AppModuleBasic) Name() string {
 
 // RegisterLegacyAminoCodec register module codec
 func (am AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	am.stakingAppModBasic.RegisterLegacyAminoCodec(cdc)
 }
 
 // RegisterInterfaces registers the module interface
 func (am AppModuleBasic) RegisterInterfaces(reg cdctypes.InterfaceRegistry) {
-	am.stakingAppModBasic.RegisterInterfaces(reg)
 }
 
 // DefaultGenesis returns multi-staking module default genesis state.
