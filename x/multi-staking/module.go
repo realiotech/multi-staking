@@ -17,7 +17,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/staking"
-	stakingcli "github.com/cosmos/cosmos-sdk/x/staking/client/cli"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
@@ -65,15 +64,12 @@ func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *g
 
 // GetTxCmd returns the staking module's root tx command.
 func (AppModuleBasic) GetTxCmd() *cobra.Command {
-	return stakingcli.NewTxCmd()
+	return cli.NewTxCmd()
 }
 
 // GetQueryCmd returns the multi-staking and staking module's root query command.
-func (AppModuleBasic) GetQueryCmd() *cobra.Command {
-	cmd := stakingcli.GetQueryCmd()
-	cmd.AddCommand(cli.GetQueryCmd())
-
-	return cmd
+func (AppModuleBasic) GetQueryCmd() (queryCmd *cobra.Command) {
+	return cli.GetQueryCmd()
 }
 
 // AppModule embeds the Cosmos SDK's x/staking AppModule where we only override
