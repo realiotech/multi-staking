@@ -34,8 +34,9 @@ service Query {
     option (google.api.http).get =
         "/realiotech/multistaking/v1/validator-coin/{validator_addr}";
   }
-  rpc BondWeights(QueryBondWeightsRequest) returns (QueryBondWeightsResponse) {
-    option (google.api.http).get = "/realiotech/multistaking/v1/weights";
+  rpc MultiStakingCoinInfos(QueryMultiStakingCoinInfosRequest)
+      returns (QueryMultiStakingCoinInfosResponse) {
+    option (google.api.http).get = "/realiotech/multistaking/v1/coin-infos";
   }
   rpc BondWeight(QueryBondWeightRequest) returns (QueryBondWeightResponse) {
     option (google.api.http).get = "/realiotech/multistaking/v1/weight/{denom}";
@@ -88,11 +89,11 @@ message QueryMultiStakingUnlockResponse {
   bool found = 2;
 }
 
-message QueryBondWeightsRequest {
+message QueryMultiStakingCoinInfosRequest {
   cosmos.base.query.v1beta1.PageRequest pagination = 1;
 }
 
-message QueryBondWeightsResponse {
+message QueryMultiStakingCoinInfosResponse {
   repeated MultiStakingCoinInfo infos = 1;
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }

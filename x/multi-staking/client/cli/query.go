@@ -22,7 +22,7 @@ func GetQueryCmd() *cobra.Command {
 
 	cmd.AddCommand(
 		GetCmdQueryBondWeight(),
-		GetCmdQueryBondWeights(),
+		GetCmdQueryMultiStakingCoinInfos(),
 		GetCmdQueryMultiStakingLock(),
 		GetCmdQueryMultiStakingLocks(),
 		GetCmdQueryMultiStakingUnlock(),
@@ -64,11 +64,11 @@ func GetCmdQueryBondWeight() *cobra.Command {
 	return cmd
 }
 
-// GetCmdQueryBondWeight implements the command to query bond weight of specific denom
-func GetCmdQueryBondWeights() *cobra.Command {
+// GetCmdQueryMultiStakingCoinInfos implements the command to query all multistaking coin information
+func GetCmdQueryMultiStakingCoinInfos() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "bond-weights",
-		Short: "Query all multistaking coin bond weight",
+		Use:   "coin-infos",
+		Short: "Query all multistaking coin information",
 		Args:  cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -82,11 +82,11 @@ func GetCmdQueryBondWeights() *cobra.Command {
 				return err
 			}
 
-			req := &types.QueryBondWeightsRequest{
+			req := &types.QueryMultiStakingCoinInfosRequest{
 				Pagination: pageReq,
 			}
 
-			res, err := queryClient.BondWeights(cmd.Context(), req)
+			res, err := queryClient.MultiStakingCoinInfos(cmd.Context(), req)
 			if err != nil {
 				return err
 			}
@@ -96,7 +96,7 @@ func GetCmdQueryBondWeights() *cobra.Command {
 	}
 
 	flags.AddQueryFlagsToCmd(cmd)
-	flags.AddPaginationFlagsToCmd(cmd, "bond-weights")
+	flags.AddPaginationFlagsToCmd(cmd, "coin-infos")
 
 	return cmd
 }

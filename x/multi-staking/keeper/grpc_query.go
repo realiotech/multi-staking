@@ -27,7 +27,7 @@ func NewQueryServerImpl(keeper Keeper) types.QueryServer {
 var _ types.QueryServer = queryServer{}
 
 // BondWeights implements types.QueryServer.
-func (k queryServer) BondWeights(c context.Context, req *types.QueryBondWeightsRequest) (*types.QueryBondWeightsResponse, error) {
+func (k queryServer) MultiStakingCoinInfos(c context.Context, req *types.QueryMultiStakingCoinInfosRequest) (*types.QueryMultiStakingCoinInfosResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -56,7 +56,7 @@ func (k queryServer) BondWeights(c context.Context, req *types.QueryBondWeightsR
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &types.QueryBondWeightsResponse{Infos: infos, Pagination: pageRes}, nil
+	return &types.QueryMultiStakingCoinInfosResponse{Infos: infos, Pagination: pageRes}, nil
 }
 
 // BondWeight implements types.QueryServer.
