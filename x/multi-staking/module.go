@@ -17,6 +17,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/staking"
+	stakingcli "github.com/cosmos/cosmos-sdk/x/staking/client/cli"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
@@ -47,17 +48,18 @@ func (am AppModuleBasic) RegisterInterfaces(reg cdctypes.InterfaceRegistry) {
 	am.stakingAppModBasic.RegisterInterfaces(reg)
 }
 
-// DefaultGenesis returns feeabs module default genesis state.
+// DefaultGenesis returns multi-staking module default genesis state.
 func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
 	return cdc.MustMarshalJSON(multistakingtypes.DefaultGenesis())
 }
 
-// ValidateGenesis validate genesis state for feeabs module
-func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncodingConfig, bz json.RawMessage) error {
+// ValidateGenesis validate genesis state for multi-staking module
+func (am AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncodingConfig, bz json.RawMessage) error {
 	var genState multistakingtypes.GenesisState
 	if err := cdc.UnmarshalJSON(bz, &genState); err != nil {
 		return fmt.Errorf("failed to unmarshal %s genesis state: %w", multistakingtypes.ModuleName, err)
 	}
+
 	return genState.Validate()
 }
 
@@ -66,7 +68,7 @@ func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *g
 
 // GetTxCmd returns the staking module's root tx command.
 func (AppModuleBasic) GetTxCmd() *cobra.Command {
-	return cli.NewTxCmd()
+	return stakingcli.NewTxCmd()
 }
 
 // GetQueryCmd returns the multi-staking and staking module's root query command.
@@ -107,8 +109,9 @@ func (AppModule) Name() string {
 }
 
 // RegisterInvariants registers the staking module invariants.
-// TODO: Need to implement invariants
 func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
+	am.skAppModule.RegisterInvariants(ir)
+	multistakingkeeper.RegisterInvariants(ir, am.keeper)
 }
 
 // Deprecated: Route returns the message routing key for the staking module.
@@ -132,29 +135,31 @@ func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sd
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	stakingtypes.RegisterMsgServer(cfg.MsgServer(), multistakingkeeper.NewMsgServerImpl(am.keeper))
 	multistakingtypes.RegisterQueryServer(cfg.QueryServer(), multistakingkeeper.NewQueryServerImpl(am.keeper))
+
+	querier := stakingkeeper.Querier{Keeper: am.sk}
+	stakingtypes.RegisterQueryServer(cfg.QueryServer(), querier)
 }
 
-// InitGenesis initial genesis state for feeabs module
+// InitGenesis initial genesis state for multi-staking module
 func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState multistakingtypes.GenesisState
 	cdc.MustUnmarshalJSON(data, &genesisState)
-	am.keeper.InitGenesis(ctx, genesisState)
 
-	return []abci.ValidatorUpdate{}
+	return am.keeper.InitGenesis(ctx, genesisState)
 }
 
-// ExportGenesis export feeabs state as raw message for feeabs module
+// ExportGenesis export multi-staking state as raw message for multi-staking module
 func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
 	gs := am.keeper.ExportGenesis(ctx)
 	return cdc.MustMarshalJSON(gs)
 }
 
-// BeginBlock returns the begin blocker for the feeabs module.
+// BeginBlock returns the begin blocker for the multi-staking module.
 func (am AppModule) BeginBlock(ctx sdk.Context, requestBeginBlock abci.RequestBeginBlock) {
 	am.skAppModule.BeginBlock(ctx, requestBeginBlock)
 }
 
-// EndBlock returns the end blocker for the feeabs module. It returns no validator
+// EndBlock returns the end blocker for the multi-staking module. It returns no validator
 // updates.
 func (am AppModule) EndBlock(ctx sdk.Context, requestEndBlock abci.RequestEndBlock) []abci.ValidatorUpdate {
 	// calculate the amount of coin

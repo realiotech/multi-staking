@@ -6,11 +6,21 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func NewMultiStakingLock(lockID *LockID, lockedCoin MultiStakingCoin) MultiStakingLock {
+func NewMultiStakingLock(lockID LockID, lockedCoin MultiStakingCoin) MultiStakingLock {
 	return MultiStakingLock{
 		LockID:     lockID,
 		LockedCoin: lockedCoin,
 	}
+}
+
+func (lock MultiStakingLock) Validate() error {
+	if _, err := sdk.AccAddressFromBech32(lock.LockID.MultiStakerAddr); err != nil {
+		return err
+	}
+	if _, err := sdk.ValAddressFromBech32(lock.LockID.ValAddr); err != nil {
+		return err
+	}
+	return lock.LockedCoin.Validate()
 }
 
 func (lock MultiStakingLock) MultiStakingCoin(withAmount math.Int) MultiStakingCoin {

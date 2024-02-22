@@ -12,7 +12,7 @@ import (
 func (k Keeper) GetOrCreateMultiStakingLock(ctx sdk.Context, lockID types.LockID) types.MultiStakingLock {
 	multiStakingLock, found := k.GetMultiStakingLock(ctx, lockID)
 	if !found {
-		multiStakingLock = types.NewMultiStakingLock(&lockID, types.MultiStakingCoin{Amount: sdk.ZeroInt()})
+		multiStakingLock = types.NewMultiStakingLock(lockID, types.MultiStakingCoin{Amount: sdk.ZeroInt()})
 	}
 	return multiStakingLock
 }

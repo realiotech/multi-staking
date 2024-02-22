@@ -81,6 +81,12 @@ func (k Keeper) BurnUnbondedCoinAndUnlockedMultiStakingCoin(
 	if err != nil {
 		return sdk.Coin{}, err
 	}
+	// burn remaining coin in unlock
+	remaningCoin := unlockEntry.UnlockingCoin.ToCoin().Sub(unlockedCoin)
+	err = k.bankKeeper.BurnCoins(ctx, types.ModuleName, sdk.NewCoins(remaningCoin))
+	if err != nil {
+		return sdk.Coin{}, err
+	}
 
 	err = k.UnescrowCoinTo(ctx, multiStakerAddr, unlockedCoin)
 	if err != nil {

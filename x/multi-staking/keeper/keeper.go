@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	"github.com/tendermint/tendermint/libs/log"
@@ -17,23 +18,23 @@ import (
 
 type Keeper struct {
 	storeKey      storetypes.StoreKey
-	memKey        storetypes.StoreKey
 	cdc           codec.BinaryCodec
+	accountKeeper types.AccountKeeper
 	stakingKeeper stakingkeeper.Keeper
 	bankKeeper    types.BankKeeper
 }
 
 func NewKeeper(
 	cdc codec.BinaryCodec,
+	accountKeeper types.AccountKeeper,
 	stakingKeeper stakingkeeper.Keeper,
 	bankKeeper types.BankKeeper,
 	key storetypes.StoreKey,
-	memKey storetypes.StoreKey,
 ) *Keeper {
 	return &Keeper{
 		cdc:           cdc,
 		storeKey:      key,
-		memKey:        memKey,
+		accountKeeper: accountKeeper,
 		stakingKeeper: stakingKeeper,
 		bankKeeper:    bankKeeper,
 	}
@@ -44,9 +45,25 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", "x/"+types.ModuleName)
 }
 
+func (k Keeper) DequeueAllMatureUBDQueue(ctx sdk.Context, currTime time.Time) (matureUnbonds []stakingtypes.DVPair) {
+	// gets an iterator for all timeslices from time 0 until the current Blockheader time
+	unbondingTimesliceIterator := k.stakingKeeper.UBDQueueIterator(ctx, currTime)
+	defer unbondingTimesliceIterator.Close()
+
+	for ; unbondingTimesliceIterator.Valid(); unbondingTimesliceIterator.Next() {
+		timeslice := stakingtypes.DVPairs{}
+		value := unbondingTimesliceIterator.Value()
+		k.cdc.MustUnmarshal(value, &timeslice)
+
+		matureUnbonds = append(matureUnbonds, timeslice.Pairs...)
+	}
+
+	return matureUnbonds
+}
+
 func (k Keeper) GetMatureUnbondingDelegations(ctx sdk.Context) []stakingtypes.UnbondingDelegation {
 	var matureUnbondingDelegations []stakingtypes.UnbondingDelegation
-	matureUnbonds := k.stakingKeeper.DequeueAllMatureUBDQueue(ctx, ctx.BlockHeader().Time)
+	matureUnbonds := k.DequeueAllMatureUBDQueue(ctx, ctx.BlockHeader().Time)
 	for _, dvPair := range matureUnbonds {
 		delAddr, valAddr, err := types.AccAddrAndValAddrFromStrings(dvPair.DelegatorAddress, dvPair.ValidatorAddress)
 		if err != nil {
@@ -125,5 +142,21 @@ func (k Keeper) AdjustUnbondAmount(ctx sdk.Context, delAcc sdk.AccAddress, valAc
 		shares = delShares
 	}
 
-	return validator.TokensFromShares(shares).RoundInt(), nil
+	return validator.TokensFromShares(shares).TruncateInt(), nil
+}
+
+func (k Keeper) AdjustCancelUnbondingAmount(ctx sdk.Context, delAcc sdk.AccAddress, valAcc sdk.ValAddress, creationHeight int64, amount math.Int) (adjustedAmount math.Int, err error) {
+	undelegation, found := k.stakingKeeper.GetUnbondingDelegation(ctx, delAcc, valAcc)
+	if !found {
+		return math.Int{}, fmt.Errorf("undelegation not found")
+	}
+
+	totalUnbondingAmount := math.ZeroInt()
+	for _, entry := range undelegation.Entries {
+		if entry.CreationHeight == creationHeight {
+			totalUnbondingAmount = totalUnbondingAmount.Add(entry.Balance)
+		}
+	}
+
+	return math.MinInt(totalUnbondingAmount, amount), nil
 }

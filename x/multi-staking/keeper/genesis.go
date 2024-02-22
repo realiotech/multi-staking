@@ -27,7 +27,9 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) (res []abc
 		k.SetValidatorMultiStakingCoin(ctx, valAddr, valMultiStakingCoin.CoinDenom)
 	}
 
-	return k.stakingKeeper.InitGenesis(ctx, data.StakingGenesisState)
+	k.accountKeeper.GetModuleAccount(ctx, types.ModuleName)
+
+	return k.stakingKeeper.InitGenesis(ctx, &data.StakingGenesisState)
 }
 
 func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
@@ -69,6 +71,6 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 		MultiStakingUnlocks:        multiStakingUnlocks,
 		MultiStakingCoinInfo:       multiStakingCoinInfos,
 		ValidatorMultiStakingCoins: ValidatorMultiStakingCoinLists,
-		StakingGenesisState:        k.stakingKeeper.ExportGenesis(ctx),
+		StakingGenesisState:        *k.stakingKeeper.ExportGenesis(ctx),
 	}
 }
