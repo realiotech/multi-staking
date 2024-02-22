@@ -22,6 +22,7 @@ func GetQueryCmd() *cobra.Command {
 
 	cmd.AddCommand(
 		GetCmdQueryBondWeight(),
+		GetCmdQueryBondWeights(),
 		GetCmdQueryMultiStakingLock(),
 		GetCmdQueryMultiStakingLocks(),
 		GetCmdQueryMultiStakingUnlock(),
@@ -59,6 +60,43 @@ func GetCmdQueryBondWeight() *cobra.Command {
 	}
 
 	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetCmdQueryBondWeight implements the command to query bond weight of specific denom
+func GetCmdQueryBondWeights() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "bond-weights",
+		Short: "Query all multistaking coin bond weight",
+		Args:  cobra.ExactArgs(0),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+			queryClient := types.NewQueryClient(clientCtx)
+
+			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			if err != nil {
+				return err
+			}
+
+			req := &types.QueryBondWeightsRequest{
+				Pagination: pageReq,
+			}
+
+			res, err := queryClient.BondWeights(cmd.Context(), req)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	flags.AddPaginationFlagsToCmd(cmd, "bond-weights")
 
 	return cmd
 }
