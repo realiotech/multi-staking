@@ -1,6 +1,7 @@
 package multistaking
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -60,7 +61,11 @@ func (am AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEn
 }
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the staking module.
-func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *gwruntime.ServeMux) {}
+func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *gwruntime.ServeMux) {
+	if err := multistakingtypes.RegisterQueryHandlerClient(context.Background(), mux, multistakingtypes.NewQueryClient(clientCtx)); err != nil {
+		panic(err)
+	}
+}
 
 // GetTxCmd returns the staking module's root tx command.
 func (AppModuleBasic) GetTxCmd() *cobra.Command {

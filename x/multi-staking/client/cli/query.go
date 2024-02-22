@@ -22,6 +22,7 @@ func GetQueryCmd() *cobra.Command {
 
 	cmd.AddCommand(
 		GetCmdQueryBondWeight(),
+		GetCmdQueryMultiStakingCoinInfos(),
 		GetCmdQueryMultiStakingLock(),
 		GetCmdQueryMultiStakingLocks(),
 		GetCmdQueryMultiStakingUnlock(),
@@ -59,6 +60,43 @@ func GetCmdQueryBondWeight() *cobra.Command {
 	}
 
 	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetCmdQueryMultiStakingCoinInfos implements the command to query all multistaking coin information
+func GetCmdQueryMultiStakingCoinInfos() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "coin-infos",
+		Short: "Query all multistaking coin information",
+		Args:  cobra.ExactArgs(0),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+			queryClient := types.NewQueryClient(clientCtx)
+
+			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			if err != nil {
+				return err
+			}
+
+			req := &types.QueryMultiStakingCoinInfosRequest{
+				Pagination: pageReq,
+			}
+
+			res, err := queryClient.MultiStakingCoinInfos(cmd.Context(), req)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	flags.AddPaginationFlagsToCmd(cmd, "coin-infos")
 
 	return cmd
 }

@@ -26,12 +26,3 @@ message GenesisState {
   cosmos.staking.v1beta1.GenesisState staking_genesis_state = 5
       [ (gogoproto.nullable) = false ];
 }
-
-message MultiStakingCoinInfo {
-  string denom = 1;
-  string bond_weight = 2 [
-    (cosmos_proto.scalar) = "cosmos.Dec",
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-    (gogoproto.nullable) = false
-  ];
-}
