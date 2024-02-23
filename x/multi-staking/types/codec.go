@@ -2,7 +2,9 @@ package types
 
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
-	types "github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/codec/types"
+	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	v1beta1types "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
 
@@ -28,4 +30,10 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		(*v1beta1types.Content)(nil),
 		&AddMultiStakingCoinProposal{},
 	)
+}
+
+func init() {
+	RegisterLegacyAminoCodec(amino)
+	cryptocodec.RegisterCrypto(amino)
+	sdk.RegisterLegacyAminoCodec(amino)
 }
