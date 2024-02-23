@@ -74,3 +74,68 @@ func (suite *KeeperTestSuite) TestAddHostZoneProposal() {
 		})
 	}
 }
+
+func (suite *KeeperTestSuite) TestUpdateBondWeightProposal() {
+	bondWeight := sdk.NewDec(1)
+
+	for _, tc := range []struct {
+		desc      string
+		malleate  func(p *types.UpdateBondWeightProposal)
+		proposal  *types.UpdateBondWeightProposal
+		shouldErr bool
+	}{
+		{
+			desc: "Success",
+			malleate: func(p *types.UpdateBondWeightProposal) {
+				oldBondWeight := sdk.NewDec(2)
+				suite.msKeeper.SetBondWeight(suite.ctx, p.Denom, oldBondWeight)
+			},
+			proposal: &types.UpdateBondWeightProposal{
+				Title:             "Add multistaking coin",
+				Description:       "Add new multistaking coin",
+				Denom:             "stake1",
+				UpdatedBondWeight: &bondWeight,
+			},
+			shouldErr: true,
+		},
+		{
+			desc:     "Error multistaking coin not exists",
+			malleate: func(p *types.UpdateBondWeightProposal) {},
+			proposal: &types.UpdateBondWeightProposal{
+				Title:             "Add multistaking coin",
+				Description:       "Add new multistaking coin",
+				Denom:             "stake2",
+				UpdatedBondWeight: &bondWeight,
+			},
+			shouldErr: false,
+		},
+	} {
+		tc := tc
+		suite.Run(tc.desc, func() {
+			suite.SetupTest()
+			tc.malleate(tc.proposal)
+
+			legacyProposal, err := govv1types.NewLegacyContent(tc.proposal, authtypes.NewModuleAddress(govtypes.ModuleName).String())
+			suite.Require().NoError(err)
+
+			if !tc.shouldErr {
+				// store proposal
+				_, err = suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{legacyProposal}, "")
+				suite.Require().NoError(err)
+
+				// execute proposal
+				handler := suite.govKeeper.LegacyRouter().GetRoute(tc.proposal.ProposalRoute())
+				err = handler(suite.ctx, tc.proposal)
+				suite.Require().NoError(err)
+
+				weight, found := suite.msKeeper.GetBondWeight(suite.ctx, tc.proposal.Denom)
+				suite.Require().True(found)
+				suite.Require().True(weight.Equal(bondWeight))
+			} else {
+				// store proposal
+				_, err = suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{legacyProposal}, "")
+				suite.Require().Error(err)
+			}
+		})
+	}
+}
