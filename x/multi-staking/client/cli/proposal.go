@@ -22,7 +22,6 @@ func NewCmdSubmitAddMultiStakingCoinProposal() *cobra.Command {
 			}
 
 			from := clientCtx.GetFromAddress()
-
 			content := types.NewAddMultiStakingCoinProposal(
 				args[0], args[1], args[2], sdk.MustNewDecFromStr(args[3]),
 			)
