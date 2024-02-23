@@ -96,7 +96,7 @@ func (suite *KeeperTestSuite) TestUpdateBondWeightProposal() {
 				Denom:             "stake1",
 				UpdatedBondWeight: &bondWeight,
 			},
-			shouldErr: true,
+			shouldErr: false,
 		},
 		{
 			desc:     "Error multistaking coin not exists",
@@ -107,7 +107,7 @@ func (suite *KeeperTestSuite) TestUpdateBondWeightProposal() {
 				Denom:             "stake2",
 				UpdatedBondWeight: &bondWeight,
 			},
-			shouldErr: false,
+			shouldErr: true,
 		},
 	} {
 		tc := tc
