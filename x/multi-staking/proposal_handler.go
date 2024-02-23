@@ -13,8 +13,10 @@ import (
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
 
-var AddMultiStakingProposalHandler = govclient.NewProposalHandler(cli.NewCmdSubmitAddMultiStakingCoinProposal)
-var UpdateBondWeightProposalHandler = govclient.NewProposalHandler(cli.NewCmdUpdateBondWeightProposal)
+var (
+	AddMultiStakingProposalHandler  = govclient.NewProposalHandler(cli.NewCmdSubmitAddMultiStakingCoinProposal)
+	UpdateBondWeightProposalHandler = govclient.NewProposalHandler(cli.NewCmdUpdateBondWeightProposal)
+)
 
 // NewMultiStakingProposalHandler creates a governance handler to manage Mult-Staking proposals.
 func NewMultiStakingProposalHandler(k *keeper.Keeper) govv1beta1.Handler {
