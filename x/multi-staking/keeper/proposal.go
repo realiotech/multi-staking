@@ -15,7 +15,7 @@ func (k Keeper) AddMultiStakingCoinProposal(
 ) error {
 	_, found := k.GetBondWeight(ctx, p.Denom)
 	if found {
-		return fmt.Errorf("Error MultiStakingCoin %s already exist", p.Denom)
+		return fmt.Errorf("Error MultiStakingCoin %s already exist", p.Denom) //nolint:stylecheck
 	}
 
 	k.SetBondWeight(ctx, p.Denom, *p.BondWeight)
