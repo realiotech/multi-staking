@@ -47,7 +47,7 @@ func NewCmdUpdateBondWeightProposal() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update-bond-weight [title] [description] [denom] [bond_weight] [deposit]",
 		Args:  cobra.ExactArgs(5),
-		Short: "Submit an add multistaking coin proposal",
+		Short: "Submit update bond weight for bond coin proposal",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
