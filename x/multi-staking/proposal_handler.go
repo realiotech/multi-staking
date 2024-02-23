@@ -1,6 +1,7 @@
 package multistaking
 
 import (
+	"github.com/realio-tech/multi-staking-module/x/multi-staking/client/cli"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 
@@ -10,12 +11,9 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	"github.com/realio-tech/multi-staking-module/x/multi-staking/client/cli"
 )
 
-var (
-	AddMultiStakingProposalHandler = govclient.NewProposalHandler(cli.NewCmdSubmitAddMultiStakingCoinProposal)
-)
+var AddMultiStakingProposalHandler = govclient.NewProposalHandler(cli.NewCmdSubmitAddMultiStakingCoinProposal)
 
 // NewMultiStakingProposalHandler creates a governance handler to manage Mult-Staking proposals.
 func NewMultiStakingProposalHandler(k *keeper.Keeper) govv1beta1.Handler {

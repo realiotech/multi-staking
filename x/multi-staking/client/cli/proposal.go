@@ -1,12 +1,13 @@
 package cli
 
 import (
+	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
+	"github.com/spf13/cobra"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
-	"github.com/spf13/cobra"
 )
 
 func NewCmdSubmitAddMultiStakingCoinProposal() *cobra.Command {
