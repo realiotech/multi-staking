@@ -1,11 +1,12 @@
 package keeper_test
 
 import (
+	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1types "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
 
 func (suite *KeeperTestSuite) TestAddHostZoneProposal() {
@@ -26,7 +27,7 @@ func (suite *KeeperTestSuite) TestAddHostZoneProposal() {
 			proposal: &types.AddMultiStakingCoinProposal{
 				Title:       "Add multistaking coin",
 				Description: "Add new multistaking coin",
-				Denom:       "stake",
+				Denom:       "stake1",
 				BondWeight:  &bondWeight,
 			},
 			shouldErr: false,
@@ -39,10 +40,10 @@ func (suite *KeeperTestSuite) TestAddHostZoneProposal() {
 			proposal: &types.AddMultiStakingCoinProposal{
 				Title:       "Add multistaking coin",
 				Description: "Add new multistaking coin",
-				Denom:       "stake",
+				Denom:       "stake2",
 				BondWeight:  &bondWeight,
 			},
-			shouldErr: false,
+			shouldErr: true,
 		},
 	} {
 		tc := tc
