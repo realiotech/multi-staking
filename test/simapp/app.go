@@ -119,6 +119,7 @@ var (
 				distrclient.ProposalHandler,
 				upgradeclient.LegacyProposalHandler,
 				upgradeclient.LegacyCancelProposalHandler,
+				multistaking.AddMultiStakingProposalHandler,
 			},
 		),
 		groupmodule.AppModuleBasic{},

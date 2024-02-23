@@ -8,7 +8,13 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	"github.com/realio-tech/multi-staking-module/x/multi-staking/client/cli"
+)
+
+var (
+	AddMultiStakingProposalHandler = govclient.NewProposalHandler(cli.NewCmdSubmitAddMultiStakingCoinProposal)
 )
 
 // NewMultiStakingProposalHandler creates a governance handler to manage Mult-Staking proposals.
