@@ -21,6 +21,8 @@ func NewMultiStakingProposalHandler(k *keeper.Keeper) govv1beta1.Handler {
 		switch c := content.(type) {
 		case *types.AddMultiStakingCoinProposal:
 			return k.AddMultiStakingCoinProposal(ctx, c)
+		case *types.UpdateBondWeightProposal:
+			return k.BondWeightProposal(ctx, c)
 		default:
 			return sdkerrors.Wrapf(errortypes.ErrUnknownRequest, "unrecognized %s proposal content type: %T", types.ModuleName, c)
 		}
