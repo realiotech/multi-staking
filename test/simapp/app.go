@@ -120,6 +120,7 @@ var (
 				upgradeclient.LegacyProposalHandler,
 				upgradeclient.LegacyCancelProposalHandler,
 				multistaking.AddMultiStakingProposalHandler,
+				multistaking.UpdateBondWeightProposalHandler,
 			},
 		),
 		groupmodule.AppModuleBasic{},
