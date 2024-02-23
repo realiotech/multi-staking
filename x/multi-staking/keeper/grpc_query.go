@@ -26,6 +26,39 @@ func NewQueryServerImpl(keeper Keeper) types.QueryServer {
 
 var _ types.QueryServer = queryServer{}
 
+// BondWeights implements types.QueryServer.
+func (k queryServer) MultiStakingCoinInfos(c context.Context, req *types.QueryMultiStakingCoinInfosRequest) (*types.QueryMultiStakingCoinInfosResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+
+	ctx := sdk.UnwrapSDKContext(c)
+	var infos []*types.MultiStakingCoinInfo
+
+	store := ctx.KVStore(k.storeKey)
+	coinInfoStore := prefix.NewStore(store, types.BondWeightKey)
+
+	pageRes, err := query.Paginate(coinInfoStore, req.Pagination, func(key []byte, value []byte) error {
+		bondCoinWeight := &sdk.Dec{}
+		err := bondCoinWeight.Unmarshal(value)
+		if err != nil {
+			return err
+		}
+		coinInfo := types.MultiStakingCoinInfo{
+			Denom:      string(key),
+			BondWeight: *bondCoinWeight,
+		}
+
+		infos = append(infos, &coinInfo)
+		return nil
+	})
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &types.QueryMultiStakingCoinInfosResponse{Infos: infos, Pagination: pageRes}, nil
+}
+
 // BondWeight implements types.QueryServer.
 func (k queryServer) BondWeight(c context.Context, req *types.QueryBondWeightRequest) (*types.QueryBondWeightResponse, error) {
 	if req == nil {

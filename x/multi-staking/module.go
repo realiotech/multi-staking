@@ -1,6 +1,7 @@
 package multistaking
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -17,7 +18,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/staking"
-	stakingcli "github.com/cosmos/cosmos-sdk/x/staking/client/cli"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
@@ -29,8 +29,7 @@ var (
 
 // AppModule embeds the Cosmos SDK's x/staking AppModuleBasic.
 type AppModuleBasic struct {
-	cdc                codec.Codec
-	stakingAppModBasic staking.AppModuleBasic
+	cdc codec.Codec
 }
 
 // Name returns the staking module's name.
@@ -40,12 +39,10 @@ func (AppModuleBasic) Name() string {
 
 // RegisterLegacyAminoCodec register module codec
 func (am AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	am.stakingAppModBasic.RegisterLegacyAminoCodec(cdc)
 }
 
 // RegisterInterfaces registers the module interface
 func (am AppModuleBasic) RegisterInterfaces(reg cdctypes.InterfaceRegistry) {
-	am.stakingAppModBasic.RegisterInterfaces(reg)
 }
 
 // DefaultGenesis returns multi-staking module default genesis state.
@@ -64,19 +61,20 @@ func (am AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEn
 }
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the staking module.
-func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *gwruntime.ServeMux) {}
+func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *gwruntime.ServeMux) {
+	if err := multistakingtypes.RegisterQueryHandlerClient(context.Background(), mux, multistakingtypes.NewQueryClient(clientCtx)); err != nil {
+		panic(err)
+	}
+}
 
 // GetTxCmd returns the staking module's root tx command.
 func (AppModuleBasic) GetTxCmd() *cobra.Command {
-	return stakingcli.NewTxCmd()
+	return cli.NewTxCmd()
 }
 
 // GetQueryCmd returns the multi-staking and staking module's root query command.
-func (AppModuleBasic) GetQueryCmd() *cobra.Command {
-	cmd := stakingcli.GetQueryCmd()
-	cmd.AddCommand(cli.GetQueryCmd())
-
-	return cmd
+func (AppModuleBasic) GetQueryCmd() (queryCmd *cobra.Command) {
+	return cli.GetQueryCmd()
 }
 
 // AppModule embeds the Cosmos SDK's x/staking AppModule where we only override
