@@ -42,37 +42,34 @@ This message is expected to fail if:
 ## MsgDelegate
 
 Within this message the delegator locked up coins in the `multi-staking` module account. 
-The `multi-staking` inturns mint a calculated amount of `sdkstaking.Denom` and
-create an `IntermediaryAccount` to delegate on behalf of the delegator.
+The `multi-staking` inturns mint a calculated amount of `bondtoken` and delegate.
 
 Logic flow:
 
-* Get `IntermediaryAccount` for the delegator.
+* Lock `multi staking` coin in the `multi-staking` module account.
 
-* Set `IntermediaryDelegator` if it's not set yet.
+* Caculate the `bond token` to be minted using `BondWeight`.
 
-* Send delegated coins from user to `IntermediaryAccount`.
+* Mint `bond token` to `delegator`
 
-* Caculate the `sdkbond token` to be minted using `BondWeight`.
+* Update `multi staking lock`.
 
-* Mint `sdkbond token` to `IntermediaryAccount`
-
-* Update `DVPairSDKBondTokens`.
-
-* Update `DVPairBondTokens`.
-
-* Create `sdk delegation` with `IntermediaryAccount` using the minted `sdkbond token`
+* `delegate` using the minted `sdkbond token`
 
 ## MsgUndelegate
 
-The `MsgUndelegate` message allows delegators to undelegate their tokens from
-validator.
+The `MsgUndelegate` message allows delegators to undelegate their `multi-staking` tokens from
+validator, after the unbonding period the module will unlock the `multi-staking` tokens to return to the delegator
 
 Logic flow:
 
-* Calculate ammount of `sdkbond token` need to be `sdk undelegated`
+* Calculate ammount of `bond token` need to be `undelegate`
 
-* Call `stakingkeeper.Undelegate()` with the calculated amount of `sdkbond token`
+* Update `multi staking lock`
+
+* Update `multi staking unlock`
+
+* Call `stakingkeeper.Undelegate()` with the calculated amount of `bond token`
 
 The rest of the unbonding logic such as sending locked coins back to user will happens at `EndBlock()`
 
@@ -82,9 +79,13 @@ The `MsgCancelUnbonding` message allows delegators to cancel the `unbondingDeleg
 
 Logic flow:
 
-* Calculate amount of `sdkbond token` need to be `sdk cancel undelegation`
+* Calculate amount of `bond token` need to be `cancel undelegation`
 
-* Call `stakingkeeper.CancelUnbondingDelegation()` with the calculated amount of `sdkbond token`
+* Update `multi staking lock`
+
+* Update `multi staking unlock`
+
+* Call `stakingkeeper.CancelUnbondingDelegation()` with the calculated amount of `bond token`
 
 ## MsgBeginRedelegate
 
@@ -94,8 +95,8 @@ the EndBlocker.
 
 Logic flow:
 
-* Calculate amount of `sdkbond token` need to be `sdk redelegate`
+* Calculate amount of `bond token` need to be `redelegate`
 
-* Call `stakingkeeper.BeginRedelegate()` with the calculated amount of `sdkbond token`
+* Update the src `multi-staking lock` and the dst `multi-staking lock`
 
-* Update `DVPairSDKBondTokens`
+* Call `stakingkeeper.BeginRedelegate()` with the calculated amount of `bond token`

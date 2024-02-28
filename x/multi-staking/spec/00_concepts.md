@@ -1,39 +1,44 @@
 # multi-staking-module
 
-The multi-staking-module is a module that allows the cosmos-sdk staking system to support many types of token 
+The multi-staking-module is a module that allows the cosmos-sdk staking system to support many types of coin 
 
 ## Features
 
-- Staking with many diffrent type of tokens
+- Staking with many diffrent type of coins
 - Bond denom selection via Gov proposal
-- A validator can only be delegated using its bonded denom
-- All user usecases of the sdk staking module
+- A validator can only be delegated using with one type of coin
+- All usecases of the sdk staking module
 
 ## Multi staking design
 
 Given the fact that several core sdk modules such as distribution or slashing is dependent on the sdk staking module, we design the multi staking module as a wrapper around the sdk staking module so that there's no need to replace the sdk staking module and its related modules.
 
-The mechanism of this module is that it still uses the sdk staking module for all the logic related to staking. But since the sdk staking module doesn't allow multiple bond token/denom, in order to support such feature, the multi-staking module will convert (lock and mint) those different bond token/denom into the one token/denom that is used by the sdk staking module and then stake with the converted token/denom. 
+The mechanism of this module is that it still uses the sdk staking module for all the logic related to staking. But since the sdk staking module doesn't allow delegate with different types of coin, in order to support such feature, the multi-staking module will convert (lock and mint) those different coin into the one bond coin that is used by the sdk staking module and then stake with the converted bond coin.
+
+![design](https://hackmd.io/_uploads/B1BduYEh6.png)
 
 ## Concepts and Terms
 
-### Sdk bond token 
+### Bond coin
 
-Since there're many bond denom/token stake-able via the multi-staking module but only one denom/token used by the underlying sdk staking module, let's refer to the former as `bond token/denom` and the latter as `sdkbond token/denom`.
+Bond coin is the only coin that the sdk staking module accepts for delegation. In our design, the bond coin is just a virtual coin used only in the sdk staking layer, serving no other purposes than that. No user accounts are allowed to access to the bond coin.
 
-### Delegation
+### Multistaking coin
 
-Each delegation from a `delegator A` is actually reprensented in the form of a `sdk delegation` which refers to the delegation happened at the sdk staking module layer. In other words, there's little to no logic related to the actual delegation system (validator power distr, slashing, distributing rewards...) happens at the `multi-staking module` layer as well as delegation data being stored at `multi-staking module` store.
+Multistaking coin refers to the instance of coin that is used to delegate via the multi-staking module. 
 
-### Intermediary Account
+It is represented by this [struct](../types/multi_staking.pb.go), which is almost identical to the bank coin, except that it has an additional field called `bond weight`.
 
-For each delegation from a `delegator A`, the underlying `sdk delegation` will be created and managed DIRECTLY by an unique `intermediary account C` instead of the `delegator A`, meaning that the `sdk delegation` will have the `intermediary account` as its delegator. The `delegator A` though, via messages of the multi-staking module can still dictate what `intermediary account C` on what to do with the `sdk delegation` so that `delegator A` still have full controll over the delegation. However, delegators aren't actually aware of the `intermediary account`. All logic related to `intermediary acocunt` is considered internal logic of the module and thus concealed from `delegator`.
+### Bond Weight
 
-The `intermediary account` is also where the `bond token` from `delegator` is locked and the `sdkbond token` is minted to, the minted `sdkbond token` will then be used to create the `sdk delegation`.
+Each `multistaking coin` instance is associated with a `bond weight`. The `bond weight` value shows the conversion ratio to `bond coin` of that `multistaking coin` instance. It's different than the `bond weight` value set by government prop which specifies the current global `bond weight` value of that type of coin rather than `bond weight` value for a specific instance of `multistaking coin`.
 
-### Bond Token Weight
+We mentioned above that for each delegation the multi-staking will lock the `multistaking coin` and mint a calculated ammount of `bond token`. The calculation here is a multiplication: minted bond token ammount = multistaking coin amount * bond weight.
 
-Each `bond token` is associated with a `bond token weight`. This `bond token weight` is specified via the gov proposal in which the `bond token` is accepted.
+### Multistaking lock
 
-We mentioned above that for each delegation the multi-staking will lock the `bond token` and mint a calculated ammount of `sdkbond token`. The calculation here is a multiplication : minted sdkbond token ammount = bond token amount * bond token weight.
+`MultistakingLock` is used to keep tracks of the multi-staking coin that is locked for each delegation. `MultistakingLock` contains `LockID` refering to delegation ID (delegator, validator) of the corresponding delegation, and `MultistakingCoin` refering to the instance of `multistaking coin` that is locked.
 
+### Multistaking unlock
+
+`MultistakingUnlock` is used to keep tracks of the multi-staking coin that is unlocking for each unbonding delegation. `MultistakingUnLock` contains `UnLockID` refering to unbonding delegation ID (delegator, validator) of the corresponding unbonding delegation, and `Entries` refering to the instances of `multistaking coin` that is unlocking.
