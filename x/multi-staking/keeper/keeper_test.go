@@ -16,6 +16,7 @@ import (
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
@@ -26,6 +27,7 @@ type KeeperTestSuite struct {
 	app       *simapp.SimApp
 	ctx       sdk.Context
 	msKeeper  *multistakingkeeper.Keeper
+	govKeeper govkeeper.Keeper
 	msgServer stakingtypes.MsgServer
 }
 
@@ -34,7 +36,7 @@ func (suite *KeeperTestSuite) SetupTest() {
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{Height: app.LastBlockHeight() + 1})
 	multiStakingMsgServer := multistakingkeeper.NewMsgServerImpl(app.MultiStakingKeeper)
 
-	suite.app, suite.ctx, suite.msKeeper, suite.msgServer = app, ctx, &app.MultiStakingKeeper, multiStakingMsgServer
+	suite.app, suite.ctx, suite.msKeeper, suite.govKeeper, suite.msgServer = app, ctx, &app.MultiStakingKeeper, app.GovKeeper, multiStakingMsgServer
 }
 
 func TestKeeperTestSuite(t *testing.T) {

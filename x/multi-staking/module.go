@@ -39,10 +39,12 @@ func (AppModuleBasic) Name() string {
 
 // RegisterLegacyAminoCodec register module codec
 func (am AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
+	multistakingtypes.RegisterLegacyAminoCodec(cdc)
 }
 
 // RegisterInterfaces registers the module interface
 func (am AppModuleBasic) RegisterInterfaces(reg cdctypes.InterfaceRegistry) {
+	multistakingtypes.RegisterInterfaces(reg)
 }
 
 // DefaultGenesis returns multi-staking module default genesis state.
