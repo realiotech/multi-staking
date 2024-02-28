@@ -21,9 +21,13 @@ func NewCmdSubmitAddMultiStakingCoinProposal() *cobra.Command {
 				return err
 			}
 
+			bondWeight, err := sdk.NewDecFromStr(args[3])
+			if err != nil {
+				return err
+			}
 			from := clientCtx.GetFromAddress()
 			content := types.NewAddMultiStakingCoinProposal(
-				args[0], args[1], args[2], sdk.MustNewDecFromStr(args[3]),
+				args[0], args[1], args[2], bondWeight,
 			)
 
 			deposit, err := sdk.ParseCoinsNormalized(args[4])
@@ -54,9 +58,13 @@ func NewCmdUpdateBondWeightProposal() *cobra.Command {
 				return err
 			}
 
+			bondWeight, err := sdk.NewDecFromStr(args[3])
+			if err != nil {
+				return err
+			}
 			from := clientCtx.GetFromAddress()
 			content := types.NewUpdateBondWeightProposal(
-				args[0], args[1], args[2], sdk.MustNewDecFromStr(args[3]),
+				args[0], args[1], args[2], bondWeight,
 			)
 
 			deposit, err := sdk.ParseCoinsNormalized(args[4])
