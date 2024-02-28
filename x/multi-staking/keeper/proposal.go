@@ -18,7 +18,12 @@ func (k Keeper) AddMultiStakingCoinProposal(
 		return fmt.Errorf("Error MultiStakingCoin %s already exist", p.Denom) //nolint:stylecheck
 	}
 
-	k.SetBondWeight(ctx, p.Denom, *p.BondWeight)
+	bondWeight := *p.BondWeight
+	if bondWeight.LTE(sdk.ZeroDec()) {
+		return fmt.Errorf("Error MultiStakingCoin BondWeight %s invalid", bondWeight) //nolint:stylecheck
+	}
+
+	k.SetBondWeight(ctx, p.Denom, bondWeight)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
@@ -39,7 +44,12 @@ func (k Keeper) BondWeightProposal(
 		return fmt.Errorf("Error MultiStakingCoin %s not found", p.Denom) //nolint:stylecheck
 	}
 
-	k.SetBondWeight(ctx, p.Denom, *p.UpdatedBondWeight)
+	bondWeight := *p.UpdatedBondWeight
+	if bondWeight.LTE(sdk.ZeroDec()) {
+		return fmt.Errorf("Error MultiStakingCoin BondWeight %s invalid", bondWeight) //nolint:stylecheck
+	}
+
+	k.SetBondWeight(ctx, p.Denom, bondWeight)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(

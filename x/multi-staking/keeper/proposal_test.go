@@ -9,7 +9,7 @@ import (
 	govv1types "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 )
 
-func (suite *KeeperTestSuite) TestAddHostZoneProposal() {
+func (suite *KeeperTestSuite) TestAddMultiStakingCoinProposal() {
 	bondWeight := sdk.NewDec(1)
 
 	for _, tc := range []struct {
