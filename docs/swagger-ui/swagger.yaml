@@ -1,0 +1,1060 @@
+swagger: '2.0'
+info:
+  title: Cosmos SDK - gRPC Gateway docs
+  description: A REST interface for state queries
+  version: 1.0.0
+paths:
+  /realiotech/multistaking/v1/coin-infos:
+    get:
+      operationId: MultiStakingCoinInfos
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              infos:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    bond_weight:
+                      type: string
+              pagination:
+                type: object
+                properties:
+                  next_key:
+                    type: string
+                    format: byte
+                    description: |-
+                      next_key is the key to be passed to PageRequest.key to
+                      query the next page most efficiently. It will be empty if
+                      there are no more results.
+                  total:
+                    type: string
+                    format: uint64
+                    title: >-
+                      total is total number of results available if
+                      PageRequest.count_total
+
+                      was set, its value is undefined otherwise
+                description: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the
+
+                  corresponding request message has used PageRequest.
+
+                   message SomeResponse {
+                           repeated Bar results = 1;
+                           PageResponse page = 2;
+                   }
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: pagination.key
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+            querying the next page most efficiently. Only one of offset or key
+            should be set.
+          in: query
+          required: false
+          type: string
+          format: byte
+        - name: pagination.offset
+          description: >-
+            offset is a numeric offset that can be used when key is unavailable.
+
+            It is less efficient than using key. Only one of offset or key
+            should
+
+            be set.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.limit
+          description: >-
+            limit is the total number of results to be returned in the result
+            page.
+
+            If left empty it will default to a value to be set by each app.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.count_total
+          description: >-
+            count_total is set to true  to indicate that the result set should
+            include
+
+            a count of the total number of items available for pagination in
+            UIs.
+
+            count_total is only respected when offset is used. It is ignored
+            when key
+
+            is set.
+          in: query
+          required: false
+          type: boolean
+        - name: pagination.reverse
+          description: >-
+            reverse is set to true if results are to be returned in the
+            descending order.
+
+
+            Since: cosmos-sdk 0.43
+          in: query
+          required: false
+          type: boolean
+      tags:
+        - Query
+  /realiotech/multistaking/v1/lock/{validator_address}/{multi_staker_address}:
+    get:
+      operationId: MultiStakingLock
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              lock:
+                type: object
+                properties:
+                  lockID:
+                    type: object
+                    properties:
+                      multi_staker_addr:
+                        type: string
+                      val_addr:
+                        type: string
+                  locked_coin:
+                    type: object
+                    properties:
+                      denom:
+                        type: string
+                      amount:
+                        type: string
+                      bond_weight:
+                        type: string
+              found:
+                type: boolean
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: validator_address
+          in: path
+          required: true
+          type: string
+        - name: multi_staker_address
+          in: path
+          required: true
+          type: string
+      tags:
+        - Query
+  /realiotech/multistaking/v1/locks:
+    get:
+      operationId: MultiStakingLocks
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              locks:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    lockID:
+                      type: object
+                      properties:
+                        multi_staker_addr:
+                          type: string
+                        val_addr:
+                          type: string
+                    locked_coin:
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                        amount:
+                          type: string
+                        bond_weight:
+                          type: string
+              pagination:
+                type: object
+                properties:
+                  next_key:
+                    type: string
+                    format: byte
+                    description: |-
+                      next_key is the key to be passed to PageRequest.key to
+                      query the next page most efficiently. It will be empty if
+                      there are no more results.
+                  total:
+                    type: string
+                    format: uint64
+                    title: >-
+                      total is total number of results available if
+                      PageRequest.count_total
+
+                      was set, its value is undefined otherwise
+                description: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the
+
+                  corresponding request message has used PageRequest.
+
+                   message SomeResponse {
+                           repeated Bar results = 1;
+                           PageResponse page = 2;
+                   }
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: pagination.key
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+            querying the next page most efficiently. Only one of offset or key
+            should be set.
+          in: query
+          required: false
+          type: string
+          format: byte
+        - name: pagination.offset
+          description: >-
+            offset is a numeric offset that can be used when key is unavailable.
+
+            It is less efficient than using key. Only one of offset or key
+            should
+
+            be set.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.limit
+          description: >-
+            limit is the total number of results to be returned in the result
+            page.
+
+            If left empty it will default to a value to be set by each app.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.count_total
+          description: >-
+            count_total is set to true  to indicate that the result set should
+            include
+
+            a count of the total number of items available for pagination in
+            UIs.
+
+            count_total is only respected when offset is used. It is ignored
+            when key
+
+            is set.
+          in: query
+          required: false
+          type: boolean
+        - name: pagination.reverse
+          description: >-
+            reverse is set to true if results are to be returned in the
+            descending order.
+
+
+            Since: cosmos-sdk 0.43
+          in: query
+          required: false
+          type: boolean
+      tags:
+        - Query
+  /realiotech/multistaking/v1/unlock/{validator_address}/{multi_staker_address}:
+    get:
+      operationId: MultiStakingUnlock
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              unlock:
+                type: object
+                properties:
+                  unlockID:
+                    type: object
+                    properties:
+                      multi_staker_addr:
+                        type: string
+                      val_addr:
+                        type: string
+                  entries:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        creation_height:
+                          type: string
+                          format: int64
+                          description: >-
+                            creation_height is the height which the unbonding
+                            took place.
+                        unlocking_coin:
+                          type: object
+                          properties:
+                            denom:
+                              type: string
+                            amount:
+                              type: string
+                            bond_weight:
+                              type: string
+              found:
+                type: boolean
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: validator_address
+          in: path
+          required: true
+          type: string
+        - name: multi_staker_address
+          in: path
+          required: true
+          type: string
+      tags:
+        - Query
+  /realiotech/multistaking/v1/unlocks:
+    get:
+      operationId: MultiStakingUnlocks
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              unlocks:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    unlockID:
+                      type: object
+                      properties:
+                        multi_staker_addr:
+                          type: string
+                        val_addr:
+                          type: string
+                    entries:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          creation_height:
+                            type: string
+                            format: int64
+                            description: >-
+                              creation_height is the height which the unbonding
+                              took place.
+                          unlocking_coin:
+                            type: object
+                            properties:
+                              denom:
+                                type: string
+                              amount:
+                                type: string
+                              bond_weight:
+                                type: string
+              pagination:
+                type: object
+                properties:
+                  next_key:
+                    type: string
+                    format: byte
+                    description: |-
+                      next_key is the key to be passed to PageRequest.key to
+                      query the next page most efficiently. It will be empty if
+                      there are no more results.
+                  total:
+                    type: string
+                    format: uint64
+                    title: >-
+                      total is total number of results available if
+                      PageRequest.count_total
+
+                      was set, its value is undefined otherwise
+                description: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the
+
+                  corresponding request message has used PageRequest.
+
+                   message SomeResponse {
+                           repeated Bar results = 1;
+                           PageResponse page = 2;
+                   }
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: pagination.key
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+            querying the next page most efficiently. Only one of offset or key
+            should be set.
+          in: query
+          required: false
+          type: string
+          format: byte
+        - name: pagination.offset
+          description: >-
+            offset is a numeric offset that can be used when key is unavailable.
+
+            It is less efficient than using key. Only one of offset or key
+            should
+
+            be set.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.limit
+          description: >-
+            limit is the total number of results to be returned in the result
+            page.
+
+            If left empty it will default to a value to be set by each app.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.count_total
+          description: >-
+            count_total is set to true  to indicate that the result set should
+            include
+
+            a count of the total number of items available for pagination in
+            UIs.
+
+            count_total is only respected when offset is used. It is ignored
+            when key
+
+            is set.
+          in: query
+          required: false
+          type: boolean
+        - name: pagination.reverse
+          description: >-
+            reverse is set to true if results are to be returned in the
+            descending order.
+
+
+            Since: cosmos-sdk 0.43
+          in: query
+          required: false
+          type: boolean
+      tags:
+        - Query
+  /realiotech/multistaking/v1/validator-coin/{validator_addr}:
+    get:
+      operationId: ValidatorMultiStakingCoin
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              denom:
+                type: string
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: validator_addr
+          in: path
+          required: true
+          type: string
+      tags:
+        - Query
+  /realiotech/multistaking/v1/weight/{denom}:
+    get:
+      operationId: BondWeight
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              weight:
+                type: string
+              found:
+                type: boolean
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: denom
+          in: path
+          required: true
+          type: string
+      tags:
+        - Query
+definitions:
+  cosmos.base.query.v1beta1.PageRequest:
+    type: object
+    properties:
+      key:
+        type: string
+        format: byte
+        description: |-
+          key is a value returned in PageResponse.next_key to begin
+          querying the next page most efficiently. Only one of offset or key
+          should be set.
+      offset:
+        type: string
+        format: uint64
+        description: |-
+          offset is a numeric offset that can be used when key is unavailable.
+          It is less efficient than using key. Only one of offset or key should
+          be set.
+      limit:
+        type: string
+        format: uint64
+        description: >-
+          limit is the total number of results to be returned in the result
+          page.
+
+          If left empty it will default to a value to be set by each app.
+      count_total:
+        type: boolean
+        description: >-
+          count_total is set to true  to indicate that the result set should
+          include
+
+          a count of the total number of items available for pagination in UIs.
+
+          count_total is only respected when offset is used. It is ignored when
+          key
+
+          is set.
+      reverse:
+        type: boolean
+        description: >-
+          reverse is set to true if results are to be returned in the descending
+          order.
+
+
+          Since: cosmos-sdk 0.43
+    description: |-
+      message SomeRequest {
+               Foo some_parameter = 1;
+               PageRequest pagination = 2;
+       }
+    title: |-
+      PageRequest is to be embedded in gRPC request messages for efficient
+      pagination. Ex:
+  cosmos.base.query.v1beta1.PageResponse:
+    type: object
+    properties:
+      next_key:
+        type: string
+        format: byte
+        description: |-
+          next_key is the key to be passed to PageRequest.key to
+          query the next page most efficiently. It will be empty if
+          there are no more results.
+      total:
+        type: string
+        format: uint64
+        title: |-
+          total is total number of results available if PageRequest.count_total
+          was set, its value is undefined otherwise
+    description: |-
+      PageResponse is to be embedded in gRPC response messages where the
+      corresponding request message has used PageRequest.
+
+       message SomeResponse {
+               repeated Bar results = 1;
+               PageResponse page = 2;
+       }
+  google.protobuf.Any:
+    type: object
+    properties:
+      type_url:
+        type: string
+      value:
+        type: string
+        format: byte
+  grpc.gateway.runtime.Error:
+    type: object
+    properties:
+      error:
+        type: string
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
+      details:
+        type: array
+        items:
+          type: object
+          properties:
+            type_url:
+              type: string
+            value:
+              type: string
+              format: byte
+  multistaking.v1.LockID:
+    type: object
+    properties:
+      multi_staker_addr:
+        type: string
+      val_addr:
+        type: string
+  multistaking.v1.MultiStakingCoin:
+    type: object
+    properties:
+      denom:
+        type: string
+      amount:
+        type: string
+      bond_weight:
+        type: string
+  multistaking.v1.MultiStakingCoinInfo:
+    type: object
+    properties:
+      denom:
+        type: string
+      bond_weight:
+        type: string
+  multistaking.v1.MultiStakingLock:
+    type: object
+    properties:
+      lockID:
+        type: object
+        properties:
+          multi_staker_addr:
+            type: string
+          val_addr:
+            type: string
+      locked_coin:
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+          bond_weight:
+            type: string
+  multistaking.v1.MultiStakingUnlock:
+    type: object
+    properties:
+      unlockID:
+        type: object
+        properties:
+          multi_staker_addr:
+            type: string
+          val_addr:
+            type: string
+      entries:
+        type: array
+        items:
+          type: object
+          properties:
+            creation_height:
+              type: string
+              format: int64
+              description: creation_height is the height which the unbonding took place.
+            unlocking_coin:
+              type: object
+              properties:
+                denom:
+                  type: string
+                amount:
+                  type: string
+                bond_weight:
+                  type: string
+  multistaking.v1.QueryBondWeightResponse:
+    type: object
+    properties:
+      weight:
+        type: string
+      found:
+        type: boolean
+  multistaking.v1.QueryMultiStakingCoinInfosResponse:
+    type: object
+    properties:
+      infos:
+        type: array
+        items:
+          type: object
+          properties:
+            denom:
+              type: string
+            bond_weight:
+              type: string
+      pagination:
+        type: object
+        properties:
+          next_key:
+            type: string
+            format: byte
+            description: |-
+              next_key is the key to be passed to PageRequest.key to
+              query the next page most efficiently. It will be empty if
+              there are no more results.
+          total:
+            type: string
+            format: uint64
+            title: >-
+              total is total number of results available if
+              PageRequest.count_total
+
+              was set, its value is undefined otherwise
+        description: |-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding request message has used PageRequest.
+
+           message SomeResponse {
+                   repeated Bar results = 1;
+                   PageResponse page = 2;
+           }
+  multistaking.v1.QueryMultiStakingLockResponse:
+    type: object
+    properties:
+      lock:
+        type: object
+        properties:
+          lockID:
+            type: object
+            properties:
+              multi_staker_addr:
+                type: string
+              val_addr:
+                type: string
+          locked_coin:
+            type: object
+            properties:
+              denom:
+                type: string
+              amount:
+                type: string
+              bond_weight:
+                type: string
+      found:
+        type: boolean
+  multistaking.v1.QueryMultiStakingLocksResponse:
+    type: object
+    properties:
+      locks:
+        type: array
+        items:
+          type: object
+          properties:
+            lockID:
+              type: object
+              properties:
+                multi_staker_addr:
+                  type: string
+                val_addr:
+                  type: string
+            locked_coin:
+              type: object
+              properties:
+                denom:
+                  type: string
+                amount:
+                  type: string
+                bond_weight:
+                  type: string
+      pagination:
+        type: object
+        properties:
+          next_key:
+            type: string
+            format: byte
+            description: |-
+              next_key is the key to be passed to PageRequest.key to
+              query the next page most efficiently. It will be empty if
+              there are no more results.
+          total:
+            type: string
+            format: uint64
+            title: >-
+              total is total number of results available if
+              PageRequest.count_total
+
+              was set, its value is undefined otherwise
+        description: |-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding request message has used PageRequest.
+
+           message SomeResponse {
+                   repeated Bar results = 1;
+                   PageResponse page = 2;
+           }
+  multistaking.v1.QueryMultiStakingUnlockResponse:
+    type: object
+    properties:
+      unlock:
+        type: object
+        properties:
+          unlockID:
+            type: object
+            properties:
+              multi_staker_addr:
+                type: string
+              val_addr:
+                type: string
+          entries:
+            type: array
+            items:
+              type: object
+              properties:
+                creation_height:
+                  type: string
+                  format: int64
+                  description: >-
+                    creation_height is the height which the unbonding took
+                    place.
+                unlocking_coin:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+                    bond_weight:
+                      type: string
+      found:
+        type: boolean
+  multistaking.v1.QueryMultiStakingUnlocksResponse:
+    type: object
+    properties:
+      unlocks:
+        type: array
+        items:
+          type: object
+          properties:
+            unlockID:
+              type: object
+              properties:
+                multi_staker_addr:
+                  type: string
+                val_addr:
+                  type: string
+            entries:
+              type: array
+              items:
+                type: object
+                properties:
+                  creation_height:
+                    type: string
+                    format: int64
+                    description: >-
+                      creation_height is the height which the unbonding took
+                      place.
+                  unlocking_coin:
+                    type: object
+                    properties:
+                      denom:
+                        type: string
+                      amount:
+                        type: string
+                      bond_weight:
+                        type: string
+      pagination:
+        type: object
+        properties:
+          next_key:
+            type: string
+            format: byte
+            description: |-
+              next_key is the key to be passed to PageRequest.key to
+              query the next page most efficiently. It will be empty if
+              there are no more results.
+          total:
+            type: string
+            format: uint64
+            title: >-
+              total is total number of results available if
+              PageRequest.count_total
+
+              was set, its value is undefined otherwise
+        description: |-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding request message has used PageRequest.
+
+           message SomeResponse {
+                   repeated Bar results = 1;
+                   PageResponse page = 2;
+           }
+  multistaking.v1.QueryValidatorMultiStakingCoinResponse:
+    type: object
+    properties:
+      denom:
+        type: string
+  multistaking.v1.UnlockEntry:
+    type: object
+    properties:
+      creation_height:
+        type: string
+        format: int64
+        description: creation_height is the height which the unbonding took place.
+      unlocking_coin:
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+          bond_weight:
+            type: string
+  multistaking.v1.UnlockID:
+    type: object
+    properties:
+      multi_staker_addr:
+        type: string
+      val_addr:
+        type: string
