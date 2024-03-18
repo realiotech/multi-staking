@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"context"
-	"strings"
 
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	"google.golang.org/grpc/codes"
@@ -17,7 +16,7 @@ import (
 
 type queryServer struct {
 	Keeper
-	StakingQuerier stakingkeeper.Querier
+	stakingQuerier stakingkeeper.Querier
 }
 
 // NewMsgServerImpl returns an implementation of the bank MsgServer interface
@@ -25,7 +24,7 @@ type queryServer struct {
 func NewQueryServerImpl(keeper Keeper) types.QueryServer {
 	return &queryServer{
 		Keeper: keeper,
-		StakingQuerier: stakingkeeper.Querier{
+		stakingQuerier: stakingkeeper.Querier{
 			Keeper: keeper.stakingKeeper,
 		},
 	}
@@ -192,12 +191,13 @@ func (k queryServer) ValidatorMultiStakingCoin(c context.Context, req *types.Que
 }
 
 func (k queryServer) Validators(c context.Context, req *types.QueryValidatorsRequest) (*types.QueryValidatorsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
 	sdkReq := stakingtypes.QueryValidatorsRequest{
 		Status: req.Status,
 		Pagination: req.Pagination,
 	}
 
-	resp, err := k.StakingQuerier.Validators(c, &sdkReq)
+	resp, err := k.stakingQuerier.Validators(c, &sdkReq)
 	if err != nil {
 		return nil, err
 	}
