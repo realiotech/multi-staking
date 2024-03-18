@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	"github.com/spf13/cobra"
@@ -9,6 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/version"
 )
 
 func GetQueryCmd() *cobra.Command {
@@ -28,6 +30,8 @@ func GetQueryCmd() *cobra.Command {
 		GetCmdQueryMultiStakingUnlock(),
 		GetCmdQueryMultiStakingUnlocks(),
 		GetCmdQueryValidatorMultiStakingCoin(),
+		GetCmdQueryValidator(),
+		GetCmdQueryValidators(),
 	)
 
 	return cmd
@@ -286,6 +290,94 @@ func GetCmdQueryValidatorMultiStakingCoin() *cobra.Command {
 	}
 
 	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetCmdQueryValidator implements the validator query command.
+func GetCmdQueryValidator() *cobra.Command {
+	bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
+
+	cmd := &cobra.Command{
+		Use:   "validator [validator-addr]",
+		Short: "Query a validator",
+		Long: strings.TrimSpace(
+			fmt.Sprintf(`Query details about an individual validator.
+
+Example:
+$ %s query staking validator %s1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj
+`,
+				version.AppName, bech32PrefixValAddr,
+			),
+		),
+		Args: cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+			queryClient := types.NewQueryClient(clientCtx)
+
+			addr, err := sdk.ValAddressFromBech32(args[0])
+			if err != nil {
+				return err
+			}
+
+			params := &types.QueryValidatorRequest{ValidatorAddr: addr.String()}
+			res, err := queryClient.Validator(cmd.Context(), params)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(&res.Validator)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetCmdQueryValidators implements the query all validators command.
+func GetCmdQueryValidators() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "validators",
+		Short: "Query for all validators",
+		Args:  cobra.NoArgs,
+		Long: strings.TrimSpace(
+			fmt.Sprintf(`Query details about all validators on a network.
+
+Example:
+$ %s query staking validators
+`,
+				version.AppName,
+			),
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+			queryClient := types.NewQueryClient(clientCtx)
+			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			if err != nil {
+				return err
+			}
+
+			result, err := queryClient.Validators(cmd.Context(), &types.QueryValidatorsRequest{
+				// Leaving status empty on purpose to query all validators.
+				Pagination: pageReq,
+			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(result)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	flags.AddPaginationFlagsToCmd(cmd, "validators")
 
 	return cmd
 }

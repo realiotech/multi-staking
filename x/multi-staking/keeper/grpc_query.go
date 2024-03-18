@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"strings"
 
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	"google.golang.org/grpc/codes"
@@ -10,6 +11,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 type queryServer struct {
@@ -182,4 +184,98 @@ func (k queryServer) ValidatorMultiStakingCoin(c context.Context, req *types.Que
 	return &types.QueryValidatorMultiStakingCoinResponse{
 		Denom: denom,
 	}, nil
+}
+
+func (k queryServer) Validators(c context.Context, req *types.QueryValidatorsRequest) (*types.QueryValidatorsResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+
+	// validate the provided status, return all the validators if the status is empty
+	if req.Status != "" && !(req.Status == stakingtypes.Bonded.String() || req.Status == stakingtypes.Unbonded.String() || req.Status == stakingtypes.Unbonding.String()) {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid validator status %s", req.Status)
+	}
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	store := ctx.KVStore(k.storeKey)
+	valStore := prefix.NewStore(store, stakingtypes.ValidatorsKey)
+
+	validators, pageRes, err := query.GenericFilteredPaginate(k.cdc, valStore, req.Pagination, func(key []byte, val *stakingtypes.Validator) (*stakingtypes.Validator, error) {
+		if req.Status != "" && !strings.EqualFold(val.GetStatus().String(), req.Status) {
+			return nil, nil
+		}
+
+		return val, nil
+	}, func() *stakingtypes.Validator {
+		return &stakingtypes.Validator{}
+	})
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	vals := []types.ValidatorInfo{}
+	for _, val := range validators {
+		valAcc, err := sdk.ValAddressFromBech32(val.OperatorAddress)
+		if err != nil {
+			return nil, status.Error(codes.InvalidArgument, "invalid validator address")
+		}
+
+		denom := k.Keeper.GetValidatorMultiStakingCoin(ctx, valAcc)
+		valInfo := types.ValidatorInfo{
+			OperatorAddress:   val.OperatorAddress,
+			ConsensusPubkey:   val.ConsensusPubkey,
+			Jailed:            val.Jailed,
+			Status:            val.Status,
+			Tokens:            val.Tokens,
+			DelegatorShares:   val.DelegatorShares,
+			Description:       val.Description,
+			UnbondingHeight:   val.UnbondingHeight,
+			UnbondingTime:     val.UnbondingTime,
+			Commission:        val.Commission,
+			MinSelfDelegation: val.MinSelfDelegation,
+			BondDenom:         denom,
+		}
+		vals = append(vals, valInfo)
+	}
+
+	return &types.QueryValidatorsResponse{Validators: vals, Pagination: pageRes}, nil
+}
+
+func (k queryServer) Validator(c context.Context, req *types.QueryValidatorRequest) (*types.QueryValidatorResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+
+	if req.ValidatorAddr == "" {
+		return nil, status.Error(codes.InvalidArgument, "validator address cannot be empty")
+	}
+
+	valAddr, err := sdk.ValAddressFromBech32(req.ValidatorAddr)
+	if err != nil {
+		return nil, err
+	}
+
+	ctx := sdk.UnwrapSDKContext(c)
+	validator, found := k.stakingKeeper.GetValidator(ctx, valAddr)
+	if !found {
+		return nil, status.Errorf(codes.NotFound, "validator %s not found", req.ValidatorAddr)
+	}
+
+	denom := k.Keeper.GetValidatorMultiStakingCoin(ctx, valAddr)
+	valInfo := types.ValidatorInfo{
+		OperatorAddress:   validator.OperatorAddress,
+		ConsensusPubkey:   validator.ConsensusPubkey,
+		Jailed:            validator.Jailed,
+		Status:            validator.Status,
+		Tokens:            validator.Tokens,
+		DelegatorShares:   validator.DelegatorShares,
+		Description:       validator.Description,
+		UnbondingHeight:   validator.UnbondingHeight,
+		UnbondingTime:     validator.UnbondingTime,
+		Commission:        validator.Commission,
+		MinSelfDelegation: validator.MinSelfDelegation,
+		BondDenom:         denom,
+	}
+	return &types.QueryValidatorResponse{Validator: valInfo}, nil
 }
