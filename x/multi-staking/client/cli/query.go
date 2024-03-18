@@ -305,7 +305,7 @@ func GetCmdQueryValidator() *cobra.Command {
 			fmt.Sprintf(`Query details about an individual validator.
 
 Example:
-$ %s query staking validator %s1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj
+$ %s query multistaking validator %s1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj
 `,
 				version.AppName, bech32PrefixValAddr,
 			),
@@ -348,7 +348,7 @@ func GetCmdQueryValidators() *cobra.Command {
 			fmt.Sprintf(`Query details about all validators on a network.
 
 Example:
-$ %s query staking validators
+$ %s query multistaking validators
 `,
 				version.AppName,
 			),
