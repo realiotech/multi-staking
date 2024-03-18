@@ -6,8 +6,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 )
 
-
-
 // String implements the Stringer interface for a Validator object.
 func (v ValidatorInfo) String() string {
 	bz, err := codec.ProtoMarshalJSON(&v, nil)
