@@ -11,11 +11,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 type queryServer struct {
 	Keeper
+	StakingQuerier stakingkeeper.Querier
 }
 
 // NewMsgServerImpl returns an implementation of the bank MsgServer interface
@@ -23,6 +25,9 @@ type queryServer struct {
 func NewQueryServerImpl(keeper Keeper) types.QueryServer {
 	return &queryServer{
 		Keeper: keeper,
+		StakingQuerier: stakingkeeper.Querier{
+			Keeper: keeper.stakingKeeper,
+		},
 	}
 }
 
@@ -187,35 +192,18 @@ func (k queryServer) ValidatorMultiStakingCoin(c context.Context, req *types.Que
 }
 
 func (k queryServer) Validators(c context.Context, req *types.QueryValidatorsRequest) (*types.QueryValidatorsResponse, error) {
-	if req == nil {
-		return nil, status.Error(codes.InvalidArgument, "empty request")
+	sdkReq := stakingtypes.QueryValidatorsRequest{
+		Status: req.Status,
+		Pagination: req.Pagination,
 	}
 
-	// validate the provided status, return all the validators if the status is empty
-	if req.Status != "" && !(req.Status == stakingtypes.Bonded.String() || req.Status == stakingtypes.Unbonded.String() || req.Status == stakingtypes.Unbonding.String()) {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid validator status %s", req.Status)
-	}
-
-	ctx := sdk.UnwrapSDKContext(c)
-
-	store := ctx.KVStore(sdk.NewKVStoreKey(stakingtypes.StoreKey))
-	valStore := prefix.NewStore(store, stakingtypes.ValidatorsKey)
-
-	validators, pageRes, err := query.GenericFilteredPaginate(k.cdc, valStore, req.Pagination, func(key []byte, val *stakingtypes.Validator) (*stakingtypes.Validator, error) {
-		if req.Status != "" && !strings.EqualFold(val.GetStatus().String(), req.Status) {
-			return nil, nil
-		}
-
-		return val, nil
-	}, func() *stakingtypes.Validator {
-		return &stakingtypes.Validator{}
-	})
+	resp, err := k.StakingQuerier.Validators(c, &sdkReq)
 	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
+		return nil, err
 	}
 
 	vals := []types.ValidatorInfo{}
-	for _, val := range validators {
+	for _, val := range resp.Validators {
 		valAcc, err := sdk.ValAddressFromBech32(val.OperatorAddress)
 		if err != nil {
 			return nil, status.Error(codes.InvalidArgument, "invalid validator address")
@@ -239,7 +227,7 @@ func (k queryServer) Validators(c context.Context, req *types.QueryValidatorsReq
 		vals = append(vals, valInfo)
 	}
 
-	return &types.QueryValidatorsResponse{Validators: vals, Pagination: pageRes}, nil
+	return &types.QueryValidatorsResponse{Validators: vals, Pagination: resp.Pagination}, nil
 }
 
 func (k queryServer) Validator(c context.Context, req *types.QueryValidatorRequest) (*types.QueryValidatorResponse, error) {
