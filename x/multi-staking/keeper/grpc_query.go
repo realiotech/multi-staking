@@ -198,7 +198,7 @@ func (k queryServer) Validators(c context.Context, req *types.QueryValidatorsReq
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	store := ctx.KVStore(k.storeKey)
+	store := ctx.KVStore(sdk.NewKVStoreKey(stakingtypes.StoreKey))
 	valStore := prefix.NewStore(store, stakingtypes.ValidatorsKey)
 
 	validators, pageRes, err := query.GenericFilteredPaginate(k.cdc, valStore, req.Pagination, func(key []byte, val *stakingtypes.Validator) (*stakingtypes.Validator, error) {
