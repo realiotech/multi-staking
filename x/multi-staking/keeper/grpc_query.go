@@ -10,10 +10,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 type queryServer struct {
 	Keeper
+	stakingQuerier stakingkeeper.Querier
 }
 
 // NewMsgServerImpl returns an implementation of the bank MsgServer interface
@@ -21,6 +24,9 @@ type queryServer struct {
 func NewQueryServerImpl(keeper Keeper) types.QueryServer {
 	return &queryServer{
 		Keeper: keeper,
+		stakingQuerier: stakingkeeper.Querier{
+			Keeper: keeper.stakingKeeper,
+		},
 	}
 }
 
@@ -182,4 +188,82 @@ func (k queryServer) ValidatorMultiStakingCoin(c context.Context, req *types.Que
 	return &types.QueryValidatorMultiStakingCoinResponse{
 		Denom: denom,
 	}, nil
+}
+
+func (k queryServer) Validators(c context.Context, req *types.QueryValidatorsRequest) (*types.QueryValidatorsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	sdkReq := stakingtypes.QueryValidatorsRequest{
+		Status:     req.Status,
+		Pagination: req.Pagination,
+	}
+
+	resp, err := k.stakingQuerier.Validators(c, &sdkReq)
+	if err != nil {
+		return nil, err
+	}
+
+	vals := []types.ValidatorInfo{}
+	for _, val := range resp.Validators {
+		valAcc, err := sdk.ValAddressFromBech32(val.OperatorAddress)
+		if err != nil {
+			return nil, status.Error(codes.InvalidArgument, "invalid validator address")
+		}
+
+		denom := k.Keeper.GetValidatorMultiStakingCoin(ctx, valAcc)
+		valInfo := types.ValidatorInfo{
+			OperatorAddress:   val.OperatorAddress,
+			ConsensusPubkey:   val.ConsensusPubkey,
+			Jailed:            val.Jailed,
+			Status:            val.Status,
+			Tokens:            val.Tokens,
+			DelegatorShares:   val.DelegatorShares,
+			Description:       val.Description,
+			UnbondingHeight:   val.UnbondingHeight,
+			UnbondingTime:     val.UnbondingTime,
+			Commission:        val.Commission,
+			MinSelfDelegation: val.MinSelfDelegation,
+			BondDenom:         denom,
+		}
+		vals = append(vals, valInfo)
+	}
+
+	return &types.QueryValidatorsResponse{Validators: vals, Pagination: resp.Pagination}, nil
+}
+
+func (k queryServer) Validator(c context.Context, req *types.QueryValidatorRequest) (*types.QueryValidatorResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+
+	if req.ValidatorAddr == "" {
+		return nil, status.Error(codes.InvalidArgument, "validator address cannot be empty")
+	}
+
+	valAddr, err := sdk.ValAddressFromBech32(req.ValidatorAddr)
+	if err != nil {
+		return nil, err
+	}
+
+	ctx := sdk.UnwrapSDKContext(c)
+	validator, found := k.stakingKeeper.GetValidator(ctx, valAddr)
+	if !found {
+		return nil, status.Errorf(codes.NotFound, "validator %s not found", req.ValidatorAddr)
+	}
+
+	denom := k.Keeper.GetValidatorMultiStakingCoin(ctx, valAddr)
+	valInfo := types.ValidatorInfo{
+		OperatorAddress:   validator.OperatorAddress,
+		ConsensusPubkey:   validator.ConsensusPubkey,
+		Jailed:            validator.Jailed,
+		Status:            validator.Status,
+		Tokens:            validator.Tokens,
+		DelegatorShares:   validator.DelegatorShares,
+		Description:       validator.Description,
+		UnbondingHeight:   validator.UnbondingHeight,
+		UnbondingTime:     validator.UnbondingTime,
+		Commission:        validator.Commission,
+		MinSelfDelegation: validator.MinSelfDelegation,
+		BondDenom:         denom,
+	}
+	return &types.QueryValidatorResponse{Validator: valInfo}, nil
 }
