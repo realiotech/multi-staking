@@ -21,7 +21,7 @@ proto-gen:
 
 proto-swagger-gen:
 	@echo "Generating Protobuf Swagger"
-	@if docker ps -a --format '{{.Names}}' | grep -Eq "^${protoGenSwagger}$$"; then docker start -a $(protoGenSwagger); else docker run --name $(protoGenSwagger) -v $(CURDIR):. --workdir . $(protoImageName) \
+	@if docker ps -a --format '{{.Names}}' | grep -Eq "^${protoGenSwagger}$$"; then docker start -a $(protoGenSwagger); else docker run --name $(protoGenSwagger) -v $(CURDIR):/workspaces/multi-staking --workdir /workspaces/multi-staking $(protoImageName) \
 		sh ./scripts/protoc-swagger-gen.sh; fi
 
 proto-format:
