@@ -9,11 +9,7 @@ import (
 )
 
 func (coin MultiStakingCoin) Validate() error {
-	if !coin.Amount.IsPositive() {
-		return fmt.Errorf("amount zero or negative")
-	}
-
-	if !coin.Amount.IsPositive() {
+	if !coin.BondWeight.IsPositive() {
 		return fmt.Errorf("weight zero or negative")
 	}
 	return nil
