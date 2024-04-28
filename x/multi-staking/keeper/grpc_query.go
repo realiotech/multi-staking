@@ -25,7 +25,7 @@ func NewQueryServerImpl(keeper Keeper) types.QueryServer {
 	return &queryServer{
 		Keeper: keeper,
 		stakingQuerier: stakingkeeper.Querier{
-			Keeper: keeper.stakingKeeper,
+			Keeper: &keeper.stakingKeeper,
 		},
 	}
 }

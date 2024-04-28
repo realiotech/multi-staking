@@ -6,13 +6,13 @@ import (
 	"os"
 	"path/filepath"
 
+	dbm "github.com/cometbft/cometbft-db"
 	tmcfg "github.com/cometbft/cometbft/config"
 	tmcli "github.com/cometbft/cometbft/libs/cli"
 	"github.com/cometbft/cometbft/libs/log"
 	"github.com/realio-tech/multi-staking-module/test/simapp"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
-	dbm ""github.com/cometbft/cometbft-db""
 
 	"cosmossdk.io/simapp/params"
 	"github.com/cosmos/cosmos-sdk/baseapp"
