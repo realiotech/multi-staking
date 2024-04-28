@@ -8,9 +8,9 @@ PROJECT_NAME = $(shell git remote get-url origin | xargs basename -s .git)
 ###                                Protobuf                                 ###
 ###############################################################################
 
-protoVer=v0.7
-protoImageName=tendermintdev/sdk-proto-gen:$(protoVer)
-protoImage=$(DOCKER) run --network host --rm -v $(CURDIR):/workspace --workdir /workspace $(protoImageName)
+protoVer=0.14.0
+protoImageName=ghcr.io/cosmos/proto-builder:$(protoVer)
+protoImage=$(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace $(protoImageName)
 protoGenSwagger=$(PROJECT_NAME)-proto-gen-swagger-$(protoVer)
 
 proto-all: proto-format proto-lint proto-gen

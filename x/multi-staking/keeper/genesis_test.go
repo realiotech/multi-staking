@@ -1,10 +1,10 @@
 package keeper_test
 
 import (
+	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/libs/log"
 	"github.com/realio-tech/multi-staking-module/test/simapp"
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/libs/log"
-	dbm "github.com/tendermint/tm-db"
+	dbm ""github.com/cometbft/cometbft-db""
 )
 
 func (suite *KeeperTestSuite) TestImportExportGenesis() {

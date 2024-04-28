@@ -1,8 +1,8 @@
 package keeper
 
 import (
+	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
-	abci "github.com/tendermint/tendermint/abci/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )

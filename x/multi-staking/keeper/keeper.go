@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/cometbft/cometbft/libs/log"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
-	"github.com/tendermint/tendermint/libs/log"
 
 	"cosmossdk.io/math"
 
