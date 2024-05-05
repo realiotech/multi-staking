@@ -264,8 +264,17 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 		panic(err)
 	}
 
+	var backendType dbm.BackendType
+	rv := cast.ToString(appOpts.Get("app-db-backend"))
+	if len(rv) == 0 {
+		rv = cast.ToString(appOpts.Get("db_backend"))
+	}
+	if len(rv) != 0 {
+		backendType = dbm.BackendType(rv)
+	}
+
 	snapshotDir := filepath.Join(cast.ToString(appOpts.Get(flags.FlagHome)), "data", "snapshots")
-	snapshotDB, err := sdk.NewLevelDB("metadata", snapshotDir) //nolint:staticcheck // this is clearer.
+	snapshotDB, err := dbm.NewDB("metadata", backendType, snapshotDir)
 	if err != nil {
 		panic(err)
 	}

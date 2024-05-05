@@ -51,12 +51,13 @@ func (suite *KeeperTestSuite) TestAddMultiStakingCoinProposal() {
 			suite.SetupTest()
 			tc.malleate(tc.proposal)
 
-			legacyProposal, err := govv1types.NewLegacyContent(tc.proposal, authtypes.NewModuleAddress(govtypes.ModuleName).String())
+			proposer := authtypes.NewModuleAddress(govtypes.ModuleName)
+			legacyProposal, err := govv1types.NewLegacyContent(tc.proposal, proposer.String())
 			suite.Require().NoError(err)
 
 			if !tc.shouldErr {
 				// store proposal
-				_, err = suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{legacyProposal}, "")
+				_, err = suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{legacyProposal}, "", tc.proposal.Title, tc.proposal.Description, proposer)
 				suite.Require().NoError(err)
 
 				// execute proposal
@@ -68,7 +69,7 @@ func (suite *KeeperTestSuite) TestAddMultiStakingCoinProposal() {
 				suite.Require().True(found)
 			} else {
 				// store proposal
-				_, err = suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{legacyProposal}, "")
+				_, err = suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{legacyProposal}, "", tc.proposal.Title, tc.proposal.Description, proposer)
 				suite.Require().Error(err)
 			}
 		})
@@ -115,12 +116,13 @@ func (suite *KeeperTestSuite) TestUpdateBondWeightProposal() {
 			suite.SetupTest()
 			tc.malleate(tc.proposal)
 
-			legacyProposal, err := govv1types.NewLegacyContent(tc.proposal, authtypes.NewModuleAddress(govtypes.ModuleName).String())
+			proposer := authtypes.NewModuleAddress(govtypes.ModuleName)
+			legacyProposal, err := govv1types.NewLegacyContent(tc.proposal, proposer.String())
 			suite.Require().NoError(err)
 
 			if !tc.shouldErr {
 				// store proposal
-				_, err = suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{legacyProposal}, "")
+				_, err = suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{legacyProposal}, "", tc.proposal.Title, tc.proposal.Description, proposer)
 				suite.Require().NoError(err)
 
 				// execute proposal
@@ -133,7 +135,7 @@ func (suite *KeeperTestSuite) TestUpdateBondWeightProposal() {
 				suite.Require().True(weight.Equal(bondWeight))
 			} else {
 				// store proposal
-				_, err = suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{legacyProposal}, "")
+				_, err = suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{legacyProposal}, "", tc.proposal.Title, tc.proposal.Description, proposer)
 				suite.Require().Error(err)
 			}
 		})

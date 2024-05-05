@@ -95,7 +95,7 @@ type AppModule struct {
 // NewAppModule creates a new AppModule object using the native x/staking module
 // AppModule constructor.
 func NewAppModule(cdc codec.Codec, keeper multistakingkeeper.Keeper, sk stakingkeeper.Keeper, ak stakingtypes.AccountKeeper, bk stakingtypes.BankKeeper) AppModule {
-	stakingAppMod := staking.NewAppModule(cdc, sk, ak, bk)
+	stakingAppMod := staking.NewAppModule(cdc, &sk, ak, bk, nil)
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{cdc: cdc},
 		skAppModule:    stakingAppMod,
@@ -117,20 +117,9 @@ func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
 	multistakingkeeper.RegisterInvariants(ir, am.keeper)
 }
 
-// Deprecated: Route returns the message routing key for the staking module.
-func (am AppModule) Route() sdk.Route {
-	return sdk.Route{}
-}
-
 // QuerierRoute returns the staking module's querier route name.
 func (AppModule) QuerierRoute() string {
 	return multistakingtypes.QuerierRoute
-}
-
-// LegacyQuerierHandler returns the staking module sdk.Querier.
-// TODO: add legacy querier
-func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
-	return nil
 }
 
 // RegisterServices registers a GRPC query service to respond to the
@@ -139,7 +128,7 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	stakingtypes.RegisterMsgServer(cfg.MsgServer(), multistakingkeeper.NewMsgServerImpl(am.keeper))
 	multistakingtypes.RegisterQueryServer(cfg.QueryServer(), multistakingkeeper.NewQueryServerImpl(am.keeper))
 
-	querier := stakingkeeper.Querier{Keeper: am.sk}
+	querier := stakingkeeper.Querier{Keeper: &am.sk}
 	stakingtypes.RegisterQueryServer(cfg.QueryServer(), querier)
 }
 
