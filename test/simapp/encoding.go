@@ -2,6 +2,7 @@ package simapp
 
 import (
 	simappparams "cosmossdk.io/simapp/params"
+
 	"github.com/cosmos/cosmos-sdk/std"
 )
 
