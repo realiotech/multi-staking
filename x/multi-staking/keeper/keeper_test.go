@@ -97,7 +97,8 @@ func (suite *KeeperTestSuite) TestAdjustUnbondAmount() {
 			suite.SetupTest()
 			newParam := stakingtypes.DefaultParams()
 			newParam.MinCommissionRate = sdk.MustNewDecFromStr("0.02")
-			suite.app.StakingKeeper.SetParams(suite.ctx, newParam)
+			err := suite.app.StakingKeeper.SetParams(suite.ctx, newParam)
+			suite.Require().Error(err)
 			suite.msKeeper.SetBondWeight(suite.ctx, MultiStakingDenomA, sdk.OneDec())
 			bondAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(1000))
 			userBalance := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(10000))
@@ -123,7 +124,7 @@ func (suite *KeeperTestSuite) TestAdjustUnbondAmount() {
 				Pubkey:            codectypes.UnsafePackAny(valPubKey),
 				Value:             bondAmount,
 			}
-			_, err := suite.msgServer.CreateValidator(suite.ctx, &createMsg)
+			_, err = suite.msgServer.CreateValidator(suite.ctx, &createMsg)
 			suite.Require().NoError(err)
 			_, err = tc.malleate(suite.ctx, suite.msgServer, *suite.msKeeper)
 			suite.Require().NoError(err)
@@ -217,7 +218,8 @@ func (suite *KeeperTestSuite) TestAdjustCancelUnbondAmount() {
 			suite.SetupTest()
 			newParam := stakingtypes.DefaultParams()
 			newParam.MinCommissionRate = sdk.MustNewDecFromStr("0.02")
-			suite.app.StakingKeeper.SetParams(suite.ctx, newParam)
+			err := suite.app.StakingKeeper.SetParams(suite.ctx, newParam)
+			suite.Require().Error(err)
 			suite.msKeeper.SetBondWeight(suite.ctx, MultiStakingDenomA, sdk.OneDec())
 			bondAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(5000))
 			userBalance := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(10000))
@@ -242,7 +244,7 @@ func (suite *KeeperTestSuite) TestAdjustCancelUnbondAmount() {
 				Pubkey:            codectypes.UnsafePackAny(valPubKey),
 				Value:             bondAmount,
 			}
-			_, err := suite.msgServer.CreateValidator(suite.ctx, &createMsg)
+			_, err = suite.msgServer.CreateValidator(suite.ctx, &createMsg)
 			suite.Require().NoError(err)
 			_, err = tc.malleate(suite.ctx, suite.msgServer, *suite.msKeeper)
 			suite.Require().NoError(err)
