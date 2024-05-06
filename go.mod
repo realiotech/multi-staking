@@ -11,7 +11,7 @@ require (
 	github.com/cometbft/cometbft-db v0.12.0
 	github.com/cosmos/cosmos-proto v1.0.0-beta.5
 	github.com/cosmos/cosmos-sdk v0.47.11
-	github.com/cosmos/gogoproto v1.4.11
+	github.com/cosmos/gogoproto v1.4.10
 	github.com/golang/protobuf v1.5.4
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
@@ -183,4 +183,13 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	nhooyr.io/websocket v1.8.6 // indirect
 	pgregory.net/rapid v1.1.0 // indirect
+)
+
+replace (
+	// use cosmos fork of keyring
+	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
+	// stick with compatible version or x/exp in v0.47.x line
+	golang.org/x/exp => golang.org/x/exp v0.0.0-20230711153332-06a737ee72cb
+	// stick with compatible version of rapid in v0.47.x line
+	pgregory.net/rapid => pgregory.net/rapid v0.5.5
 )
