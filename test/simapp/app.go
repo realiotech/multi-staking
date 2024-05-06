@@ -348,7 +348,7 @@ func NewSimApp(
 	app.MultiStakingKeeper = *multistakingkeeper.NewKeeper(
 		appCodec,
 		app.AccountKeeper,
-		*app.StakingKeeper,
+		app.StakingKeeper,
 		app.BankKeeper,
 		keys[multistakingtypes.StoreKey],
 	)
@@ -427,7 +427,7 @@ func NewSimApp(
 		mint.NewAppModule(appCodec, app.MintKeeper, app.AccountKeeper, nil, app.GetSubspace(minttypes.ModuleName)),
 		slashing.NewAppModule(appCodec, app.SlashingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.GetSubspace(slashingtypes.ModuleName)),
 		distr.NewAppModule(appCodec, app.DistrKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.GetSubspace(distrtypes.ModuleName)),
-		multistaking.NewAppModule(appCodec, app.MultiStakingKeeper, *app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
+		multistaking.NewAppModule(appCodec, app.MultiStakingKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(stakingtypes.ModuleName)),
 		upgrade.NewAppModule(&app.UpgradeKeeper),
 		evidence.NewAppModule(app.EvidenceKeeper),
 		params.NewAppModule(app.ParamsKeeper),

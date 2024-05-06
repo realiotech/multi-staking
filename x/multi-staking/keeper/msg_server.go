@@ -24,7 +24,7 @@ var _ stakingtypes.MsgServer = msgServer{}
 func NewMsgServerImpl(keeper Keeper) stakingtypes.MsgServer {
 	return &msgServer{
 		keeper:           keeper,
-		stakingMsgServer: stakingkeeper.NewMsgServerImpl(&keeper.stakingKeeper),
+		stakingMsgServer: stakingkeeper.NewMsgServerImpl(keeper.stakingKeeper),
 	}
 }
 

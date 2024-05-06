@@ -88,7 +88,7 @@ type AppModule struct {
 	skAppModule staking.AppModule
 
 	keeper multistakingkeeper.Keeper
-	sk     stakingkeeper.Keeper
+	sk     *stakingkeeper.Keeper
 	ak     stakingtypes.AccountKeeper
 	bk     stakingtypes.BankKeeper
 
@@ -98,8 +98,8 @@ type AppModule struct {
 
 // NewAppModule creates a new AppModule object using the native x/staking module
 // AppModule constructor.
-func NewAppModule(cdc codec.Codec, keeper multistakingkeeper.Keeper, sk stakingkeeper.Keeper, ak stakingtypes.AccountKeeper, bk stakingtypes.BankKeeper, ss exported.Subspace) AppModule {
-	stakingAppMod := staking.NewAppModule(cdc, &sk, ak, bk, ss)
+func NewAppModule(cdc codec.Codec, keeper multistakingkeeper.Keeper, sk *stakingkeeper.Keeper, ak stakingtypes.AccountKeeper, bk stakingtypes.BankKeeper, ss exported.Subspace) AppModule {
+	stakingAppMod := staking.NewAppModule(cdc, sk, ak, bk, ss)
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{cdc: cdc},
 		skAppModule:    stakingAppMod,
@@ -133,11 +133,11 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	stakingtypes.RegisterMsgServer(cfg.MsgServer(), multistakingkeeper.NewMsgServerImpl(am.keeper))
 	multistakingtypes.RegisterQueryServer(cfg.QueryServer(), multistakingkeeper.NewQueryServerImpl(am.keeper))
 
-	querier := stakingkeeper.Querier{Keeper: &am.sk}
+	querier := stakingkeeper.Querier{Keeper: am.sk}
 	stakingtypes.RegisterQueryServer(cfg.QueryServer(), querier)
 
 	// migrate staking module
-	m := stakingkeeper.NewMigrator(&am.sk, am.legacySubspace)
+	m := stakingkeeper.NewMigrator(am.sk, am.legacySubspace)
 	if err := cfg.RegisterMigration(stakingtypes.ModuleName, 1, m.Migrate1to2); err != nil {
 		panic(fmt.Sprintf("failed to migrate x/%s from version 1 to 2: %v", stakingtypes.ModuleName, err))
 	}
