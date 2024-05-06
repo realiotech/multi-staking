@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/cometbft/cometbft/libs/log"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 
 	"cosmossdk.io/math"
@@ -14,6 +13,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	"github.com/cometbft/cometbft/libs/log"
 )
 
 type Keeper struct {

@@ -7,10 +7,6 @@ import (
 	"os"
 	"path/filepath"
 
-	dbm "github.com/cometbft/cometbft-db"
-	abci "github.com/cometbft/cometbft/abci/types"
-	"github.com/cometbft/cometbft/libs/log"
-	tmos "github.com/cometbft/cometbft/libs/os"
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
 	multistaking "github.com/realio-tech/multi-staking-module/x/multi-staking"
@@ -21,6 +17,7 @@ import (
 	_ "github.com/cosmos/cosmos-sdk/client/docs/statik" // this is used for serving docs
 
 	simappparams "cosmossdk.io/simapp/params"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/grpc/node"
@@ -94,6 +91,11 @@ import (
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+
+	dbm "github.com/cometbft/cometbft-db"
+	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/libs/log"
+	tmos "github.com/cometbft/cometbft/libs/os"
 )
 
 const appName = "SimApp"
