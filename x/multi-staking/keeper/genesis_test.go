@@ -34,11 +34,12 @@ func (suite *KeeperTestSuite) TestImportExportGenesis() {
 		},
 	)
 
-	newAppState, err := suite.app.ExportAppStateAndValidators(false, []string{})
 	emptyApp.Commit()
+
+	newAppState, err := emptyApp.ExportAppStateAndValidators(false, []string{})
 	newCommitHash := emptyApp.LastCommitID().Hash
 	suite.NoError(err)
 
-	suite.Equal(appState, newAppState)
+	suite.Equal(appState.AppState, newAppState.AppState)
 	suite.Equal(newCommitHash, oldCommitHash)
 }
