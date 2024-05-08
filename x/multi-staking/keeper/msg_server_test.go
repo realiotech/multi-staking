@@ -6,13 +6,14 @@ import (
 	"github.com/realio-tech/multi-staking-module/test"
 	multistakingkeeper "github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
 	multistakingtypes "github.com/realio-tech/multi-staking-module/x/multi-staking/types"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
 	"cosmossdk.io/math"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 )
 
 var (
@@ -336,7 +337,8 @@ func (suite *KeeperTestSuite) TestEditValidator() {
 			suite.SetupTest()
 			newParam := stakingtypes.DefaultParams()
 			newParam.MinCommissionRate = sdk.MustNewDecFromStr("0.02")
-			suite.app.StakingKeeper.SetParams(suite.ctx, newParam)
+			err := suite.app.StakingKeeper.SetParams(suite.ctx, newParam)
+			suite.Require().NoError(err)
 			suite.msKeeper.SetBondWeight(suite.ctx, MultiStakingDenomA, sdk.OneDec())
 			bondAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(1000))
 			suite.FundAccount(delAddr, sdk.NewCoins(bondAmount))
@@ -360,7 +362,7 @@ func (suite *KeeperTestSuite) TestEditValidator() {
 				Pubkey:            codectypes.UnsafePackAny(valPubKey),
 				Value:             bondAmount,
 			}
-			_, err := suite.msgServer.CreateValidator(suite.ctx, &createMsg)
+			_, err = suite.msgServer.CreateValidator(suite.ctx, &createMsg)
 			suite.Require().NoError(err)
 
 			suite.ctx = suite.ctx.WithBlockHeader(tmproto.Header{Time: time.Now()})
@@ -452,7 +454,8 @@ func (suite *KeeperTestSuite) TestDelegate() {
 			suite.SetupTest()
 			newParam := stakingtypes.DefaultParams()
 			newParam.MinCommissionRate = sdk.MustNewDecFromStr("0.02")
-			suite.app.StakingKeeper.SetParams(suite.ctx, newParam)
+			err := suite.app.StakingKeeper.SetParams(suite.ctx, newParam)
+			suite.Require().NoError(err)
 			suite.msKeeper.SetBondWeight(suite.ctx, MultiStakingDenomA, sdk.OneDec())
 			bondAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(1000))
 			userBalance := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(10000))
@@ -478,7 +481,7 @@ func (suite *KeeperTestSuite) TestDelegate() {
 				Pubkey:            codectypes.UnsafePackAny(valPubKey),
 				Value:             bondAmount,
 			}
-			_, err := suite.msgServer.CreateValidator(suite.ctx, &createMsg)
+			_, err = suite.msgServer.CreateValidator(suite.ctx, &createMsg)
 			suite.Require().NoError(err)
 
 			multiStakingAmount, err := tc.malleate(suite.ctx, suite.msgServer, *suite.msKeeper)
@@ -618,7 +621,8 @@ func (suite *KeeperTestSuite) TestBeginRedelegate() {
 			suite.SetupTest()
 			newParam := stakingtypes.DefaultParams()
 			newParam.MinCommissionRate = sdk.MustNewDecFromStr("0.02")
-			suite.app.StakingKeeper.SetParams(suite.ctx, newParam)
+			err := suite.app.StakingKeeper.SetParams(suite.ctx, newParam)
+			suite.Require().NoError(err)
 			suite.msKeeper.SetBondWeight(suite.ctx, MultiStakingDenomA, sdk.OneDec())
 			suite.msKeeper.SetBondWeight(suite.ctx, MultiStakingDenomB, sdk.OneDec())
 
@@ -665,7 +669,7 @@ func (suite *KeeperTestSuite) TestBeginRedelegate() {
 				Pubkey:            codectypes.UnsafePackAny(valPubKey2),
 				Value:             bondAmount,
 			}
-			_, err := suite.msgServer.CreateValidator(suite.ctx, &createMsg)
+			_, err = suite.msgServer.CreateValidator(suite.ctx, &createMsg)
 			suite.Require().NoError(err)
 
 			_, err = suite.msgServer.CreateValidator(suite.ctx, &createMsg2)
@@ -786,7 +790,8 @@ func (suite *KeeperTestSuite) TestUndelegate() {
 			suite.SetupTest()
 			newParam := stakingtypes.DefaultParams()
 			newParam.MinCommissionRate = sdk.MustNewDecFromStr("0.02")
-			suite.app.StakingKeeper.SetParams(suite.ctx, newParam)
+			err := suite.app.StakingKeeper.SetParams(suite.ctx, newParam)
+			suite.Require().NoError(err)
 
 			initialWeight := sdk.MustNewDecFromStr("0.5")
 			suite.msKeeper.SetBondWeight(suite.ctx, MultiStakingDenomA, initialWeight)
@@ -814,7 +819,7 @@ func (suite *KeeperTestSuite) TestUndelegate() {
 				Value:             bondAmount,
 			}
 
-			_, err := suite.msgServer.CreateValidator(suite.ctx, &createMsg)
+			_, err = suite.msgServer.CreateValidator(suite.ctx, &createMsg)
 			suite.Require().NoError(err)
 
 			suite.ctx = suite.ctx.WithBlockHeader(tmproto.Header{Time: time.Now()})
@@ -942,7 +947,8 @@ func (suite *KeeperTestSuite) TestCancelUnbondingDelegation() {
 			suite.SetupTest()
 			newParam := stakingtypes.DefaultParams()
 			newParam.MinCommissionRate = sdk.MustNewDecFromStr("0.02")
-			suite.app.StakingKeeper.SetParams(suite.ctx, newParam)
+			err := suite.app.StakingKeeper.SetParams(suite.ctx, newParam)
+			suite.Require().NoError(err)
 
 			initialWeight := sdk.MustNewDecFromStr("0.5")
 			suite.msKeeper.SetBondWeight(suite.ctx, MultiStakingDenomA, initialWeight)
@@ -970,7 +976,7 @@ func (suite *KeeperTestSuite) TestCancelUnbondingDelegation() {
 				Value:             bondAmount,
 			}
 
-			_, err := suite.msgServer.CreateValidator(suite.ctx, &createMsg)
+			_, err = suite.msgServer.CreateValidator(suite.ctx, &createMsg)
 			suite.Require().NoError(err)
 
 			suite.ctx = suite.ctx.WithBlockHeader(tmproto.Header{Time: time.Now()})

@@ -11,8 +11,8 @@ import (
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
 	types1 "github.com/cosmos/cosmos-sdk/x/staking/types"
 	_ "github.com/cosmos/gogoproto/gogoproto"
-	proto "github.com/gogo/protobuf/proto"
-	github_com_gogo_protobuf_types "github.com/gogo/protobuf/types"
+	proto "github.com/cosmos/gogoproto/proto"
+	github_com_cosmos_gogoproto_types "github.com/cosmos/gogoproto/types"
 	_ "google.golang.org/protobuf/types/known/timestamppb"
 	io "io"
 	math "math"
@@ -909,7 +909,7 @@ func (m *ValidatorInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	}
 	i--
 	dAtA[i] = 0x52
-	n6, err6 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.UnbondingTime, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.UnbondingTime):])
+	n6, err6 := github_com_cosmos_gogoproto_types.StdTimeMarshalTo(m.UnbondingTime, dAtA[i-github_com_cosmos_gogoproto_types.SizeOfStdTime(m.UnbondingTime):])
 	if err6 != nil {
 		return 0, err6
 	}
@@ -1156,7 +1156,7 @@ func (m *ValidatorInfo) Size() (n int) {
 	if m.UnbondingHeight != 0 {
 		n += 1 + sovMultiStaking(uint64(m.UnbondingHeight))
 	}
-	l = github_com_gogo_protobuf_types.SizeOfStdTime(m.UnbondingTime)
+	l = github_com_cosmos_gogoproto_types.SizeOfStdTime(m.UnbondingTime)
 	n += 1 + l + sovMultiStaking(uint64(l))
 	l = m.Commission.Size()
 	n += 1 + l + sovMultiStaking(uint64(l))
@@ -2403,7 +2403,7 @@ func (m *ValidatorInfo) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := github_com_gogo_protobuf_types.StdTimeUnmarshal(&m.UnbondingTime, dAtA[iNdEx:postIndex]); err != nil {
+			if err := github_com_cosmos_gogoproto_types.StdTimeUnmarshal(&m.UnbondingTime, dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

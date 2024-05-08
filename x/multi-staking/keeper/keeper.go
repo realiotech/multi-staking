@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
-	"github.com/tendermint/tendermint/libs/log"
 
 	"cosmossdk.io/math"
 
@@ -14,20 +13,22 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	"github.com/cometbft/cometbft/libs/log"
 )
 
 type Keeper struct {
 	storeKey      storetypes.StoreKey
 	cdc           codec.BinaryCodec
 	accountKeeper types.AccountKeeper
-	stakingKeeper stakingkeeper.Keeper
+	stakingKeeper *stakingkeeper.Keeper
 	bankKeeper    types.BankKeeper
 }
 
 func NewKeeper(
 	cdc codec.BinaryCodec,
 	accountKeeper types.AccountKeeper,
-	stakingKeeper stakingkeeper.Keeper,
+	stakingKeeper *stakingkeeper.Keeper,
 	bankKeeper types.BankKeeper,
 	key storetypes.StoreKey,
 ) *Keeper {

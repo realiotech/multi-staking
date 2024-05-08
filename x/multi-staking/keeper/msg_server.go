@@ -14,6 +14,7 @@ import (
 type msgServer struct {
 	keeper           Keeper
 	stakingMsgServer stakingtypes.MsgServer
+	authority        string
 }
 
 var _ stakingtypes.MsgServer = msgServer{}
@@ -25,6 +26,22 @@ func NewMsgServerImpl(keeper Keeper) stakingtypes.MsgServer {
 		keeper:           keeper,
 		stakingMsgServer: stakingkeeper.NewMsgServerImpl(keeper.stakingKeeper),
 	}
+}
+
+// UpdateParams updates the staking params
+func (k msgServer) UpdateParams(goCtx context.Context, msg *stakingtypes.MsgUpdateParams) (*stakingtypes.MsgUpdateParamsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	if k.authority != msg.Authority {
+		return nil, fmt.Errorf("invalid authority; expected %s, got %s", k.authority, msg.Authority)
+	}
+
+	// store params
+	if err := k.keeper.stakingKeeper.SetParams(ctx, msg.Params); err != nil {
+		return nil, err
+	}
+
+	return &stakingtypes.MsgUpdateParamsResponse{}, nil
 }
 
 // CreateValidator defines a method for creating a new validator

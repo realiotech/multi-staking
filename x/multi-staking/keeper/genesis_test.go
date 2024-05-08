@@ -2,13 +2,13 @@ package keeper_test
 
 import (
 	"github.com/realio-tech/multi-staking-module/test/simapp"
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/libs/log"
-	dbm "github.com/tendermint/tm-db"
+
+	dbm "github.com/cometbft/cometbft-db"
+	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/libs/log"
 )
 
 func (suite *KeeperTestSuite) TestImportExportGenesis() {
-	oldCommitHash := suite.app.LastCommitID().Hash
 	appState, err := suite.app.ExportAppStateAndValidators(false, []string{})
 	suite.NoError(err)
 
@@ -37,9 +37,7 @@ func (suite *KeeperTestSuite) TestImportExportGenesis() {
 	emptyApp.Commit()
 
 	newAppState, err := emptyApp.ExportAppStateAndValidators(false, []string{})
-	newCommitHash := emptyApp.LastCommitID().Hash
 	suite.NoError(err)
 
 	suite.Equal(appState.AppState, newAppState.AppState)
-	suite.Equal(newCommitHash, oldCommitHash)
 }

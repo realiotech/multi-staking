@@ -10,7 +10,6 @@ import (
 	multistakingkeeper "github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
 	multistakingtypes "github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	"github.com/spf13/cobra"
-	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -18,8 +17,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/staking"
+	"github.com/cosmos/cosmos-sdk/x/staking/exported"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	abci "github.com/cometbft/cometbft/abci/types"
 )
 
 var (
@@ -87,15 +89,18 @@ type AppModule struct {
 	skAppModule staking.AppModule
 
 	keeper multistakingkeeper.Keeper
-	sk     stakingkeeper.Keeper
+	sk     *stakingkeeper.Keeper
 	ak     stakingtypes.AccountKeeper
 	bk     stakingtypes.BankKeeper
+
+	// legacySubspace is used solely for migration of x/params managed parameters
+	legacySubspace exported.Subspace
 }
 
 // NewAppModule creates a new AppModule object using the native x/staking module
 // AppModule constructor.
-func NewAppModule(cdc codec.Codec, keeper multistakingkeeper.Keeper, sk stakingkeeper.Keeper, ak stakingtypes.AccountKeeper, bk stakingtypes.BankKeeper) AppModule {
-	stakingAppMod := staking.NewAppModule(cdc, sk, ak, bk)
+func NewAppModule(cdc codec.Codec, keeper multistakingkeeper.Keeper, sk *stakingkeeper.Keeper, ak stakingtypes.AccountKeeper, bk stakingtypes.BankKeeper, ss exported.Subspace) AppModule {
+	stakingAppMod := staking.NewAppModule(cdc, sk, ak, bk, ss)
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{cdc: cdc},
 		skAppModule:    stakingAppMod,
@@ -103,6 +108,7 @@ func NewAppModule(cdc codec.Codec, keeper multistakingkeeper.Keeper, sk stakingk
 		sk:             sk,
 		ak:             ak,
 		bk:             bk,
+		legacySubspace: ss,
 	}
 }
 
@@ -117,20 +123,9 @@ func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
 	multistakingkeeper.RegisterInvariants(ir, am.keeper)
 }
 
-// Deprecated: Route returns the message routing key for the staking module.
-func (am AppModule) Route() sdk.Route {
-	return sdk.Route{}
-}
-
 // QuerierRoute returns the staking module's querier route name.
 func (AppModule) QuerierRoute() string {
 	return multistakingtypes.QuerierRoute
-}
-
-// LegacyQuerierHandler returns the staking module sdk.Querier.
-// TODO: add legacy querier
-func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
-	return nil
 }
 
 // RegisterServices registers a GRPC query service to respond to the
@@ -141,6 +136,18 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 
 	querier := stakingkeeper.Querier{Keeper: am.sk}
 	stakingtypes.RegisterQueryServer(cfg.QueryServer(), querier)
+
+	// migrate staking module
+	m := stakingkeeper.NewMigrator(am.sk, am.legacySubspace)
+	if err := cfg.RegisterMigration(stakingtypes.ModuleName, 1, m.Migrate1to2); err != nil {
+		panic(fmt.Sprintf("failed to migrate x/%s from version 1 to 2: %v", stakingtypes.ModuleName, err))
+	}
+	if err := cfg.RegisterMigration(stakingtypes.ModuleName, 2, m.Migrate2to3); err != nil {
+		panic(fmt.Sprintf("failed to migrate x/%s from version 2 to 3: %v", stakingtypes.ModuleName, err))
+	}
+	if err := cfg.RegisterMigration(stakingtypes.ModuleName, 3, m.Migrate3to4); err != nil {
+		panic(fmt.Sprintf("failed to migrate x/%s from version 3 to 4: %v", stakingtypes.ModuleName, err))
+	}
 }
 
 // InitGenesis initial genesis state for multi-staking module
