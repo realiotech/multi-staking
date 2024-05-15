@@ -7,7 +7,7 @@ import (
 
 	gwruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/client/cli"
-	multistakingkeeper "github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
+	"github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
 	multistakingtypes "github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	"github.com/spf13/cobra"
 
@@ -88,7 +88,7 @@ type AppModule struct {
 	// embed the Cosmos SDK's x/staking AppModule
 	skAppModule staking.AppModule
 
-	keeper multistakingkeeper.Keeper
+	keeper keeper.Keeper
 	sk     *stakingkeeper.Keeper
 	ak     stakingtypes.AccountKeeper
 	bk     stakingtypes.BankKeeper
@@ -99,7 +99,7 @@ type AppModule struct {
 
 // NewAppModule creates a new AppModule object using the native x/staking module
 // AppModule constructor.
-func NewAppModule(cdc codec.Codec, keeper multistakingkeeper.Keeper, sk *stakingkeeper.Keeper, ak stakingtypes.AccountKeeper, bk stakingtypes.BankKeeper, ss exported.Subspace) AppModule {
+func NewAppModule(cdc codec.Codec, keeper keeper.Keeper, sk *stakingkeeper.Keeper, ak stakingtypes.AccountKeeper, bk stakingtypes.BankKeeper, ss exported.Subspace) AppModule {
 	stakingAppMod := staking.NewAppModule(cdc, sk, ak, bk, ss)
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{cdc: cdc},
@@ -120,7 +120,7 @@ func (AppModule) Name() string {
 // RegisterInvariants registers the staking module invariants.
 func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
 	am.skAppModule.RegisterInvariants(ir)
-	multistakingkeeper.RegisterInvariants(ir, am.keeper)
+	keeper.RegisterInvariants(ir, am.keeper)
 }
 
 // QuerierRoute returns the staking module's querier route name.
@@ -131,22 +131,16 @@ func (AppModule) QuerierRoute() string {
 // RegisterServices registers a GRPC query service to respond to the
 // module-specific GRPC queries.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
-	stakingtypes.RegisterMsgServer(cfg.MsgServer(), multistakingkeeper.NewMsgServerImpl(am.keeper))
-	multistakingtypes.RegisterQueryServer(cfg.QueryServer(), multistakingkeeper.NewQueryServerImpl(am.keeper))
+	stakingtypes.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
+	multistakingtypes.RegisterQueryServer(cfg.QueryServer(), keeper.NewQueryServerImpl(am.keeper))
 
 	querier := stakingkeeper.Querier{Keeper: am.sk}
 	stakingtypes.RegisterQueryServer(cfg.QueryServer(), querier)
 
 	// migrate staking module
-	m := stakingkeeper.NewMigrator(am.sk, am.legacySubspace)
-	if err := cfg.RegisterMigration(stakingtypes.ModuleName, 1, m.Migrate1to2); err != nil {
+	m := keeper.NewMigrator(am.sk, am.legacySubspace)
+	if err := cfg.RegisterMigration(multistakingtypes.ModuleName, 1, m.Migrate1to2); err != nil {
 		panic(fmt.Sprintf("failed to migrate x/%s from version 1 to 2: %v", stakingtypes.ModuleName, err))
-	}
-	if err := cfg.RegisterMigration(stakingtypes.ModuleName, 2, m.Migrate2to3); err != nil {
-		panic(fmt.Sprintf("failed to migrate x/%s from version 2 to 3: %v", stakingtypes.ModuleName, err))
-	}
-	if err := cfg.RegisterMigration(stakingtypes.ModuleName, 3, m.Migrate3to4); err != nil {
-		panic(fmt.Sprintf("failed to migrate x/%s from version 3 to 4: %v", stakingtypes.ModuleName, err))
 	}
 }
 
@@ -183,4 +177,4 @@ func (am AppModule) EndBlock(ctx sdk.Context, requestEndBlock abci.RequestEndBlo
 }
 
 // ConsensusVersion return module consensus version
-func (AppModule) ConsensusVersion() uint64 { return 1 }
+func (AppModule) ConsensusVersion() uint64 { return 2 }
