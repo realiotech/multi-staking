@@ -8,7 +8,6 @@ import (
 	gwruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/client/cli"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
-	multistakingkeeper "github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	multistakingtypes "github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	"github.com/spf13/cobra"
@@ -90,7 +89,7 @@ type AppModule struct {
 	// embed the Cosmos SDK's x/staking AppModule
 	skAppModule staking.AppModule
 
-	keeper multistakingkeeper.Keeper
+	keeper keeper.Keeper
 	sk     *stakingkeeper.Keeper
 	ak     stakingtypes.AccountKeeper
 	bk     stakingtypes.BankKeeper
@@ -101,7 +100,7 @@ type AppModule struct {
 
 // NewAppModule creates a new AppModule object using the native x/staking module
 // AppModule constructor.
-func NewAppModule(cdc codec.Codec, keeper multistakingkeeper.Keeper, sk *stakingkeeper.Keeper, ak stakingtypes.AccountKeeper, bk stakingtypes.BankKeeper, ss exported.Subspace) AppModule {
+func NewAppModule(cdc codec.Codec, keeper keeper.Keeper, sk *stakingkeeper.Keeper, ak stakingtypes.AccountKeeper, bk stakingtypes.BankKeeper, ss exported.Subspace) AppModule {
 	stakingAppMod := staking.NewAppModule(cdc, sk, ak, bk, ss)
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{cdc: cdc},
@@ -122,7 +121,7 @@ func (AppModule) Name() string {
 // RegisterInvariants registers the staking module invariants.
 func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
 	am.skAppModule.RegisterInvariants(ir)
-	multistakingkeeper.RegisterInvariants(ir, am.keeper)
+	keeper.RegisterInvariants(ir, am.keeper)
 }
 
 // QuerierRoute returns the staking module's querier route name.
@@ -133,8 +132,8 @@ func (AppModule) QuerierRoute() string {
 // RegisterServices registers a GRPC query service to respond to the
 // module-specific GRPC queries.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
-	stakingtypes.RegisterMsgServer(cfg.MsgServer(), multistakingkeeper.NewMsgServerImpl(am.keeper))
-	multistakingtypes.RegisterQueryServer(cfg.QueryServer(), multistakingkeeper.NewQueryServerImpl(am.keeper))
+	stakingtypes.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
+	multistakingtypes.RegisterQueryServer(cfg.QueryServer(), keeper.NewQueryServerImpl(am.keeper))
 
 	querier := stakingkeeper.Querier{Keeper: am.sk}
 	stakingtypes.RegisterQueryServer(cfg.QueryServer(), querier)
