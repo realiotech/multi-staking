@@ -8,7 +8,6 @@ import (
 	gwruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/client/cli"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
-	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	multistakingtypes "github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	"github.com/spf13/cobra"
 
@@ -140,7 +139,7 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 
 	// migrate staking module
 	m := keeper.NewMigrator(am.sk, am.legacySubspace)
-	if err := cfg.RegisterMigration(types.ModuleName, 1, m.Migrate1to2); err != nil {
+	if err := cfg.RegisterMigration(multistakingtypes.ModuleName, 1, m.Migrate1to2); err != nil {
 		panic(fmt.Sprintf("failed to migrate x/%s from version 1 to 2: %v", stakingtypes.ModuleName, err))
 	}
 }
