@@ -18,7 +18,7 @@ func NewMigrator(keeper *stakingkeeper.Keeper, legacySubspace exported.Subspace)
 	}
 }
 
-// Migrate1to2 migrates multi-staking state from consensus version 1 to 2.
+// Migrate1to2 migrates multi-staking state from consensus version 1 to 2. (sdk46 to sdk47)
 func (m Migrator) Migrate1to2(ctx sdk.Context) error {
 	return m.stkm.Migrate3to4(ctx)
 }
