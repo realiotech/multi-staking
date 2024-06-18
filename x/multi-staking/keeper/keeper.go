@@ -23,6 +23,7 @@ type Keeper struct {
 	accountKeeper types.AccountKeeper
 	stakingKeeper *stakingkeeper.Keeper
 	bankKeeper    types.BankKeeper
+	authority     string
 }
 
 func NewKeeper(
@@ -31,6 +32,7 @@ func NewKeeper(
 	stakingKeeper *stakingkeeper.Keeper,
 	bankKeeper types.BankKeeper,
 	key storetypes.StoreKey,
+	authority string,
 ) *Keeper {
 	return &Keeper{
 		cdc:           cdc,
@@ -38,6 +40,7 @@ func NewKeeper(
 		accountKeeper: accountKeeper,
 		stakingKeeper: stakingKeeper,
 		bankKeeper:    bankKeeper,
+		authority:     authority,
 	}
 }
 
@@ -160,4 +163,13 @@ func (k Keeper) AdjustCancelUnbondingAmount(ctx sdk.Context, delAcc sdk.AccAddre
 	}
 
 	return math.MinInt(totalUnbondingAmount, amount), nil
+}
+
+func (k Keeper) BondDenom(ctx sdk.Context) string {
+	bondDenom := k.GetParams(ctx).MainBondDenom
+	return bondDenom
+}
+
+func (k Keeper) IterateDelegations(ctx sdk.Context, delegator sdk.AccAddress, fn func(index int64, delegation stakingtypes.DelegationI) (stop bool)) {
+	k.stakingKeeper.IterateDelegations(ctx, delegator, fn)
 }

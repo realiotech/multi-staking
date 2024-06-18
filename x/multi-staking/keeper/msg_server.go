@@ -14,14 +14,35 @@ import (
 type msgServer struct {
 	keeper           Keeper
 	stakingMsgServer stakingtypes.MsgServer
-	authority        string
 }
 
 var _ stakingtypes.MsgServer = msgServer{}
+var _ types.MsgServer = msgServer{}
+
+func NewMultiStakingMsgServerImpl(keeper Keeper) types.MsgServer {
+	return &msgServer{
+		keeper: keeper,
+	}
+}
+
+func (k msgServer) UpdateMultiStakingParams(goCtx context.Context, msg *types.MsgUpdateMultiStakingParams) (*types.MsgUpdateMultiStakingParamsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	if k.keeper.authority != msg.Authority {
+		return nil, fmt.Errorf("invalid authority; expected %s, got %s", k.keeper.authority, msg.Authority)
+	}
+
+	// store params
+	if err := k.keeper.SetParams(ctx, msg.Params); err != nil {
+		return nil, err
+	}
+
+	return &types.MsgUpdateMultiStakingParamsResponse{}, nil
+}
 
 // NewMsgServerImpl returns an implementation of the bank MsgServer interface
 // for the provided Keeper.
-func NewMsgServerImpl(keeper Keeper) stakingtypes.MsgServer {
+func NewMsgServerImpl(keeper Keeper) *msgServer {
 	return &msgServer{
 		keeper:           keeper,
 		stakingMsgServer: stakingkeeper.NewMsgServerImpl(keeper.stakingKeeper),
@@ -32,8 +53,8 @@ func NewMsgServerImpl(keeper Keeper) stakingtypes.MsgServer {
 func (k msgServer) UpdateParams(goCtx context.Context, msg *stakingtypes.MsgUpdateParams) (*stakingtypes.MsgUpdateParamsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	if k.authority != msg.Authority {
-		return nil, fmt.Errorf("invalid authority; expected %s, got %s", k.authority, msg.Authority)
+	if k.keeper.authority != msg.Authority {
+		return nil, fmt.Errorf("invalid authority; expected %s, got %s", k.keeper.authority, msg.Authority)
 	}
 
 	// store params
