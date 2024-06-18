@@ -27,7 +27,7 @@ var (
 )
 
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	legacy.RegisterAminoMsg(cdc, &MsgUpdateMultiStakingParams{}, "multistaking/MsgUpdateMultiStakingParams")
+	legacy.RegisterAminoMsg(cdc, &MsgUpdateMultiStakingParams{}, "multistaking/MsgUpdateMSParams")
 
 	cdc.RegisterConcrete(&AddMultiStakingCoinProposal{}, "multistaking/AddMultiStakingCoinProposal", nil)
 	cdc.RegisterConcrete(&UpdateBondWeightProposal{}, "multistaking/UpdateBondWeightProposal", nil)
