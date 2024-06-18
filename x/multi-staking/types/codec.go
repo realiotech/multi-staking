@@ -36,11 +36,12 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 
 func RegisterInterfaces(registry types.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
-		&AddMultiStakingCoinProposal{},
+		&MsgUpdateMultiStakingParams{},
 	)
 	registry.RegisterImplementations(
 		(*v1beta1types.Content)(nil),
 		&AddMultiStakingCoinProposal{},
+		&UpdateBondWeightProposal{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
