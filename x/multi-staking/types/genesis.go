@@ -4,15 +4,26 @@ import (
 	"cosmossdk.io/errors"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+)
+
+const (
+	mainStakingDenom = "ario"
 )
 
 func DefaultGenesis() *GenesisState {
 	stakingGenesis := stakingtypes.DefaultGenesisState()
 
+	defaultMultiStakingCoinInfo := MultiStakingCoinInfo{
+		Denom:      mainStakingDenom,
+		BondWeight: sdk.OneDec(),
+	}
+
 	return &GenesisState{
-		StakingGenesisState: *stakingGenesis,
+		StakingGenesisState:  *stakingGenesis,
+		MultiStakingCoinInfo: []MultiStakingCoinInfo{defaultMultiStakingCoinInfo},
 	}
 }
 
