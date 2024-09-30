@@ -7,7 +7,9 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/cosmos/cosmos-sdk/store/prefix"
+	"cosmossdk.io/math"
+	"cosmossdk.io/store/prefix"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
@@ -45,7 +47,7 @@ func (k queryServer) MultiStakingCoinInfos(c context.Context, req *types.QueryMu
 	coinInfoStore := prefix.NewStore(store, types.BondWeightKey)
 
 	pageRes, err := query.Paginate(coinInfoStore, req.Pagination, func(key []byte, value []byte) error {
-		bondCoinWeight := &sdk.Dec{}
+		bondCoinWeight := &math.LegacyDec{}
 		err := bondCoinWeight.Unmarshal(value)
 		if err != nil {
 			return err
@@ -245,9 +247,9 @@ func (k queryServer) Validator(c context.Context, req *types.QueryValidatorReque
 	}
 
 	ctx := sdk.UnwrapSDKContext(c)
-	validator, found := k.stakingKeeper.GetValidator(ctx, valAddr)
-	if !found {
-		return nil, status.Errorf(codes.NotFound, "validator %s not found", req.ValidatorAddr)
+	validator, err := k.stakingKeeper.GetValidator(ctx, valAddr)
+	if err != nil {
+		return nil, status.Errorf(codes.NotFound, "failed to get validator with address %s: %s", req.ValidatorAddr, err.Error())
 	}
 
 	denom := k.Keeper.GetValidatorMultiStakingCoin(ctx, valAddr)

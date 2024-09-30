@@ -3,6 +3,8 @@ package keeper_test
 import (
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 
+	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -10,7 +12,7 @@ import (
 )
 
 func (suite *KeeperTestSuite) TestAddMultiStakingCoinProposal() {
-	bondWeight := sdk.NewDec(1)
+	bondWeight := math.LegacyNewDec(1)
 
 	for _, tc := range []struct {
 		desc      string
@@ -77,7 +79,7 @@ func (suite *KeeperTestSuite) TestAddMultiStakingCoinProposal() {
 }
 
 func (suite *KeeperTestSuite) TestUpdateBondWeightProposal() {
-	bondWeight := sdk.NewDec(1)
+	bondWeight := math.LegacyNewDec(1)
 
 	for _, tc := range []struct {
 		desc      string
@@ -88,7 +90,7 @@ func (suite *KeeperTestSuite) TestUpdateBondWeightProposal() {
 		{
 			desc: "Success",
 			malleate: func(p *types.UpdateBondWeightProposal) {
-				oldBondWeight := sdk.NewDec(2)
+				oldBondWeight := math.LegacyNewDec(2)
 				suite.msKeeper.SetBondWeight(suite.ctx, p.Denom, oldBondWeight)
 			},
 			proposal: &types.UpdateBondWeightProposal{

@@ -26,8 +26,8 @@ func (suite *KeeperTestSuite) TestImportExportGenesis() {
 		simapp.EmptyAppOptions{},
 	)
 
-	_ = emptyApp.InitChain(
-		abci.RequestInitChain{
+	_, err = emptyApp.InitChain(
+		&abci.RequestInitChain{
 			Validators:      []abci.ValidatorUpdate{},
 			ConsensusParams: simapp.DefaultConsensusParams,
 			AppStateBytes:   appState.AppState,

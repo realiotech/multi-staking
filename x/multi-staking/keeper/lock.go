@@ -1,18 +1,21 @@
 package keeper
 
 import (
+	"context"
+
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 
 	"cosmossdk.io/errors"
+	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-func (k Keeper) GetOrCreateMultiStakingLock(ctx sdk.Context, lockID types.LockID) types.MultiStakingLock {
+func (k Keeper) GetOrCreateMultiStakingLock(ctx context.Context, lockID types.LockID) types.MultiStakingLock {
 	multiStakingLock, found := k.GetMultiStakingLock(ctx, lockID)
 	if !found {
-		multiStakingLock = types.NewMultiStakingLock(lockID, types.MultiStakingCoin{Amount: sdk.ZeroInt()})
+		multiStakingLock = types.NewMultiStakingLock(lockID, types.MultiStakingCoin{Amount: math.ZeroInt()})
 	}
 	return multiStakingLock
 }
@@ -35,7 +38,7 @@ func (k Keeper) MintCoin(ctx sdk.Context, toAcc sdk.AccAddress, coin sdk.Coin) e
 }
 
 func (k Keeper) LockCoinAndMintBondCoin(
-	ctx sdk.Context,
+	ctx context.Context,
 	lockID types.LockID,
 	fromAcc sdk.AccAddress,
 	mintedTo sdk.AccAddress,
@@ -67,8 +70,12 @@ func (k Keeper) LockCoinAndMintBondCoin(
 
 	// Calculate the amount of bond denom to be minted
 	// minted bond amount = multistaking coin * bond coin weight
+	bondDenom, err := k.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return sdk.Coin{}, err
+	}
 	mintedBondAmount := multiStakingCoin.BondValue()
-	mintedBondCoin = sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), mintedBondAmount)
+	mintedBondCoin = sdk.NewCoin(bondDenom, mintedBondAmount)
 
 	// mint bond coin to delegator account
 	err = k.MintCoin(ctx, mintedTo, mintedBondCoin)

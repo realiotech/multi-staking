@@ -25,8 +25,11 @@ import (
 )
 
 var (
-	_ module.AppModule      = AppModule{}
-	_ module.AppModuleBasic = AppModuleBasic{}
+	_ module.HasABCIGenesis  = AppModule{}
+	_ module.HasServices     = AppModule{}
+	_ module.HasABCIEndBlock = AppModule{}
+	_ module.AppModule       = AppModule{}
+	_ module.AppModuleBasic  = AppModule{}
 )
 
 // AppModule embeds the Cosmos SDK's x/staking AppModuleBasic.
@@ -160,21 +163,24 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 }
 
 // BeginBlock returns the begin blocker for the multi-staking module.
-func (am AppModule) BeginBlock(ctx sdk.Context, requestBeginBlock abci.RequestBeginBlock) {
-	am.skAppModule.BeginBlock(ctx, requestBeginBlock)
+func (am AppModule) BeginBlock(ctx context.Context) error {
+	return am.skAppModule.BeginBlock(ctx)
 }
 
 // EndBlock returns the end blocker for the multi-staking module. It returns no validator
 // updates.
-func (am AppModule) EndBlock(ctx sdk.Context, requestEndBlock abci.RequestEndBlock) []abci.ValidatorUpdate {
+func (am AppModule) EndBlock(ctx context.Context) ([]abci.ValidatorUpdate, error) {
 	// calculate the amount of coin
 	matureUnbondingDelegations := am.keeper.GetMatureUnbondingDelegations(ctx)
 	// staking endblock
-	valUpdates := am.skAppModule.EndBlock(ctx, requestEndBlock)
+	valUpdates, err := am.skAppModule.EndBlock(ctx)
+	if err != nil {
+		return []abci.ValidatorUpdate{}, err
+	}
 	// update endblock multi-staking
 	am.keeper.EndBlocker(ctx, matureUnbondingDelegations)
 
-	return valUpdates
+	return valUpdates, nil
 }
 
 // ConsensusVersion return module consensus version

@@ -1,11 +1,12 @@
 package keeper
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 
-	"github.com/cosmos/cosmos-sdk/store/prefix"
+	"cosmossdk.io/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -40,7 +41,7 @@ func (k Keeper) RemoveBondWeight(ctx sdk.Context, tokenDenom string) {
 	store.Delete(types.GetBondWeightKey(tokenDenom))
 }
 
-func (k Keeper) GetValidatorMultiStakingCoin(ctx sdk.Context, operatorAddr sdk.ValAddress) string {
+func (k Keeper) GetValidatorMultiStakingCoin(ctx context.Context, operatorAddr sdk.ValAddress) string {
 	store := ctx.KVStore(k.storeKey)
 	bz := store.Get(types.GetValidatorMultiStakingCoinKey(operatorAddr))
 

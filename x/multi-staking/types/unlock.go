@@ -23,12 +23,12 @@ func (e UnlockEntry) String() string {
 	return string(out)
 }
 
-func (u UnlockEntry) GetBondWeight() sdk.Dec {
+func (u UnlockEntry) GetBondWeight() math.LegacyDec {
 	return u.UnlockingCoin.BondWeight
 }
 
 func (unlockEntry UnlockEntry) UnbondAmountToUnlockAmount(unbondAmount math.Int) math.Int {
-	return sdk.NewDecFromInt(unbondAmount).Quo(unlockEntry.GetBondWeight()).TruncateInt()
+	return math.LegacyNewDecFromInt(unbondAmount).Quo(unlockEntry.GetBondWeight()).TruncateInt()
 }
 
 func (unlockEntry UnlockEntry) UnlockAmountToUnbondAmount(unlockAmount math.Int) math.Int {

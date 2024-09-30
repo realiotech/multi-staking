@@ -75,8 +75,12 @@ func (k Keeper) BurnUnbondedCoinAndUnlockedMultiStakingCoin(
 		return sdk.Coin{}, fmt.Errorf("unlock amount greater than lock amount")
 	}
 
+	bondDenom, err := k.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		panic(err)
+	}
 	// burn bonded coin
-	burnCoin := sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), unbondAmount)
+	burnCoin := sdk.NewCoin(bondDenom, unbondAmount)
 	err = k.BurnCoin(ctx, multiStakerAddr, burnCoin)
 	if err != nil {
 		return sdk.Coin{}, err
