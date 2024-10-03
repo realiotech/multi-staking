@@ -4,20 +4,21 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
-
+	"cosmossdk.io/math"
 	"cosmossdk.io/store/prefix"
+	sdk_type "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
 
-func (k Keeper) GetBondWeight(ctx sdk.Context, tokenDenom string) (sdk.Dec, bool) {
+func (k Keeper) GetBondWeight(ctx sdk.Context, tokenDenom string) (math.LegacyDec, bool) {
 	store := ctx.KVStore(k.storeKey)
 	bz := store.Get(types.GetBondWeightKey(tokenDenom))
 	if bz == nil {
-		return sdk.Dec{}, false
+		return math.LegacyDec{}, false
 	}
 
-	bondCoinWeight := &sdk.Dec{}
+	bondCoinWeight := &math.LegacyDec{}
 	err := bondCoinWeight.Unmarshal(bz)
 	if err != nil {
 		panic(fmt.Errorf("unable to unmarshal bond coin weight %v", err))
@@ -25,7 +26,7 @@ func (k Keeper) GetBondWeight(ctx sdk.Context, tokenDenom string) (sdk.Dec, bool
 	return *bondCoinWeight, true
 }
 
-func (k Keeper) SetBondWeight(ctx sdk.Context, tokenDenom string, tokenWeight sdk.Dec) {
+func (k Keeper) SetBondWeight(ctx sdk.Context, tokenDenom string, tokenWeight math.LegacyDec) {
 	store := ctx.KVStore(k.storeKey)
 	bz, err := tokenWeight.Marshal()
 	if err != nil {
@@ -41,7 +42,8 @@ func (k Keeper) RemoveBondWeight(ctx sdk.Context, tokenDenom string) {
 	store.Delete(types.GetBondWeightKey(tokenDenom))
 }
 
-func (k Keeper) GetValidatorMultiStakingCoin(ctx context.Context, operatorAddr sdk.ValAddress) string {
+func (k Keeper) GetValidatorMultiStakingCoin(c context.Context, operatorAddr sdk.ValAddress) string {
+	ctx := sdk.UnwrapSDKContext(c)
 	store := ctx.KVStore(k.storeKey)
 	bz := store.Get(types.GetValidatorMultiStakingCoinKey(operatorAddr))
 
@@ -61,7 +63,7 @@ func (k Keeper) SetValidatorMultiStakingCoin(ctx sdk.Context, operatorAddr sdk.V
 func (k Keeper) ValidatorMultiStakingCoinIterator(ctx sdk.Context, cb func(valAddr string, denom string) (stop bool)) {
 	store := ctx.KVStore(k.storeKey)
 	prefixStore := prefix.NewStore(store, types.ValidatorMultiStakingCoinKey)
-	iterator := sdk.KVStorePrefixIterator(prefixStore, nil)
+	iterator := sdk_type.KVStorePrefixIterator(prefixStore, nil)
 
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
@@ -73,7 +75,8 @@ func (k Keeper) ValidatorMultiStakingCoinIterator(ctx sdk.Context, cb func(valAd
 	}
 }
 
-func (k Keeper) GetMultiStakingLock(ctx sdk.Context, multiStakingLockID types.LockID) (types.MultiStakingLock, bool) {
+func (k Keeper) GetMultiStakingLock(c context.Context, multiStakingLockID types.LockID) (types.MultiStakingLock, bool) {
+	ctx := sdk.UnwrapSDKContext(c)
 	store := ctx.KVStore(k.storeKey)
 
 	bz := store.Get(multiStakingLockID.ToBytes())
@@ -86,7 +89,8 @@ func (k Keeper) GetMultiStakingLock(ctx sdk.Context, multiStakingLockID types.Lo
 	return multiStakingLock, true
 }
 
-func (k Keeper) SetMultiStakingLock(ctx sdk.Context, multiStakingLock types.MultiStakingLock) {
+func (k Keeper) SetMultiStakingLock(c context.Context, multiStakingLock types.MultiStakingLock) {
+	ctx := sdk.UnwrapSDKContext(c)
 	if multiStakingLock.IsEmpty() {
 		k.RemoveMultiStakingLock(ctx, multiStakingLock.LockID)
 		return
@@ -108,7 +112,7 @@ func (k Keeper) RemoveMultiStakingLock(ctx sdk.Context, multiStakingLockID types
 func (k Keeper) MultiStakingLockIterator(ctx sdk.Context, cb func(stakingLock types.MultiStakingLock) (stop bool)) {
 	store := ctx.KVStore(k.storeKey)
 	prefixStore := prefix.NewStore(store, types.MultiStakingLockPrefix)
-	iterator := sdk.KVStorePrefixIterator(prefixStore, nil)
+	iterator := sdk_type.KVStorePrefixIterator(prefixStore, nil)
 
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
@@ -123,7 +127,7 @@ func (k Keeper) MultiStakingLockIterator(ctx sdk.Context, cb func(stakingLock ty
 func (k Keeper) MultiStakingUnlockIterator(ctx sdk.Context, cb func(multiStakingUnlock types.MultiStakingUnlock) (stop bool)) {
 	store := ctx.KVStore(k.storeKey)
 	prefixStore := prefix.NewStore(store, types.MultiStakingUnlockPrefix)
-	iterator := sdk.KVStorePrefixIterator(prefixStore, nil)
+	iterator := sdk_type.KVStorePrefixIterator(prefixStore, nil)
 
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
@@ -135,15 +139,15 @@ func (k Keeper) MultiStakingUnlockIterator(ctx sdk.Context, cb func(multiStaking
 	}
 }
 
-func (k Keeper) BondWeightIterator(ctx sdk.Context, cb func(denom string, bondWeight sdk.Dec) (stop bool)) {
+func (k Keeper) BondWeightIterator(ctx sdk.Context, cb func(denom string, bondWeight math.LegacyDec) (stop bool)) {
 	store := ctx.KVStore(k.storeKey)
 	prefixStore := prefix.NewStore(store, types.BondWeightKey)
-	iterator := sdk.KVStorePrefixIterator(prefixStore, nil)
+	iterator := sdk_type.KVStorePrefixIterator(prefixStore, nil)
 
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		denom := string(iterator.Key())
-		bondWeight := &sdk.Dec{}
+		bondWeight := &math.LegacyDec{}
 		err := bondWeight.Unmarshal(iterator.Value())
 		if err != nil {
 			panic(fmt.Errorf("unable to unmarshal bond coin weight %v", err))

@@ -3,13 +3,13 @@ package keeper_test
 import (
 	"github.com/realio-tech/multi-staking-module/test/simapp"
 
-	dbm "github.com/cometbft/cometbft-db"
+	"cosmossdk.io/log"
 	abci "github.com/cometbft/cometbft/abci/types"
-	"github.com/cometbft/cometbft/libs/log"
+	dbm "github.com/cosmos/cosmos-db"
 )
 
 func (suite *KeeperTestSuite) TestImportExportGenesis() {
-	appState, err := suite.app.ExportAppStateAndValidators(false, []string{})
+	appState, err := suite.app.ExportAppStateAndValidators(false, []string{}, []string{})
 	suite.NoError(err)
 
 	encConfig := simapp.MakeTestEncodingConfig()
@@ -36,7 +36,7 @@ func (suite *KeeperTestSuite) TestImportExportGenesis() {
 
 	emptyApp.Commit()
 
-	newAppState, err := emptyApp.ExportAppStateAndValidators(false, []string{})
+	newAppState, err := emptyApp.ExportAppStateAndValidators(false, []string{}, []string{})
 	suite.NoError(err)
 
 	suite.Equal(appState.AppState, newAppState.AppState)

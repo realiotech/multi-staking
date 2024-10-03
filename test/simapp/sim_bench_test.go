@@ -7,8 +7,6 @@ import (
 
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/cosmos/cosmos-sdk/x/simulation"
-
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 )
 
 // Profile with:
@@ -102,7 +100,7 @@ func BenchmarkInvariants(b *testing.B) {
 		PrintStats(db)
 	}
 
-	ctx := app.NewContext(true, tmproto.Header{Height: app.LastBlockHeight() + 1})
+	ctx := app.NewContext(true)
 
 	// 3. Benchmark each invariant separately
 	//

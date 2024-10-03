@@ -21,6 +21,7 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	"cosmossdk.io/core/address"
 	abci "github.com/cometbft/cometbft/abci/types"
 )
 
@@ -35,6 +36,7 @@ var (
 // AppModule embeds the Cosmos SDK's x/staking AppModuleBasic.
 type AppModuleBasic struct {
 	cdc codec.Codec
+	ac  address.Codec
 }
 
 // Name returns the staking module's name.
@@ -75,8 +77,8 @@ func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *g
 }
 
 // GetTxCmd returns the staking module's root tx command.
-func (AppModuleBasic) GetTxCmd() *cobra.Command {
-	return cli.NewTxCmd()
+func (amb AppModuleBasic) GetTxCmd() *cobra.Command {
+	return cli.NewTxCmd(amb.cdc.InterfaceRegistry().SigningContext().ValidatorAddressCodec(), amb.cdc.InterfaceRegistry().SigningContext().AddressCodec())
 }
 
 // GetQueryCmd returns the multi-staking and staking module's root query command.
@@ -171,7 +173,10 @@ func (am AppModule) BeginBlock(ctx context.Context) error {
 // updates.
 func (am AppModule) EndBlock(ctx context.Context) ([]abci.ValidatorUpdate, error) {
 	// calculate the amount of coin
-	matureUnbondingDelegations := am.keeper.GetMatureUnbondingDelegations(ctx)
+	matureUnbondingDelegations, err := am.keeper.GetMatureUnbondingDelegations(ctx)
+	if err != nil {
+		return []abci.ValidatorUpdate{}, err
+	}
 	// staking endblock
 	valUpdates, err := am.skAppModule.EndBlock(ctx)
 	if err != nil {
@@ -185,3 +190,9 @@ func (am AppModule) EndBlock(ctx context.Context) ([]abci.ValidatorUpdate, error
 
 // ConsensusVersion return module consensus version
 func (AppModule) ConsensusVersion() uint64 { return 2 }
+
+// IsAppModule implements the appmodule.AppModule interface.
+func (am AppModule) IsAppModule() {}
+
+// IsOnePerModuleType implements the depinject.OnePerModuleType interface.
+func (am AppModule) IsOnePerModuleType() {}

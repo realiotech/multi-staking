@@ -38,12 +38,13 @@ func (k Keeper) MintCoin(ctx sdk.Context, toAcc sdk.AccAddress, coin sdk.Coin) e
 }
 
 func (k Keeper) LockCoinAndMintBondCoin(
-	ctx context.Context,
+	c context.Context,
 	lockID types.LockID,
 	fromAcc sdk.AccAddress,
 	mintedTo sdk.AccAddress,
 	coin sdk.Coin,
 ) (mintedBondCoin sdk.Coin, err error) {
+	ctx := sdk.UnwrapSDKContext(c)
 	// escrow coin
 	err = k.EscrowCoinFrom(ctx, fromAcc, coin)
 	if err != nil {

@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
@@ -38,9 +39,10 @@ func (k Keeper) GetUnlockEntryAtCreationHeight(ctx sdk.Context, unlockID types.U
 // SetMultiStakingUnlockEntry adds an entry to the unbonding delegation at
 // the given addresses. It creates the unbonding delegation if it does not exist.
 func (k Keeper) SetMultiStakingUnlockEntry(
-	ctx sdk.Context, unlockID types.UnlockID,
+	c context.Context, unlockID types.UnlockID,
 	multistakingCoin types.MultiStakingCoin,
 ) types.MultiStakingUnlock {
+	ctx := sdk.UnwrapSDKContext(c)
 	unlock, found := k.GetMultiStakingUnlock(ctx, unlockID)
 	if found {
 		unlock.AddEntry(ctx.BlockHeight(), multistakingCoin)
@@ -73,9 +75,10 @@ func (k Keeper) DeleteUnlockEntryAtCreationHeight(
 }
 
 func (k Keeper) DecreaseUnlockEntryAmount(
-	ctx sdk.Context, unlockID types.UnlockID,
+	c context.Context, unlockID types.UnlockID,
 	amount math.Int, creationHeight int64,
 ) (types.MultiStakingCoin, error) {
+	ctx := sdk.UnwrapSDKContext(c)
 	unlockRecord, found := k.GetMultiStakingUnlock(ctx, unlockID)
 	if !found {
 		return types.MultiStakingCoin{}, fmt.Errorf("not found unlock recored")

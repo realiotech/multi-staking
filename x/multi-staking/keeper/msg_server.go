@@ -66,7 +66,8 @@ func (k msgServer) UpdateParams(ctx context.Context, msg *stakingtypes.MsgUpdate
 }
 
 // CreateValidator defines a method for creating a new validator
-func (k msgServer) CreateValidator(ctx context.Context, msg *stakingtypes.MsgCreateValidator) (*stakingtypes.MsgCreateValidatorResponse, error) {
+func (k msgServer) CreateValidator(c context.Context, msg *stakingtypes.MsgCreateValidator) (*stakingtypes.MsgCreateValidatorResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
 	multiStakerAddr, valAcc, err := types.AccAddrAndValAddrFromStrings(msg.DelegatorAddress, msg.ValidatorAddress)
 	if err != nil {
 		return nil, err
@@ -95,8 +96,9 @@ func (k msgServer) CreateValidator(ctx context.Context, msg *stakingtypes.MsgCre
 }
 
 // EditValidator defines a method for editing an existing validator
-func (k msgServer) EditValidator(goCtx context.Context, msg *stakingtypes.MsgEditValidator) (*stakingtypes.MsgEditValidatorResponse, error) {
-	return k.stakingMsgServer.EditValidator(goCtx, msg)
+func (k msgServer) EditValidator(c context.Context, msg *stakingtypes.MsgEditValidator) (*stakingtypes.MsgEditValidatorResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	return k.stakingMsgServer.EditValidator(ctx, msg)
 }
 
 // Delegate defines a method for performing a delegation of coins from a delegator to a validator

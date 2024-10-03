@@ -59,7 +59,7 @@ func (suite *KeeperTestSuite) TestAddMultiStakingCoinProposal() {
 
 			if !tc.shouldErr {
 				// store proposal
-				_, err = suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{legacyProposal}, "", tc.proposal.Title, tc.proposal.Description, proposer)
+				_, err = suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{legacyProposal}, "", tc.proposal.Title, tc.proposal.Description, proposer, tc.shouldErr)
 				suite.Require().NoError(err)
 
 				// execute proposal
@@ -71,7 +71,7 @@ func (suite *KeeperTestSuite) TestAddMultiStakingCoinProposal() {
 				suite.Require().True(found)
 			} else {
 				// store proposal
-				_, err = suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{legacyProposal}, "", tc.proposal.Title, tc.proposal.Description, proposer)
+				_, err = suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{legacyProposal}, "", tc.proposal.Title, tc.proposal.Description, proposer, tc.shouldErr)
 				suite.Require().Error(err)
 			}
 		})
@@ -124,7 +124,7 @@ func (suite *KeeperTestSuite) TestUpdateBondWeightProposal() {
 
 			if !tc.shouldErr {
 				// store proposal
-				_, err = suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{legacyProposal}, "", tc.proposal.Title, tc.proposal.Description, proposer)
+				_, err = suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{legacyProposal}, "", tc.proposal.Title, tc.proposal.Description, proposer, tc.shouldErr)
 				suite.Require().NoError(err)
 
 				// execute proposal
@@ -137,7 +137,7 @@ func (suite *KeeperTestSuite) TestUpdateBondWeightProposal() {
 				suite.Require().True(weight.Equal(bondWeight))
 			} else {
 				// store proposal
-				_, err = suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{legacyProposal}, "", tc.proposal.Title, tc.proposal.Description, proposer)
+				_, err = suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{legacyProposal}, "", tc.proposal.Title, tc.proposal.Description, proposer, tc.shouldErr)
 				suite.Require().Error(err)
 			}
 		})

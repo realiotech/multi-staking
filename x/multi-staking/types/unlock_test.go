@@ -7,7 +7,7 @@ import (
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	"github.com/stretchr/testify/require"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/math"
 )
 
 func TestFindEntryIndexByHeight(t *testing.T) {
@@ -15,11 +15,11 @@ func TestFindEntryIndexByHeight(t *testing.T) {
 	delAddr := test.GenAddress()
 	unlockID := types.MultiStakingUnlockID(delAddr.String(), valAddr.String())
 	initalEntries := []types.UnlockEntry{
-		types.NewUnlockEntry(1, types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(123456), sdk.MustNewDecFromStr("0.3"))),
-		types.NewUnlockEntry(2, types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(100000), sdk.OneDec())),
-		types.NewUnlockEntry(3, types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(200000), sdk.MustNewDecFromStr("0.5"))),
-		types.NewUnlockEntry(4, types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(300000), sdk.MustNewDecFromStr("0.5"))),
-		types.NewUnlockEntry(5, types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(500000), sdk.MustNewDecFromStr("0.2"))),
+		types.NewUnlockEntry(1, types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(123456), math.LegacyMustNewDecFromStr("0.3"))),
+		types.NewUnlockEntry(2, types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(100000), math.LegacyOneDec())),
+		types.NewUnlockEntry(3, types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(200000), math.LegacyMustNewDecFromStr("0.5"))),
+		types.NewUnlockEntry(4, types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(300000), math.LegacyMustNewDecFromStr("0.5"))),
+		types.NewUnlockEntry(5, types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(500000), math.LegacyMustNewDecFromStr("0.2"))),
 	}
 
 	testCases := []struct {
@@ -67,11 +67,11 @@ func TestAddEntry(t *testing.T) {
 	delAddr := test.GenAddress()
 	unlockID := types.MultiStakingUnlockID(delAddr.String(), valAddr.String())
 	initalEntries := []types.UnlockEntry{
-		types.NewUnlockEntry(1, types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(123456), sdk.MustNewDecFromStr("0.3"))),
-		types.NewUnlockEntry(2, types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(100000), sdk.OneDec())),
-		types.NewUnlockEntry(3, types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(200000), sdk.MustNewDecFromStr("0.5"))),
-		types.NewUnlockEntry(4, types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(300000), sdk.MustNewDecFromStr("0.5"))),
-		types.NewUnlockEntry(5, types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(500000), sdk.MustNewDecFromStr("0.2"))),
+		types.NewUnlockEntry(1, types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(123456), math.LegacyMustNewDecFromStr("0.3"))),
+		types.NewUnlockEntry(2, types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(100000), math.LegacyOneDec())),
+		types.NewUnlockEntry(3, types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(200000), math.LegacyMustNewDecFromStr("0.5"))),
+		types.NewUnlockEntry(4, types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(300000), math.LegacyMustNewDecFromStr("0.5"))),
+		types.NewUnlockEntry(5, types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(500000), math.LegacyMustNewDecFromStr("0.2"))),
 	}
 
 	testCases := []struct {
@@ -84,29 +84,29 @@ func TestAddEntry(t *testing.T) {
 		{
 			name:         "success",
 			height:       1,
-			addingMSCoin: types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(123000), sdk.MustNewDecFromStr("0.3")),
-			expMSCoin:    types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(246456), sdk.MustNewDecFromStr("0.3")),
+			addingMSCoin: types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(123000), math.LegacyMustNewDecFromStr("0.3")),
+			expMSCoin:    types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(246456), math.LegacyMustNewDecFromStr("0.3")),
 			expPanic:     false,
 		},
 		{
 			name:         "success and change rate",
 			height:       2,
-			addingMSCoin: types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(400000), sdk.MustNewDecFromStr("0.5")),
-			expMSCoin:    types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(500000), sdk.MustNewDecFromStr("0.6")),
+			addingMSCoin: types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(400000), math.LegacyMustNewDecFromStr("0.5")),
+			expMSCoin:    types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(500000), math.LegacyMustNewDecFromStr("0.6")),
 			expPanic:     false,
 		},
 		{
 			name:         "success add new entry",
 			height:       12,
-			addingMSCoin: types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(123456), sdk.MustNewDecFromStr("0.3")),
-			expMSCoin:    types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(123456), sdk.MustNewDecFromStr("0.3")),
+			addingMSCoin: types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(123456), math.LegacyMustNewDecFromStr("0.3")),
+			expMSCoin:    types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(123456), math.LegacyMustNewDecFromStr("0.3")),
 			expPanic:     false,
 		},
 		{
 			name:         "denom mismatch",
 			height:       3,
-			addingMSCoin: types.NewMultiStakingCoin(MultiStakingDenomB, sdk.NewInt(123000), sdk.MustNewDecFromStr("0.3")),
-			expMSCoin:    types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(246456), sdk.MustNewDecFromStr("0.3")),
+			addingMSCoin: types.NewMultiStakingCoin(MultiStakingDenomB, math.NewInt(123000), math.LegacyMustNewDecFromStr("0.3")),
+			expMSCoin:    types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(246456), math.LegacyMustNewDecFromStr("0.3")),
 			expPanic:     true,
 		},
 	}
@@ -141,11 +141,11 @@ func TestRemoveCoinFromEntry(t *testing.T) {
 	delAddr := test.GenAddress()
 	unlockID := types.MultiStakingUnlockID(delAddr.String(), valAddr.String())
 	initalEntries := []types.UnlockEntry{
-		types.NewUnlockEntry(1, types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(123456), sdk.MustNewDecFromStr("0.3"))),
-		types.NewUnlockEntry(2, types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(100000), sdk.OneDec())),
-		types.NewUnlockEntry(3, types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(200000), sdk.MustNewDecFromStr("0.5"))),
-		types.NewUnlockEntry(4, types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(300000), sdk.MustNewDecFromStr("0.5"))),
-		types.NewUnlockEntry(5, types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(500000), sdk.MustNewDecFromStr("0.2"))),
+		types.NewUnlockEntry(1, types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(123456), math.LegacyMustNewDecFromStr("0.3"))),
+		types.NewUnlockEntry(2, types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(100000), math.LegacyOneDec())),
+		types.NewUnlockEntry(3, types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(200000), math.LegacyMustNewDecFromStr("0.5"))),
+		types.NewUnlockEntry(4, types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(300000), math.LegacyMustNewDecFromStr("0.5"))),
+		types.NewUnlockEntry(5, types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(500000), math.LegacyMustNewDecFromStr("0.2"))),
 	}
 
 	testCases := []struct {
@@ -158,29 +158,29 @@ func TestRemoveCoinFromEntry(t *testing.T) {
 		{
 			name:         "success",
 			index:        0,
-			removeMSCoin: types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(123000), sdk.MustNewDecFromStr("0.3")),
-			expMSCoin:    types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(456), sdk.MustNewDecFromStr("0.3")),
+			removeMSCoin: types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(123000), math.LegacyMustNewDecFromStr("0.3")),
+			expMSCoin:    types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(456), math.LegacyMustNewDecFromStr("0.3")),
 			expErr:       false,
 		},
 		{
 			name:         "success and remove all",
 			index:        4,
-			removeMSCoin: types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(500000), sdk.MustNewDecFromStr("0.3")),
-			expMSCoin:    types.NewMultiStakingCoin(MultiStakingDenomA, sdk.ZeroInt(), sdk.MustNewDecFromStr("0.3")),
+			removeMSCoin: types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(500000), math.LegacyMustNewDecFromStr("0.3")),
+			expMSCoin:    types.NewMultiStakingCoin(MultiStakingDenomA, math.ZeroInt(), math.LegacyMustNewDecFromStr("0.3")),
 			expErr:       false,
 		},
 		{
 			name:         "entry index is out of bound",
 			index:        10,
-			removeMSCoin: types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(400000), sdk.MustNewDecFromStr("0.3")),
-			expMSCoin:    types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(246456), sdk.MustNewDecFromStr("0.3")),
+			removeMSCoin: types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(400000), math.LegacyMustNewDecFromStr("0.3")),
+			expMSCoin:    types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(246456), math.LegacyMustNewDecFromStr("0.3")),
 			expErr:       true,
 		},
 		{
 			name:         "remove too much",
 			index:        5,
-			removeMSCoin: types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(1000000), sdk.MustNewDecFromStr("0.3")),
-			expMSCoin:    types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(246456), sdk.MustNewDecFromStr("0.3")),
+			removeMSCoin: types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(1000000), math.LegacyMustNewDecFromStr("0.3")),
+			expMSCoin:    types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(246456), math.LegacyMustNewDecFromStr("0.3")),
 			expErr:       true,
 		},
 	}
