@@ -81,13 +81,10 @@ func SetupWithGenesisValSet(valSet *tmtypes.ValidatorSet) *SimApp {
 		},
 	)
 
-	// commit genesis changes
-	app.Commit()
-	app.FinalizeBlock(&abci.RequestFinalizeBlock{
-		Height:             app.LastBlockHeight() + 1,
-		Hash:               app.LastCommitID().Hash,
-		NextValidatorsHash: valSet.Hash(),
-	})
+	_, err := app.FinalizeBlock(&abci.RequestFinalizeBlock{Height: app.LastBlockHeight() + 1})
+	if err != nil {
+		panic(err)
+	}
 
 	return app
 }
@@ -163,7 +160,7 @@ func genesisStateWithValSet(app *SimApp, genesisState GenesisState, valSet *tmty
 			MinSelfDelegation: math.ZeroInt(),
 		}
 		validators = append(validators, validator)
-		delegations = append(delegations, stakingtypes.NewDelegation(genAcc.GetAddress().String(), val.Address.String(), math.LegacyOneDec()))
+		delegations = append(delegations, stakingtypes.NewDelegation(genAcc.GetAddress().String(), sdk.ValAddress(val.Address).String(), math.LegacyOneDec()))
 
 		bondCoins = bondCoins.Add(sdk.NewCoin(sdk.DefaultBondDenom, valMsCoin.BondValue()))
 	}

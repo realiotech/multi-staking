@@ -18,6 +18,8 @@ import (
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	coreheader "cosmossdk.io/core/header"
+	abci "github.com/cometbft/cometbft/abci/types"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 )
 
@@ -33,7 +35,12 @@ type KeeperTestSuite struct {
 
 func (suite *KeeperTestSuite) SetupTest() {
 	app := simapp.Setup(false)
-	ctx := app.BaseApp.NewContext(false).WithBlockHeader(tmproto.Header{Height: app.LastBlockHeight() + 1})
+	ctx := app.BaseApp.NewContextLegacy(false, tmproto.Header{Height: app.LastBlockHeight() + 1})
+
+	_, err := app.CrisisKeeper.ConstantFee.Get(ctx)
+	if err != nil {
+		panic("dcm")
+	}
 	multiStakingMsgServer := multistakingkeeper.NewMsgServerImpl(app.MultiStakingKeeper)
 
 	suite.app, suite.ctx, suite.msKeeper, suite.govKeeper, suite.msgServer = app, ctx, &app.MultiStakingKeeper, app.GovKeeper, multiStakingMsgServer
@@ -264,15 +271,25 @@ func (suite *KeeperTestSuite) TestAdjustCancelUnbondAmount() {
 // Todo: add CheckBalance; AddAccountWithCoin; FundAccount
 func (suite *KeeperTestSuite) NextBlock(jumpTime time.Duration) {
 	app := suite.app
-	app.EndBlocker(suite.ctx)
+	ctx := suite.ctx
+	_, err := app.FinalizeBlock(&abci.RequestFinalizeBlock{Height: ctx.BlockHeight(), Time: ctx.BlockTime()})
+	if err != nil {
+	}
+	_, err = app.Commit()
+	if err != nil {
+	}
+	newBlockTime := ctx.BlockTime().Add(jumpTime)
 
-	app.Commit()
+	header := ctx.BlockHeader()
+	header.Time = newBlockTime
+	header.Height++
 
-	newBlockTime := suite.ctx.BlockTime().Add(jumpTime)
-	nextHeight := suite.ctx.BlockHeight() + 1
-	suite.ctx = suite.ctx.WithBlockTime(newBlockTime).WithBlockHeight(nextHeight).WithBlockHeader(tmproto.Header{Height: nextHeight, Time: newBlockTime})
+	newCtx := app.BaseApp.NewUncachedContext(false, header).WithHeaderInfo(coreheader.Info{
+		Height: header.Height,
+		Time:   header.Time,
+	})
 
-	app.BeginBlocker(suite.ctx)
+	suite.ctx = newCtx
 }
 
 // Todo: add CheckBalance; AddAccountWithCoin; FundAccount

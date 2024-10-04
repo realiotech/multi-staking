@@ -33,8 +33,7 @@ func (suite *KeeperTestSuite) TestImportExportGenesis() {
 			AppStateBytes:   appState.AppState,
 		},
 	)
-
-	emptyApp.Commit()
+	suite.NoError(err)
 
 	newAppState, err := emptyApp.ExportAppStateAndValidators(false, []string{}, []string{})
 	suite.NoError(err)
