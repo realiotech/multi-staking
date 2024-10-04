@@ -132,7 +132,8 @@ func (k Keeper) BurnCoin(ctx context.Context, accAddr sdk.AccAddress, coin sdk.C
 	return nil
 }
 
-func (k Keeper) isValMultiStakingCoin(ctx context.Context, valAcc sdk.ValAddress, lockedCoin sdk.Coin) bool {
+func (k Keeper) isValMultiStakingCoin(c context.Context, valAcc sdk.ValAddress, lockedCoin sdk.Coin) bool {
+	ctx := sdk.UnwrapSDKContext(c)
 	return lockedCoin.Denom == k.GetValidatorMultiStakingCoin(ctx, valAcc)
 }
 

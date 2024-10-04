@@ -42,8 +42,7 @@ func (k Keeper) RemoveBondWeight(ctx sdk.Context, tokenDenom string) {
 	store.Delete(types.GetBondWeightKey(tokenDenom))
 }
 
-func (k Keeper) GetValidatorMultiStakingCoin(c context.Context, operatorAddr sdk.ValAddress) string {
-	ctx := sdk.UnwrapSDKContext(c)
+func (k Keeper) GetValidatorMultiStakingCoin(ctx sdk.Context, operatorAddr sdk.ValAddress) string {
 	store := ctx.KVStore(k.storeKey)
 	bz := store.Get(types.GetValidatorMultiStakingCoinKey(operatorAddr))
 
