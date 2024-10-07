@@ -38,9 +38,8 @@ func (suite *KeeperTestSuite) SetupTest() {
 	ctx := app.BaseApp.NewContextLegacy(false, tmproto.Header{Height: app.LastBlockHeight() + 1})
 
 	_, err := app.CrisisKeeper.ConstantFee.Get(ctx)
-	if err != nil {
-		panic("dcm")
-	}
+	suite.Require().NoError(err)
+
 	multiStakingMsgServer := multistakingkeeper.NewMsgServerImpl(app.MultiStakingKeeper)
 
 	suite.app, suite.ctx, suite.msKeeper, suite.govKeeper, suite.msgServer = app, ctx, &app.MultiStakingKeeper, app.GovKeeper, multiStakingMsgServer
@@ -52,7 +51,6 @@ func TestKeeperTestSuite(t *testing.T) {
 
 func (suite *KeeperTestSuite) TestAdjustUnbondAmount() {
 	delAddr := test.GenAddress()
-	valDelAddr := test.GenAddress()
 	valPubKey := test.GenPubKey()
 	valAddr := sdk.ValAddress(valPubKey.Address())
 
@@ -110,7 +108,7 @@ func (suite *KeeperTestSuite) TestAdjustUnbondAmount() {
 			bondAmount := sdk.NewCoin(MultiStakingDenomA, math.NewInt(1000))
 			userBalance := sdk.NewCoin(MultiStakingDenomA, math.NewInt(10000))
 			suite.FundAccount(delAddr, sdk.NewCoins(userBalance))
-			suite.FundAccount(valDelAddr, sdk.NewCoins(userBalance))
+			suite.FundAccount(sdk.AccAddress(valAddr), sdk.NewCoins(userBalance))
 
 			createMsg := stakingtypes.MsgCreateValidator{
 				Description: stakingtypes.Description{
@@ -126,7 +124,7 @@ func (suite *KeeperTestSuite) TestAdjustUnbondAmount() {
 					MaxChangeRate: math.LegacyMustNewDecFromStr("0.05"),
 				},
 				MinSelfDelegation: math.NewInt(200),
-				DelegatorAddress:  valDelAddr.String(),
+				DelegatorAddress:  sdk.AccAddress(valAddr).String(),
 				ValidatorAddress:  valAddr.String(),
 				Pubkey:            codectypes.UnsafePackAny(valPubKey),
 				Value:             bondAmount,
@@ -231,6 +229,7 @@ func (suite *KeeperTestSuite) TestAdjustCancelUnbondAmount() {
 			bondAmount := sdk.NewCoin(MultiStakingDenomA, math.NewInt(5000))
 			userBalance := sdk.NewCoin(MultiStakingDenomA, math.NewInt(10000))
 			suite.FundAccount(delAddr, sdk.NewCoins(userBalance))
+			suite.FundAccount(sdk.AccAddress(valAddr), sdk.NewCoins(userBalance))
 
 			createMsg := stakingtypes.MsgCreateValidator{
 				Description: stakingtypes.Description{
@@ -246,15 +245,22 @@ func (suite *KeeperTestSuite) TestAdjustCancelUnbondAmount() {
 					MaxChangeRate: math.LegacyMustNewDecFromStr("0.05"),
 				},
 				MinSelfDelegation: math.NewInt(200),
-				DelegatorAddress:  delAddr.String(),
+				DelegatorAddress:  sdk.AccAddress(valAddr).String(),
 				ValidatorAddress:  valAddr.String(),
 				Pubkey:            codectypes.UnsafePackAny(valPubKey),
 				Value:             bondAmount,
 			}
 			_, err = suite.msgServer.CreateValidator(suite.ctx, &createMsg)
 			suite.Require().NoError(err)
+
+			delMsg := stakingtypes.NewMsgDelegate(delAddr.String(), valAddr.String(), bondAmount)
+			_, err = suite.msgServer.Delegate(suite.ctx, delMsg)
+			suite.Require().NoError(err)
+
 			_, err = tc.malleate(suite.ctx, suite.msgServer, *suite.msKeeper)
 			suite.Require().NoError(err)
+
+			suite.ctx = suite.ctx.WithBlockHeader(tmproto.Header{Time: time.Now()}).WithBlockHeight(1)
 
 			actualAmt, err := suite.msKeeper.AdjustCancelUnbondingAmount(suite.ctx, delAddr, valAddr, suite.ctx.BlockHeight(), tc.adjustAmount)
 

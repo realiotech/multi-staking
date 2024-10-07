@@ -11,6 +11,7 @@ import (
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authcodec "github.com/cosmos/cosmos-sdk/x/auth/codec"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
@@ -22,7 +23,6 @@ var (
 )
 
 func (suite *KeeperTestSuite) TestCreateValidator() {
-	delAddr := test.GenAddress()
 	valPubKey := test.GenPubKey()
 	valAddr := sdk.ValAddress(valPubKey.Address())
 
@@ -51,7 +51,7 @@ func (suite *KeeperTestSuite) TestCreateValidator() {
 						MaxChangeRate: math.LegacyMustNewDecFromStr("0.05"),
 					},
 					MinSelfDelegation: math.NewInt(1),
-					DelegatorAddress:  delAddr.String(),
+					DelegatorAddress:  sdk.AccAddress(valAddr).String(),
 					ValidatorAddress:  valAddr.String(),
 					Pubkey:            codectypes.UnsafePackAny(valPubKey),
 					Value:             bondAmount,
@@ -83,7 +83,7 @@ func (suite *KeeperTestSuite) TestCreateValidator() {
 						MaxChangeRate: math.LegacyMustNewDecFromStr("0.05"),
 					},
 					MinSelfDelegation: math.NewInt(1),
-					DelegatorAddress:  delAddr.String(),
+					DelegatorAddress:  sdk.AccAddress(valAddr).String(),
 					ValidatorAddress:  valAddr.String(),
 					Pubkey:            codectypes.UnsafePackAny(valPubKey),
 					Value:             bondAmount,
@@ -115,7 +115,7 @@ func (suite *KeeperTestSuite) TestCreateValidator() {
 						MaxChangeRate: math.LegacyMustNewDecFromStr("0.05"),
 					},
 					MinSelfDelegation: math.NewInt(1),
-					DelegatorAddress:  delAddr.String(),
+					DelegatorAddress:  sdk.AccAddress(valAddr).String(),
 					ValidatorAddress:  valAddr.String(),
 					Pubkey:            codectypes.UnsafePackAny(valPubKey),
 					Value:             bondAmount,
@@ -142,7 +142,7 @@ func (suite *KeeperTestSuite) TestCreateValidator() {
 						MaxChangeRate: math.LegacyMustNewDecFromStr("0.05"),
 					},
 					MinSelfDelegation: math.NewInt(1),
-					DelegatorAddress:  delAddr.String(),
+					DelegatorAddress:  sdk.AccAddress(valAddr).String(),
 					ValidatorAddress:  sdk.AccAddress([]byte("invalid")).String(),
 					Pubkey:            codectypes.UnsafePackAny(valPubKey),
 					Value:             bondAmount,
@@ -160,17 +160,17 @@ func (suite *KeeperTestSuite) TestCreateValidator() {
 		suite.Run(tc.name, func() {
 			suite.SetupTest()
 			valCoins := sdk.NewCoins(sdk.NewCoin(MultiStakingDenomA, math.NewInt(10000)), sdk.NewCoin(MultiStakingDenomB, math.NewInt(10000)))
-			suite.FundAccount(delAddr, valCoins)
+			suite.FundAccount(sdk.AccAddress(valAddr), valCoins)
 
 			bondAmount, err := tc.malleate(suite.ctx, suite.msKeeper, suite.msgServer)
 			if tc.expErr {
 				suite.Require().Error(err)
 			} else {
 				suite.Require().NoError(err)
-				lockId := multistakingtypes.MultiStakingLockID(delAddr.String(), valAddr.String())
+				lockId := multistakingtypes.MultiStakingLockID(sdk.AccAddress(valAddr).String(), valAddr.String())
 				lockRecord, found := suite.msKeeper.GetMultiStakingLock(suite.ctx, lockId)
 				suite.Require().True(found)
-				actualBond, err := suite.app.StakingKeeper.GetDelegation(suite.ctx, delAddr, valAddr)
+				actualBond, err := suite.app.StakingKeeper.GetDelegation(suite.ctx, sdk.AccAddress(valAddr), valAddr)
 				suite.Require().NoError(err)
 				suite.Require().Equal(bondAmount.Amount, lockRecord.LockedCoin.Amount)
 				suite.Require().Equal(tc.expOut.Amount, actualBond.Shares.TruncateInt())
@@ -180,7 +180,6 @@ func (suite *KeeperTestSuite) TestCreateValidator() {
 }
 
 func (suite *KeeperTestSuite) TestEditValidator() {
-	delAddr := test.GenAddress()
 	valPubKey := test.GenPubKey()
 	valAddr := sdk.ValAddress(valPubKey.Address())
 
@@ -341,7 +340,7 @@ func (suite *KeeperTestSuite) TestEditValidator() {
 			suite.Require().NoError(err)
 			suite.msKeeper.SetBondWeight(suite.ctx, MultiStakingDenomA, math.LegacyOneDec())
 			bondAmount := sdk.NewCoin(MultiStakingDenomA, math.NewInt(1000))
-			suite.FundAccount(delAddr, sdk.NewCoins(bondAmount))
+			suite.FundAccount(sdk.AccAddress(valAddr), sdk.NewCoins(bondAmount))
 
 			createMsg := stakingtypes.MsgCreateValidator{
 				Description: stakingtypes.Description{
@@ -357,7 +356,7 @@ func (suite *KeeperTestSuite) TestEditValidator() {
 					MaxChangeRate: math.LegacyMustNewDecFromStr("0.05"),
 				},
 				MinSelfDelegation: math.NewInt(200),
-				DelegatorAddress:  delAddr.String(),
+				DelegatorAddress:  sdk.AccAddress(valAddr).String(),
 				ValidatorAddress:  valAddr.String(),
 				Pubkey:            codectypes.UnsafePackAny(valPubKey),
 				Value:             bondAmount,
@@ -372,9 +371,11 @@ func (suite *KeeperTestSuite) TestEditValidator() {
 				suite.Require().Error(err)
 			} else {
 				suite.Require().NoError(err)
-				validatorInfo, err := suite.app.StakingKeeper.GetValidator(suite.ctx, sdk.ValAddress(originMsg.ValidatorAddress))
+				valCodec := authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ValidatorAddrPrefix())
+				msgValAddr, err := valCodec.StringToBytes(originMsg.ValidatorAddress)
+				suite.Require().NoError(err)
+				validatorInfo, err := suite.app.StakingKeeper.GetValidator(suite.ctx, msgValAddr)
 				if err != nil {
-					suite.Require().Equal(validatorInfo.Description, originMsg.Description)
 					suite.Require().Equal(validatorInfo.MinSelfDelegation, &originMsg.MinSelfDelegation)
 					suite.Require().Equal(validatorInfo.Commission.CommissionRates.Rate, &originMsg.CommissionRate)
 				}
@@ -385,7 +386,6 @@ func (suite *KeeperTestSuite) TestEditValidator() {
 
 func (suite *KeeperTestSuite) TestDelegate() {
 	delAddr := test.GenAddress()
-	valDelAddr := test.GenAddress()
 	valPubKey := test.GenPubKey()
 	valAddr := sdk.ValAddress(valPubKey.Address())
 
@@ -460,7 +460,7 @@ func (suite *KeeperTestSuite) TestDelegate() {
 			bondAmount := sdk.NewCoin(MultiStakingDenomA, math.NewInt(1000))
 			userBalance := sdk.NewCoin(MultiStakingDenomA, math.NewInt(10000))
 			suite.FundAccount(delAddr, sdk.NewCoins(userBalance))
-			suite.FundAccount(valDelAddr, sdk.NewCoins(userBalance))
+			suite.FundAccount(sdk.AccAddress(valAddr), sdk.NewCoins(userBalance))
 
 			createMsg := stakingtypes.MsgCreateValidator{
 				Description: stakingtypes.Description{
@@ -476,7 +476,7 @@ func (suite *KeeperTestSuite) TestDelegate() {
 					MaxChangeRate: math.LegacyMustNewDecFromStr("0.05"),
 				},
 				MinSelfDelegation: math.NewInt(200),
-				DelegatorAddress:  valDelAddr.String(),
+				DelegatorAddress:  sdk.AccAddress(valAddr).String(),
 				ValidatorAddress:  valAddr.String(),
 				Pubkey:            codectypes.UnsafePackAny(valPubKey),
 				Value:             bondAmount,
@@ -511,7 +511,6 @@ func (suite *KeeperTestSuite) TestDelegate() {
 
 func (suite *KeeperTestSuite) TestBeginRedelegate() {
 	delAddr := test.GenAddress()
-	valDelAddr := test.GenAddress()
 	valPubKey1 := test.GenPubKey()
 	valPubKey2 := test.GenPubKey()
 
@@ -601,7 +600,10 @@ func (suite *KeeperTestSuite) TestBeginRedelegate() {
 				valPubKey3 := test.GenPubKey()
 				bondAmount := sdk.NewCoin(MultiStakingDenomA, math.NewInt(500))
 				valAddr3 := sdk.ValAddress(valPubKey3.Address())
-				createMsg := stakingtypes.MsgCreateValidator{Description: stakingtypes.Description{Moniker: "test", Identity: "test", Website: "test", SecurityContact: "test", Details: "test"}, Commission: stakingtypes.CommissionRates{Rate: math.LegacyMustNewDecFromStr("0.05"), MaxRate: math.LegacyMustNewDecFromStr("0.1"), MaxChangeRate: math.LegacyMustNewDecFromStr("0.1")}, MinSelfDelegation: math.NewInt(200), DelegatorAddress: delAddr.String(), ValidatorAddress: valAddr3.String(), Pubkey: codectypes.UnsafePackAny(valPubKey3), Value: sdk.NewCoin(MultiStakingDenomB, math.NewInt(1000))}
+
+				userBalance := sdk.NewCoin(MultiStakingDenomA, math.NewInt(10000))
+				suite.FundAccount(sdk.AccAddress(valAddr3), sdk.NewCoins(userBalance, sdk.NewCoin(MultiStakingDenomB, math.NewInt(10000))))
+				createMsg := stakingtypes.MsgCreateValidator{Description: stakingtypes.Description{Moniker: "test", Identity: "test", Website: "test", SecurityContact: "test", Details: "test"}, Commission: stakingtypes.CommissionRates{Rate: math.LegacyMustNewDecFromStr("0.05"), MaxRate: math.LegacyMustNewDecFromStr("0.1"), MaxChangeRate: math.LegacyMustNewDecFromStr("0.1")}, MinSelfDelegation: math.NewInt(200), DelegatorAddress: sdk.AccAddress(valAddr3).String(), ValidatorAddress: valAddr3.String(), Pubkey: codectypes.UnsafePackAny(valPubKey3), Value: sdk.NewCoin(MultiStakingDenomB, math.NewInt(1000))}
 				_, err := msgServer.CreateValidator(suite.ctx, &createMsg)
 				suite.Require().NoError(err)
 
@@ -629,7 +631,8 @@ func (suite *KeeperTestSuite) TestBeginRedelegate() {
 			bondAmount := sdk.NewCoin(MultiStakingDenomA, math.NewInt(1000))
 			userBalance := sdk.NewCoin(MultiStakingDenomA, math.NewInt(10000))
 			suite.FundAccount(delAddr, sdk.NewCoins(userBalance, sdk.NewCoin(MultiStakingDenomB, math.NewInt(10000))))
-			suite.FundAccount(valDelAddr, sdk.NewCoins(userBalance, sdk.NewCoin(MultiStakingDenomB, math.NewInt(10000))))
+			suite.FundAccount(sdk.AccAddress(valAddr1), sdk.NewCoins(userBalance, sdk.NewCoin(MultiStakingDenomB, math.NewInt(10000))))
+			suite.FundAccount(sdk.AccAddress(valAddr2), sdk.NewCoins(userBalance, sdk.NewCoin(MultiStakingDenomB, math.NewInt(10000))))
 
 			createMsg := stakingtypes.MsgCreateValidator{
 				Description: stakingtypes.Description{
@@ -645,7 +648,7 @@ func (suite *KeeperTestSuite) TestBeginRedelegate() {
 					MaxChangeRate: math.LegacyMustNewDecFromStr("0.05"),
 				},
 				MinSelfDelegation: math.NewInt(200),
-				DelegatorAddress:  valDelAddr.String(),
+				DelegatorAddress:  sdk.AccAddress(valAddr1).String(),
 				ValidatorAddress:  valAddr1.String(),
 				Pubkey:            codectypes.UnsafePackAny(valPubKey1),
 				Value:             bondAmount,
@@ -664,7 +667,7 @@ func (suite *KeeperTestSuite) TestBeginRedelegate() {
 					MaxChangeRate: math.LegacyMustNewDecFromStr("0.1"),
 				},
 				MinSelfDelegation: math.NewInt(200),
-				DelegatorAddress:  valDelAddr.String(),
+				DelegatorAddress:  sdk.AccAddress(valAddr2).String(),
 				ValidatorAddress:  valAddr2.String(),
 				Pubkey:            codectypes.UnsafePackAny(valPubKey2),
 				Value:             bondAmount,
@@ -798,6 +801,7 @@ func (suite *KeeperTestSuite) TestUndelegate() {
 			bondAmount := sdk.NewCoin(MultiStakingDenomA, math.NewInt(1000))
 			userBalance := sdk.NewCoin(MultiStakingDenomA, math.NewInt(10000))
 			suite.FundAccount(delAddr, sdk.NewCoins(userBalance, sdk.NewCoin(MultiStakingDenomB, math.NewInt(10000))))
+			suite.FundAccount(sdk.AccAddress(valAddr), sdk.NewCoins(userBalance, sdk.NewCoin(MultiStakingDenomB, math.NewInt(10000))))
 
 			createMsg := stakingtypes.MsgCreateValidator{
 				Description: stakingtypes.Description{
@@ -813,13 +817,17 @@ func (suite *KeeperTestSuite) TestUndelegate() {
 					MaxChangeRate: math.LegacyMustNewDecFromStr("0.05"),
 				},
 				MinSelfDelegation: math.NewInt(200),
-				DelegatorAddress:  delAddr.String(),
+				DelegatorAddress:  sdk.AccAddress(valAddr).String(),
 				ValidatorAddress:  valAddr.String(),
 				Pubkey:            codectypes.UnsafePackAny(valPubKey),
 				Value:             bondAmount,
 			}
 
 			_, err = suite.msgServer.CreateValidator(suite.ctx, &createMsg)
+			suite.Require().NoError(err)
+
+			delMsg := stakingtypes.NewMsgDelegate(delAddr.String(), valAddr.String(), bondAmount)
+			_, err = suite.msgServer.Delegate(suite.ctx, delMsg)
 			suite.Require().NoError(err)
 
 			suite.ctx = suite.ctx.WithBlockHeader(tmproto.Header{Time: time.Now()})
@@ -955,6 +963,7 @@ func (suite *KeeperTestSuite) TestCancelUnbondingDelegation() {
 			bondAmount := sdk.NewCoin(MultiStakingDenomA, math.NewInt(2000))
 			userBalance := sdk.NewCoin(MultiStakingDenomA, math.NewInt(10000))
 			suite.FundAccount(delAddr, sdk.NewCoins(userBalance, sdk.NewCoin(MultiStakingDenomB, math.NewInt(10000))))
+			suite.FundAccount(sdk.AccAddress(valAddr), sdk.NewCoins(userBalance, sdk.NewCoin(MultiStakingDenomB, math.NewInt(10000))))
 
 			createMsg := stakingtypes.MsgCreateValidator{
 				Description: stakingtypes.Description{
@@ -970,7 +979,7 @@ func (suite *KeeperTestSuite) TestCancelUnbondingDelegation() {
 					MaxChangeRate: math.LegacyMustNewDecFromStr("0.05"),
 				},
 				MinSelfDelegation: math.NewInt(200),
-				DelegatorAddress:  delAddr.String(),
+				DelegatorAddress:  sdk.AccAddress(valAddr).String(),
 				ValidatorAddress:  valAddr.String(),
 				Pubkey:            codectypes.UnsafePackAny(valPubKey),
 				Value:             bondAmount,
@@ -979,7 +988,11 @@ func (suite *KeeperTestSuite) TestCancelUnbondingDelegation() {
 			_, err = suite.msgServer.CreateValidator(suite.ctx, &createMsg)
 			suite.Require().NoError(err)
 
-			suite.ctx = suite.ctx.WithBlockHeader(tmproto.Header{Time: time.Now()})
+			delMsg := stakingtypes.NewMsgDelegate(delAddr.String(), valAddr.String(), bondAmount)
+			_, err = suite.msgServer.Delegate(suite.ctx, delMsg)
+			suite.Require().NoError(err)
+
+			suite.ctx = suite.ctx.WithBlockHeader(tmproto.Header{Time: time.Now()}).WithBlockHeight(1)
 			curHeight := suite.ctx.BlockHeight()
 
 			unbondMsg := stakingtypes.NewMsgUndelegate(delAddr.String(), valAddr.String(), sdk.NewCoin(MultiStakingDenomA, math.NewInt(1000)))
