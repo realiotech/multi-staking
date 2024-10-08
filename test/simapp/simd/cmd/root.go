@@ -6,14 +6,19 @@ import (
 	"os"
 	"path/filepath"
 
+	dbm "github.com/cosmos/cosmos-db"
 	"github.com/realio-tech/multi-staking-module/test/simapp"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 
+	"cosmossdk.io/log"
 	"cosmossdk.io/simapp/params"
-	rosettaCmd "cosmossdk.io/tools/rosetta/cmd"
-
 	"cosmossdk.io/store"
+	"cosmossdk.io/store/snapshots"
+	snapshottypes "cosmossdk.io/store/snapshots/types"
+	storetypes "cosmossdk.io/store/types"
+	confixcmd "cosmossdk.io/tools/confix/cmd"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/config"
@@ -21,8 +26,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
+	addresscodec "github.com/cosmos/cosmos-sdk/codec/address"
 	"github.com/cosmos/cosmos-sdk/server"
-	serverstart "github.com/cosmos/cosmos-sdk/server"
 	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -32,16 +37,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+	rosettaCmd "github.com/cosmos/rosetta/cmd"
 
-	"cosmossdk.io/log"
-	"cosmossdk.io/store/snapshots"
-	snapshottypes "cosmossdk.io/store/snapshots/types"
-	storetypes "cosmossdk.io/store/types"
-	confixcmd "cosmossdk.io/tools/confix/cmd"
 	tmcfg "github.com/cometbft/cometbft/config"
 	tmcli "github.com/cometbft/cometbft/libs/cli"
-	dbm "github.com/cosmos/cosmos-db"
-	addresscodec "github.com/cosmos/cosmos-sdk/codec/address"
 )
 
 // NewRootCmd creates a new root command for simd. It is called once in the
@@ -290,8 +289,8 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 	}
 
 	snapshotOptions := snapshottypes.NewSnapshotOptions(
-		cast.ToUint64(appOpts.Get(serverstart.FlagStateSyncSnapshotInterval)),
-		cast.ToUint32(appOpts.Get(serverstart.FlagStateSyncSnapshotKeepRecent)),
+		cast.ToUint64(appOpts.Get(server.FlagStateSyncSnapshotInterval)),
+		cast.ToUint32(appOpts.Get(server.FlagStateSyncSnapshotKeepRecent)),
 	)
 
 	return simapp.NewSimApp(
