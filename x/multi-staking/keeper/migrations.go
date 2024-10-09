@@ -22,3 +22,8 @@ func NewMigrator(keeper *stakingkeeper.Keeper, legacySubspace exported.Subspace)
 func (m Migrator) Migrate1to2(ctx sdk.Context) error {
 	return m.stkm.Migrate3to4(ctx)
 }
+
+// Migrate2to3 migrates multi-staking state from consensus version 2 to 3. (sdk47 to sdk50)
+func (m Migrator) Migrate2to3(ctx sdk.Context) error {
+	return m.stkm.Migrate4to5(ctx)
+}

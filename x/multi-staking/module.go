@@ -147,6 +147,9 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	if err := cfg.RegisterMigration(multistakingtypes.ModuleName, 1, m.Migrate1to2); err != nil {
 		panic(fmt.Sprintf("failed to migrate x/%s from version 1 to 2: %v", stakingtypes.ModuleName, err))
 	}
+	if err := cfg.RegisterMigration(multistakingtypes.ModuleName, 2, m.Migrate2to3); err != nil {
+		panic(fmt.Sprintf("failed to migrate x/%s from version 2 to 3: %v", stakingtypes.ModuleName, err))
+	}
 }
 
 // InitGenesis initial genesis state for multi-staking module
@@ -188,7 +191,7 @@ func (am AppModule) EndBlock(ctx context.Context) ([]abci.ValidatorUpdate, error
 }
 
 // ConsensusVersion return module consensus version
-func (AppModule) ConsensusVersion() uint64 { return 2 }
+func (AppModule) ConsensusVersion() uint64 { return 3 }
 
 // IsAppModule implements the appmodule.AppModule interface.
 func (am AppModule) IsAppModule() {}
