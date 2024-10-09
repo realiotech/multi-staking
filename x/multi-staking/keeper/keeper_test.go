@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
+	coreheader "cosmossdk.io/core/header"
 	"cosmossdk.io/math"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -18,7 +19,6 @@ import (
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	coreheader "cosmossdk.io/core/header"
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 )
@@ -279,11 +279,9 @@ func (suite *KeeperTestSuite) NextBlock(jumpTime time.Duration) {
 	app := suite.app
 	ctx := suite.ctx
 	_, err := app.FinalizeBlock(&abci.RequestFinalizeBlock{Height: ctx.BlockHeight(), Time: ctx.BlockTime()})
-	if err != nil {
-	}
+	suite.Require().NoError(err)
 	_, err = app.Commit()
-	if err != nil {
-	}
+	suite.Require().NoError(err)
 	newBlockTime := ctx.BlockTime().Add(jumpTime)
 
 	header := ctx.BlockHeader()

@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	dbm "github.com/cosmos/cosmos-db"
+	rosettaCmd "github.com/cosmos/rosetta/cmd"
 	"github.com/realio-tech/multi-staking-module/test/simapp"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
@@ -37,7 +38,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-	rosettaCmd "github.com/cosmos/rosetta/cmd"
 
 	tmcfg "github.com/cometbft/cometbft/config"
 	tmcli "github.com/cometbft/cometbft/libs/cli"

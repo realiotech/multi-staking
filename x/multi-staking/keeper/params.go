@@ -1,8 +1,9 @@
 package keeper
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // SetParams sets the x/staking module parameters.

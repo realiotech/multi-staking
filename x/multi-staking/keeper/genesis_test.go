@@ -1,11 +1,12 @@
 package keeper_test
 
 import (
+	dbm "github.com/cosmos/cosmos-db"
 	"github.com/realio-tech/multi-staking-module/test/simapp"
 
 	"cosmossdk.io/log"
+
 	abci "github.com/cometbft/cometbft/abci/types"
-	dbm "github.com/cosmos/cosmos-db"
 )
 
 func (suite *KeeperTestSuite) TestImportExportGenesis() {

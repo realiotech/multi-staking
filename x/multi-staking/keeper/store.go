@@ -4,11 +4,13 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
+
 	"cosmossdk.io/math"
 	"cosmossdk.io/store/prefix"
 	sdk_type "cosmossdk.io/store/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
 
 func (k Keeper) GetBondWeight(ctx sdk.Context, tokenDenom string) (math.LegacyDec, bool) {

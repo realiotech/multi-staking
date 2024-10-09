@@ -1,9 +1,10 @@
 package cli
 
 import (
-	"cosmossdk.io/core/address"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	"github.com/spf13/cobra"
+
+	"cosmossdk.io/core/address"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/x/staking/client/cli"

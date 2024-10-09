@@ -84,7 +84,8 @@ func (suite *KeeperTestSuite) TestMsUnlockEndBlocker() {
 				// height 3
 				suite.NextBlock(time.Second)
 
-				suite.app.SlashingKeeper.Slash(suite.ctx, valConsAddr, tc.slashFactor, slashedPow, 2)
+				err = suite.app.SlashingKeeper.Slash(suite.ctx, valConsAddr, tc.slashFactor, slashedPow, 2)
+				require.NoError(suite.T(), err)
 			} else {
 				// height 3
 				suite.NextBlock(time.Second)

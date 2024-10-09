@@ -11,6 +11,7 @@ import (
 	"cosmossdk.io/log"
 	"cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
@@ -105,7 +106,7 @@ func (k Keeper) GetUnbondingEntryAtCreationHeight(ctx sdk.Context, delAcc sdk.Ac
 	}
 
 	var unbondingEntryAtHeight stakingtypes.UnbondingDelegationEntry
-	var found = false
+	found := false
 	for _, entry := range ubd.Entries {
 		if entry.CreationHeight == creationHeight {
 			if !found {
@@ -186,6 +187,6 @@ func (k Keeper) BondDenom(ctx context.Context) string {
 	return bondDenom
 }
 
-func (k Keeper) IterateDelegations(ctx context.Context, delegator sdk.AccAddress, fn func(index int64, delegation stakingtypes.DelegationI) (stop bool)) {
-	k.stakingKeeper.IterateDelegations(ctx, delegator, fn)
+func (k Keeper) IterateDelegations(ctx context.Context, delegator sdk.AccAddress, fn func(index int64, delegation stakingtypes.DelegationI) (stop bool)) error {
+	return k.stakingKeeper.IterateDelegations(ctx, delegator, fn)
 }

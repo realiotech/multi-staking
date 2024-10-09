@@ -16,8 +16,10 @@ type msgServer struct {
 	stakingMsgServer stakingtypes.MsgServer
 }
 
-var _ stakingtypes.MsgServer = msgServer{}
-var _ types.MsgServer = msgServer{}
+var (
+	_ stakingtypes.MsgServer = msgServer{}
+	_ types.MsgServer        = msgServer{}
+)
 
 func NewMultiStakingMsgServerImpl(keeper Keeper) types.MsgServer {
 	return &msgServer{
@@ -68,12 +70,12 @@ func (k msgServer) UpdateParams(ctx context.Context, msg *stakingtypes.MsgUpdate
 // CreateValidator defines a method for creating a new validator
 func (k msgServer) CreateValidator(c context.Context, msg *stakingtypes.MsgCreateValidator) (*stakingtypes.MsgCreateValidatorResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
-	multiStakerAddr, valAcc, err := types.AccAddrAndValAddrFromStrings(msg.DelegatorAddress, msg.ValidatorAddress)
+	multiStakerAddr, valAcc, err := types.ValidatorAccAddrAndValAddrFromStrings(msg.ValidatorAddress)
 	if err != nil {
 		return nil, err
 	}
 
-	lockID := types.MultiStakingLockID(msg.DelegatorAddress, msg.ValidatorAddress)
+	lockID := types.MultiStakingLockID(multiStakerAddr.String(), msg.ValidatorAddress)
 
 	mintedBondCoin, err := k.keeper.LockCoinAndMintBondCoin(ctx, lockID, multiStakerAddr, multiStakerAddr, msg.Value)
 	if err != nil {
@@ -84,7 +86,7 @@ func (k msgServer) CreateValidator(c context.Context, msg *stakingtypes.MsgCreat
 		Description:       msg.Description,
 		Commission:        msg.Commission,
 		MinSelfDelegation: msg.MinSelfDelegation,
-		DelegatorAddress:  msg.DelegatorAddress,
+		DelegatorAddress:  multiStakerAddr.String(),
 		ValidatorAddress:  msg.ValidatorAddress,
 		Pubkey:            msg.Pubkey,
 		Value:             mintedBondCoin, // replace lock coin with bond coin
@@ -126,7 +128,7 @@ func (k msgServer) Delegate(goCtx context.Context, msg *stakingtypes.MsgDelegate
 		Amount:           mintedBondCoin, // replace lock coin with bond coin
 	}
 
-	return k.stakingMsgServer.Delegate(sdk.WrapSDKContext(ctx), &sdkMsg)
+	return k.stakingMsgServer.Delegate(ctx, &sdkMsg)
 }
 
 // BeginRedelegate defines a method for performing a redelegation of coins from a delegator and source validator to a destination validator
