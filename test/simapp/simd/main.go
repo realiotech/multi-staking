@@ -14,7 +14,7 @@ func main() {
 	rootCmd, _ := cmd.NewRootCmd()
 
 	if err := svrcmd.Execute(rootCmd, "simd", simapp.DefaultNodeHome); err != nil {
-		fmt.Fprintln(rootCmd.OutOrStderr(), err)
+		fmt.Fprintln(rootCmd.OutOrStderr(), err) //nolint
 		os.Exit(1)
 	}
 }

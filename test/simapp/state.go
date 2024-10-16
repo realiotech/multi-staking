@@ -170,6 +170,7 @@ func AppStateRandomizedFn(
 		InitialStake: math.NewInt(initialStake),
 		NumBonded:    numInitiallyBonded,
 		GenTimestamp: genesisTimestamp,
+		BondDenom:    sdk.DefaultBondDenom,
 	}
 
 	simManager.GenerateGenesisStates(simState)
