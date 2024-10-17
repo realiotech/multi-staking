@@ -8,6 +8,16 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
+func NewGenesisState(MultiStakingLocks []MultiStakingLock, MultiStakingUnlocks []MultiStakingUnlock, MultiStakingCoinInfo []MultiStakingCoinInfo, ValidatorMultiStakingCoins []ValidatorMultiStakingCoin, StakingGenesisState stakingtypes.GenesisState) *GenesisState {
+	return &GenesisState{
+		MultiStakingLocks,
+		MultiStakingUnlocks,
+		MultiStakingCoinInfo,
+		ValidatorMultiStakingCoins,
+		StakingGenesisState,
+	}
+}
+
 func DefaultGenesis() *GenesisState {
 	stakingGenesis := stakingtypes.DefaultGenesisState()
 

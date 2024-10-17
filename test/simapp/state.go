@@ -19,6 +19,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	multistakingtypes "github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 
 	tmjson "github.com/cometbft/cometbft/libs/json"
 	tmtypes "github.com/cometbft/cometbft/types"
@@ -78,16 +79,19 @@ func AppStateFn(cdc codec.JSONCodec, simManager *module.SimulationManager) simty
 			panic(err)
 		}
 
-		stakingStateBz, ok := rawState[stakingtypes.ModuleName]
+		multiStakingStateBz, ok := rawState[multistakingtypes.ModuleName]
 		if !ok {
 			panic("staking genesis state is missing")
 		}
 
-		stakingState := new(stakingtypes.GenesisState)
-		err = cdc.UnmarshalJSON(stakingStateBz, stakingState)
+		multiStakingState := new(multistakingtypes.GenesisState)
+		err = cdc.UnmarshalJSON(multiStakingStateBz, multiStakingState)
 		if err != nil {
 			panic(err)
 		}
+
+		stakingState := multiStakingState.StakingGenesisState
+
 		// compute not bonded balance
 		notBondedTokens := math.ZeroInt()
 		for _, val := range stakingState.Validators {
@@ -115,7 +119,7 @@ func AppStateFn(cdc codec.JSONCodec, simManager *module.SimulationManager) simty
 		})
 
 		// change appState back
-		rawState[stakingtypes.ModuleName] = cdc.MustMarshalJSON(stakingState)
+		rawState[multistakingtypes.ModuleName] = cdc.MustMarshalJSON(multiStakingState)
 		rawState[banktypes.ModuleName] = cdc.MustMarshalJSON(bankState)
 
 		// replace appstate

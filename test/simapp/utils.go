@@ -13,6 +13,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/types/kv"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 )
 
@@ -20,12 +21,9 @@ import (
 // the simulation tests. If `FlagEnabledValue` is false it skips the current test.
 // Returns error on an invalid db intantiation or temp dir creation.
 func SetupSimulation(dirPrefix, dbName string) (simtypes.Config, dbm.DB, string, log.Logger, bool, error) {
-	if !FlagEnabledValue {
-		return simtypes.Config{}, nil, "", nil, true, nil
-	}
-
 	config := NewConfigFromFlags()
 	config.ChainID = "test-chain"
+	config.Commit = true
 
 	var logger log.Logger
 	var t zerolog.TestingLog
@@ -53,6 +51,7 @@ func SetupSimulation(dirPrefix, dbName string) (simtypes.Config, dbm.DB, string,
 func SimulationOperations(app App, cdc codec.JSONCodec, config simtypes.Config) []simtypes.WeightedOperation {
 	simState := module.SimulationState{
 		AppParams: make(simtypes.AppParams),
+		TxConfig:  moduletestutil.MakeTestTxConfig(),
 		Cdc:       cdc,
 	}
 
