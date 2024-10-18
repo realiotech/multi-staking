@@ -56,7 +56,7 @@ var (
 )
 
 // Setup initializes a new SimApp. A Nop logger is set in SimApp.
-func Setup(isCheckTx bool) *SimApp {
+func Setup() *SimApp {
 	valSet := GenValSet()
 
 	app := SetupWithGenesisValSet(valSet)

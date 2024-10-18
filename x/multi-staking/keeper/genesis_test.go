@@ -30,14 +30,21 @@ func (suite *KeeperTestSuite) TestImportExportGenesis() {
 	_, err = emptyApp.InitChain(
 		&abci.RequestInitChain{
 			Validators:      []abci.ValidatorUpdate{},
-			ConsensusParams: simapp.DefaultConsensusParams,
+			ConsensusParams: &appState.ConsensusParams,
 			AppStateBytes:   appState.AppState,
 		},
 	)
+
+	emptyApp.FinalizeBlock(&abci.RequestFinalizeBlock{Height: emptyApp.LastBlockHeight() + 1})
 	suite.NoError(err)
 
 	newAppState, err := emptyApp.ExportAppStateAndValidators(false, []string{}, []string{})
 	suite.NoError(err)
 
-	suite.Equal(appState.AppState, newAppState.AppState)
+	suite.app.FinalizeBlock(&abci.RequestFinalizeBlock{Height: suite.app.LastBlockHeight() + 1})
+	suite.app.Commit()
+	appState2, err := suite.app.ExportAppStateAndValidators(false, []string{}, []string{})
+	suite.NoError(err)
+
+	suite.Equal(appState2.AppState, newAppState.AppState)
 }

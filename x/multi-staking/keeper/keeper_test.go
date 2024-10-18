@@ -34,7 +34,7 @@ type KeeperTestSuite struct {
 }
 
 func (suite *KeeperTestSuite) SetupTest() {
-	app := simapp.Setup(false)
+	app := simapp.Setup()
 	ctx := app.NewContextLegacy(false, tmproto.Header{Height: app.LastBlockHeight() + 1})
 
 	_, err := app.CrisisKeeper.ConstantFee.Get(ctx)

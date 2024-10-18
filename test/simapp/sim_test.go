@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"runtime/debug"
+	"strings"
 	"testing"
 
 	dbm "github.com/cosmos/cosmos-db"
@@ -135,7 +137,6 @@ func TestAppImportExport(t *testing.T) {
 	fmt.Printf("exporting genesis...\n")
 
 	exported, err := app.ExportAppStateAndValidators(false, []string{}, []string{})
-	fmt.Println(err)
 	require.NoError(t, err)
 
 	fmt.Printf("importing genesis...\n")
@@ -161,6 +162,14 @@ func TestAppImportExport(t *testing.T) {
 	ctxA := app.NewContextLegacy(true, cmtproto.Header{Height: app.LastBlockHeight()})
 	ctxB := newApp.NewContextLegacy(true, cmtproto.Header{Height: app.LastBlockHeight()})
 	_, err = newApp.mm.InitGenesis(ctxB, app.AppCodec(), genesisState)
+
+	if err != nil {
+		if strings.Contains(err.Error(), "validator set is empty after InitGenesis") {
+			logger.Info("Skipping simulation as all validators have been unbonded")
+			logger.Info("err", err, "stacktrace", string(debug.Stack()))
+			return
+		}
+	}
 	require.NoError(t, err)
 	err = newApp.StoreConsensusParams(ctxB, exported.ConsensusParams)
 	require.NoError(t, err)
