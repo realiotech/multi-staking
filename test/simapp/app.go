@@ -50,7 +50,6 @@ import (
 	authcodec "github.com/cosmos/cosmos-sdk/x/auth/codec"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
-	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
@@ -226,21 +225,20 @@ func NewSimApp(
 			},
 		},
 	})
-
 	appCodec := codec.NewProtoCodec(interfaceRegistry)
+	txConfig := authtx.NewTxConfig(appCodec, authtx.DefaultSignModes)
+
 	encodingConfig = simappparams.EncodingConfig{
 		InterfaceRegistry: interfaceRegistry,
 		Codec:             appCodec,
-		TxConfig:          tx.NewTxConfig(appCodec, tx.DefaultSignModes),
-		Amino:             codec.NewLegacyAmino(),
+		TxConfig:          txConfig,
+		Amino:             legacyAmino,
 	}
 
 	// interfaceRegistry = testutil.CodecOptions{}.NewInterfaceRegistry()
 	if err != nil {
 		panic(err)
 	}
-
-	txConfig := authtx.NewTxConfig(appCodec, authtx.DefaultSignModes)
 
 	std.RegisterLegacyAminoCodec(legacyAmino)
 	std.RegisterInterfaces(interfaceRegistry)

@@ -31,6 +31,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	abci "github.com/cometbft/cometbft/abci/types"
+	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 )
 
 // Get flags every time the simulator is run
@@ -68,7 +69,7 @@ func TestFullAppSimulation(t *testing.T) {
 		require.NoError(t, os.RemoveAll(dir))
 	}()
 
-	app := NewSimApp(logger, db, nil, true, map[int64]bool{}, DefaultNodeHome, FlagPeriodValue, MakeTestEncodingConfig(), EmptyAppOptions{}, fauxMerkleModeOpt, baseapp.SetChainID(config.ChainID))
+	app := NewSimApp(logger, db, nil, true, map[int64]bool{}, DefaultNodeHome, FlagPeriodValue, MakeTestEncodingConfig(), EmptyAppOptions{}, interBlockCacheOpt(), baseapp.SetChainID(config.ChainID))
 	require.Equal(t, "SimApp", app.Name())
 
 	// run randomized simulation
@@ -134,6 +135,7 @@ func TestAppImportExport(t *testing.T) {
 	fmt.Printf("exporting genesis...\n")
 
 	exported, err := app.ExportAppStateAndValidators(false, []string{}, []string{})
+	fmt.Println(err)
 	require.NoError(t, err)
 
 	fmt.Printf("importing genesis...\n")
@@ -149,15 +151,15 @@ func TestAppImportExport(t *testing.T) {
 		require.NoError(t, os.RemoveAll(newDir))
 	}()
 
-	newApp := NewSimApp(log.NewNopLogger(), newDB, nil, true, map[int64]bool{}, DefaultNodeHome, FlagPeriodValue, MakeTestEncodingConfig(), EmptyAppOptions{}, fauxMerkleModeOpt, baseapp.SetChainID(config.ChainID))
+	newApp := NewSimApp(log.NewNopLogger(), newDB, nil, true, map[int64]bool{}, DefaultNodeHome, FlagPeriodValue, MakeTestEncodingConfig(), EmptyAppOptions{}, interBlockCacheOpt(), baseapp.SetChainID(config.ChainID))
 	require.Equal(t, "SimApp", newApp.Name())
 
 	var genesisState GenesisState
 	err = json.Unmarshal(exported.AppState, &genesisState)
 	require.NoError(t, err)
 
-	ctxA := app.NewContext(true)
-	ctxB := newApp.NewContext(true)
+	ctxA := app.NewContextLegacy(true, cmtproto.Header{Height: app.LastBlockHeight()})
+	ctxB := newApp.NewContextLegacy(true, cmtproto.Header{Height: app.LastBlockHeight()})
 	_, err = newApp.mm.InitGenesis(ctxB, app.AppCodec(), genesisState)
 	require.NoError(t, err)
 	err = newApp.StoreConsensusParams(ctxB, exported.ConsensusParams)
@@ -208,7 +210,7 @@ func TestAppSimulationAfterImport(t *testing.T) {
 		require.NoError(t, os.RemoveAll(dir))
 	}()
 
-	app := NewSimApp(logger, db, nil, true, map[int64]bool{}, DefaultNodeHome, FlagPeriodValue, MakeTestEncodingConfig(), EmptyAppOptions{}, fauxMerkleModeOpt, baseapp.SetChainID(config.ChainID))
+	app := NewSimApp(logger, db, nil, true, map[int64]bool{}, DefaultNodeHome, FlagPeriodValue, MakeTestEncodingConfig(), EmptyAppOptions{}, interBlockCacheOpt(), baseapp.SetChainID(config.ChainID))
 	require.Equal(t, "SimApp", app.Name())
 
 	// Run randomized simulation
