@@ -2,17 +2,28 @@ package types
 
 import (
 	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func NewMultiStakingLock(lockID *LockID, lockedCoin MultiStakingCoin) MultiStakingLock {
+func NewMultiStakingLock(lockID LockID, lockedCoin MultiStakingCoin) MultiStakingLock {
 	return MultiStakingLock{
 		LockID:     lockID,
 		LockedCoin: lockedCoin,
 	}
 }
 
-func (lock MultiStakingLock) MultiStakingCoin(withAmount sdk.Int) MultiStakingCoin {
+func (lock MultiStakingLock) Validate() error {
+	if _, err := sdk.AccAddressFromBech32(lock.LockID.MultiStakerAddr); err != nil {
+		return err
+	}
+	if _, err := sdk.ValAddressFromBech32(lock.LockID.ValAddr); err != nil {
+		return err
+	}
+	return lock.LockedCoin.Validate()
+}
+
+func (lock MultiStakingLock) MultiStakingCoin(withAmount math.Int) MultiStakingCoin {
 	return lock.LockedCoin.WithAmount(withAmount)
 }
 
@@ -36,7 +47,7 @@ func (m MultiStakingLock) GetBondWeight() sdk.Dec {
 	return m.LockedCoin.BondWeight
 }
 
-func (multiStakingLock MultiStakingLock) LockedAmountToBondAmount(amount math.Int) sdk.Int {
+func (multiStakingLock MultiStakingLock) LockedAmountToBondAmount(amount math.Int) math.Int {
 	return multiStakingLock.LockedCoin.WithAmount(amount).BondValue()
 }
 

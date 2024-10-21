@@ -2,6 +2,7 @@
 
 DOCKER := $(shell which docker)
 DOCKER_BUF := $(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace bufbuild/buf:1.0.0-rc8
+PROJECT_NAME = $(shell git remote get-url origin | xargs basename -s .git)
 
 ###############################################################################
 ###                                Protobuf                                 ###
@@ -10,12 +11,18 @@ DOCKER_BUF := $(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace bu
 protoVer=0.14.0
 protoImageName=ghcr.io/cosmos/proto-builder:$(protoVer)
 protoImage=$(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace $(protoImageName)
+protoGenSwagger=$(PROJECT_NAME)-proto-gen-swagger-$(protoVer)
 
 proto-all: proto-format proto-lint proto-gen
 
 proto-gen:
 	@echo "Generating Protobuf files"
 	@$(protoImage) sh ./scripts/protocgen.sh
+
+proto-swagger-gen:
+	@echo "Generating Protobuf Swagger"
+	@if docker ps -a --format '{{.Names}}' | grep -Eq "^${protoGenSwagger}$$"; then docker start -a $(protoGenSwagger); else docker run --name $(protoGenSwagger) -v $(CURDIR):/workspaces/multi-staking --workdir /workspaces/multi-staking $(protoImageName) \
+		sh ./scripts/protoc-swagger-gen.sh; fi
 
 proto-format:
 	@$(protoImage) find ./ -name "*.proto" -exec clang-format -i {} \;
@@ -64,3 +71,22 @@ proto-update-deps:
 	$(DOCKER) run --rm -v $(CURDIR)/proto:/workspace --workdir /workspace $(protoImageName) buf mod update
 
 .PHONY: proto-all proto-gen proto-format proto-lint proto-check-breaking proto-update-deps
+
+###############################################################################
+###                                Linting                                  ###
+###############################################################################
+
+golangci_lint_cmd=golangci-lint
+golangci_version=v1.49.0
+
+lint:
+	@echo "--> Running linter"
+	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@$(golangci_version)
+	@$(golangci_lint_cmd) run --timeout=10m
+
+lint-fix:
+	@echo "--> Running linter"
+	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@$(golangci_version)
+	@$(golangci_lint_cmd) run --fix --out-format=tab --issues-exit-code=0
+
+.PHONY: lint lint-fix

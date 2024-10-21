@@ -7,57 +7,54 @@ import (
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
-	"github.com/cosmos/cosmos-sdk/x/authz"
+	v1beta1types "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+
 	authzcodec "github.com/cosmos/cosmos-sdk/x/authz/codec"
+	govcodec "github.com/cosmos/cosmos-sdk/x/gov/codec"
+	groupcodec "github.com/cosmos/cosmos-sdk/x/group/codec"
 )
 
-// RegisterLegacyAminoCodec registers the necessary x/staking interfaces and concrete types
-// on the provided LegacyAmino codec. These types are used for Amino JSON serialization.
+var (
+	amino = codec.NewLegacyAmino()
+
+	// AminoCdc references the global x/relationships module codec. Note, the codec should
+	// ONLY be used in certain instances of tests and for JSON encoding as Amino is
+	// still used for that purpose.
+	//
+	// The actual codec used for serialization should be provided to x/relationships and
+	// defined at the application level.
+	AminoCdc = codec.NewAminoCodec(amino)
+)
+
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	legacy.RegisterAminoMsg(cdc, &MsgCreateValidator{}, "multi-staking/MsgCreateValidator")
-	legacy.RegisterAminoMsg(cdc, &MsgEditValidator{}, "multi-staking/MsgEditValidator")
-	legacy.RegisterAminoMsg(cdc, &MsgDelegate{}, "multi-staking/MsgDelegate")
-	legacy.RegisterAminoMsg(cdc, &MsgUndelegate{}, "multi-staking/MsgUndelegate")
-	legacy.RegisterAminoMsg(cdc, &MsgBeginRedelegate{}, "multi-staking/MsgBeginRedelegate")
-	legacy.RegisterAminoMsg(cdc, &MsgCancelUnbonding{}, "multi-staking/MsgCancelUnbondDelegation")
-	legacy.RegisterAminoMsg(cdc, &MsgVoteWeighted{}, "multi-staking/MsgVoteWeighted")
-	legacy.RegisterAminoMsg(cdc, &MsgVote{}, "multi-staking/MsgVote")
-	legacy.RegisterAminoMsg(cdc, &MsgSetWithdrawAddress{}, "multi-staking/MsgSetWithdrawAddress")
-	legacy.RegisterAminoMsg(cdc, &MsgWithdrawReward{}, "multi-staking/MsgWithdrawReward")
+	legacy.RegisterAminoMsg(cdc, &MsgUpdateMultiStakingParams{}, "multistaking/MsgUpdateMSParams")
+
+	cdc.RegisterConcrete(&AddMultiStakingCoinProposal{}, "multistaking/AddMultiStakingCoinProposal", nil)
+	cdc.RegisterConcrete(&UpdateBondWeightProposal{}, "multistaking/UpdateBondWeightProposal", nil)
+	// this line is used by starport scaffolding # 2
 }
 
-// RegisterInterfaces registers the x/staking interfaces types with the interface registry
 func RegisterInterfaces(registry types.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
-		&MsgCreateValidator{},
-		&MsgEditValidator{},
-		&MsgDelegate{},
-		&MsgUndelegate{},
-		&MsgBeginRedelegate{},
-		&MsgCancelUnbonding{},
-		&MsgVoteWeighted{},
-		&MsgVote{},
-		&MsgSetWithdrawAddress{},
-		&MsgWithdrawReward{},
+		&MsgUpdateMultiStakingParams{},
 	)
 	registry.RegisterImplementations(
-		(*authz.Authorization)(nil),
+		(*v1beta1types.Content)(nil),
+		&AddMultiStakingCoinProposal{},
+		&UpdateBondWeightProposal{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }
-
-var (
-	amino     = codec.NewLegacyAmino()
-	ModuleCdc = codec.NewAminoCodec(amino)
-)
 
 func init() {
 	RegisterLegacyAminoCodec(amino)
 	cryptocodec.RegisterCrypto(amino)
 	sdk.RegisterLegacyAminoCodec(amino)
 
-	// Register all Amino interfaces and concrete types on the authz Amino codec so that this can later be
-	// used to properly serialize MsgGrant and MsgExec instances
+	// Register all Amino interfaces and concrete types on the authz  and gov Amino codec so that this can later be
+	// used to properly serialize MsgGrant, MsgExec and MsgSubmitProposal instances
 	RegisterLegacyAminoCodec(authzcodec.Amino)
+	RegisterLegacyAminoCodec(govcodec.Amino)
+	RegisterLegacyAminoCodec(groupcodec.Amino)
 }

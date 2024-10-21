@@ -3,15 +3,13 @@ package types
 import (
 	"fmt"
 
+	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func (coin MultiStakingCoin) Validate() error {
-	if !coin.Amount.IsPositive() {
-		return fmt.Errorf("amount zero or negative")
-	}
-
-	if !coin.Amount.IsPositive() {
+	if !coin.BondWeight.IsPositive() {
 		return fmt.Errorf("weight zero or negative")
 	}
 	return nil
@@ -21,15 +19,15 @@ func (coin MultiStakingCoin) ToCoin() sdk.Coin {
 	return sdk.NewCoin(coin.Denom, coin.Amount)
 }
 
-func NewMultiStakingCoin(denom string, amount sdk.Int, weight sdk.Dec) MultiStakingCoin {
+func NewMultiStakingCoin(denom string, amount math.Int, weight sdk.Dec) MultiStakingCoin {
 	return MultiStakingCoin{Denom: denom, Amount: amount, BondWeight: weight}
 }
 
-func (coin MultiStakingCoin) BondValue() sdk.Int {
-	return coin.BondWeight.MulInt(coin.Amount).RoundInt()
+func (coin MultiStakingCoin) BondValue() math.Int {
+	return coin.BondWeight.MulInt(coin.Amount).TruncateInt()
 }
 
-func (coin MultiStakingCoin) WithAmount(amount sdk.Int) MultiStakingCoin {
+func (coin MultiStakingCoin) WithAmount(amount math.Int) MultiStakingCoin {
 	return NewMultiStakingCoin(coin.Denom, amount, coin.BondWeight)
 }
 
@@ -69,8 +67,8 @@ func (coinA MultiStakingCoin) SafeAdd(coinB MultiStakingCoin) (MultiStakingCoin,
 	return NewMultiStakingCoin(coinA.Denom, amountAB, weightAB), nil
 }
 
-func (coinA MultiStakingCoin) Add(coinB MultiStakingCoin) MultiStakingCoin {
-	coinAB, err := coinA.SafeAdd(coinB)
+func (coin MultiStakingCoin) Add(coinB MultiStakingCoin) MultiStakingCoin {
+	coinAB, err := coin.SafeAdd(coinB)
 	if err != nil {
 		panic(err)
 	}

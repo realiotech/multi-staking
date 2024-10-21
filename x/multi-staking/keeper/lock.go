@@ -1,16 +1,18 @@
 package keeper
 
 import (
+	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
+
 	"cosmossdk.io/errors"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
 
 func (k Keeper) GetOrCreateMultiStakingLock(ctx sdk.Context, lockID types.LockID) types.MultiStakingLock {
 	multiStakingLock, found := k.GetMultiStakingLock(ctx, lockID)
 	if !found {
-		multiStakingLock = types.NewMultiStakingLock(&lockID, types.MultiStakingCoin{Amount: sdk.ZeroInt()})
+		multiStakingLock = types.NewMultiStakingLock(lockID, types.MultiStakingCoin{Amount: sdk.ZeroInt()})
 	}
 	return multiStakingLock
 }
@@ -68,7 +70,7 @@ func (k Keeper) LockCoinAndMintBondCoin(
 	mintedBondAmount := multiStakingCoin.BondValue()
 	mintedBondCoin = sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), mintedBondAmount)
 
-	// mint bond coin to intermediary account
+	// mint bond coin to delegator account
 	err = k.MintCoin(ctx, mintedTo, mintedBondCoin)
 	if err != nil {
 		return sdk.Coin{}, err

@@ -3,9 +3,10 @@ package keeper
 import (
 	"fmt"
 
+	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
+
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
 
 func (k Keeper) GetBondWeight(ctx sdk.Context, tokenDenom string) (sdk.Dec, bool) {
@@ -19,7 +20,6 @@ func (k Keeper) GetBondWeight(ctx sdk.Context, tokenDenom string) (sdk.Dec, bool
 	err := bondCoinWeight.Unmarshal(bz)
 	if err != nil {
 		panic(fmt.Errorf("unable to unmarshal bond coin weight %v", err))
-
 	}
 	return *bondCoinWeight, true
 }
@@ -27,7 +27,6 @@ func (k Keeper) GetBondWeight(ctx sdk.Context, tokenDenom string) (sdk.Dec, bool
 func (k Keeper) SetBondWeight(ctx sdk.Context, tokenDenom string, tokenWeight sdk.Dec) {
 	store := ctx.KVStore(k.storeKey)
 	bz, err := tokenWeight.Marshal()
-
 	if err != nil {
 		panic(fmt.Errorf("unable to marshal bond coin weight %v", err))
 	}
@@ -65,7 +64,7 @@ func (k Keeper) ValidatorMultiStakingCoinIterator(ctx sdk.Context, cb func(valAd
 
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
-		valAddr := string(iterator.Key())
+		valAddr := sdk.ValAddress(iterator.Key()).String()
 		denom := string(iterator.Value())
 		if cb(valAddr, denom) {
 			break
@@ -73,31 +72,10 @@ func (k Keeper) ValidatorMultiStakingCoinIterator(ctx sdk.Context, cb func(valAd
 	}
 }
 
-func (k Keeper) GetIntermediaryDelegatorKey(ctx sdk.Context, multiStakerAddr sdk.AccAddress) sdk.AccAddress {
-	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.GetIntermediaryDelegatorKey(multiStakerAddr))
-
-	return bz
-}
-
-func (k Keeper) IsIntermediaryDelegator(ctx sdk.Context, intermediaryDelegator sdk.AccAddress) bool {
-	store := ctx.KVStore(k.storeKey)
-
-	bz := store.Get(types.GetIntermediaryDelegatorKey(intermediaryDelegator))
-
-	return bz != nil
-}
-
-func (k Keeper) SetIntermediaryDelegator(ctx sdk.Context, intermediaryDelegator sdk.AccAddress) {
-	store := ctx.KVStore(k.storeKey)
-
-	store.Set(types.GetIntermediaryDelegatorKey(intermediaryDelegator), []byte{0x1})
-}
-
 func (k Keeper) GetMultiStakingLock(ctx sdk.Context, multiStakingLockID types.LockID) (types.MultiStakingLock, bool) {
 	store := ctx.KVStore(k.storeKey)
 
-	bz := store.Get(multiStakingLockID.ToByte())
+	bz := store.Get(multiStakingLockID.ToBytes())
 	if bz == nil {
 		return types.MultiStakingLock{}, false
 	}
@@ -109,7 +87,7 @@ func (k Keeper) GetMultiStakingLock(ctx sdk.Context, multiStakingLockID types.Lo
 
 func (k Keeper) SetMultiStakingLock(ctx sdk.Context, multiStakingLock types.MultiStakingLock) {
 	if multiStakingLock.IsEmpty() {
-		k.RemoveMultiStakingLock(ctx, *multiStakingLock.LockID)
+		k.RemoveMultiStakingLock(ctx, multiStakingLock.LockID)
 		return
 	}
 
@@ -117,13 +95,13 @@ func (k Keeper) SetMultiStakingLock(ctx sdk.Context, multiStakingLock types.Mult
 
 	bz := k.cdc.MustMarshal(&multiStakingLock)
 
-	store.Set(multiStakingLock.LockID.ToByte(), bz)
+	store.Set(multiStakingLock.LockID.ToBytes(), bz)
 }
 
 func (k Keeper) RemoveMultiStakingLock(ctx sdk.Context, multiStakingLockID types.LockID) {
 	store := ctx.KVStore(k.storeKey)
 
-	store.Delete(multiStakingLockID.ToByte())
+	store.Delete(multiStakingLockID.ToBytes())
 }
 
 func (k Keeper) MultiStakingLockIterator(ctx sdk.Context, cb func(stakingLock types.MultiStakingLock) (stop bool)) {
@@ -168,23 +146,8 @@ func (k Keeper) BondWeightIterator(ctx sdk.Context, cb func(denom string, bondWe
 		err := bondWeight.Unmarshal(iterator.Value())
 		if err != nil {
 			panic(fmt.Errorf("unable to unmarshal bond coin weight %v", err))
-
 		}
 		if cb(denom, *bondWeight) {
-			break
-		}
-	}
-}
-
-func (k Keeper) IntermediaryDelegatorIterator(ctx sdk.Context, cb func(intermediaryDelegator sdk.AccAddress) (stop bool)) {
-	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStorePrefixIterator(store, types.IntermediaryDelegatorKey)
-
-	defer iterator.Close()
-	for ; iterator.Valid(); iterator.Next() {
-		intermediaryDelegator := sdk.AccAddress(iterator.Key())
-
-		if cb(intermediaryDelegator) {
 			break
 		}
 	}

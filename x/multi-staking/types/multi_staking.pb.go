@@ -6,20 +6,25 @@ package types
 import (
 	fmt "fmt"
 	_ "github.com/cosmos/cosmos-proto"
+	types "github.com/cosmos/cosmos-sdk/codec/types"
 	_ "github.com/cosmos/cosmos-sdk/types"
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
+	types1 "github.com/cosmos/cosmos-sdk/x/staking/types"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/cosmos/gogoproto/proto"
+	github_com_cosmos_gogoproto_types "github.com/cosmos/gogoproto/types"
 	_ "google.golang.org/protobuf/types/known/timestamppb"
 	io "io"
 	math "math"
 	math_bits "math/bits"
+	time "time"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
+var _ = time.Kitchen
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
@@ -126,7 +131,7 @@ func (m *LockID) GetValAddr() string {
 }
 
 type MultiStakingLock struct {
-	LockID     *LockID          `protobuf:"bytes,1,opt,name=lockID,proto3" json:"lockID,omitempty"`
+	LockID     LockID           `protobuf:"bytes,1,opt,name=lockID,proto3" json:"lockID"`
 	LockedCoin MultiStakingCoin `protobuf:"bytes,2,opt,name=locked_coin,json=lockedCoin,proto3" json:"locked_coin"`
 }
 
@@ -268,7 +273,7 @@ func (m *UnlockID) GetValAddr() string {
 }
 
 type MultiStakingUnlock struct {
-	UnlockID *UnlockID     `protobuf:"bytes,1,opt,name=unlockID,proto3" json:"unlockID,omitempty"`
+	UnlockID UnlockID      `protobuf:"bytes,1,opt,name=unlockID,proto3" json:"unlockID"`
 	Entries  []UnlockEntry `protobuf:"bytes,2,rep,name=entries,proto3" json:"entries"`
 }
 
@@ -356,6 +361,98 @@ func (m *UnlockEntry) GetUnlockingCoin() MultiStakingCoin {
 	return MultiStakingCoin{}
 }
 
+type MultiStakingCoinInfo struct {
+	Denom      string                                 `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
+	BondWeight github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,2,opt,name=bond_weight,json=bondWeight,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"bond_weight"`
+}
+
+func (m *MultiStakingCoinInfo) Reset()         { *m = MultiStakingCoinInfo{} }
+func (m *MultiStakingCoinInfo) String() string { return proto.CompactTextString(m) }
+func (*MultiStakingCoinInfo) ProtoMessage()    {}
+func (*MultiStakingCoinInfo) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c2c118bafa9b671a, []int{7}
+}
+func (m *MultiStakingCoinInfo) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MultiStakingCoinInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MultiStakingCoinInfo.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MultiStakingCoinInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MultiStakingCoinInfo.Merge(m, src)
+}
+func (m *MultiStakingCoinInfo) XXX_Size() int {
+	return m.Size()
+}
+func (m *MultiStakingCoinInfo) XXX_DiscardUnknown() {
+	xxx_messageInfo_MultiStakingCoinInfo.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MultiStakingCoinInfo proto.InternalMessageInfo
+
+func (m *MultiStakingCoinInfo) GetDenom() string {
+	if m != nil {
+		return m.Denom
+	}
+	return ""
+}
+
+type ValidatorInfo struct {
+	OperatorAddress   string                                 `protobuf:"bytes,1,opt,name=operator_address,json=operatorAddress,proto3" json:"operator_address,omitempty"`
+	ConsensusPubkey   *types.Any                             `protobuf:"bytes,2,opt,name=consensus_pubkey,json=consensusPubkey,proto3" json:"consensus_pubkey,omitempty"`
+	Jailed            bool                                   `protobuf:"varint,3,opt,name=jailed,proto3" json:"jailed,omitempty"`
+	Status            types1.BondStatus                      `protobuf:"varint,4,opt,name=status,proto3,enum=cosmos.staking.v1beta1.BondStatus" json:"status,omitempty"`
+	Tokens            github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,5,opt,name=tokens,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"tokens"`
+	DelegatorShares   github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,6,opt,name=delegator_shares,json=delegatorShares,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"delegator_shares"`
+	Description       types1.Description                     `protobuf:"bytes,7,opt,name=description,proto3" json:"description"`
+	UnbondingHeight   int64                                  `protobuf:"varint,8,opt,name=unbonding_height,json=unbondingHeight,proto3" json:"unbonding_height,omitempty"`
+	UnbondingTime     time.Time                              `protobuf:"bytes,9,opt,name=unbonding_time,json=unbondingTime,proto3,stdtime" json:"unbonding_time"`
+	Commission        types1.Commission                      `protobuf:"bytes,10,opt,name=commission,proto3" json:"commission"`
+	MinSelfDelegation github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,11,opt,name=min_self_delegation,json=minSelfDelegation,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"min_self_delegation"`
+	BondDenom         string                                 `protobuf:"bytes,12,opt,name=bond_denom,json=bondDenom,proto3" json:"bond_denom,omitempty"`
+}
+
+func (m *ValidatorInfo) Reset()      { *m = ValidatorInfo{} }
+func (*ValidatorInfo) ProtoMessage() {}
+func (*ValidatorInfo) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c2c118bafa9b671a, []int{8}
+}
+func (m *ValidatorInfo) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *ValidatorInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_ValidatorInfo.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *ValidatorInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ValidatorInfo.Merge(m, src)
+}
+func (m *ValidatorInfo) XXX_Size() int {
+	return m.Size()
+}
+func (m *ValidatorInfo) XXX_DiscardUnknown() {
+	xxx_messageInfo_ValidatorInfo.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ValidatorInfo proto.InternalMessageInfo
+
 func init() {
 	proto.RegisterType((*MultiStakingCoin)(nil), "multistaking.v1.MultiStakingCoin")
 	proto.RegisterType((*LockID)(nil), "multistaking.v1.LockID")
@@ -364,6 +461,8 @@ func init() {
 	proto.RegisterType((*UnlockID)(nil), "multistaking.v1.UnlockID")
 	proto.RegisterType((*MultiStakingUnlock)(nil), "multistaking.v1.MultiStakingUnlock")
 	proto.RegisterType((*UnlockEntry)(nil), "multistaking.v1.UnlockEntry")
+	proto.RegisterType((*MultiStakingCoinInfo)(nil), "multistaking.v1.MultiStakingCoinInfo")
+	proto.RegisterType((*ValidatorInfo)(nil), "multistaking.v1.ValidatorInfo")
 }
 
 func init() {
@@ -371,44 +470,67 @@ func init() {
 }
 
 var fileDescriptor_c2c118bafa9b671a = []byte{
-	// 583 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x54, 0x4f, 0x6b, 0x13, 0x4f,
-	0x18, 0xce, 0xb6, 0xfd, 0xa5, 0xe9, 0xbb, 0xfc, 0x5a, 0x1d, 0x0a, 0x26, 0x45, 0x37, 0x35, 0x82,
-	0x16, 0xa1, 0xbb, 0x24, 0xe2, 0xc1, 0xd2, 0x8b, 0x31, 0x42, 0x03, 0xfe, 0xc1, 0x8d, 0x55, 0x10,
-	0x64, 0x99, 0xdd, 0x1d, 0x37, 0x43, 0x76, 0x67, 0xc2, 0xee, 0x24, 0xda, 0x6f, 0xe0, 0xc1, 0x83,
-	0xe0, 0xc5, 0xa3, 0x1f, 0xc2, 0x0f, 0xd1, 0x63, 0xf1, 0x24, 0x82, 0x45, 0x92, 0x2f, 0x22, 0x33,
-	0xb3, 0xa9, 0xdb, 0x04, 0x0f, 0x8a, 0xa7, 0xec, 0xfb, 0xef, 0x99, 0xe7, 0x7d, 0x9e, 0xcc, 0xc0,
-	0xb5, 0x64, 0x14, 0x0b, 0x9a, 0x09, 0x3c, 0xa0, 0x2c, 0x72, 0xc6, 0x4d, 0x47, 0xc5, 0x5e, 0x9e,
-	0xb0, 0x87, 0x29, 0x17, 0x1c, 0x6d, 0x14, 0x9b, 0xec, 0x71, 0x73, 0x6b, 0x33, 0xe2, 0x11, 0x57,
-	0x35, 0x47, 0x7e, 0xe9, 0xb6, 0xad, 0x5a, 0xc0, 0xb3, 0x84, 0x67, 0x9e, 0x2e, 0xe8, 0x20, 0x2f,
-	0x59, 0x3a, 0x72, 0x7c, 0x9c, 0x11, 0x67, 0xdc, 0xf4, 0x89, 0xc0, 0x4d, 0x27, 0xe0, 0x94, 0xe5,
-	0xf5, 0x7a, 0xc4, 0x79, 0x14, 0x13, 0x47, 0x45, 0xfe, 0xe8, 0x95, 0x23, 0x68, 0x42, 0x32, 0x81,
-	0x93, 0xa1, 0x6e, 0x68, 0x7c, 0x37, 0xe0, 0xc2, 0x43, 0xc9, 0xa2, 0xa7, 0x59, 0xdc, 0xe3, 0x94,
-	0xa1, 0x4d, 0xf8, 0x2f, 0x24, 0x8c, 0x27, 0x55, 0x63, 0xdb, 0xd8, 0x59, 0x73, 0x75, 0x80, 0x9e,
-	0x42, 0x19, 0x27, 0x7c, 0xc4, 0x44, 0x75, 0x49, 0xa6, 0xdb, 0xfb, 0xc7, 0xa7, 0xf5, 0xd2, 0xb7,
-	0xd3, 0xfa, 0xf5, 0x88, 0x8a, 0xfe, 0xc8, 0xb7, 0x03, 0x9e, 0xe4, 0xe4, 0xf2, 0x9f, 0xdd, 0x2c,
-	0x1c, 0x38, 0xe2, 0x68, 0x48, 0x32, 0xbb, 0xcb, 0xc4, 0x97, 0xcf, 0xbb, 0x90, 0x73, 0xef, 0x32,
-	0xe1, 0xe6, 0x58, 0xe8, 0x25, 0x98, 0x3e, 0x67, 0xa1, 0xf7, 0x9a, 0xd0, 0xa8, 0x2f, 0xaa, 0xcb,
-	0x7f, 0x0c, 0xdd, 0x21, 0x41, 0x01, 0xba, 0x43, 0x02, 0x17, 0x24, 0xe0, 0x73, 0x85, 0xd7, 0x78,
-	0x0c, 0xe5, 0x07, 0x3c, 0x18, 0x74, 0x3b, 0xe8, 0x26, 0x5c, 0xfc, 0xe5, 0x01, 0x49, 0x3d, 0x1c,
-	0x86, 0x69, 0xbe, 0xa0, 0xf6, 0xa1, 0xa7, 0xf2, 0x77, 0xc3, 0x30, 0x45, 0x35, 0xa8, 0x8c, 0x71,
-	0xac, 0x5b, 0xd4, 0xb2, 0xee, 0xea, 0x18, 0xc7, 0xb2, 0xd4, 0xf8, 0x30, 0x27, 0x98, 0x44, 0x47,
-	0x0e, 0x94, 0x63, 0x75, 0x8a, 0x02, 0x34, 0x5b, 0x97, 0xec, 0x39, 0x67, 0x6d, 0x4d, 0xc2, 0xcd,
-	0xdb, 0xd0, 0x01, 0x98, 0xf2, 0x8b, 0x84, 0x9e, 0x34, 0x4b, 0x9d, 0x61, 0xb6, 0xae, 0x2e, 0x4c,
-	0xcd, 0x3b, 0xd3, 0x5e, 0x91, 0xc2, 0xb8, 0xa0, 0x67, 0x65, 0x66, 0x6f, 0xe5, 0xed, 0xa7, 0x7a,
-	0xa9, 0x71, 0x08, 0xb5, 0x67, 0x38, 0xa6, 0x21, 0x16, 0x3c, 0x5d, 0xb0, 0xb3, 0xb8, 0x8d, 0x71,
-	0x6e, 0x1b, 0x74, 0x05, 0x40, 0x12, 0xf0, 0xb4, 0xdd, 0x7a, 0xd5, 0x35, 0x99, 0xe9, 0xc8, 0x44,
-	0xe3, 0x09, 0x54, 0x0e, 0x59, 0xfc, 0xaf, 0xf5, 0x43, 0x45, 0x86, 0x1a, 0x1f, 0xdd, 0x86, 0xca,
-	0x88, 0x9d, 0xd3, 0xb0, 0xb6, 0xa0, 0xc6, 0x8c, 0x8a, 0x7b, 0xd6, 0x8a, 0xf6, 0x61, 0x95, 0x30,
-	0x91, 0x52, 0x92, 0x55, 0x97, 0xb6, 0x97, 0x77, 0xcc, 0xd6, 0xe5, 0xdf, 0x4c, 0xdd, 0x67, 0x22,
-	0x3d, 0xca, 0xe5, 0x9b, 0x8d, 0xec, 0x55, 0xa4, 0x76, 0x1f, 0xa5, 0x7e, 0xef, 0x0c, 0x30, 0x0b,
-	0x8d, 0xe8, 0x06, 0x6c, 0x04, 0x29, 0xc1, 0x82, 0x72, 0xe6, 0xf5, 0xf5, 0x3f, 0x53, 0xb2, 0x5a,
-	0x76, 0xd7, 0x67, 0xe9, 0x03, 0x95, 0x45, 0x8f, 0x60, 0x5d, 0x93, 0xa1, 0x2c, 0xfa, 0x2b, 0x2f,
-	0xff, 0x3f, 0x1b, 0xd7, 0x76, 0x4a, 0x3a, 0xed, 0xde, 0xf1, 0xc4, 0x32, 0x4e, 0x26, 0x96, 0xf1,
-	0x63, 0x62, 0x19, 0xef, 0xa7, 0x56, 0xe9, 0x64, 0x6a, 0x95, 0xbe, 0x4e, 0xad, 0xd2, 0x8b, 0x3b,
-	0x85, 0x1b, 0x91, 0x12, 0x1c, 0x53, 0x2e, 0x48, 0xd0, 0xd7, 0xaf, 0xcb, 0xee, 0xec, 0xb9, 0x79,
-	0x33, 0x17, 0xab, 0x8b, 0xe2, 0x97, 0xd5, 0x8d, 0xbf, 0xf5, 0x33, 0x00, 0x00, 0xff, 0xff, 0x22,
-	0xba, 0xba, 0xa1, 0x9b, 0x04, 0x00, 0x00,
+	// 945 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x56, 0xcd, 0x6e, 0x23, 0xc5,
+	0x13, 0xf7, 0x24, 0x59, 0xc7, 0x29, 0xef, 0xc6, 0xde, 0xfe, 0x5b, 0x7f, 0x26, 0x11, 0xd8, 0xc1,
+	0x8b, 0x20, 0x20, 0x65, 0x46, 0x09, 0xe2, 0x40, 0xd8, 0x4b, 0x1c, 0x23, 0x25, 0x0a, 0x1f, 0xcb,
+	0x78, 0x17, 0x04, 0x12, 0x1a, 0x8d, 0x67, 0x3a, 0xe3, 0xc6, 0x33, 0xdd, 0xd6, 0x74, 0x8f, 0xc1,
+	0x6f, 0x80, 0x04, 0x87, 0x3d, 0xc2, 0x6d, 0x1f, 0x62, 0x1f, 0x62, 0xc5, 0x69, 0xb5, 0x27, 0x84,
+	0xc4, 0x82, 0x92, 0x0b, 0x07, 0x1e, 0x02, 0xf5, 0xc7, 0xd8, 0x8e, 0xa3, 0x1c, 0x40, 0x3e, 0xd9,
+	0xf5, 0xf5, 0xeb, 0xaa, 0xfa, 0x55, 0x95, 0x0d, 0xf7, 0xd2, 0x3c, 0x11, 0x84, 0x8b, 0x60, 0x48,
+	0x68, 0xec, 0x8e, 0xf7, 0x5d, 0x25, 0xfb, 0x46, 0xe1, 0x8c, 0x32, 0x26, 0x18, 0xaa, 0xcd, 0x3b,
+	0x39, 0xe3, 0xfd, 0xed, 0x46, 0xcc, 0x62, 0xa6, 0x6c, 0xae, 0xfc, 0xa6, 0xdd, 0xb6, 0xb7, 0x42,
+	0xc6, 0x53, 0xc6, 0x7d, 0x6d, 0xd0, 0x82, 0x31, 0x35, 0xb5, 0xe4, 0xf6, 0x03, 0x8e, 0xdd, 0xf1,
+	0x7e, 0x1f, 0x8b, 0x60, 0xdf, 0x0d, 0x19, 0xa1, 0xc6, 0xfe, 0x86, 0xb1, 0xcf, 0x12, 0xd1, 0x2e,
+	0x57, 0xf2, 0xd8, 0x6e, 0xc5, 0x8c, 0xc5, 0x09, 0x76, 0x95, 0xd4, 0xcf, 0xcf, 0x5d, 0x41, 0x52,
+	0xcc, 0x45, 0x90, 0x8e, 0x8a, 0x0c, 0x16, 0x1d, 0x02, 0x3a, 0xd1, 0xa6, 0xf6, 0xef, 0x16, 0xd4,
+	0x3f, 0x96, 0x65, 0xf4, 0x34, 0xe4, 0x31, 0x23, 0x14, 0x35, 0xe0, 0x56, 0x84, 0x29, 0x4b, 0x6d,
+	0x6b, 0xc7, 0xda, 0xdd, 0xf0, 0xb4, 0x80, 0x1e, 0x42, 0x39, 0x48, 0x59, 0x4e, 0x85, 0xbd, 0x22,
+	0xd5, 0x9d, 0xfb, 0xcf, 0x5e, 0xb6, 0x4a, 0xbf, 0xbd, 0x6c, 0xbd, 0x19, 0x13, 0x31, 0xc8, 0xfb,
+	0x4e, 0xc8, 0x52, 0x53, 0x9d, 0xf9, 0xd8, 0xe3, 0xd1, 0xd0, 0x15, 0x93, 0x11, 0xe6, 0xce, 0x29,
+	0x15, 0x2f, 0x9e, 0xee, 0x81, 0x29, 0xfe, 0x94, 0x0a, 0xcf, 0x60, 0xa1, 0xaf, 0xa1, 0xda, 0x67,
+	0x34, 0xf2, 0xbf, 0xc5, 0x24, 0x1e, 0x08, 0x7b, 0xf5, 0x5f, 0x43, 0x77, 0x71, 0x38, 0x07, 0xdd,
+	0xc5, 0xa1, 0x07, 0x12, 0xf0, 0x0b, 0x85, 0xd7, 0xfe, 0x14, 0xca, 0x1f, 0xb1, 0x70, 0x78, 0xda,
+	0x45, 0xef, 0xc0, 0xdd, 0x19, 0x89, 0x38, 0xf3, 0x83, 0x28, 0xca, 0x4c, 0x81, 0x9a, 0xc8, 0x9e,
+	0xd2, 0x1f, 0x45, 0x51, 0x86, 0xb6, 0xa0, 0x32, 0x0e, 0x12, 0xed, 0xa2, 0x8a, 0xf5, 0xd6, 0xc7,
+	0x41, 0x22, 0x4d, 0xed, 0x9f, 0x17, 0x1a, 0x26, 0xd1, 0xd1, 0x7b, 0x50, 0x4e, 0xd4, 0x2b, 0x0a,
+	0xb0, 0x7a, 0xf0, 0x8a, 0xb3, 0x30, 0x1a, 0x8e, 0x4e, 0xa2, 0xb3, 0x26, 0x0b, 0xf3, 0x8c, 0x33,
+	0x3a, 0x81, 0xaa, 0xfc, 0x86, 0x23, 0x5f, 0x72, 0xae, 0x5e, 0xaa, 0x1e, 0xbc, 0x7e, 0x2d, 0x76,
+	0x91, 0x1f, 0x83, 0x02, 0x3a, 0x56, 0x6a, 0x0e, 0xd7, 0xbe, 0x7f, 0xd2, 0x2a, 0xb5, 0x1f, 0xc1,
+	0xd6, 0xe7, 0x41, 0x42, 0xa2, 0x40, 0xb0, 0xec, 0x1a, 0xa9, 0xf3, 0x35, 0x59, 0x57, 0x6a, 0x42,
+	0xaf, 0x01, 0xc8, 0x04, 0x7c, 0x4d, 0xba, 0x2e, 0x78, 0x43, 0x6a, 0xba, 0x52, 0xd1, 0xfe, 0x0c,
+	0x2a, 0x8f, 0x68, 0xb2, 0xec, 0x2e, 0xa2, 0xf9, 0x0c, 0x35, 0x3e, 0xfa, 0x00, 0x2a, 0x39, 0xbd,
+	0xd2, 0xc9, 0xad, 0x6b, 0xdd, 0x28, 0x52, 0x31, 0x5d, 0x98, 0x06, 0xa0, 0xfb, 0xb0, 0x8e, 0xa9,
+	0xc8, 0x08, 0xe6, 0xf6, 0xca, 0xce, 0xea, 0x6e, 0xf5, 0xe0, 0xd5, 0x1b, 0x62, 0x3f, 0xa4, 0x22,
+	0x9b, 0x98, 0xf0, 0x22, 0xe4, 0xb0, 0x22, 0x3b, 0xf8, 0x93, 0xec, 0xe2, 0x8f, 0x16, 0x54, 0xe7,
+	0x1c, 0xd1, 0x5b, 0x50, 0x0b, 0x33, 0x1c, 0x08, 0xc2, 0xa8, 0x3f, 0xd0, 0x53, 0x2a, 0x73, 0x5b,
+	0xf5, 0x36, 0x0b, 0xf5, 0x89, 0xd2, 0xa2, 0x4f, 0x60, 0x53, 0x27, 0x43, 0x68, 0xfc, 0x9f, 0x18,
+	0xbd, 0x33, 0x0d, 0xd7, 0xa4, 0xaa, 0x74, 0x7e, 0xb0, 0xa0, 0xb1, 0xe8, 0x7f, 0x4a, 0xcf, 0xd9,
+	0x0d, 0x5b, 0xba, 0xb0, 0x4f, 0x2b, 0x4b, 0xde, 0xa7, 0xbf, 0xcb, 0x70, 0x67, 0x3a, 0x63, 0x2a,
+	0x8d, 0x63, 0xa8, 0xb3, 0x11, 0xce, 0xa4, 0xac, 0xa8, 0xc6, 0x9c, 0xeb, 0x8c, 0x3a, 0xf6, 0x8b,
+	0xa7, 0x7b, 0x0d, 0x83, 0x73, 0xa4, 0x2d, 0x3d, 0x91, 0x11, 0x1a, 0x7b, 0xb5, 0x22, 0xc2, 0xa8,
+	0xd1, 0x97, 0x50, 0x0f, 0x19, 0xe5, 0x98, 0xf2, 0x9c, 0xfb, 0xa3, 0xbc, 0x3f, 0xc4, 0x13, 0xd3,
+	0xbc, 0x86, 0xa3, 0x8f, 0x97, 0x53, 0x1c, 0x2f, 0xe7, 0x88, 0x4e, 0x3a, 0xf6, 0x2f, 0x33, 0xe8,
+	0x30, 0x9b, 0x8c, 0x04, 0x73, 0x1e, 0xe4, 0xfd, 0x33, 0x3c, 0xf1, 0x6a, 0x53, 0x9c, 0x07, 0x0a,
+	0x06, 0xfd, 0x1f, 0xca, 0xdf, 0x04, 0x24, 0xc1, 0x91, 0xba, 0x2d, 0x15, 0xcf, 0x48, 0xe8, 0x10,
+	0xca, 0x5c, 0x04, 0x22, 0xe7, 0xf6, 0xda, 0x8e, 0xb5, 0xbb, 0x79, 0xd0, 0x76, 0x0c, 0xde, 0x8c,
+	0x27, 0x75, 0x6c, 0x9d, 0x0e, 0xa3, 0x51, 0x4f, 0x79, 0x7a, 0x26, 0x42, 0x9e, 0x42, 0xc1, 0x86,
+	0x98, 0x72, 0xfb, 0xd6, 0x32, 0x4e, 0xa1, 0xc6, 0x42, 0x31, 0xd4, 0x23, 0x9c, 0xe0, 0x58, 0xb5,
+	0x92, 0x0f, 0x82, 0x0c, 0x73, 0xbb, 0xbc, 0x04, 0xfe, 0x6a, 0x53, 0xd4, 0x9e, 0x02, 0x45, 0x67,
+	0x50, 0x8d, 0x30, 0x0f, 0x33, 0x32, 0x92, 0xd3, 0x6b, 0xaf, 0xab, 0x46, 0xdf, 0xbb, 0xa9, 0xfe,
+	0xee, 0xcc, 0xd5, 0xcc, 0xe9, 0x7c, 0x34, 0x7a, 0x1b, 0xea, 0x39, 0x95, 0x13, 0x22, 0xa7, 0xde,
+	0xec, 0x47, 0x45, 0xed, 0x47, 0x6d, 0xaa, 0x37, 0x0b, 0x72, 0x26, 0x17, 0xa4, 0x70, 0x95, 0x3f,
+	0x52, 0xf6, 0x86, 0x7a, 0x7a, 0xfb, 0x1a, 0xc7, 0x0f, 0x8b, 0x5f, 0xb0, 0x4e, 0x45, 0xbe, 0xf8,
+	0xf8, 0x8f, 0x96, 0x25, 0xb7, 0xc3, 0xc4, 0x4a, 0x2b, 0x3a, 0x91, 0x47, 0x2b, 0x4d, 0x09, 0xe7,
+	0xb2, 0x06, 0x50, 0x40, 0x37, 0x72, 0x78, 0x3c, 0xf5, 0x2c, 0x8e, 0xe7, 0x2c, 0x16, 0x25, 0xf0,
+	0xbf, 0x94, 0x50, 0x9f, 0xe3, 0xe4, 0xdc, 0x37, 0xad, 0x92, 0x90, 0xd5, 0x25, 0x50, 0x7b, 0x37,
+	0x25, 0xb4, 0x87, 0x93, 0xf3, 0xee, 0x14, 0x56, 0x1e, 0x5b, 0xb5, 0xa0, 0x7a, 0x77, 0x6f, 0xeb,
+	0x63, 0x2b, 0x35, 0xea, 0xd8, 0x1e, 0xde, 0x2e, 0xee, 0xd0, 0x5f, 0x4f, 0x5a, 0xa5, 0x4e, 0xef,
+	0xd9, 0x45, 0xd3, 0x7a, 0x7e, 0xd1, 0xb4, 0xfe, 0xbc, 0x68, 0x5a, 0x8f, 0x2f, 0x9b, 0xa5, 0xe7,
+	0x97, 0xcd, 0xd2, 0xaf, 0x97, 0xcd, 0xd2, 0x57, 0xef, 0xcf, 0xe5, 0x93, 0xe1, 0x20, 0x21, 0x4c,
+	0xe0, 0x70, 0xa0, 0xff, 0xa7, 0xec, 0x15, 0xff, 0x17, 0xbe, 0x5b, 0x90, 0x55, 0x9a, 0xfd, 0xb2,
+	0x6a, 0xf3, 0xbb, 0xff, 0x04, 0x00, 0x00, 0xff, 0xff, 0xd1, 0xd6, 0x5f, 0xfa, 0xe5, 0x08, 0x00,
+	0x00,
 }
 
 func (m *MultiStakingCoin) Marshal() (dAtA []byte, err error) {
@@ -528,18 +650,16 @@ func (m *MultiStakingLock) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	}
 	i--
 	dAtA[i] = 0x12
-	if m.LockID != nil {
-		{
-			size, err := m.LockID.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintMultiStaking(dAtA, i, uint64(size))
+	{
+		size, err := m.LockID.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0xa
+		i -= size
+		i = encodeVarintMultiStaking(dAtA, i, uint64(size))
 	}
+	i--
+	dAtA[i] = 0xa
 	return len(dAtA) - i, nil
 }
 
@@ -651,18 +771,16 @@ func (m *MultiStakingUnlock) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 			dAtA[i] = 0x12
 		}
 	}
-	if m.UnlockID != nil {
-		{
-			size, err := m.UnlockID.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintMultiStaking(dAtA, i, uint64(size))
+	{
+		size, err := m.UnlockID.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0xa
+		i -= size
+		i = encodeVarintMultiStaking(dAtA, i, uint64(size))
 	}
+	i--
+	dAtA[i] = 0xa
 	return len(dAtA) - i, nil
 }
 
@@ -700,6 +818,173 @@ func (m *UnlockEntry) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i = encodeVarintMultiStaking(dAtA, i, uint64(m.CreationHeight))
 		i--
 		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MultiStakingCoinInfo) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MultiStakingCoinInfo) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MultiStakingCoinInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size := m.BondWeight.Size()
+		i -= size
+		if _, err := m.BondWeight.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintMultiStaking(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x12
+	if len(m.Denom) > 0 {
+		i -= len(m.Denom)
+		copy(dAtA[i:], m.Denom)
+		i = encodeVarintMultiStaking(dAtA, i, uint64(len(m.Denom)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *ValidatorInfo) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ValidatorInfo) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ValidatorInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.BondDenom) > 0 {
+		i -= len(m.BondDenom)
+		copy(dAtA[i:], m.BondDenom)
+		i = encodeVarintMultiStaking(dAtA, i, uint64(len(m.BondDenom)))
+		i--
+		dAtA[i] = 0x62
+	}
+	{
+		size := m.MinSelfDelegation.Size()
+		i -= size
+		if _, err := m.MinSelfDelegation.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintMultiStaking(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x5a
+	{
+		size, err := m.Commission.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintMultiStaking(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x52
+	n6, err6 := github_com_cosmos_gogoproto_types.StdTimeMarshalTo(m.UnbondingTime, dAtA[i-github_com_cosmos_gogoproto_types.SizeOfStdTime(m.UnbondingTime):])
+	if err6 != nil {
+		return 0, err6
+	}
+	i -= n6
+	i = encodeVarintMultiStaking(dAtA, i, uint64(n6))
+	i--
+	dAtA[i] = 0x4a
+	if m.UnbondingHeight != 0 {
+		i = encodeVarintMultiStaking(dAtA, i, uint64(m.UnbondingHeight))
+		i--
+		dAtA[i] = 0x40
+	}
+	{
+		size, err := m.Description.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintMultiStaking(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x3a
+	{
+		size := m.DelegatorShares.Size()
+		i -= size
+		if _, err := m.DelegatorShares.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintMultiStaking(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x32
+	{
+		size := m.Tokens.Size()
+		i -= size
+		if _, err := m.Tokens.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintMultiStaking(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x2a
+	if m.Status != 0 {
+		i = encodeVarintMultiStaking(dAtA, i, uint64(m.Status))
+		i--
+		dAtA[i] = 0x20
+	}
+	if m.Jailed {
+		i--
+		if m.Jailed {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i--
+		dAtA[i] = 0x18
+	}
+	if m.ConsensusPubkey != nil {
+		{
+			size, err := m.ConsensusPubkey.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMultiStaking(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.OperatorAddress) > 0 {
+		i -= len(m.OperatorAddress)
+		copy(dAtA[i:], m.OperatorAddress)
+		i = encodeVarintMultiStaking(dAtA, i, uint64(len(m.OperatorAddress)))
+		i--
+		dAtA[i] = 0xa
 	}
 	return len(dAtA) - i, nil
 }
@@ -755,10 +1040,8 @@ func (m *MultiStakingLock) Size() (n int) {
 	}
 	var l int
 	_ = l
-	if m.LockID != nil {
-		l = m.LockID.Size()
-		n += 1 + l + sovMultiStaking(uint64(l))
-	}
+	l = m.LockID.Size()
+	n += 1 + l + sovMultiStaking(uint64(l))
 	l = m.LockedCoin.Size()
 	n += 1 + l + sovMultiStaking(uint64(l))
 	return n
@@ -804,10 +1087,8 @@ func (m *MultiStakingUnlock) Size() (n int) {
 	}
 	var l int
 	_ = l
-	if m.UnlockID != nil {
-		l = m.UnlockID.Size()
-		n += 1 + l + sovMultiStaking(uint64(l))
-	}
+	l = m.UnlockID.Size()
+	n += 1 + l + sovMultiStaking(uint64(l))
 	if len(m.Entries) > 0 {
 		for _, e := range m.Entries {
 			l = e.Size()
@@ -828,6 +1109,63 @@ func (m *UnlockEntry) Size() (n int) {
 	}
 	l = m.UnlockingCoin.Size()
 	n += 1 + l + sovMultiStaking(uint64(l))
+	return n
+}
+
+func (m *MultiStakingCoinInfo) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Denom)
+	if l > 0 {
+		n += 1 + l + sovMultiStaking(uint64(l))
+	}
+	l = m.BondWeight.Size()
+	n += 1 + l + sovMultiStaking(uint64(l))
+	return n
+}
+
+func (m *ValidatorInfo) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.OperatorAddress)
+	if l > 0 {
+		n += 1 + l + sovMultiStaking(uint64(l))
+	}
+	if m.ConsensusPubkey != nil {
+		l = m.ConsensusPubkey.Size()
+		n += 1 + l + sovMultiStaking(uint64(l))
+	}
+	if m.Jailed {
+		n += 2
+	}
+	if m.Status != 0 {
+		n += 1 + sovMultiStaking(uint64(m.Status))
+	}
+	l = m.Tokens.Size()
+	n += 1 + l + sovMultiStaking(uint64(l))
+	l = m.DelegatorShares.Size()
+	n += 1 + l + sovMultiStaking(uint64(l))
+	l = m.Description.Size()
+	n += 1 + l + sovMultiStaking(uint64(l))
+	if m.UnbondingHeight != 0 {
+		n += 1 + sovMultiStaking(uint64(m.UnbondingHeight))
+	}
+	l = github_com_cosmos_gogoproto_types.SizeOfStdTime(m.UnbondingTime)
+	n += 1 + l + sovMultiStaking(uint64(l))
+	l = m.Commission.Size()
+	n += 1 + l + sovMultiStaking(uint64(l))
+	l = m.MinSelfDelegation.Size()
+	n += 1 + l + sovMultiStaking(uint64(l))
+	l = len(m.BondDenom)
+	if l > 0 {
+		n += 1 + l + sovMultiStaking(uint64(l))
+	}
 	return n
 }
 
@@ -1158,9 +1496,6 @@ func (m *MultiStakingLock) Unmarshal(dAtA []byte) error {
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
-			}
-			if m.LockID == nil {
-				m.LockID = &LockID{}
 			}
 			if err := m.LockID.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -1506,9 +1841,6 @@ func (m *MultiStakingUnlock) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.UnlockID == nil {
-				m.UnlockID = &UnlockID{}
-			}
 			if err := m.UnlockID.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -1648,6 +1980,531 @@ func (m *UnlockEntry) Unmarshal(dAtA []byte) error {
 			if err := m.UnlockingCoin.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMultiStaking(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthMultiStaking
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MultiStakingCoinInfo) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMultiStaking
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MultiStakingCoinInfo: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MultiStakingCoinInfo: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Denom", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMultiStaking
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMultiStaking
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthMultiStaking
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Denom = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field BondWeight", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMultiStaking
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMultiStaking
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthMultiStaking
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.BondWeight.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMultiStaking(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthMultiStaking
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ValidatorInfo) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMultiStaking
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ValidatorInfo: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ValidatorInfo: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field OperatorAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMultiStaking
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMultiStaking
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthMultiStaking
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.OperatorAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ConsensusPubkey", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMultiStaking
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMultiStaking
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthMultiStaking
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.ConsensusPubkey == nil {
+				m.ConsensusPubkey = &types.Any{}
+			}
+			if err := m.ConsensusPubkey.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Jailed", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMultiStaking
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.Jailed = bool(v != 0)
+		case 4:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Status", wireType)
+			}
+			m.Status = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMultiStaking
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Status |= types1.BondStatus(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Tokens", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMultiStaking
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMultiStaking
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthMultiStaking
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Tokens.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 6:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DelegatorShares", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMultiStaking
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMultiStaking
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthMultiStaking
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.DelegatorShares.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 7:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Description", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMultiStaking
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMultiStaking
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthMultiStaking
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Description.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 8:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field UnbondingHeight", wireType)
+			}
+			m.UnbondingHeight = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMultiStaking
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.UnbondingHeight |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 9:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field UnbondingTime", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMultiStaking
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMultiStaking
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthMultiStaking
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := github_com_cosmos_gogoproto_types.StdTimeUnmarshal(&m.UnbondingTime, dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 10:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Commission", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMultiStaking
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMultiStaking
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthMultiStaking
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Commission.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 11:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MinSelfDelegation", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMultiStaking
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMultiStaking
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthMultiStaking
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MinSelfDelegation.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 12:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field BondDenom", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMultiStaking
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMultiStaking
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthMultiStaking
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.BondDenom = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

@@ -2,51 +2,45 @@ package keeper
 
 import (
 	"fmt"
+	"time"
+
+	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 
 	"cosmossdk.io/math"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
+
+	"github.com/cometbft/cometbft/libs/log"
 )
 
 type Keeper struct {
-	storeKey         storetypes.StoreKey
-	memKey           storetypes.StoreKey
-	cdc              codec.BinaryCodec
-	stakingKeeper    types.StakingKeeper
-	stakingMsgServer stakingtypes.MsgServer
-	distrMsgServer   distrtypes.MsgServer
-	govMsgServer     govtypes.MsgServer
-	bankKeeper       types.BankKeeper
+	storeKey      storetypes.StoreKey
+	cdc           codec.BinaryCodec
+	accountKeeper types.AccountKeeper
+	stakingKeeper *stakingkeeper.Keeper
+	bankKeeper    types.BankKeeper
+	authority     string
 }
 
 func NewKeeper(
 	cdc codec.BinaryCodec,
-	stakingKeeper stakingkeeper.Keeper,
-	distrKeeper distrkeeper.Keeper,
-	govKeeper govkeeper.Keeper,
+	accountKeeper types.AccountKeeper,
+	stakingKeeper *stakingkeeper.Keeper,
 	bankKeeper types.BankKeeper,
 	key storetypes.StoreKey,
-	memKey storetypes.StoreKey,
+	authority string,
 ) *Keeper {
 	return &Keeper{
-		cdc:              cdc,
-		storeKey:         key,
-		memKey:           memKey,
-		stakingKeeper:    stakingKeeper,
-		stakingMsgServer: stakingkeeper.NewMsgServerImpl(stakingKeeper),
-		distrMsgServer:   distrkeeper.NewMsgServerImpl(distrKeeper),
-		govMsgServer:     govkeeper.NewMsgServerImpl(govKeeper),
-		bankKeeper:       bankKeeper,
+		cdc:           cdc,
+		storeKey:      key,
+		accountKeeper: accountKeeper,
+		stakingKeeper: stakingKeeper,
+		bankKeeper:    bankKeeper,
+		authority:     authority,
 	}
 }
 
@@ -55,9 +49,25 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", "x/"+types.ModuleName)
 }
 
+func (k Keeper) DequeueAllMatureUBDQueue(ctx sdk.Context, currTime time.Time) (matureUnbonds []stakingtypes.DVPair) {
+	// gets an iterator for all timeslices from time 0 until the current Blockheader time
+	unbondingTimesliceIterator := k.stakingKeeper.UBDQueueIterator(ctx, currTime)
+	defer unbondingTimesliceIterator.Close()
+
+	for ; unbondingTimesliceIterator.Valid(); unbondingTimesliceIterator.Next() {
+		timeslice := stakingtypes.DVPairs{}
+		value := unbondingTimesliceIterator.Value()
+		k.cdc.MustUnmarshal(value, &timeslice)
+
+		matureUnbonds = append(matureUnbonds, timeslice.Pairs...)
+	}
+
+	return matureUnbonds
+}
+
 func (k Keeper) GetMatureUnbondingDelegations(ctx sdk.Context) []stakingtypes.UnbondingDelegation {
 	var matureUnbondingDelegations []stakingtypes.UnbondingDelegation
-	matureUnbonds := k.stakingKeeper.DequeueAllMatureUBDQueue(ctx, ctx.BlockHeader().Time)
+	matureUnbonds := k.DequeueAllMatureUBDQueue(ctx, ctx.BlockHeader().Time)
 	for _, dvPair := range matureUnbonds {
 		delAddr, valAddr, err := types.AccAddrAndValAddrFromStrings(dvPair.DelegatorAddress, dvPair.ValidatorAddress)
 		if err != nil {
@@ -113,7 +123,7 @@ func (k Keeper) isValMultiStakingCoin(ctx sdk.Context, valAcc sdk.ValAddress, lo
 }
 
 func (k Keeper) AdjustUnbondAmount(ctx sdk.Context, delAcc sdk.AccAddress, valAcc sdk.ValAddress, amount math.Int) (adjustedAmount math.Int, err error) {
-	delegation, found := k.stakingKeeper.GetDelegation(ctx, types.IntermediaryDelegator(delAcc), valAcc)
+	delegation, found := k.stakingKeeper.GetDelegation(ctx, delAcc, valAcc)
 	if !found {
 		return math.Int{}, fmt.Errorf("delegation not found")
 	}
@@ -136,5 +146,30 @@ func (k Keeper) AdjustUnbondAmount(ctx sdk.Context, delAcc sdk.AccAddress, valAc
 		shares = delShares
 	}
 
-	return validator.TokensFromShares(shares).RoundInt(), nil
+	return validator.TokensFromShares(shares).TruncateInt(), nil
+}
+
+func (k Keeper) AdjustCancelUnbondingAmount(ctx sdk.Context, delAcc sdk.AccAddress, valAcc sdk.ValAddress, creationHeight int64, amount math.Int) (adjustedAmount math.Int, err error) {
+	undelegation, found := k.stakingKeeper.GetUnbondingDelegation(ctx, delAcc, valAcc)
+	if !found {
+		return math.Int{}, fmt.Errorf("undelegation not found")
+	}
+
+	totalUnbondingAmount := math.ZeroInt()
+	for _, entry := range undelegation.Entries {
+		if entry.CreationHeight == creationHeight {
+			totalUnbondingAmount = totalUnbondingAmount.Add(entry.Balance)
+		}
+	}
+
+	return math.MinInt(totalUnbondingAmount, amount), nil
+}
+
+func (k Keeper) BondDenom(ctx sdk.Context) string {
+	bondDenom := k.GetParams(ctx).MainBondDenom
+	return bondDenom
+}
+
+func (k Keeper) IterateDelegations(ctx sdk.Context, delegator sdk.AccAddress, fn func(index int64, delegation stakingtypes.DelegationI) (stop bool)) {
+	k.stakingKeeper.IterateDelegations(ctx, delegator, fn)
 }

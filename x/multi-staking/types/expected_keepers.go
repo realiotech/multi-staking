@@ -4,9 +4,16 @@ import (
 	time "time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	abci "github.com/tendermint/tendermint/abci/types"
+
+	abci "github.com/cometbft/cometbft/abci/types"
 )
+
+type AccountKeeper interface {
+	GetModuleAddress(moduleName string) sdk.AccAddress
+	GetModuleAccount(ctx sdk.Context, moduleName string) types.ModuleAccountI
+}
 
 type StakingKeeper interface {
 	DequeueAllMatureUBDQueue(ctx sdk.Context, currTime time.Time) (matureUnbonds []stakingtypes.DVPair)
@@ -21,6 +28,7 @@ type StakingKeeper interface {
 
 type BankKeeper interface {
 	GetBalance(ctx sdk.Context, addr sdk.AccAddress, denom string) sdk.Coin
+	GetAllBalances(ctx sdk.Context, addr sdk.AccAddress) sdk.Coins
 	MintCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error
 	BurnCoins(ctx sdk.Context, moduleName string, amounts sdk.Coins) error
 	SendCoinsFromAccountToModule(ctx sdk.Context, senderAddr sdk.AccAddress, recipientModule string, amt sdk.Coins) error

@@ -1,8 +1,15 @@
 package multistaking
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+
+	gwruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/realio-tech/multi-staking-module/x/multi-staking/client/cli"
+	"github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
+	multistakingtypes "github.com/realio-tech/multi-staking-module/x/multi-staking/types"
+	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -10,14 +17,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/staking"
+	"github.com/cosmos/cosmos-sdk/x/staking/exported"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	gwruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
-	"github.com/realio-tech/multi-staking-module/x/multi-staking/client/cli"
-	"github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
-	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
-	"github.com/spf13/cobra"
-	abci "github.com/tendermint/tendermint/abci/types"
+
+	abci "github.com/cometbft/cometbft/abci/types"
 )
 
 var (
@@ -32,43 +36,48 @@ type AppModuleBasic struct {
 
 // Name returns the staking module's name.
 func (AppModuleBasic) Name() string {
-	return types.ModuleName
+	return multistakingtypes.ModuleName
 }
 
 // RegisterLegacyAminoCodec register module codec
-func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	types.RegisterLegacyAminoCodec(cdc)
+func (am AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
+	multistakingtypes.RegisterLegacyAminoCodec(cdc)
 }
 
 // RegisterInterfaces registers the module interface
-func (AppModuleBasic) RegisterInterfaces(reg cdctypes.InterfaceRegistry) {
-	types.RegisterInterfaces(reg)
+func (am AppModuleBasic) RegisterInterfaces(reg cdctypes.InterfaceRegistry) {
+	multistakingtypes.RegisterInterfaces(reg)
 }
 
-// DefaultGenesis returns feeabs module default genesis state.
+// DefaultGenesis returns multi-staking module default genesis state.
 func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
-	return cdc.MustMarshalJSON(types.DefaultGenesis())
+	return cdc.MustMarshalJSON(multistakingtypes.DefaultGenesis())
 }
 
-// ValidateGenesis validate genesis state for feeabs module
-func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncodingConfig, bz json.RawMessage) error {
-	var genState types.GenesisState
+// ValidateGenesis validate genesis state for multi-staking module
+func (am AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncodingConfig, bz json.RawMessage) error {
+	var genState multistakingtypes.GenesisState
 	if err := cdc.UnmarshalJSON(bz, &genState); err != nil {
-		return fmt.Errorf("failed to unmarshal %s genesis state: %w", types.ModuleName, err)
+		return fmt.Errorf("failed to unmarshal %s genesis state: %w", multistakingtypes.ModuleName, err)
 	}
+
 	return genState.Validate()
 }
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the staking module.
-func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *gwruntime.ServeMux) {}
+func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *gwruntime.ServeMux) {
+	if err := multistakingtypes.RegisterQueryHandlerClient(context.Background(), mux, multistakingtypes.NewQueryClient(clientCtx)); err != nil {
+		panic(err)
+	}
+}
 
-// GetTxCmd returns the feeabs module's root tx command.
+// GetTxCmd returns the staking module's root tx command.
 func (AppModuleBasic) GetTxCmd() *cobra.Command {
 	return cli.NewTxCmd()
 }
 
-// GetQueryCmd returns the feeabs module's root query command.
-func (AppModuleBasic) GetQueryCmd() *cobra.Command {
+// GetQueryCmd returns the multi-staking and staking module's root query command.
+func (AppModuleBasic) GetQueryCmd() (queryCmd *cobra.Command) {
 	return cli.GetQueryCmd()
 }
 
@@ -80,15 +89,18 @@ type AppModule struct {
 	skAppModule staking.AppModule
 
 	keeper keeper.Keeper
-	sk     stakingkeeper.Keeper
+	sk     *stakingkeeper.Keeper
 	ak     stakingtypes.AccountKeeper
 	bk     stakingtypes.BankKeeper
+
+	// legacySubspace is used solely for migration of x/params managed parameters
+	legacySubspace exported.Subspace
 }
 
 // NewAppModule creates a new AppModule object using the native x/staking module
 // AppModule constructor.
-func NewAppModule(cdc codec.Codec, keeper keeper.Keeper, sk stakingkeeper.Keeper, ak stakingtypes.AccountKeeper, bk stakingtypes.BankKeeper) AppModule {
-	stakingAppMod := staking.NewAppModule(cdc, sk, ak, bk)
+func NewAppModule(cdc codec.Codec, keeper keeper.Keeper, sk *stakingkeeper.Keeper, ak stakingtypes.AccountKeeper, bk stakingtypes.BankKeeper, ss exported.Subspace) AppModule {
+	stakingAppMod := staking.NewAppModule(cdc, sk, ak, bk, ss)
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{cdc: cdc},
 		skAppModule:    stakingAppMod,
@@ -96,64 +108,63 @@ func NewAppModule(cdc codec.Codec, keeper keeper.Keeper, sk stakingkeeper.Keeper
 		sk:             sk,
 		ak:             ak,
 		bk:             bk,
+		legacySubspace: ss,
 	}
 }
 
 // Name returns the staking module's name.
 func (AppModule) Name() string {
-	return types.ModuleName
+	return multistakingtypes.ModuleName
 }
 
 // RegisterInvariants registers the staking module invariants.
-// TODO: Need to implement invariants
 func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
-}
-
-// Deprecated: Route returns the message routing key for the staking module.
-func (am AppModule) Route() sdk.Route {
-	return sdk.Route{}
+	am.skAppModule.RegisterInvariants(ir)
+	keeper.RegisterInvariants(ir, am.keeper)
 }
 
 // QuerierRoute returns the staking module's querier route name.
 func (AppModule) QuerierRoute() string {
-	return types.QuerierRoute
-}
-
-// LegacyQuerierHandler returns the staking module sdk.Querier.
-// TODO: add legacy querier
-func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
-	return nil
+	return multistakingtypes.QuerierRoute
 }
 
 // RegisterServices registers a GRPC query service to respond to the
 // module-specific GRPC queries.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
-	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
-	// TODO: add query server
-	// types.RegisterQueryServer(cfg.QueryServer(), keeper.NewQuerier(am.keeper))
+	stakingtypes.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
+	multistakingtypes.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
+
+	multistakingtypes.RegisterQueryServer(cfg.QueryServer(), keeper.NewQueryServerImpl(am.keeper))
+	querier := stakingkeeper.Querier{Keeper: am.sk}
+	stakingtypes.RegisterQueryServer(cfg.QueryServer(), querier)
+
+	// migrate staking module
+	m := keeper.NewMigrator(am.sk, am.legacySubspace)
+	if err := cfg.RegisterMigration(multistakingtypes.ModuleName, 1, m.Migrate1to2); err != nil {
+		panic(fmt.Sprintf("failed to migrate x/%s from version 1 to 2: %v", stakingtypes.ModuleName, err))
+	}
 }
 
-// InitGenesis initial genesis state for feeabs module
+// InitGenesis initial genesis state for multi-staking module
 func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {
-	var genesisState types.GenesisState
+	var genesisState multistakingtypes.GenesisState
 	cdc.MustUnmarshalJSON(data, &genesisState)
-	am.keeper.InitGenesis(ctx, genesisState)
 
-	return []abci.ValidatorUpdate{}
+	return am.keeper.InitGenesis(ctx, genesisState)
 }
 
-// ExportGenesis export feeabs state as raw message for feeabs module
+// ExportGenesis export multi-staking state as raw message for multi-staking module
 func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
 	gs := am.keeper.ExportGenesis(ctx)
 	return cdc.MustMarshalJSON(gs)
 }
 
-// BeginBlock returns the begin blocker for the feeabs module.
+// BeginBlock returns the begin blocker for the multi-staking module.
 func (am AppModule) BeginBlock(ctx sdk.Context, requestBeginBlock abci.RequestBeginBlock) {
 	am.skAppModule.BeginBlock(ctx, requestBeginBlock)
 }
 
-// EndBlock returns the end blocker for the feeabs module. It returns no validator
+// EndBlock returns the end blocker for the multi-staking module. It returns no validator
 // updates.
 func (am AppModule) EndBlock(ctx sdk.Context, requestEndBlock abci.RequestEndBlock) []abci.ValidatorUpdate {
 	// calculate the amount of coin
@@ -167,4 +178,4 @@ func (am AppModule) EndBlock(ctx sdk.Context, requestEndBlock abci.RequestEndBlo
 }
 
 // ConsensusVersion return module consensus version
-func (AppModule) ConsensusVersion() uint64 { return 1 }
+func (AppModule) ConsensusVersion() uint64 { return 2 }
