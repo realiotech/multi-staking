@@ -21,8 +21,8 @@ func NewTxCmd(valAddrCodec, ac address.Codec) *cobra.Command {
 	}
 
 	txCmd.AddCommand(
-		cli.NewCreateValidatorCmd(ac),
-		cli.NewEditValidatorCmd(ac),
+		cli.NewCreateValidatorCmd(valAddrCodec),
+		cli.NewEditValidatorCmd(valAddrCodec),
 		cli.NewDelegateCmd(valAddrCodec, ac),
 		cli.NewRedelegateCmd(valAddrCodec, ac),
 		cli.NewUnbondCmd(valAddrCodec, ac),
