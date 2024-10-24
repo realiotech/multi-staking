@@ -8,6 +8,8 @@ import (
 	"os"
 	"time"
 
+	multistakingtypes "github.com/realio-tech/multi-staking-module/x/multi-staking/types"
+
 	"cosmossdk.io/math"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -19,7 +21,6 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	multistakingtypes "github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 
 	tmjson "github.com/cometbft/cometbft/libs/json"
 	tmtypes "github.com/cometbft/cometbft/types"
