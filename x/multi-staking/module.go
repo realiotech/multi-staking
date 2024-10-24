@@ -24,15 +24,19 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	"cosmossdk.io/core/appmodule"
 	abci "github.com/cometbft/cometbft/abci/types"
 )
 
 var (
-	_ module.HasABCIGenesis  = AppModule{}
-	_ module.HasServices     = AppModule{}
-	_ module.HasABCIEndBlock = AppModule{}
-	_ module.AppModule       = AppModule{}
-	_ module.AppModuleBasic  = AppModule{}
+	_ module.HasABCIGenesis      = AppModule{}
+	_ module.HasServices         = AppModule{}
+	_ module.HasABCIEndBlock     = AppModule{}
+	_ module.AppModule           = AppModule{}
+	_ module.AppModuleBasic      = AppModule{}
+	_ module.AppModuleSimulation = AppModule{}
+	_ module.HasInvariants       = AppModule{}
+	_ appmodule.HasBeginBlocker  = AppModule{}
 )
 
 // AppModule embeds the Cosmos SDK's x/staking AppModuleBasic.

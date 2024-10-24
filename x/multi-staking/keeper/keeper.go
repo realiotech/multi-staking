@@ -14,8 +14,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
@@ -23,17 +21,17 @@ import (
 type Keeper struct {
 	storeKey      storetypes.StoreKey
 	cdc           codec.BinaryCodec
-	accountKeeper authkeeper.AccountKeeper
+	accountKeeper types.AccountKeeper
 	stakingKeeper *stakingkeeper.Keeper
-	bankKeeper    bankkeeper.Keeper
+	bankKeeper    types.BankKeeper
 	authority     string
 }
 
 func NewKeeper(
 	cdc codec.BinaryCodec,
-	accountKeeper authkeeper.AccountKeeper,
+	accountKeeper types.AccountKeeper,
 	stakingKeeper *stakingkeeper.Keeper,
-	bankKeeper bankkeeper.Keeper,
+	bankKeeper types.BankKeeper,
 	key storetypes.StoreKey,
 	authority string,
 ) *Keeper {
@@ -133,9 +131,9 @@ func (k Keeper) BurnCoin(ctx context.Context, accAddr sdk.AccAddress, coin sdk.C
 	return nil
 }
 
-func (k Keeper) isValMultiStakingCoin(c context.Context, valAcc sdk.ValAddress, lockedCoin sdk.Coin) bool {
-	ctx := sdk.UnwrapSDKContext(c)
-	return lockedCoin.Denom == k.GetValidatorMultiStakingCoin(ctx, valAcc)
+func (k Keeper) isValMultiStakingCoin(ctx context.Context, valAcc sdk.ValAddress, lockedCoin sdk.Coin) bool {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	return lockedCoin.Denom == k.GetValidatorMultiStakingCoin(sdkCtx, valAcc)
 }
 
 func (k Keeper) AdjustUnbondAmount(ctx context.Context, delAcc sdk.AccAddress, valAcc sdk.ValAddress, amount math.Int) (adjustedAmount math.Int, err error) {

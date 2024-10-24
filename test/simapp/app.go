@@ -167,9 +167,8 @@ type SimApp struct {
 	invCheckPeriod uint
 
 	// keys to access the substores
-	keys    map[string]*storetypes.KVStoreKey
-	tkeys   map[string]*storetypes.TransientStoreKey
-	memKeys map[string]*storetypes.MemoryStoreKey
+	keys  map[string]*storetypes.KVStoreKey
+	tkeys map[string]*storetypes.TransientStoreKey
 
 	// keepers
 	AccountKeeper         authkeeper.AccountKeeper
@@ -190,8 +189,7 @@ type SimApp struct {
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 
 	// the module manager
-	mm                 *module.Manager
-	BasicModuleManager module.BasicManager
+	mm *module.Manager
 
 	// simulation manager
 	sm *module.SimulationManager
@@ -489,18 +487,8 @@ func NewSimApp(
 
 	)
 
-	app.BasicModuleManager = module.NewBasicManagerFromManager(
-		app.mm,
-		map[string]module.AppModuleBasic{
-			genutiltypes.ModuleName: genutil.NewAppModuleBasic(genutiltypes.DefaultMessageValidator),
-			govtypes.ModuleName: gov.NewAppModuleBasic(
-				[]govclient.ProposalHandler{
-					paramsclient.ProposalHandler,
-				},
-			),
-		})
-	app.BasicModuleManager.RegisterLegacyAminoCodec(legacyAmino)
-	app.BasicModuleManager.RegisterInterfaces(interfaceRegistry)
+	ModuleBasics.RegisterLegacyAminoCodec(legacyAmino)
+	ModuleBasics.RegisterInterfaces(interfaceRegistry)
 
 	app.mm.SetOrderPreBlockers(
 		upgradetypes.ModuleName,

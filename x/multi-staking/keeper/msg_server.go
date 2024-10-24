@@ -68,8 +68,8 @@ func (k msgServer) UpdateParams(ctx context.Context, msg *stakingtypes.MsgUpdate
 }
 
 // CreateValidator defines a method for creating a new validator
-func (k msgServer) CreateValidator(c context.Context, msg *stakingtypes.MsgCreateValidator) (*stakingtypes.MsgCreateValidatorResponse, error) {
-	ctx := sdk.UnwrapSDKContext(c)
+func (k msgServer) CreateValidator(ctx context.Context, msg *stakingtypes.MsgCreateValidator) (*stakingtypes.MsgCreateValidatorResponse, error) {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	multiStakerAddr, valAcc, err := types.ValidatorAccAddrAndValAddrFromStrings(msg.ValidatorAddress)
 	if err != nil {
 		return nil, err
@@ -77,7 +77,7 @@ func (k msgServer) CreateValidator(c context.Context, msg *stakingtypes.MsgCreat
 
 	lockID := types.MultiStakingLockID(multiStakerAddr.String(), msg.ValidatorAddress)
 
-	mintedBondCoin, err := k.keeper.LockCoinAndMintBondCoin(ctx, lockID, multiStakerAddr, multiStakerAddr, msg.Value)
+	mintedBondCoin, err := k.keeper.LockCoinAndMintBondCoin(sdkCtx, lockID, multiStakerAddr, multiStakerAddr, msg.Value)
 	if err != nil {
 		return nil, err
 	}
@@ -92,9 +92,9 @@ func (k msgServer) CreateValidator(c context.Context, msg *stakingtypes.MsgCreat
 		Value:             mintedBondCoin, // replace lock coin with bond coin
 	}
 
-	k.keeper.SetValidatorMultiStakingCoin(ctx, valAcc, msg.Value.Denom)
+	k.keeper.SetValidatorMultiStakingCoin(sdkCtx, valAcc, msg.Value.Denom)
 
-	return k.stakingMsgServer.CreateValidator(ctx, &sdkMsg)
+	return k.stakingMsgServer.CreateValidator(sdkCtx, &sdkMsg)
 }
 
 // EditValidator defines a method for editing an existing validator
