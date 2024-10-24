@@ -197,6 +197,10 @@ func (am AppModule) EndBlock(ctx context.Context) ([]abci.ValidatorUpdate, error
 	return valUpdates, nil
 }
 
+func (am AppModule) StakingAppModule() staking.AppModule {
+	return am.skAppModule
+}
+
 // ConsensusVersion return module consensus version
 func (AppModule) ConsensusVersion() uint64 { return 3 }
 
