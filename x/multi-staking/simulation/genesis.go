@@ -6,13 +6,14 @@ import (
 	"math/rand"
 	"time"
 
+	multistakingtypes "github.com/realio-tech/multi-staking-module/x/multi-staking/types"
+
 	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
-	multistakingtypes "github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 )
 
 // Simulation parameter constants
@@ -29,12 +30,12 @@ func genUnbondingTime(r *rand.Rand) (ubdTime time.Duration) {
 
 // genMaxValidators returns randomized MaxValidators
 func genMaxValidators(r *rand.Rand) (maxValidators uint32) {
-	return uint32(r.Intn(250) + 1)
+	return uint32(r.Intn(250) + 1) //nolint
 }
 
 // getHistEntries returns randomized HistoricalEntries between 0-100.
 func getHistEntries(r *rand.Rand) uint32 {
-	return uint32(r.Intn(int(types.DefaultHistoricalEntries + 1)))
+	return uint32(r.Intn(int(types.DefaultHistoricalEntries + 1))) //nolint
 }
 
 // RandomizedGenState generates a random GenesisState for staking

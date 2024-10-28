@@ -34,15 +34,18 @@ func (suite *KeeperTestSuite) TestImportExportGenesis() {
 			AppStateBytes:   appState.AppState,
 		},
 	)
+	suite.NoError(err)
 
-	emptyApp.FinalizeBlock(&abci.RequestFinalizeBlock{Height: emptyApp.LastBlockHeight() + 1})
+	_, err = emptyApp.FinalizeBlock(&abci.RequestFinalizeBlock{Height: emptyApp.LastBlockHeight() + 1})
 	suite.NoError(err)
 
 	newAppState, err := emptyApp.ExportAppStateAndValidators(false, []string{}, []string{})
 	suite.NoError(err)
 
-	suite.app.FinalizeBlock(&abci.RequestFinalizeBlock{Height: suite.app.LastBlockHeight() + 1})
-	suite.app.Commit()
+	_, err = suite.app.FinalizeBlock(&abci.RequestFinalizeBlock{Height: suite.app.LastBlockHeight() + 1})
+	suite.NoError(err)
+	_, err = suite.app.Commit()
+	suite.NoError(err)
 	appState2, err := suite.app.ExportAppStateAndValidators(false, []string{}, []string{})
 	suite.NoError(err)
 
