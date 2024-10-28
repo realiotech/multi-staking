@@ -25,7 +25,7 @@ func NewQueryServerImpl(keeper Keeper) types.QueryServer {
 	return &queryServer{
 		Keeper: keeper,
 		stakingQuerier: stakingkeeper.Querier{
-			Keeper: keeper.stakingKeeper,
+			Keeper: keeper.Keeper,
 		},
 	}
 }
@@ -245,7 +245,7 @@ func (k queryServer) Validator(c context.Context, req *types.QueryValidatorReque
 	}
 
 	ctx := sdk.UnwrapSDKContext(c)
-	validator, found := k.stakingKeeper.GetValidator(ctx, valAddr)
+	validator, found := k.GetValidator(ctx, valAddr)
 	if !found {
 		return nil, status.Errorf(codes.NotFound, "validator %s not found", req.ValidatorAddr)
 	}

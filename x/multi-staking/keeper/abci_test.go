@@ -47,7 +47,7 @@ func (suite *KeeperTestSuite) TestMsUnlockEndBlocker() {
 			// height 1
 			suite.SetupTest()
 
-			vals := suite.app.StakingKeeper.GetAllValidators(suite.ctx)
+			vals := suite.app.MultiStakingKeeper.GetAllValidators(suite.ctx)
 			val := vals[0]
 
 			msDenom := suite.msKeeper.GetValidatorMultiStakingCoin(suite.ctx, val.GetOperator())
@@ -68,10 +68,10 @@ func (suite *KeeperTestSuite) TestMsUnlockEndBlocker() {
 			suite.NextBlock(time.Second)
 
 			if !tc.slashFactor.IsZero() {
-				val, found := suite.app.StakingKeeper.GetValidator(suite.ctx, val.GetOperator())
+				val, found := suite.app.MultiStakingKeeper.GetValidator(suite.ctx, val.GetOperator())
 				require.True(suite.T(), found)
 
-				slashedPow := suite.app.StakingKeeper.TokensToConsensusPower(suite.ctx, val.Tokens)
+				slashedPow := suite.app.MultiStakingKeeper.TokensToConsensusPower(suite.ctx, val.Tokens)
 
 				valConsAddr, err := val.GetConsAddr()
 				require.NoError(suite.T(), err)

@@ -26,7 +26,7 @@ var (
 
 	MultiStakingLockPrefix = []byte{0x02}
 
-	MultiStakingUnlockPrefix = []byte{0x11} // key for an unbonding-delegation
+	MultiStakingUnlockPrefix = []byte{0x03} // key for an unbonding-delegation
 )
 
 func KeyPrefix(key string) []byte {

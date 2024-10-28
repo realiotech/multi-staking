@@ -169,7 +169,7 @@ func (suite *KeeperTestSuite) TestCreateValidator() {
 				lockId := multistakingtypes.MultiStakingLockID(delAddr.String(), valAddr.String())
 				lockRecord, found := suite.msKeeper.GetMultiStakingLock(suite.ctx, lockId)
 				suite.Require().True(found)
-				actualBond, found := suite.app.StakingKeeper.GetDelegation(suite.ctx, delAddr, valAddr)
+				actualBond, found := suite.app.MultiStakingKeeper.GetDelegation(suite.ctx, delAddr, valAddr)
 				suite.Require().True(found)
 				suite.Require().Equal(bondAmount.Amount, lockRecord.LockedCoin.Amount)
 				suite.Require().Equal(tc.expOut.Amount, actualBond.Shares.TruncateInt())
@@ -336,7 +336,7 @@ func (suite *KeeperTestSuite) TestEditValidator() {
 			suite.SetupTest()
 			newParam := stakingtypes.DefaultParams()
 			newParam.MinCommissionRate = sdk.MustNewDecFromStr("0.02")
-			suite.app.StakingKeeper.SetParams(suite.ctx, newParam)
+			suite.app.MultiStakingKeeper.SetParams(suite.ctx, newParam)
 			suite.msKeeper.SetBondWeight(suite.ctx, MultiStakingDenomA, sdk.OneDec())
 			bondAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(1000))
 			suite.FundAccount(delAddr, sdk.NewCoins(bondAmount))
@@ -370,7 +370,7 @@ func (suite *KeeperTestSuite) TestEditValidator() {
 				suite.Require().Error(err)
 			} else {
 				suite.Require().NoError(err)
-				validatorInfo, found := suite.app.StakingKeeper.GetValidator(suite.ctx, sdk.ValAddress(originMsg.ValidatorAddress))
+				validatorInfo, found := suite.app.MultiStakingKeeper.GetValidator(suite.ctx, sdk.ValAddress(originMsg.ValidatorAddress))
 				if found {
 					suite.Require().Equal(validatorInfo.Description, originMsg.Description)
 					suite.Require().Equal(validatorInfo.MinSelfDelegation, &originMsg.MinSelfDelegation)
@@ -452,7 +452,7 @@ func (suite *KeeperTestSuite) TestDelegate() {
 			suite.SetupTest()
 			newParam := stakingtypes.DefaultParams()
 			newParam.MinCommissionRate = sdk.MustNewDecFromStr("0.02")
-			suite.app.StakingKeeper.SetParams(suite.ctx, newParam)
+			suite.app.MultiStakingKeeper.SetParams(suite.ctx, newParam)
 			suite.msKeeper.SetBondWeight(suite.ctx, MultiStakingDenomA, sdk.OneDec())
 			bondAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(1000))
 			userBalance := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(10000))
@@ -492,9 +492,9 @@ func (suite *KeeperTestSuite) TestDelegate() {
 				suite.Require().True(found)
 				suite.Require().Equal(tc.expRate, lockRecord.GetBondWeight())
 
-				delegation, found := suite.app.StakingKeeper.GetDelegation(suite.ctx, delAddr, valAddr)
+				delegation, found := suite.app.MultiStakingKeeper.GetDelegation(suite.ctx, delAddr, valAddr)
 				suite.Require().True(found)
-				validator, found := suite.app.StakingKeeper.GetValidator(suite.ctx, valAddr)
+				validator, found := suite.app.MultiStakingKeeper.GetValidator(suite.ctx, valAddr)
 				suite.Require().True(found)
 
 				multiStakingCoin := multistakingtypes.NewMultiStakingCoin(multiStakingAmount.Denom, multiStakingAmount.Amount, tc.expRate)
@@ -618,7 +618,7 @@ func (suite *KeeperTestSuite) TestBeginRedelegate() {
 			suite.SetupTest()
 			newParam := stakingtypes.DefaultParams()
 			newParam.MinCommissionRate = sdk.MustNewDecFromStr("0.02")
-			suite.app.StakingKeeper.SetParams(suite.ctx, newParam)
+			suite.app.MultiStakingKeeper.SetParams(suite.ctx, newParam)
 			suite.msKeeper.SetBondWeight(suite.ctx, MultiStakingDenomA, sdk.OneDec())
 			suite.msKeeper.SetBondWeight(suite.ctx, MultiStakingDenomB, sdk.OneDec())
 
@@ -685,9 +685,9 @@ func (suite *KeeperTestSuite) TestBeginRedelegate() {
 				suite.Require().Equal(tc.expRate[0], lockRecord1.GetBondWeight())
 				suite.Require().Equal(tc.expLock[0], lockRecord1.LockedCoin.Amount)
 
-				delegation1, found := suite.app.StakingKeeper.GetDelegation(suite.ctx, delAddr, valAddr1)
+				delegation1, found := suite.app.MultiStakingKeeper.GetDelegation(suite.ctx, delAddr, valAddr1)
 				suite.Require().True(found)
-				validator1, found := suite.app.StakingKeeper.GetValidator(suite.ctx, valAddr1)
+				validator1, found := suite.app.MultiStakingKeeper.GetValidator(suite.ctx, valAddr1)
 				suite.Require().True(found)
 
 				multiStakingCoin1 := multistakingtypes.NewMultiStakingCoin(multiStakingAmounts[0].Denom, multiStakingAmounts[0].Amount, tc.expRate[0])
@@ -701,9 +701,9 @@ func (suite *KeeperTestSuite) TestBeginRedelegate() {
 				suite.Require().Equal(tc.expRate[1], lockRecord2.GetBondWeight())
 				suite.Require().Equal(tc.expLock[1], lockRecord2.LockedCoin.Amount)
 
-				delegation2, found := suite.app.StakingKeeper.GetDelegation(suite.ctx, delAddr, valAddr2)
+				delegation2, found := suite.app.MultiStakingKeeper.GetDelegation(suite.ctx, delAddr, valAddr2)
 				suite.Require().True(found)
-				validator2, found := suite.app.StakingKeeper.GetValidator(suite.ctx, valAddr2)
+				validator2, found := suite.app.MultiStakingKeeper.GetValidator(suite.ctx, valAddr2)
 				suite.Require().True(found)
 
 				multiStakingCoin2 := multistakingtypes.NewMultiStakingCoin(multiStakingAmounts[1].Denom, multiStakingAmounts[1].Amount, tc.expRate[1])
@@ -786,7 +786,7 @@ func (suite *KeeperTestSuite) TestUndelegate() {
 			suite.SetupTest()
 			newParam := stakingtypes.DefaultParams()
 			newParam.MinCommissionRate = sdk.MustNewDecFromStr("0.02")
-			suite.app.StakingKeeper.SetParams(suite.ctx, newParam)
+			suite.app.MultiStakingKeeper.SetParams(suite.ctx, newParam)
 
 			initialWeight := sdk.MustNewDecFromStr("0.5")
 			suite.msKeeper.SetBondWeight(suite.ctx, MultiStakingDenomA, initialWeight)
@@ -830,9 +830,9 @@ func (suite *KeeperTestSuite) TestUndelegate() {
 				suite.Require().True(found)
 				suite.Require().Equal(tc.expLock, lockRecord.LockedCoin.Amount)
 
-				delegation, found := suite.app.StakingKeeper.GetDelegation(suite.ctx, delAddr, valAddr)
+				delegation, found := suite.app.MultiStakingKeeper.GetDelegation(suite.ctx, delAddr, valAddr)
 				suite.Require().True(found)
-				validator, found := suite.app.StakingKeeper.GetValidator(suite.ctx, valAddr)
+				validator, found := suite.app.MultiStakingKeeper.GetValidator(suite.ctx, valAddr)
 				suite.Require().True(found)
 
 				multiStakingCoin := multistakingtypes.NewMultiStakingCoin(MultiStakingDenomA, tc.expLock, initialWeight)
@@ -845,7 +845,7 @@ func (suite *KeeperTestSuite) TestUndelegate() {
 				suite.Require().True(found)
 				suite.Require().Equal(tc.expUnlock, unbondRecord.Entries[0].UnlockingCoin.Amount)
 
-				ubd, found := suite.app.StakingKeeper.GetUnbondingDelegation(suite.ctx, delAddr, valAddr)
+				ubd, found := suite.app.MultiStakingKeeper.GetUnbondingDelegation(suite.ctx, delAddr, valAddr)
 				suite.Require().True(found)
 				unlockStakingCoin := multistakingtypes.NewMultiStakingCoin(MultiStakingDenomA, tc.expUnlock, initialWeight)
 				totalUBDAmount := math.ZeroInt()
@@ -942,7 +942,7 @@ func (suite *KeeperTestSuite) TestCancelUnbondingDelegation() {
 			suite.SetupTest()
 			newParam := stakingtypes.DefaultParams()
 			newParam.MinCommissionRate = sdk.MustNewDecFromStr("0.02")
-			suite.app.StakingKeeper.SetParams(suite.ctx, newParam)
+			suite.app.MultiStakingKeeper.SetParams(suite.ctx, newParam)
 
 			initialWeight := sdk.MustNewDecFromStr("0.5")
 			suite.msKeeper.SetBondWeight(suite.ctx, MultiStakingDenomA, initialWeight)
@@ -991,9 +991,9 @@ func (suite *KeeperTestSuite) TestCancelUnbondingDelegation() {
 				suite.Require().True(found)
 				suite.Require().Equal(tc.expLock, lockRecord.LockedCoin.Amount)
 
-				delegation, found := suite.app.StakingKeeper.GetDelegation(suite.ctx, delAddr, valAddr)
+				delegation, found := suite.app.MultiStakingKeeper.GetDelegation(suite.ctx, delAddr, valAddr)
 				suite.Require().True(found)
-				validator, found := suite.app.StakingKeeper.GetValidator(suite.ctx, valAddr)
+				validator, found := suite.app.MultiStakingKeeper.GetValidator(suite.ctx, valAddr)
 				suite.Require().True(found)
 
 				multiStakingCoin := multistakingtypes.NewMultiStakingCoin(MultiStakingDenomA, tc.expLock, initialWeight)
@@ -1006,7 +1006,7 @@ func (suite *KeeperTestSuite) TestCancelUnbondingDelegation() {
 				suite.Require().True(found)
 				suite.Require().Equal(tc.expUnlock, unbondRecord.Entries[0].UnlockingCoin.Amount)
 
-				ubd, found := suite.app.StakingKeeper.GetUnbondingDelegation(suite.ctx, delAddr, valAddr)
+				ubd, found := suite.app.MultiStakingKeeper.GetUnbondingDelegation(suite.ctx, delAddr, valAddr)
 				suite.Require().True(found)
 				unlockStakingCoin := multistakingtypes.NewMultiStakingCoin(MultiStakingDenomA, tc.expUnlock, initialWeight)
 				totalUBDAmount := math.ZeroInt()

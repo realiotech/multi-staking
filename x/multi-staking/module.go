@@ -45,6 +45,7 @@ func (am AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 // RegisterInterfaces registers the module interface
 func (am AppModuleBasic) RegisterInterfaces(reg cdctypes.InterfaceRegistry) {
 	multistakingtypes.RegisterInterfaces(reg)
+	stakingtypes.RegisterInterfaces(reg)
 }
 
 // DefaultGenesis returns multi-staking module default genesis state.
@@ -87,20 +88,18 @@ type AppModule struct {
 	skAppModule staking.AppModule
 
 	keeper multistakingkeeper.Keeper
-	sk     stakingkeeper.Keeper
 	ak     stakingtypes.AccountKeeper
 	bk     stakingtypes.BankKeeper
 }
 
 // NewAppModule creates a new AppModule object using the native x/staking module
 // AppModule constructor.
-func NewAppModule(cdc codec.Codec, keeper multistakingkeeper.Keeper, sk stakingkeeper.Keeper, ak stakingtypes.AccountKeeper, bk stakingtypes.BankKeeper) AppModule {
-	stakingAppMod := staking.NewAppModule(cdc, sk, ak, bk)
+func NewAppModule(cdc codec.Codec, keeper multistakingkeeper.Keeper, ak stakingtypes.AccountKeeper, bk stakingtypes.BankKeeper) AppModule {
+	stakingAppMod := staking.NewAppModule(cdc, keeper.Keeper, ak, bk)
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{cdc: cdc},
 		skAppModule:    stakingAppMod,
 		keeper:         keeper,
-		sk:             sk,
 		ak:             ak,
 		bk:             bk,
 	}
@@ -139,7 +138,7 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	stakingtypes.RegisterMsgServer(cfg.MsgServer(), multistakingkeeper.NewMsgServerImpl(am.keeper))
 	multistakingtypes.RegisterQueryServer(cfg.QueryServer(), multistakingkeeper.NewQueryServerImpl(am.keeper))
 
-	querier := stakingkeeper.Querier{Keeper: am.sk}
+	querier := stakingkeeper.Querier{Keeper: am.keeper.Keeper}
 	stakingtypes.RegisterQueryServer(cfg.QueryServer(), querier)
 }
 
@@ -148,12 +147,12 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.
 	var genesisState multistakingtypes.GenesisState
 	cdc.MustUnmarshalJSON(data, &genesisState)
 
-	return am.keeper.InitGenesis(ctx, genesisState)
+	return am.keeper.InitGenesisMultiStaking(ctx, genesisState)
 }
 
 // ExportGenesis export multi-staking state as raw message for multi-staking module
 func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
-	gs := am.keeper.ExportGenesis(ctx)
+	gs := am.keeper.ExportGenesisMultiStaking(ctx)
 	return cdc.MustMarshalJSON(gs)
 }
 

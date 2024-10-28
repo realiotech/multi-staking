@@ -68,7 +68,7 @@ func (k Keeper) LockCoinAndMintBondCoin(
 	// Calculate the amount of bond denom to be minted
 	// minted bond amount = multistaking coin * bond coin weight
 	mintedBondAmount := multiStakingCoin.BondValue()
-	mintedBondCoin = sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), mintedBondAmount)
+	mintedBondCoin = sdk.NewCoin(k.BondDenom(ctx), mintedBondAmount)
 
 	// mint bond coin to delegator account
 	err = k.MintCoin(ctx, mintedTo, mintedBondCoin)

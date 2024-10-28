@@ -7,7 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) (res []abci.ValidatorUpdate) {
+func (k Keeper) InitGenesisMultiStaking(ctx sdk.Context, data types.GenesisState) (res []abci.ValidatorUpdate) {
 	// multi-staking state
 	for _, multiStakingLock := range data.MultiStakingLocks {
 		k.SetMultiStakingLock(ctx, multiStakingLock)
@@ -28,11 +28,12 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) (res []abc
 	}
 
 	k.accountKeeper.GetModuleAccount(ctx, types.ModuleName)
-
-	return k.stakingKeeper.InitGenesis(ctx, &data.StakingGenesisState)
+	res = k.InitGenesis(ctx, &data.StakingGenesisState)
+	k.SetBondWeight(ctx, k.Keeper.BondDenom(ctx), sdk.OneDec())
+	return res
 }
 
-func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
+func (k Keeper) ExportGenesisMultiStaking(ctx sdk.Context) *types.GenesisState {
 	// get multiStakingLock
 	var multiStakingLocks []types.MultiStakingLock
 	k.MultiStakingLockIterator(ctx, func(stakingLock types.MultiStakingLock) bool {
@@ -71,6 +72,6 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 		MultiStakingUnlocks:        multiStakingUnlocks,
 		MultiStakingCoinInfo:       multiStakingCoinInfos,
 		ValidatorMultiStakingCoins: ValidatorMultiStakingCoinLists,
-		StakingGenesisState:        *k.stakingKeeper.ExportGenesis(ctx),
+		StakingGenesisState:        *k.ExportGenesis(ctx),
 	}
 }

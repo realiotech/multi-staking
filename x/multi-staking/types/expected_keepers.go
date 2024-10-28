@@ -1,9 +1,9 @@
 package types
 
 import (
-	time "time"
+	// time "time"
 
-	abci "github.com/tendermint/tendermint/abci/types"
+	// abci "github.com/tendermint/tendermint/abci/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -11,22 +11,24 @@ import (
 )
 
 type AccountKeeper interface {
+	stakingtypes.AccountKeeper
 	GetModuleAddress(moduleName string) sdk.AccAddress
 	GetModuleAccount(ctx sdk.Context, moduleName string) types.ModuleAccountI
 }
 
-type StakingKeeper interface {
-	DequeueAllMatureUBDQueue(ctx sdk.Context, currTime time.Time) (matureUnbonds []stakingtypes.DVPair)
-	BondDenom(ctx sdk.Context) (res string)
-	GetDelegation(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) (delegation stakingtypes.Delegation, found bool)
-	GetValidator(ctx sdk.Context, addr sdk.ValAddress) (validator stakingtypes.Validator, found bool)
-	GetUnbondingDelegation(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) (unlock stakingtypes.UnbondingDelegation, found bool)
-	InitGenesis(ctx sdk.Context, data *stakingtypes.GenesisState) (res []abci.ValidatorUpdate)
-	ExportGenesis(ctx sdk.Context) *stakingtypes.GenesisState
-	GetParams(ctx sdk.Context) stakingtypes.Params
-}
+// type StakingKeeper interface {
+// 	DequeueAllMatureUBDQueue(ctx sdk.Context, currTime time.Time) (matureUnbonds []stakingtypes.DVPair)
+// 	BondDenom(ctx sdk.Context) (res string)
+// 	GetDelegation(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) (delegation stakingtypes.Delegation, found bool)
+// 	GetValidator(ctx sdk.Context, addr sdk.ValAddress) (validator stakingtypes.Validator, found bool)
+// 	GetUnbondingDelegation(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) (unlock stakingtypes.UnbondingDelegation, found bool)
+// 	InitGenesis(ctx sdk.Context, data *stakingtypes.GenesisState) (res []abci.ValidatorUpdate)
+// 	ExportGenesis(ctx sdk.Context) *stakingtypes.GenesisState
+// 	GetParams(ctx sdk.Context) stakingtypes.Params
+// }
 
 type BankKeeper interface {
+	stakingtypes.BankKeeper
 	GetBalance(ctx sdk.Context, addr sdk.AccAddress, denom string) sdk.Coin
 	GetAllBalances(ctx sdk.Context, addr sdk.AccAddress) sdk.Coins
 	MintCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error

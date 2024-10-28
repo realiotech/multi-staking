@@ -12,30 +12,32 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 type Keeper struct {
+	stakingkeeper.Keeper
 	storeKey      storetypes.StoreKey
 	cdc           codec.BinaryCodec
 	accountKeeper types.AccountKeeper
-	stakingKeeper stakingkeeper.Keeper
 	bankKeeper    types.BankKeeper
 }
 
 func NewKeeper(
 	cdc codec.BinaryCodec,
 	accountKeeper types.AccountKeeper,
-	stakingKeeper stakingkeeper.Keeper,
 	bankKeeper types.BankKeeper,
 	key storetypes.StoreKey,
+	psStaking paramtypes.Subspace,
 ) *Keeper {
+
 	return &Keeper{
+		Keeper:        stakingkeeper.NewKeeper(cdc, key, accountKeeper, bankKeeper, psStaking),
 		cdc:           cdc,
 		storeKey:      key,
 		accountKeeper: accountKeeper,
-		stakingKeeper: stakingKeeper,
 		bankKeeper:    bankKeeper,
 	}
 }
@@ -47,7 +49,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 
 func (k Keeper) DequeueAllMatureUBDQueue(ctx sdk.Context, currTime time.Time) (matureUnbonds []stakingtypes.DVPair) {
 	// gets an iterator for all timeslices from time 0 until the current Blockheader time
-	unbondingTimesliceIterator := k.stakingKeeper.UBDQueueIterator(ctx, currTime)
+	unbondingTimesliceIterator := k.UBDQueueIterator(ctx, currTime)
 	defer unbondingTimesliceIterator.Close()
 
 	for ; unbondingTimesliceIterator.Valid(); unbondingTimesliceIterator.Next() {
@@ -70,7 +72,7 @@ func (k Keeper) GetMatureUnbondingDelegations(ctx sdk.Context) []stakingtypes.Un
 			panic(err)
 		}
 
-		unbondingDelegation, found := k.stakingKeeper.GetUnbondingDelegation(ctx, delAddr, valAddr) // ??
+		unbondingDelegation, found := k.GetUnbondingDelegation(ctx, delAddr, valAddr) // ??
 		if !found {
 			continue
 		}
@@ -81,7 +83,7 @@ func (k Keeper) GetMatureUnbondingDelegations(ctx sdk.Context) []stakingtypes.Un
 }
 
 func (k Keeper) GetUnbondingEntryAtCreationHeight(ctx sdk.Context, delAcc sdk.AccAddress, valAcc sdk.ValAddress, creationHeight int64) (stakingtypes.UnbondingDelegationEntry, bool) {
-	ubd, found := k.stakingKeeper.GetUnbondingDelegation(ctx, delAcc, valAcc)
+	ubd, found := k.GetUnbondingDelegation(ctx, delAcc, valAcc)
 	if !found {
 		return stakingtypes.UnbondingDelegationEntry{}, false
 	}
@@ -119,11 +121,11 @@ func (k Keeper) isValMultiStakingCoin(ctx sdk.Context, valAcc sdk.ValAddress, lo
 }
 
 func (k Keeper) AdjustUnbondAmount(ctx sdk.Context, delAcc sdk.AccAddress, valAcc sdk.ValAddress, amount math.Int) (adjustedAmount math.Int, err error) {
-	delegation, found := k.stakingKeeper.GetDelegation(ctx, delAcc, valAcc)
+	delegation, found := k.GetDelegation(ctx, delAcc, valAcc)
 	if !found {
 		return math.Int{}, fmt.Errorf("delegation not found")
 	}
-	validator, found := k.stakingKeeper.GetValidator(ctx, valAcc)
+	validator, found := k.GetValidator(ctx, valAcc)
 	if !found {
 		return math.Int{}, fmt.Errorf("validator not found")
 	}
@@ -146,7 +148,7 @@ func (k Keeper) AdjustUnbondAmount(ctx sdk.Context, delAcc sdk.AccAddress, valAc
 }
 
 func (k Keeper) AdjustCancelUnbondingAmount(ctx sdk.Context, delAcc sdk.AccAddress, valAcc sdk.ValAddress, creationHeight int64, amount math.Int) (adjustedAmount math.Int, err error) {
-	undelegation, found := k.stakingKeeper.GetUnbondingDelegation(ctx, delAcc, valAcc)
+	undelegation, found := k.GetUnbondingDelegation(ctx, delAcc, valAcc)
 	if !found {
 		return math.Int{}, fmt.Errorf("undelegation not found")
 	}
@@ -159,4 +161,8 @@ func (k Keeper) AdjustCancelUnbondingAmount(ctx sdk.Context, delAcc sdk.AccAddre
 	}
 
 	return math.MinInt(totalUnbondingAmount, amount), nil
+}
+
+func (k *Keeper) SetHooksStaking(sh stakingtypes.StakingHooks) {
+	k.Keeper = *k.Keeper.SetHooks(sh)
 }
