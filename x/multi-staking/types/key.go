@@ -89,7 +89,7 @@ func (l LockID) ToBytes() []byte {
 
 	DVPair := make([]byte, 1+lenMultiStakerAddr+len(valAcc))
 
-	DVPair[0] = uint8(lenMultiStakerAddr) //nolint
+	DVPair[0] = uint8(lenMultiStakerAddr)
 
 	copy(DVPair[1:], multiStakerAddr[:])
 
@@ -108,7 +108,7 @@ func (l UnlockID) ToBytes() []byte {
 
 	DVPair := make([]byte, 1+lenMultiStakerAddr+len(valAcc))
 
-	DVPair[0] = uint8(lenMultiStakerAddr) //nolint
+	DVPair[0] = uint8(lenMultiStakerAddr)
 
 	copy(DVPair[1:], multiStakerAddr[:])
 

@@ -30,12 +30,12 @@ func genUnbondingTime(r *rand.Rand) (ubdTime time.Duration) {
 
 // genMaxValidators returns randomized MaxValidators
 func genMaxValidators(r *rand.Rand) (maxValidators uint32) {
-	return uint32(r.Intn(250) + 1) //nolint
+	return uint32(r.Intn(250) + 1)
 }
 
 // getHistEntries returns randomized HistoricalEntries between 0-100.
 func getHistEntries(r *rand.Rand) uint32 {
-	return uint32(r.Intn(int(types.DefaultHistoricalEntries + 1))) //nolint
+	return uint32(r.Intn(int(types.DefaultHistoricalEntries + 1)))
 }
 
 // RandomizedGenState generates a random GenesisState for staking
