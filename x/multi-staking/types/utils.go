@@ -16,3 +16,11 @@ func AccAddrAndValAddrFromStrings(accAddrString string, valAddrStraing string) (
 
 	return accAddr, valAcc, nil
 }
+
+func ValidatorAccAddrAndValAddrFromStrings(valAddrString string) (sdk.AccAddress, sdk.ValAddress, error) {
+	valAddr, err := sdk.ValAddressFromBech32(valAddrString)
+	if err != nil {
+		return sdk.AccAddress{}, sdk.ValAddress{}, err
+	}
+	return sdk.AccAddress(valAddr), valAddr, nil
+}

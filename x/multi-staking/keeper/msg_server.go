@@ -16,8 +16,10 @@ type msgServer struct {
 	stakingMsgServer stakingtypes.MsgServer
 }
 
-var _ stakingtypes.MsgServer = msgServer{}
-var _ types.MsgServer = msgServer{}
+var (
+	_ stakingtypes.MsgServer = msgServer{}
+	_ types.MsgServer        = msgServer{}
+)
 
 func NewMultiStakingMsgServerImpl(keeper Keeper) types.MsgServer {
 	return &msgServer{
@@ -25,15 +27,15 @@ func NewMultiStakingMsgServerImpl(keeper Keeper) types.MsgServer {
 	}
 }
 
-func (k msgServer) UpdateMultiStakingParams(goCtx context.Context, msg *types.MsgUpdateMultiStakingParams) (*types.MsgUpdateMultiStakingParamsResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
+func (k msgServer) UpdateMultiStakingParams(ctx context.Context, msg *types.MsgUpdateMultiStakingParams) (*types.MsgUpdateMultiStakingParamsResponse, error) {
+	sdkctx := sdk.UnwrapSDKContext(ctx)
 
 	if k.keeper.authority != msg.Authority {
 		return nil, fmt.Errorf("invalid authority; expected %s, got %s", k.keeper.authority, msg.Authority)
 	}
 
 	// store params
-	if err := k.keeper.SetParams(ctx, msg.Params); err != nil {
+	if err := k.keeper.SetParams(sdkctx, msg.Params); err != nil {
 		return nil, err
 	}
 
@@ -50,15 +52,15 @@ func NewMsgServerImpl(keeper Keeper) *msgServer {
 }
 
 // UpdateParams updates the staking params
-func (k msgServer) UpdateParams(goCtx context.Context, msg *stakingtypes.MsgUpdateParams) (*stakingtypes.MsgUpdateParamsResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
+func (k msgServer) UpdateParams(ctx context.Context, msg *stakingtypes.MsgUpdateParams) (*stakingtypes.MsgUpdateParamsResponse, error) {
+	sdkctx := sdk.UnwrapSDKContext(ctx)
 
 	if k.keeper.authority != msg.Authority {
 		return nil, fmt.Errorf("invalid authority; expected %s, got %s", k.keeper.authority, msg.Authority)
 	}
 
 	// store params
-	if err := k.keeper.stakingKeeper.SetParams(ctx, msg.Params); err != nil {
+	if err := k.keeper.stakingKeeper.SetParams(sdkctx, msg.Params); err != nil {
 		return nil, err
 	}
 
@@ -66,17 +68,16 @@ func (k msgServer) UpdateParams(goCtx context.Context, msg *stakingtypes.MsgUpda
 }
 
 // CreateValidator defines a method for creating a new validator
-func (k msgServer) CreateValidator(goCtx context.Context, msg *stakingtypes.MsgCreateValidator) (*stakingtypes.MsgCreateValidatorResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	multiStakerAddr, valAcc, err := types.AccAddrAndValAddrFromStrings(msg.DelegatorAddress, msg.ValidatorAddress)
+func (k msgServer) CreateValidator(ctx context.Context, msg *stakingtypes.MsgCreateValidator) (*stakingtypes.MsgCreateValidatorResponse, error) {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	multiStakerAddr, valAcc, err := types.ValidatorAccAddrAndValAddrFromStrings(msg.ValidatorAddress)
 	if err != nil {
 		return nil, err
 	}
 
-	lockID := types.MultiStakingLockID(msg.DelegatorAddress, msg.ValidatorAddress)
+	lockID := types.MultiStakingLockID(multiStakerAddr.String(), msg.ValidatorAddress)
 
-	mintedBondCoin, err := k.keeper.LockCoinAndMintBondCoin(ctx, lockID, multiStakerAddr, multiStakerAddr, msg.Value)
+	mintedBondCoin, err := k.keeper.LockCoinAndMintBondCoin(sdkCtx, lockID, multiStakerAddr, multiStakerAddr, msg.Value)
 	if err != nil {
 		return nil, err
 	}
@@ -85,20 +86,20 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *stakingtypes.MsgC
 		Description:       msg.Description,
 		Commission:        msg.Commission,
 		MinSelfDelegation: msg.MinSelfDelegation,
-		DelegatorAddress:  msg.DelegatorAddress,
+		DelegatorAddress:  multiStakerAddr.String(),
 		ValidatorAddress:  msg.ValidatorAddress,
 		Pubkey:            msg.Pubkey,
 		Value:             mintedBondCoin, // replace lock coin with bond coin
 	}
 
-	k.keeper.SetValidatorMultiStakingCoin(ctx, valAcc, msg.Value.Denom)
+	k.keeper.SetValidatorMultiStakingCoin(sdkCtx, valAcc, msg.Value.Denom)
 
-	return k.stakingMsgServer.CreateValidator(sdk.WrapSDKContext(ctx), &sdkMsg)
+	return k.stakingMsgServer.CreateValidator(sdkCtx, &sdkMsg)
 }
 
 // EditValidator defines a method for editing an existing validator
-func (k msgServer) EditValidator(goCtx context.Context, msg *stakingtypes.MsgEditValidator) (*stakingtypes.MsgEditValidatorResponse, error) {
-	return k.stakingMsgServer.EditValidator(goCtx, msg)
+func (k msgServer) EditValidator(ctx context.Context, msg *stakingtypes.MsgEditValidator) (*stakingtypes.MsgEditValidatorResponse, error) {
+	return k.stakingMsgServer.EditValidator(ctx, msg)
 }
 
 // Delegate defines a method for performing a delegation of coins from a delegator to a validator
@@ -127,13 +128,11 @@ func (k msgServer) Delegate(goCtx context.Context, msg *stakingtypes.MsgDelegate
 		Amount:           mintedBondCoin, // replace lock coin with bond coin
 	}
 
-	return k.stakingMsgServer.Delegate(sdk.WrapSDKContext(ctx), &sdkMsg)
+	return k.stakingMsgServer.Delegate(ctx, &sdkMsg)
 }
 
 // BeginRedelegate defines a method for performing a redelegation of coins from a delegator and source validator to a destination validator
-func (k msgServer) BeginRedelegate(goCtx context.Context, msg *stakingtypes.MsgBeginRedelegate) (*stakingtypes.MsgBeginRedelegateResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
+func (k msgServer) BeginRedelegate(ctx context.Context, msg *stakingtypes.MsgBeginRedelegate) (*stakingtypes.MsgBeginRedelegateResponse, error) {
 	multiStakerAddr := sdk.MustAccAddressFromBech32(msg.DelegatorAddress)
 
 	srcValAcc, err := sdk.ValAddressFromBech32(msg.ValidatorSrcAddress)
@@ -173,7 +172,11 @@ func (k msgServer) BeginRedelegate(goCtx context.Context, msg *stakingtypes.MsgB
 		return nil, err
 	}
 
-	bondCoin := sdk.NewCoin(k.keeper.stakingKeeper.BondDenom(ctx), redelegateAmount)
+	bondDenom, err := k.keeper.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return nil, err
+	}
+	bondCoin := sdk.NewCoin(bondDenom, redelegateAmount)
 
 	sdkMsg := &stakingtypes.MsgBeginRedelegate{
 		DelegatorAddress:    msg.DelegatorAddress,
@@ -182,13 +185,11 @@ func (k msgServer) BeginRedelegate(goCtx context.Context, msg *stakingtypes.MsgB
 		Amount:              bondCoin, // replace lockCoin with bondCoin
 	}
 
-	return k.stakingMsgServer.BeginRedelegate(sdk.WrapSDKContext(ctx), sdkMsg)
+	return k.stakingMsgServer.BeginRedelegate(ctx, sdkMsg)
 }
 
 // Undelegate defines a method for performing an undelegation from a delegate and a validator
-func (k msgServer) Undelegate(goCtx context.Context, msg *stakingtypes.MsgUndelegate) (*stakingtypes.MsgUndelegateResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
+func (k msgServer) Undelegate(ctx context.Context, msg *stakingtypes.MsgUndelegate) (*stakingtypes.MsgUndelegateResponse, error) {
 	multiStakerAddr, valAcc, err := types.AccAddrAndValAddrFromStrings(msg.DelegatorAddress, msg.ValidatorAddress)
 	if err != nil {
 		return nil, err
@@ -217,7 +218,11 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *stakingtypes.MsgUndele
 		return nil, err
 	}
 
-	unbondCoin := sdk.NewCoin(k.keeper.stakingKeeper.BondDenom(ctx), unbondAmount)
+	bondDenom, err := k.keeper.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return nil, err
+	}
+	unbondCoin := sdk.NewCoin(bondDenom, unbondAmount)
 
 	sdkMsg := &stakingtypes.MsgUndelegate{
 		DelegatorAddress: msg.DelegatorAddress,
@@ -227,14 +232,12 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *stakingtypes.MsgUndele
 
 	k.keeper.SetMultiStakingUnlockEntry(ctx, types.MultiStakingUnlockID(msg.DelegatorAddress, msg.ValidatorAddress), multiStakingCoin)
 
-	return k.stakingMsgServer.Undelegate(sdk.WrapSDKContext(ctx), sdkMsg)
+	return k.stakingMsgServer.Undelegate(ctx, sdkMsg)
 }
 
 // CancelUnbondingDelegation defines a method for canceling the unbonding delegation
 // and delegate back to the validator.
-func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *stakingtypes.MsgCancelUnbondingDelegation) (*stakingtypes.MsgCancelUnbondingDelegationResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
+func (k msgServer) CancelUnbondingDelegation(ctx context.Context, msg *stakingtypes.MsgCancelUnbondingDelegation) (*stakingtypes.MsgCancelUnbondingDelegationResponse, error) {
 	delAcc, valAcc, err := types.AccAddrAndValAddrFromStrings(msg.DelegatorAddress, msg.ValidatorAddress)
 	if err != nil {
 		return nil, err
@@ -255,7 +258,12 @@ func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *staking
 	if err != nil {
 		return nil, err
 	}
-	cancelUnbondingCoin := sdk.NewCoin(k.keeper.stakingKeeper.BondDenom(ctx), cancelUnbondingAmount)
+
+	bondDenom, err := k.keeper.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return nil, err
+	}
+	cancelUnbondingCoin := sdk.NewCoin(bondDenom, cancelUnbondingAmount)
 
 	lockID := types.MultiStakingLockID(msg.DelegatorAddress, msg.ValidatorAddress)
 	lock := k.keeper.GetOrCreateMultiStakingLock(ctx, lockID)
@@ -272,5 +280,5 @@ func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *staking
 		CreationHeight:   msg.CreationHeight,
 	}
 
-	return k.stakingMsgServer.CancelUnbondingDelegation(sdk.WrapSDKContext(ctx), sdkMsg)
+	return k.stakingMsgServer.CancelUnbondingDelegation(ctx, sdkMsg)
 }

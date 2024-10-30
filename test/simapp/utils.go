@@ -5,30 +5,30 @@ import (
 	"fmt"
 	"os"
 
+	dbm "github.com/cosmos/cosmos-db"
+	"github.com/rs/zerolog"
+
+	"cosmossdk.io/log"
+
 	"github.com/cosmos/cosmos-sdk/codec"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/kv"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
-
-	dbm "github.com/cometbft/cometbft-db"
-	"github.com/cometbft/cometbft/libs/log"
 )
 
 // SetupSimulation creates the config, db (levelDB), temporary directory and logger for
 // the simulation tests. If `FlagEnabledValue` is false it skips the current test.
 // Returns error on an invalid db intantiation or temp dir creation.
 func SetupSimulation(dirPrefix, dbName string) (simtypes.Config, dbm.DB, string, log.Logger, bool, error) {
-	if !FlagEnabledValue {
-		return simtypes.Config{}, nil, "", nil, true, nil
-	}
-
 	config := NewConfigFromFlags()
 	config.ChainID = "test-chain"
+	config.Commit = true
 
 	var logger log.Logger
+	var t zerolog.TestingLog
 	if FlagVerboseValue {
-		logger = log.TestingLogger()
+		logger = log.NewTestLogger(t)
 	} else {
 		logger = log.NewNopLogger()
 	}
@@ -51,6 +51,7 @@ func SetupSimulation(dirPrefix, dbName string) (simtypes.Config, dbm.DB, string,
 func SimulationOperations(app App, cdc codec.JSONCodec, config simtypes.Config) []simtypes.WeightedOperation {
 	simState := module.SimulationState{
 		AppParams: make(simtypes.AppParams),
+		TxConfig:  moduletestutil.MakeTestTxConfig(),
 		Cdc:       cdc,
 	}
 
@@ -78,7 +79,7 @@ func CheckExportSimulation(
 ) error {
 	if config.ExportStatePath != "" {
 		fmt.Println("exporting app state...")
-		exported, err := app.ExportAppStateAndValidators(false, nil)
+		exported, err := app.ExportAppStateAndValidators(false, nil, nil)
 		if err != nil {
 			return err
 		}
@@ -111,7 +112,7 @@ func PrintStats(db dbm.DB) {
 
 // GetSimulationLog unmarshals the KVPair's Value to the corresponding type based on the
 // each's module store key and the prefix bytes of the KVPair's key.
-func GetSimulationLog(storeName string, sdr sdk.StoreDecoderRegistry, kvAs, kvBs []kv.Pair) (log string) {
+func GetSimulationLog(storeName string, sdr simtypes.StoreDecoderRegistry, kvAs, kvBs []kv.Pair) (log string) {
 	for i := 0; i < len(kvAs); i++ {
 		if len(kvAs[i].Value) == 0 && len(kvBs[i].Value) == 0 {
 			// skip if the value doesn't have any bytes

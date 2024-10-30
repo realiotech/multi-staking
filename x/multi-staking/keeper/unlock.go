@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
@@ -38,17 +39,18 @@ func (k Keeper) GetUnlockEntryAtCreationHeight(ctx sdk.Context, unlockID types.U
 // SetMultiStakingUnlockEntry adds an entry to the unbonding delegation at
 // the given addresses. It creates the unbonding delegation if it does not exist.
 func (k Keeper) SetMultiStakingUnlockEntry(
-	ctx sdk.Context, unlockID types.UnlockID,
+	ctx context.Context, unlockID types.UnlockID,
 	multistakingCoin types.MultiStakingCoin,
 ) types.MultiStakingUnlock {
-	unlock, found := k.GetMultiStakingUnlock(ctx, unlockID)
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	unlock, found := k.GetMultiStakingUnlock(sdkCtx, unlockID)
 	if found {
-		unlock.AddEntry(ctx.BlockHeight(), multistakingCoin)
+		unlock.AddEntry(sdkCtx.BlockHeight(), multistakingCoin)
 	} else {
-		unlock = types.NewMultiStakingUnlock(unlockID, ctx.BlockHeight(), multistakingCoin)
+		unlock = types.NewMultiStakingUnlock(unlockID, sdkCtx.BlockHeight(), multistakingCoin)
 	}
 
-	k.SetMultiStakingUnlock(ctx, unlock)
+	k.SetMultiStakingUnlock(sdkCtx, unlock)
 	return unlock
 }
 
@@ -73,10 +75,11 @@ func (k Keeper) DeleteUnlockEntryAtCreationHeight(
 }
 
 func (k Keeper) DecreaseUnlockEntryAmount(
-	ctx sdk.Context, unlockID types.UnlockID,
+	ctx context.Context, unlockID types.UnlockID,
 	amount math.Int, creationHeight int64,
 ) (types.MultiStakingCoin, error) {
-	unlockRecord, found := k.GetMultiStakingUnlock(ctx, unlockID)
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	unlockRecord, found := k.GetMultiStakingUnlock(sdkCtx, unlockID)
 	if !found {
 		return types.MultiStakingCoin{}, fmt.Errorf("not found unlock recored")
 	}
@@ -95,9 +98,9 @@ func (k Keeper) DecreaseUnlockEntryAmount(
 
 	// set the unlocking record or remove it if there are no more entries
 	if len(unlockRecord.Entries) == 0 {
-		k.DeleteMultiStakingUnlock(ctx, unlockID)
+		k.DeleteMultiStakingUnlock(sdkCtx, unlockID)
 	} else {
-		k.SetMultiStakingUnlock(ctx, unlockRecord)
+		k.SetMultiStakingUnlock(sdkCtx, unlockRecord)
 	}
 
 	return types.NewMultiStakingCoin(unlockEntry.UnlockingCoin.Denom, amount, unlockEntry.GetBondWeight()), nil

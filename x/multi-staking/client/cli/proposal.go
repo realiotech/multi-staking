@@ -4,6 +4,8 @@ import (
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	"github.com/spf13/cobra"
 
+	sdkmath "cosmossdk.io/math"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -21,7 +23,7 @@ func NewCmdSubmitAddMultiStakingCoinProposal() *cobra.Command {
 				return err
 			}
 
-			bondWeight, err := sdk.NewDecFromStr(args[3])
+			bondWeight, err := sdkmath.LegacyNewDecFromStr(args[3])
 			if err != nil {
 				return err
 			}
@@ -58,7 +60,7 @@ func NewCmdUpdateBondWeightProposal() *cobra.Command {
 				return err
 			}
 
-			bondWeight, err := sdk.NewDecFromStr(args[3])
+			bondWeight, err := sdkmath.LegacyNewDecFromStr(args[3])
 			if err != nil {
 				return err
 			}

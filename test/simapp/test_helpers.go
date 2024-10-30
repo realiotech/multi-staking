@@ -4,7 +4,11 @@ import (
 	"encoding/json"
 	"time"
 
+	dbm "github.com/cosmos/cosmos-db"
 	multistakingtypes "github.com/realio-tech/multi-staking-module/x/multi-staking/types"
+
+	"cosmossdk.io/log"
+	"cosmossdk.io/math"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
@@ -15,9 +19,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
-	"github.com/cometbft/cometbft/libs/log"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/types"
 )
@@ -43,18 +45,18 @@ var (
 	}
 	MultiStakingCoinA = multistakingtypes.MultiStakingCoin{
 		Denom:      "ario",
-		Amount:     sdk.NewIntFromUint64(100000000),
-		BondWeight: sdk.MustNewDecFromStr("1.23"),
+		Amount:     math.NewIntFromUint64(100000000),
+		BondWeight: math.LegacyMustNewDecFromStr("1.23"),
 	}
 	MultiStakingCoinB = multistakingtypes.MultiStakingCoin{
 		Denom:      "arst",
-		Amount:     sdk.NewIntFromUint64(100000000),
-		BondWeight: sdk.MustNewDecFromStr("0.12"),
+		Amount:     math.NewIntFromUint64(100000000),
+		BondWeight: math.LegacyMustNewDecFromStr("0.12"),
 	}
 )
 
 // Setup initializes a new SimApp. A Nop logger is set in SimApp.
-func Setup(isCheckTx bool) *SimApp {
+func Setup() *SimApp {
 	valSet := GenValSet()
 
 	app := SetupWithGenesisValSet(valSet)
@@ -72,22 +74,21 @@ func SetupWithGenesisValSet(valSet *tmtypes.ValidatorSet) *SimApp {
 	stateBytes, _ := json.MarshalIndent(genesisState, "", " ")
 
 	// init chain will set the validator set and initialize the genesis accounts
-	app.InitChain(
-		abci.RequestInitChain{
+	_, err := app.InitChain(
+		&abci.RequestInitChain{
 			Validators:      []abci.ValidatorUpdate{},
 			ConsensusParams: DefaultConsensusParams,
 			AppStateBytes:   stateBytes,
 		},
 	)
+	if err != nil {
+		panic(err)
+	}
 
-	// commit genesis changes
-	app.Commit()
-	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{
-		Height:             app.LastBlockHeight() + 1,
-		AppHash:            app.LastCommitID().Hash,
-		ValidatorsHash:     valSet.Hash(),
-		NextValidatorsHash: valSet.Hash(),
-	}})
+	_, err = app.FinalizeBlock(&abci.RequestFinalizeBlock{Height: app.LastBlockHeight() + 1})
+	if err != nil {
+		panic(err)
+	}
 
 	return app
 }
@@ -147,7 +148,7 @@ func genesisStateWithValSet(app *SimApp, genesisState GenesisState, valSet *tmty
 		locks = append(locks, lockRecord)
 		lockCoins = lockCoins.Add(valMsCoin.ToCoin())
 
-		pk, _ := cryptocodec.FromTmPubKeyInterface(val.PubKey)
+		pk, _ := cryptocodec.FromCmtPubKeyInterface(val.PubKey)
 		pkAny, _ := codectypes.NewAnyWithValue(pk)
 		validator := stakingtypes.Validator{
 			OperatorAddress:   sdk.ValAddress(val.Address).String(),
@@ -155,15 +156,15 @@ func genesisStateWithValSet(app *SimApp, genesisState GenesisState, valSet *tmty
 			Jailed:            false,
 			Status:            stakingtypes.Bonded,
 			Tokens:            valMsCoin.BondValue(),
-			DelegatorShares:   sdk.OneDec(),
+			DelegatorShares:   math.LegacyOneDec(),
 			Description:       stakingtypes.Description{},
 			UnbondingHeight:   int64(0),
 			UnbondingTime:     time.Unix(0, 0).UTC(),
-			Commission:        stakingtypes.NewCommission(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()),
-			MinSelfDelegation: sdk.ZeroInt(),
+			Commission:        stakingtypes.NewCommission(math.LegacyZeroDec(), math.LegacyZeroDec(), math.LegacyZeroDec()),
+			MinSelfDelegation: math.ZeroInt(),
 		}
 		validators = append(validators, validator)
-		delegations = append(delegations, stakingtypes.NewDelegation(genAcc.GetAddress(), val.Address.Bytes(), sdk.OneDec()))
+		delegations = append(delegations, stakingtypes.NewDelegation(genAcc.GetAddress().String(), sdk.ValAddress(val.Address).String(), math.LegacyOneDec()))
 
 		bondCoins = bondCoins.Add(sdk.NewCoin(sdk.DefaultBondDenom, valMsCoin.BondValue()))
 	}

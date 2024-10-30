@@ -7,6 +7,8 @@ import (
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 
+	"cosmossdk.io/math"
+
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -18,6 +20,8 @@ func (suite *KeeperTestSuite) TestModuleAccountInvariants() {
 	delAddr := test.GenAddress()
 	priv, valAddr := test.GenValAddressWithPrivKey()
 	valPubKey := priv.PubKey()
+
+	bondAmount := sdk.NewCoin(MultiStakingDenomA, math.NewInt(3001))
 
 	testCases := []struct {
 		name     string
@@ -33,9 +37,9 @@ func (suite *KeeperTestSuite) TestModuleAccountInvariants() {
 			name: "Success Edit Validator",
 			malleate: func() {
 				suite.ctx = suite.ctx.WithBlockHeader(tmproto.Header{Time: time.Now()})
-				newRate := sdk.MustNewDecFromStr("0.03")
-				newMinSelfDelegation := sdk.NewInt(300)
-				editMsg := stakingtypes.NewMsgEditValidator(valAddr, stakingtypes.Description{
+				newRate := math.LegacyMustNewDecFromStr("0.03")
+				newMinSelfDelegation := math.NewInt(300)
+				editMsg := stakingtypes.NewMsgEditValidator(valAddr.String(), stakingtypes.Description{
 					Moniker:         "test 1",
 					Identity:        "test 1",
 					Website:         "test 1",
@@ -53,8 +57,8 @@ func (suite *KeeperTestSuite) TestModuleAccountInvariants() {
 		{
 			name: "Success Delegate",
 			malleate: func() {
-				bondAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(1000))
-				delMsg := stakingtypes.NewMsgDelegate(delAddr, valAddr, bondAmount)
+				bondAmount := sdk.NewCoin(MultiStakingDenomA, math.NewInt(1000))
+				delMsg := stakingtypes.NewMsgDelegate(delAddr.String(), valAddr.String(), bondAmount)
 				_, err := suite.msgServer.Delegate(suite.ctx, delMsg)
 				suite.Require().NoError(err)
 			},
@@ -63,8 +67,8 @@ func (suite *KeeperTestSuite) TestModuleAccountInvariants() {
 		{
 			name: "Success Delegate",
 			malleate: func() {
-				bondAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(1000))
-				delMsg := stakingtypes.NewMsgDelegate(delAddr, valAddr, bondAmount)
+				bondAmount := sdk.NewCoin(MultiStakingDenomA, math.NewInt(1000))
+				delMsg := stakingtypes.NewMsgDelegate(delAddr.String(), valAddr.String(), bondAmount)
 				_, err := suite.msgServer.Delegate(suite.ctx, delMsg)
 				suite.Require().NoError(err)
 			},
@@ -75,7 +79,11 @@ func (suite *KeeperTestSuite) TestModuleAccountInvariants() {
 			malleate: func() {
 				priv, valAddr2 := test.GenValAddressWithPrivKey()
 				valPubKey2 := priv.PubKey()
-				bondAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(500))
+				bondAmount := sdk.NewCoin(MultiStakingDenomA, math.NewInt(500))
+
+				valCoins := sdk.NewCoins(sdk.NewCoin(MultiStakingDenomA, math.NewInt(10000)), sdk.NewCoin(MultiStakingDenomB, math.NewInt(10000)))
+				suite.FundAccount(sdk.AccAddress(valAddr2), valCoins)
+
 				createMsg2 := stakingtypes.MsgCreateValidator{
 					Description: stakingtypes.Description{
 						Moniker:         "test",
@@ -85,12 +93,12 @@ func (suite *KeeperTestSuite) TestModuleAccountInvariants() {
 						Details:         "test",
 					},
 					Commission: stakingtypes.CommissionRates{
-						Rate:          sdk.MustNewDecFromStr("0.05"),
-						MaxRate:       sdk.MustNewDecFromStr("0.1"),
-						MaxChangeRate: sdk.MustNewDecFromStr("0.1"),
+						Rate:          math.LegacyMustNewDecFromStr("0.05"),
+						MaxRate:       math.LegacyMustNewDecFromStr("0.1"),
+						MaxChangeRate: math.LegacyMustNewDecFromStr("0.1"),
 					},
-					MinSelfDelegation: sdk.NewInt(200),
-					DelegatorAddress:  delAddr.String(),
+					MinSelfDelegation: math.NewInt(1),
+					DelegatorAddress:  sdk.AccAddress(valAddr2).String(),
 					ValidatorAddress:  valAddr2.String(),
 					Pubkey:            codectypes.UnsafePackAny(valPubKey2),
 					Value:             bondAmount,
@@ -99,7 +107,11 @@ func (suite *KeeperTestSuite) TestModuleAccountInvariants() {
 				_, err := suite.msgServer.CreateValidator(suite.ctx, &createMsg2)
 				suite.Require().NoError(err)
 
-				multiStakingMsg := stakingtypes.NewMsgBeginRedelegate(delAddr, valAddr, valAddr2, bondAmount)
+				delMsg := stakingtypes.NewMsgDelegate(delAddr.String(), valAddr.String(), bondAmount)
+				_, err = suite.msgServer.Delegate(suite.ctx, delMsg)
+				suite.Require().NoError(err)
+
+				multiStakingMsg := stakingtypes.NewMsgBeginRedelegate(delAddr.String(), valAddr.String(), valAddr2.String(), bondAmount)
 				_, err = suite.msgServer.BeginRedelegate(suite.ctx, multiStakingMsg)
 				suite.Require().NoError(err)
 			},
@@ -108,13 +120,17 @@ func (suite *KeeperTestSuite) TestModuleAccountInvariants() {
 		{
 			name: "Success Undelegate",
 			malleate: func() {
-				bondAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(250))
-				multiStakingMsg := stakingtypes.NewMsgUndelegate(delAddr, valAddr, bondAmount)
-				_, err := suite.msgServer.Undelegate(suite.ctx, multiStakingMsg)
+				delMsg := stakingtypes.NewMsgDelegate(delAddr.String(), valAddr.String(), bondAmount)
+				_, err := suite.msgServer.Delegate(suite.ctx, delMsg)
 				suite.Require().NoError(err)
 
-				bondAmount1 := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(500))
-				multiStakingMsg1 := stakingtypes.NewMsgUndelegate(delAddr, valAddr, bondAmount1)
+				bondAmount := sdk.NewCoin(MultiStakingDenomA, math.NewInt(250))
+				multiStakingMsg := stakingtypes.NewMsgUndelegate(delAddr.String(), valAddr.String(), bondAmount)
+				_, err = suite.msgServer.Undelegate(suite.ctx, multiStakingMsg)
+				suite.Require().NoError(err)
+
+				bondAmount1 := sdk.NewCoin(MultiStakingDenomA, math.NewInt(500))
+				multiStakingMsg1 := stakingtypes.NewMsgUndelegate(delAddr.String(), valAddr.String(), bondAmount1)
 				_, err = suite.msgServer.Undelegate(suite.ctx, multiStakingMsg1)
 				suite.Require().NoError(err)
 			},
@@ -123,7 +139,7 @@ func (suite *KeeperTestSuite) TestModuleAccountInvariants() {
 		{
 			name: "Fail invariant",
 			malleate: func() {
-				multiStakingLock := types.NewMultiStakingLock(types.MultiStakingLockID(delAddr.String(), valAddr.String()), types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(200), sdk.OneDec()))
+				multiStakingLock := types.NewMultiStakingLock(types.MultiStakingLockID(delAddr.String(), valAddr.String()), types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(200), math.LegacyOneDec()))
 				suite.app.MultiStakingKeeper.SetMultiStakingLock(suite.ctx, multiStakingLock)
 			},
 			expPass: false,
@@ -132,11 +148,11 @@ func (suite *KeeperTestSuite) TestModuleAccountInvariants() {
 	for _, tc := range testCases {
 		suite.SetupTest() // reset
 
-		valCoins := sdk.NewCoins(sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(10000)), sdk.NewCoin(MultiStakingDenomB, sdk.NewInt(10000)))
+		valCoins := sdk.NewCoins(sdk.NewCoin(MultiStakingDenomA, math.NewInt(10000)), sdk.NewCoin(MultiStakingDenomB, math.NewInt(10000)))
 		suite.FundAccount(delAddr, valCoins)
+		suite.FundAccount(sdk.AccAddress(valAddr), valCoins)
 
-		suite.msKeeper.SetBondWeight(suite.ctx, MultiStakingDenomA, sdk.MustNewDecFromStr("0.3"))
-		bondAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(3001))
+		suite.msKeeper.SetBondWeight(suite.ctx, MultiStakingDenomA, math.LegacyMustNewDecFromStr("0.3"))
 		msg := stakingtypes.MsgCreateValidator{
 			Description: stakingtypes.Description{
 				Moniker:         "test",
@@ -146,12 +162,12 @@ func (suite *KeeperTestSuite) TestModuleAccountInvariants() {
 				Details:         "test",
 			},
 			Commission: stakingtypes.CommissionRates{
-				Rate:          sdk.MustNewDecFromStr("0.05"),
-				MaxRate:       sdk.MustNewDecFromStr("0.1"),
-				MaxChangeRate: sdk.MustNewDecFromStr("0.05"),
+				Rate:          math.LegacyMustNewDecFromStr("0.05"),
+				MaxRate:       math.LegacyMustNewDecFromStr("0.1"),
+				MaxChangeRate: math.LegacyMustNewDecFromStr("0.05"),
 			},
-			MinSelfDelegation: sdk.NewInt(1),
-			DelegatorAddress:  delAddr.String(),
+			MinSelfDelegation: math.NewInt(1),
+			DelegatorAddress:  sdk.AccAddress(valAddr).String(),
 			ValidatorAddress:  valAddr.String(),
 			Pubkey:            codectypes.UnsafePackAny(valPubKey),
 			Value:             bondAmount,

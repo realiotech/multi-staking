@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"cosmossdk.io/math"
+	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -21,23 +21,23 @@ func (suite *KeeperTestSuite) TestMsUnlockEndBlocker() {
 
 	testCases := []struct {
 		name        string
-		lockAmount  math.Int
-		slashFactor sdk.Dec
+		lockAmount  sdkmath.Int
+		slashFactor sdkmath.LegacyDec
 	}{
 		{
 			name:        "no slashing",
-			lockAmount:  math.NewInt(3788),
-			slashFactor: sdk.ZeroDec(),
+			lockAmount:  sdkmath.NewInt(3788),
+			slashFactor: sdkmath.LegacyZeroDec(),
 		},
 		{
 			name:        "slash half of lock coin",
-			lockAmount:  math.NewInt(123),
-			slashFactor: sdk.MustNewDecFromStr("0.5"),
+			lockAmount:  sdkmath.NewInt(123),
+			slashFactor: sdkmath.LegacyMustNewDecFromStr("0.5"),
 		},
 		{
 			name:        "slash all of lock coin",
-			lockAmount:  math.NewInt(19090),
-			slashFactor: sdk.ZeroDec(),
+			lockAmount:  sdkmath.NewInt(19090),
+			slashFactor: sdkmath.LegacyZeroDec(),
 		},
 	}
 
@@ -47,10 +47,13 @@ func (suite *KeeperTestSuite) TestMsUnlockEndBlocker() {
 			// height 1
 			suite.SetupTest()
 
-			vals := suite.app.StakingKeeper.GetAllValidators(suite.ctx)
+			vals, err := suite.app.StakingKeeper.GetAllValidators(suite.ctx)
+			suite.NoError(err)
 			val := vals[0]
 
-			msDenom := suite.msKeeper.GetValidatorMultiStakingCoin(suite.ctx, val.GetOperator())
+			valAddr, err := sdk.ValAddressFromBech32(val.GetOperator())
+			suite.NoError(err)
+			msDenom := suite.msKeeper.GetValidatorMultiStakingCoin(suite.ctx, valAddr)
 
 			msCoin := sdk.NewCoin(msDenom, tc.lockAmount)
 
@@ -61,15 +64,17 @@ func (suite *KeeperTestSuite) TestMsUnlockEndBlocker() {
 				ValidatorAddress: val.OperatorAddress,
 				Amount:           msCoin,
 			}
-			_, err := suite.msgServer.Delegate(suite.ctx, delegateMsg)
+			_, err = suite.msgServer.Delegate(suite.ctx, delegateMsg)
 			suite.NoError(err)
 
 			// height 2
 			suite.NextBlock(time.Second)
 
 			if !tc.slashFactor.IsZero() {
-				val, found := suite.app.StakingKeeper.GetValidator(suite.ctx, val.GetOperator())
-				require.True(suite.T(), found)
+				valAddr, _ := sdk.ValAddressFromBech32(val.GetOperator())
+				val, err := suite.app.StakingKeeper.GetValidator(suite.ctx, valAddr)
+				suite.NoError(err)
+				require.NotNil(suite.T(), val)
 
 				slashedPow := suite.app.StakingKeeper.TokensToConsensusPower(suite.ctx, val.Tokens)
 
@@ -79,7 +84,8 @@ func (suite *KeeperTestSuite) TestMsUnlockEndBlocker() {
 				// height 3
 				suite.NextBlock(time.Second)
 
-				suite.app.SlashingKeeper.Slash(suite.ctx, valConsAddr, tc.slashFactor, slashedPow, 2)
+				err = suite.app.SlashingKeeper.Slash(suite.ctx, valConsAddr, tc.slashFactor, slashedPow, 2)
+				require.NoError(suite.T(), err)
 			} else {
 				// height 3
 				suite.NextBlock(time.Second)
@@ -100,7 +106,7 @@ func (suite *KeeperTestSuite) TestMsUnlockEndBlocker() {
 
 			unlockAmount := suite.app.BankKeeper.GetBalance(suite.ctx, msStaker, msDenom).Amount
 
-			expectedUnlockAmount := sdk.NewDecFromInt(tc.lockAmount).Mul(sdk.OneDec().Sub(tc.slashFactor)).TruncateInt()
+			expectedUnlockAmount := sdkmath.LegacyNewDecFromInt(tc.lockAmount).Mul(sdkmath.LegacyOneDec().Sub(tc.slashFactor)).TruncateInt()
 
 			suite.True(SoftEqualInt(unlockAmount, expectedUnlockAmount) || DiffLTEThanOne(unlockAmount, expectedUnlockAmount))
 		})

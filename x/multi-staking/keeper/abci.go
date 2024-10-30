@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
@@ -15,8 +16,9 @@ func (k Keeper) BeginBlocker(ctx sdk.Context) {
 }
 
 // need a way to better name this func
-func GetUnbondingHeightsAndUnbondedAmounts(ctx sdk.Context, unbondingDelegation stakingtypes.UnbondingDelegation) map[int64]math.Int {
-	ctxTime := ctx.BlockHeader().Time
+func GetUnbondingHeightsAndUnbondedAmounts(ctx context.Context, unbondingDelegation stakingtypes.UnbondingDelegation) map[int64]math.Int {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	ctxTime := sdkCtx.BlockHeader().Time
 
 	unbondingHeightsAndUnbondedAmounts := map[int64]math.Int{}
 	// loop through all the entries and complete unbonding mature entries
@@ -35,7 +37,7 @@ func GetUnbondingHeightsAndUnbondedAmounts(ctx sdk.Context, unbondingDelegation 
 	return unbondingHeightsAndUnbondedAmounts
 }
 
-func (k Keeper) EndBlocker(ctx sdk.Context, matureUnbondingDelegations []stakingtypes.UnbondingDelegation) {
+func (k Keeper) EndBlocker(ctx context.Context, matureUnbondingDelegations []stakingtypes.UnbondingDelegation) {
 	for _, unbond := range matureUnbondingDelegations {
 		multiStakerAddr, valAcc, err := types.AccAddrAndValAddrFromStrings(unbond.DelegatorAddress, unbond.ValidatorAddress)
 		if err != nil {
@@ -53,15 +55,16 @@ func (k Keeper) EndBlocker(ctx sdk.Context, matureUnbondingDelegations []staking
 }
 
 func (k Keeper) BurnUnbondedCoinAndUnlockedMultiStakingCoin(
-	ctx sdk.Context,
+	ctx context.Context,
 	multiStakerAddr sdk.AccAddress,
 	valAddr sdk.ValAddress,
 	unbondingHeight int64,
 	unbondAmount math.Int,
 ) (unlockedCoin sdk.Coin, err error) {
 	// get unlock record
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	unlockID := types.MultiStakingUnlockID(multiStakerAddr.String(), valAddr.String())
-	unlockEntry, found := k.GetUnlockEntryAtCreationHeight(ctx, unlockID, unbondingHeight)
+	unlockEntry, found := k.GetUnlockEntryAtCreationHeight(sdkCtx, unlockID, unbondingHeight)
 	if !found {
 		return sdk.Coin{}, fmt.Errorf("unlock entry not found")
 	}
@@ -75,25 +78,29 @@ func (k Keeper) BurnUnbondedCoinAndUnlockedMultiStakingCoin(
 		return sdk.Coin{}, fmt.Errorf("unlock amount greater than lock amount")
 	}
 
+	bondDenom, err := k.stakingKeeper.BondDenom(sdkCtx)
+	if err != nil {
+		panic(err)
+	}
 	// burn bonded coin
-	burnCoin := sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), unbondAmount)
-	err = k.BurnCoin(ctx, multiStakerAddr, burnCoin)
+	burnCoin := sdk.NewCoin(bondDenom, unbondAmount)
+	err = k.BurnCoin(sdkCtx, multiStakerAddr, burnCoin)
 	if err != nil {
 		return sdk.Coin{}, err
 	}
 	// burn remaining coin in unlock
 	remaningCoin := unlockEntry.UnlockingCoin.ToCoin().Sub(unlockedCoin)
-	err = k.bankKeeper.BurnCoins(ctx, types.ModuleName, sdk.NewCoins(remaningCoin))
+	err = k.bankKeeper.BurnCoins(sdkCtx, types.ModuleName, sdk.NewCoins(remaningCoin))
 	if err != nil {
 		return sdk.Coin{}, err
 	}
 
-	err = k.UnescrowCoinTo(ctx, multiStakerAddr, unlockedCoin)
+	err = k.UnescrowCoinTo(sdkCtx, multiStakerAddr, unlockedCoin)
 	if err != nil {
 		return sdk.Coin{}, err
 	}
 
-	err = k.DeleteUnlockEntryAtCreationHeight(ctx, unlockID, unbondingHeight)
+	err = k.DeleteUnlockEntryAtCreationHeight(sdkCtx, unlockID, unbondingHeight)
 	if err != nil {
 		return sdk.Coin{}, err
 	}

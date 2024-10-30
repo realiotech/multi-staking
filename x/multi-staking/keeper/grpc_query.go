@@ -7,7 +7,9 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/cosmos/cosmos-sdk/store/prefix"
+	"cosmossdk.io/math"
+	"cosmossdk.io/store/prefix"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
@@ -33,19 +35,19 @@ func NewQueryServerImpl(keeper Keeper) types.QueryServer {
 var _ types.QueryServer = queryServer{}
 
 // BondWeights implements types.QueryServer.
-func (k queryServer) MultiStakingCoinInfos(c context.Context, req *types.QueryMultiStakingCoinInfosRequest) (*types.QueryMultiStakingCoinInfosResponse, error) {
+func (k queryServer) MultiStakingCoinInfos(ctx context.Context, req *types.QueryMultiStakingCoinInfosRequest) (*types.QueryMultiStakingCoinInfosResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 
-	ctx := sdk.UnwrapSDKContext(c)
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	var infos []*types.MultiStakingCoinInfo
 
-	store := ctx.KVStore(k.storeKey)
+	store := sdkCtx.KVStore(k.storeKey)
 	coinInfoStore := prefix.NewStore(store, types.BondWeightKey)
 
 	pageRes, err := query.Paginate(coinInfoStore, req.Pagination, func(key []byte, value []byte) error {
-		bondCoinWeight := &sdk.Dec{}
+		bondCoinWeight := &math.LegacyDec{}
 		err := bondCoinWeight.Unmarshal(value)
 		if err != nil {
 			return err
@@ -66,14 +68,14 @@ func (k queryServer) MultiStakingCoinInfos(c context.Context, req *types.QueryMu
 }
 
 // BondWeight implements types.QueryServer.
-func (k queryServer) BondWeight(c context.Context, req *types.QueryBondWeightRequest) (*types.QueryBondWeightResponse, error) {
+func (k queryServer) BondWeight(ctx context.Context, req *types.QueryBondWeightRequest) (*types.QueryBondWeightResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 
-	ctx := sdk.UnwrapSDKContext(c)
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
-	weight, found := k.Keeper.GetBondWeight(ctx, req.Denom)
+	weight, found := k.Keeper.GetBondWeight(sdkCtx, req.Denom)
 
 	return &types.QueryBondWeightResponse{
 		Weight: weight,
@@ -82,15 +84,15 @@ func (k queryServer) BondWeight(c context.Context, req *types.QueryBondWeightReq
 }
 
 // MultiStakingLock implements types.QueryServer.
-func (k queryServer) MultiStakingLock(c context.Context, req *types.QueryMultiStakingLockRequest) (*types.QueryMultiStakingLockResponse, error) {
+func (k queryServer) MultiStakingLock(ctx context.Context, req *types.QueryMultiStakingLockRequest) (*types.QueryMultiStakingLockResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 
-	ctx := sdk.UnwrapSDKContext(c)
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	lockId := types.MultiStakingLockID(req.MultiStakerAddress, req.ValidatorAddress)
-	lock, found := k.Keeper.GetMultiStakingLock(ctx, lockId)
+	lock, found := k.Keeper.GetMultiStakingLock(sdkCtx, lockId)
 
 	return &types.QueryMultiStakingLockResponse{
 		Lock:  &lock,
@@ -99,15 +101,15 @@ func (k queryServer) MultiStakingLock(c context.Context, req *types.QueryMultiSt
 }
 
 // MultiStakingLocks implements types.QueryServer.
-func (k queryServer) MultiStakingLocks(c context.Context, req *types.QueryMultiStakingLocksRequest) (*types.QueryMultiStakingLocksResponse, error) {
+func (k queryServer) MultiStakingLocks(ctx context.Context, req *types.QueryMultiStakingLocksRequest) (*types.QueryMultiStakingLocksResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 
-	ctx := sdk.UnwrapSDKContext(c)
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	var locks []*types.MultiStakingLock
 
-	store := ctx.KVStore(k.storeKey)
+	store := sdkCtx.KVStore(k.storeKey)
 	lockStore := prefix.NewStore(store, types.MultiStakingLockPrefix)
 
 	pageRes, err := query.Paginate(lockStore, req.Pagination, func(key []byte, value []byte) error {
@@ -127,15 +129,15 @@ func (k queryServer) MultiStakingLocks(c context.Context, req *types.QueryMultiS
 }
 
 // MultiStakingUnlock implements types.QueryServer.
-func (k queryServer) MultiStakingUnlock(c context.Context, req *types.QueryMultiStakingUnlockRequest) (*types.QueryMultiStakingUnlockResponse, error) {
+func (k queryServer) MultiStakingUnlock(ctx context.Context, req *types.QueryMultiStakingUnlockRequest) (*types.QueryMultiStakingUnlockResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 
-	ctx := sdk.UnwrapSDKContext(c)
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	unlockId := types.MultiStakingUnlockID(req.MultiStakerAddress, req.ValidatorAddress)
-	unlock, found := k.Keeper.GetMultiStakingUnlock(ctx, unlockId)
+	unlock, found := k.Keeper.GetMultiStakingUnlock(sdkCtx, unlockId)
 
 	return &types.QueryMultiStakingUnlockResponse{
 		Unlock: &unlock,
@@ -144,15 +146,15 @@ func (k queryServer) MultiStakingUnlock(c context.Context, req *types.QueryMulti
 }
 
 // MultiStakingUnlocks implements types.QueryServer.
-func (k queryServer) MultiStakingUnlocks(c context.Context, req *types.QueryMultiStakingUnlocksRequest) (*types.QueryMultiStakingUnlocksResponse, error) {
+func (k queryServer) MultiStakingUnlocks(ctx context.Context, req *types.QueryMultiStakingUnlocksRequest) (*types.QueryMultiStakingUnlocksResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 
-	ctx := sdk.UnwrapSDKContext(c)
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	var unlocks []*types.MultiStakingUnlock
 
-	store := ctx.KVStore(k.storeKey)
+	store := sdkCtx.KVStore(k.storeKey)
 	unlockStore := prefix.NewStore(store, types.MultiStakingUnlockPrefix)
 
 	pageRes, err := query.Paginate(unlockStore, req.Pagination, func(key []byte, value []byte) error {
@@ -172,32 +174,32 @@ func (k queryServer) MultiStakingUnlocks(c context.Context, req *types.QueryMult
 }
 
 // ValidatorMultiStakingCoin implements types.QueryServer.
-func (k queryServer) ValidatorMultiStakingCoin(c context.Context, req *types.QueryValidatorMultiStakingCoinRequest) (*types.QueryValidatorMultiStakingCoinResponse, error) {
+func (k queryServer) ValidatorMultiStakingCoin(ctx context.Context, req *types.QueryValidatorMultiStakingCoinRequest) (*types.QueryValidatorMultiStakingCoinResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 
-	ctx := sdk.UnwrapSDKContext(c)
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	valAcc, err := sdk.ValAddressFromBech32(req.ValidatorAddr)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid validator address")
 	}
 
-	denom := k.Keeper.GetValidatorMultiStakingCoin(ctx, valAcc)
+	denom := k.Keeper.GetValidatorMultiStakingCoin(sdkCtx, valAcc)
 
 	return &types.QueryValidatorMultiStakingCoinResponse{
 		Denom: denom,
 	}, nil
 }
 
-func (k queryServer) Validators(c context.Context, req *types.QueryValidatorsRequest) (*types.QueryValidatorsResponse, error) {
-	ctx := sdk.UnwrapSDKContext(c)
+func (k queryServer) Validators(ctx context.Context, req *types.QueryValidatorsRequest) (*types.QueryValidatorsResponse, error) {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	sdkReq := stakingtypes.QueryValidatorsRequest{
 		Status:     req.Status,
 		Pagination: req.Pagination,
 	}
 
-	resp, err := k.stakingQuerier.Validators(c, &sdkReq)
+	resp, err := k.stakingQuerier.Validators(ctx, &sdkReq)
 	if err != nil {
 		return nil, err
 	}
@@ -209,7 +211,7 @@ func (k queryServer) Validators(c context.Context, req *types.QueryValidatorsReq
 			return nil, status.Error(codes.InvalidArgument, "invalid validator address")
 		}
 
-		denom := k.Keeper.GetValidatorMultiStakingCoin(ctx, valAcc)
+		denom := k.Keeper.GetValidatorMultiStakingCoin(sdkCtx, valAcc)
 		valInfo := types.ValidatorInfo{
 			OperatorAddress:   val.OperatorAddress,
 			ConsensusPubkey:   val.ConsensusPubkey,
@@ -230,7 +232,7 @@ func (k queryServer) Validators(c context.Context, req *types.QueryValidatorsReq
 	return &types.QueryValidatorsResponse{Validators: vals, Pagination: resp.Pagination}, nil
 }
 
-func (k queryServer) Validator(c context.Context, req *types.QueryValidatorRequest) (*types.QueryValidatorResponse, error) {
+func (k queryServer) Validator(ctx context.Context, req *types.QueryValidatorRequest) (*types.QueryValidatorResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -244,13 +246,13 @@ func (k queryServer) Validator(c context.Context, req *types.QueryValidatorReque
 		return nil, err
 	}
 
-	ctx := sdk.UnwrapSDKContext(c)
-	validator, found := k.stakingKeeper.GetValidator(ctx, valAddr)
-	if !found {
-		return nil, status.Errorf(codes.NotFound, "validator %s not found", req.ValidatorAddr)
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	validator, err := k.stakingKeeper.GetValidator(sdkCtx, valAddr)
+	if err != nil {
+		return nil, status.Errorf(codes.NotFound, "failed to get validator with address %s: %s", req.ValidatorAddr, err.Error())
 	}
 
-	denom := k.Keeper.GetValidatorMultiStakingCoin(ctx, valAddr)
+	denom := k.Keeper.GetValidatorMultiStakingCoin(sdkCtx, valAddr)
 	valInfo := types.ValidatorInfo{
 		OperatorAddress:   validator.OperatorAddress,
 		ConsensusPubkey:   validator.ConsensusPubkey,

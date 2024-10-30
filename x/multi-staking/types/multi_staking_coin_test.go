@@ -7,8 +7,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"cosmossdk.io/math"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func TestBondValue(t *testing.T) {
@@ -19,13 +17,13 @@ func TestBondValue(t *testing.T) {
 	}{
 		{
 			name:         "3001 x 0.3 = 900",
-			msCoin:       types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(3001), sdk.MustNewDecFromStr("0.3")),
-			expBondValue: sdk.NewInt(900),
+			msCoin:       types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(3001), math.LegacyMustNewDecFromStr("0.3")),
+			expBondValue: math.NewInt(900),
 		},
 		{
 			name:         "604 x 0.2 = 120",
-			msCoin:       types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(604), sdk.MustNewDecFromStr("0.2")),
-			expBondValue: sdk.NewInt(120),
+			msCoin:       types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(604), math.LegacyMustNewDecFromStr("0.2")),
+			expBondValue: math.NewInt(120),
 		},
 	}
 
@@ -46,29 +44,29 @@ func TestSafeAdd(t *testing.T) {
 	}{
 		{
 			name:         "success",
-			originMSCoin: types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(100000), sdk.MustNewDecFromStr("0.3")),
-			addingMSCoin: types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(23456), sdk.MustNewDecFromStr("0.3")),
-			expMSCoin:    types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(123456), sdk.MustNewDecFromStr("0.3")),
+			originMSCoin: types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(100000), math.LegacyMustNewDecFromStr("0.3")),
+			addingMSCoin: types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(23456), math.LegacyMustNewDecFromStr("0.3")),
+			expMSCoin:    types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(123456), math.LegacyMustNewDecFromStr("0.3")),
 			expErr:       false,
 		},
 		{
 			name:         "success and change bond weight",
-			originMSCoin: types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(100000), sdk.OneDec()),
-			addingMSCoin: types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(200000), sdk.MustNewDecFromStr("0.25")),
-			expMSCoin:    types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(300000), sdk.MustNewDecFromStr("0.5")),
+			originMSCoin: types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(100000), math.LegacyOneDec()),
+			addingMSCoin: types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(200000), math.LegacyMustNewDecFromStr("0.25")),
+			expMSCoin:    types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(300000), math.LegacyMustNewDecFromStr("0.5")),
 			expErr:       false,
 		},
 		{
 			name:         "success from zero coin",
-			originMSCoin: types.NewMultiStakingCoin(MultiStakingDenomA, sdk.ZeroInt(), sdk.MustNewDecFromStr("0.3")),
-			addingMSCoin: types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(23456), sdk.MustNewDecFromStr("0.3")),
-			expMSCoin:    types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(23456), sdk.MustNewDecFromStr("0.3")),
+			originMSCoin: types.NewMultiStakingCoin(MultiStakingDenomA, math.ZeroInt(), math.LegacyMustNewDecFromStr("0.3")),
+			addingMSCoin: types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(23456), math.LegacyMustNewDecFromStr("0.3")),
+			expMSCoin:    types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(23456), math.LegacyMustNewDecFromStr("0.3")),
 			expErr:       false,
 		},
 		{
 			name:         "denom mismatch",
-			originMSCoin: types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(100000), sdk.MustNewDecFromStr("0.3")),
-			addingMSCoin: types.NewMultiStakingCoin(MultiStakingDenomB, sdk.NewInt(23456), sdk.MustNewDecFromStr("0.3")),
+			originMSCoin: types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(100000), math.LegacyMustNewDecFromStr("0.3")),
+			addingMSCoin: types.NewMultiStakingCoin(MultiStakingDenomB, math.NewInt(23456), math.LegacyMustNewDecFromStr("0.3")),
 			expErr:       true,
 		},
 	}
@@ -99,21 +97,21 @@ func TestSafeSub(t *testing.T) {
 	}{
 		{
 			name:      "success",
-			msCoinA:   types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(123456), sdk.MustNewDecFromStr("0.3")),
-			msCoinB:   types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(23456), sdk.MustNewDecFromStr("0.3")),
-			expMSCoin: types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(100000), sdk.MustNewDecFromStr("0.3")),
+			msCoinA:   types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(123456), math.LegacyMustNewDecFromStr("0.3")),
+			msCoinB:   types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(23456), math.LegacyMustNewDecFromStr("0.3")),
+			expMSCoin: types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(100000), math.LegacyMustNewDecFromStr("0.3")),
 			expErr:    false,
 		},
 		{
 			name:    "denom mismatch",
-			msCoinA: types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(100000), sdk.MustNewDecFromStr("0.3")),
-			msCoinB: types.NewMultiStakingCoin(MultiStakingDenomB, sdk.NewInt(23456), sdk.MustNewDecFromStr("0.3")),
+			msCoinA: types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(100000), math.LegacyMustNewDecFromStr("0.3")),
+			msCoinB: types.NewMultiStakingCoin(MultiStakingDenomB, math.NewInt(23456), math.LegacyMustNewDecFromStr("0.3")),
 			expErr:  true,
 		},
 		{
 			name:    "insufficient amount",
-			msCoinA: types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(100000), sdk.MustNewDecFromStr("0.3")),
-			msCoinB: types.NewMultiStakingCoin(MultiStakingDenomA, sdk.NewInt(234567), sdk.MustNewDecFromStr("0.3")),
+			msCoinA: types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(100000), math.LegacyMustNewDecFromStr("0.3")),
+			msCoinB: types.NewMultiStakingCoin(MultiStakingDenomA, math.NewInt(234567), math.LegacyMustNewDecFromStr("0.3")),
 			expErr:  true,
 		},
 	}

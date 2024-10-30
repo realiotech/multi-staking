@@ -19,7 +19,7 @@ func (coin MultiStakingCoin) ToCoin() sdk.Coin {
 	return sdk.NewCoin(coin.Denom, coin.Amount)
 }
 
-func NewMultiStakingCoin(denom string, amount math.Int, weight sdk.Dec) MultiStakingCoin {
+func NewMultiStakingCoin(denom string, amount math.Int, weight math.LegacyDec) MultiStakingCoin {
 	return MultiStakingCoin{Denom: denom, Amount: amount, BondWeight: weight}
 }
 

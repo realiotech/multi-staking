@@ -8,6 +8,8 @@ import (
 	"os"
 	"time"
 
+	multistakingtypes "github.com/realio-tech/multi-staking-module/x/multi-staking/types"
+
 	"cosmossdk.io/math"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -78,18 +80,21 @@ func AppStateFn(cdc codec.JSONCodec, simManager *module.SimulationManager) simty
 			panic(err)
 		}
 
-		stakingStateBz, ok := rawState[stakingtypes.ModuleName]
+		multiStakingStateBz, ok := rawState[multistakingtypes.ModuleName]
 		if !ok {
 			panic("staking genesis state is missing")
 		}
 
-		stakingState := new(stakingtypes.GenesisState)
-		err = cdc.UnmarshalJSON(stakingStateBz, stakingState)
+		multiStakingState := new(multistakingtypes.GenesisState)
+		err = cdc.UnmarshalJSON(multiStakingStateBz, multiStakingState)
 		if err != nil {
 			panic(err)
 		}
+
+		stakingState := multiStakingState.StakingGenesisState
+
 		// compute not bonded balance
-		notBondedTokens := sdk.ZeroInt()
+		notBondedTokens := math.ZeroInt()
 		for _, val := range stakingState.Validators {
 			if val.Status != stakingtypes.Unbonded {
 				continue
@@ -115,7 +120,7 @@ func AppStateFn(cdc codec.JSONCodec, simManager *module.SimulationManager) simty
 		})
 
 		// change appState back
-		rawState[stakingtypes.ModuleName] = cdc.MustMarshalJSON(stakingState)
+		rawState[multistakingtypes.ModuleName] = cdc.MustMarshalJSON(multiStakingState)
 		rawState[banktypes.ModuleName] = cdc.MustMarshalJSON(bankState)
 
 		// replace appstate
@@ -140,11 +145,11 @@ func AppStateRandomizedFn(
 	// number of bonded accounts
 	var initialStake, numInitiallyBonded int64
 	appParams.GetOrGenerate(
-		cdc, sims.StakePerAccount, &initialStake, r,
+		sims.StakePerAccount, &initialStake, r,
 		func(r *rand.Rand) { initialStake = r.Int63n(1e12) },
 	)
 	appParams.GetOrGenerate(
-		cdc, sims.InitiallyBondedValidators, &numInitiallyBonded, r,
+		sims.InitiallyBondedValidators, &numInitiallyBonded, r,
 		func(r *rand.Rand) { numInitiallyBonded = int64(r.Intn(300)) },
 	)
 
@@ -170,6 +175,7 @@ func AppStateRandomizedFn(
 		InitialStake: math.NewInt(initialStake),
 		NumBonded:    numInitiallyBonded,
 		GenTimestamp: genesisTimestamp,
+		BondDenom:    sdk.DefaultBondDenom,
 	}
 
 	simManager.GenerateGenesisStates(simState)
@@ -220,7 +226,7 @@ func AppStateFromGenesisFileFn(r io.Reader, cdc codec.JSONCodec, genesisFile str
 
 		privKey := secp256k1.GenPrivKeyFromSecret(privkeySeed)
 
-		a, ok := acc.GetCachedValue().(authtypes.AccountI)
+		a, ok := acc.GetCachedValue().(sdk.AccountI)
 		if !ok {
 			panic("expected account")
 		}

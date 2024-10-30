@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
+	coreheader "cosmossdk.io/core/header"
 	"cosmossdk.io/math"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -33,8 +34,12 @@ type KeeperTestSuite struct {
 }
 
 func (suite *KeeperTestSuite) SetupTest() {
-	app := simapp.Setup(false)
-	ctx := app.BaseApp.NewContext(false, tmproto.Header{Height: app.LastBlockHeight() + 1})
+	app := simapp.Setup()
+	ctx := app.NewContextLegacy(false, tmproto.Header{Height: app.LastBlockHeight() + 1})
+
+	_, err := app.CrisisKeeper.ConstantFee.Get(ctx)
+	suite.Require().NoError(err)
+
 	multiStakingMsgServer := multistakingkeeper.NewMsgServerImpl(app.MultiStakingKeeper)
 
 	suite.app, suite.ctx, suite.msKeeper, suite.govKeeper, suite.msgServer = app, ctx, &app.MultiStakingKeeper, app.GovKeeper, multiStakingMsgServer
@@ -46,7 +51,6 @@ func TestKeeperTestSuite(t *testing.T) {
 
 func (suite *KeeperTestSuite) TestAdjustUnbondAmount() {
 	delAddr := test.GenAddress()
-	valDelAddr := test.GenAddress()
 	valPubKey := test.GenPubKey()
 	valAddr := sdk.ValAddress(valPubKey.Address())
 
@@ -60,32 +64,32 @@ func (suite *KeeperTestSuite) TestAdjustUnbondAmount() {
 		{
 			name: "success and not change adjust amount",
 			malleate: func(ctx sdk.Context, msgServer stakingtypes.MsgServer, msKeeper multistakingkeeper.Keeper) (sdk.Coin, error) {
-				multiStakingAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(1000))
-				delMsg := stakingtypes.NewMsgDelegate(delAddr, valAddr, multiStakingAmount)
+				multiStakingAmount := sdk.NewCoin(MultiStakingDenomA, math.NewInt(1000))
+				delMsg := stakingtypes.NewMsgDelegate(delAddr.String(), valAddr.String(), multiStakingAmount)
 				_, err := msgServer.Delegate(ctx, delMsg)
 				return multiStakingAmount, err
 			},
-			adjustAmount: sdk.NewInt(800),
-			expAmount:    sdk.NewInt(800),
+			adjustAmount: math.NewInt(800),
+			expAmount:    math.NewInt(800),
 			expErr:       false,
 		},
 		{
 			name: "success and reduce adjust amount",
 			malleate: func(ctx sdk.Context, msgServer stakingtypes.MsgServer, msKeeper multistakingkeeper.Keeper) (sdk.Coin, error) {
-				multiStakingAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(1000))
-				delMsg := stakingtypes.NewMsgDelegate(delAddr, valAddr, multiStakingAmount)
+				multiStakingAmount := sdk.NewCoin(MultiStakingDenomA, math.NewInt(1000))
+				delMsg := stakingtypes.NewMsgDelegate(delAddr.String(), valAddr.String(), multiStakingAmount)
 				_, err := msgServer.Delegate(ctx, delMsg)
 
 				return multiStakingAmount, err
 			},
-			adjustAmount: sdk.NewInt(2000),
-			expAmount:    sdk.NewInt(1000),
+			adjustAmount: math.NewInt(2000),
+			expAmount:    math.NewInt(1000),
 			expErr:       false,
 		},
 		{
 			name: "not found delegation",
 			malleate: func(ctx sdk.Context, msgServer stakingtypes.MsgServer, msKeeper multistakingkeeper.Keeper) (sdk.Coin, error) {
-				multiStakingAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(1000))
+				multiStakingAmount := sdk.NewCoin(MultiStakingDenomA, math.NewInt(1000))
 				return multiStakingAmount, nil
 			},
 			expErr: true,
@@ -97,14 +101,14 @@ func (suite *KeeperTestSuite) TestAdjustUnbondAmount() {
 		suite.Run(tc.name, func() {
 			suite.SetupTest()
 			newParam := stakingtypes.DefaultParams()
-			newParam.MinCommissionRate = sdk.MustNewDecFromStr("0.02")
+			newParam.MinCommissionRate = math.LegacyMustNewDecFromStr("0.02")
 			err := suite.app.StakingKeeper.SetParams(suite.ctx, newParam)
 			suite.Require().NoError(err)
-			suite.msKeeper.SetBondWeight(suite.ctx, MultiStakingDenomA, sdk.OneDec())
-			bondAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(1000))
-			userBalance := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(10000))
+			suite.msKeeper.SetBondWeight(suite.ctx, MultiStakingDenomA, math.LegacyOneDec())
+			bondAmount := sdk.NewCoin(MultiStakingDenomA, math.NewInt(1000))
+			userBalance := sdk.NewCoin(MultiStakingDenomA, math.NewInt(10000))
 			suite.FundAccount(delAddr, sdk.NewCoins(userBalance))
-			suite.FundAccount(valDelAddr, sdk.NewCoins(userBalance))
+			suite.FundAccount(sdk.AccAddress(valAddr), sdk.NewCoins(userBalance))
 
 			createMsg := stakingtypes.MsgCreateValidator{
 				Description: stakingtypes.Description{
@@ -115,12 +119,12 @@ func (suite *KeeperTestSuite) TestAdjustUnbondAmount() {
 					Details:         "test",
 				},
 				Commission: stakingtypes.CommissionRates{
-					Rate:          sdk.MustNewDecFromStr("0.05"),
-					MaxRate:       sdk.MustNewDecFromStr("0.1"),
-					MaxChangeRate: sdk.MustNewDecFromStr("0.05"),
+					Rate:          math.LegacyMustNewDecFromStr("0.05"),
+					MaxRate:       math.LegacyMustNewDecFromStr("0.1"),
+					MaxChangeRate: math.LegacyMustNewDecFromStr("0.05"),
 				},
-				MinSelfDelegation: sdk.NewInt(200),
-				DelegatorAddress:  valDelAddr.String(),
+				MinSelfDelegation: math.NewInt(200),
+				DelegatorAddress:  sdk.AccAddress(valAddr).String(),
 				ValidatorAddress:  valAddr.String(),
 				Pubkey:            codectypes.UnsafePackAny(valPubKey),
 				Value:             bondAmount,
@@ -157,56 +161,56 @@ func (suite *KeeperTestSuite) TestAdjustCancelUnbondAmount() {
 		{
 			name: "success and not change adjust amount",
 			malleate: func(ctx sdk.Context, msgServer stakingtypes.MsgServer, msKeeper multistakingkeeper.Keeper) (sdk.Coin, error) {
-				multiStakingAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(1000))
-				undelMsg := stakingtypes.NewMsgUndelegate(delAddr, valAddr, multiStakingAmount)
+				multiStakingAmount := sdk.NewCoin(MultiStakingDenomA, math.NewInt(1000))
+				undelMsg := stakingtypes.NewMsgUndelegate(delAddr.String(), valAddr.String(), multiStakingAmount)
 				_, err := msgServer.Undelegate(ctx, undelMsg)
 				return multiStakingAmount, err
 			},
-			adjustAmount: sdk.NewInt(800),
-			expAmount:    sdk.NewInt(800),
+			adjustAmount: math.NewInt(800),
+			expAmount:    math.NewInt(800),
 			expErr:       false,
 		},
 		{
 			name: "success with many unbonding delegations",
 			malleate: func(ctx sdk.Context, msgServer stakingtypes.MsgServer, msKeeper multistakingkeeper.Keeper) (sdk.Coin, error) {
-				multiStakingAmount1 := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(400))
-				undelMsg1 := stakingtypes.NewMsgUndelegate(delAddr, valAddr, multiStakingAmount1)
+				multiStakingAmount1 := sdk.NewCoin(MultiStakingDenomA, math.NewInt(400))
+				undelMsg1 := stakingtypes.NewMsgUndelegate(delAddr.String(), valAddr.String(), multiStakingAmount1)
 				_, err := msgServer.Undelegate(ctx, undelMsg1)
 				suite.Require().NoError(err)
 
-				multiStakingAmount2 := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(500))
-				undelMsg2 := stakingtypes.NewMsgUndelegate(delAddr, valAddr, multiStakingAmount2)
+				multiStakingAmount2 := sdk.NewCoin(MultiStakingDenomA, math.NewInt(500))
+				undelMsg2 := stakingtypes.NewMsgUndelegate(delAddr.String(), valAddr.String(), multiStakingAmount2)
 				_, err = msgServer.Undelegate(ctx, undelMsg2)
 				suite.Require().NoError(err)
 
-				multiStakingAmount3 := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(600))
-				undelMsg3 := stakingtypes.NewMsgUndelegate(delAddr, valAddr, multiStakingAmount3)
+				multiStakingAmount3 := sdk.NewCoin(MultiStakingDenomA, math.NewInt(600))
+				undelMsg3 := stakingtypes.NewMsgUndelegate(delAddr.String(), valAddr.String(), multiStakingAmount3)
 				_, err = msgServer.Undelegate(ctx, undelMsg3)
 				suite.Require().NoError(err)
 
 				return multiStakingAmount1, nil
 			},
-			adjustAmount: sdk.NewInt(1500),
-			expAmount:    sdk.NewInt(1500),
+			adjustAmount: math.NewInt(1500),
+			expAmount:    math.NewInt(1500),
 			expErr:       false,
 		},
 		{
 			name: "success and reduce adjust amount",
 			malleate: func(ctx sdk.Context, msgServer stakingtypes.MsgServer, msKeeper multistakingkeeper.Keeper) (sdk.Coin, error) {
-				multiStakingAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(1000))
-				undelMsg := stakingtypes.NewMsgUndelegate(delAddr, valAddr, multiStakingAmount)
+				multiStakingAmount := sdk.NewCoin(MultiStakingDenomA, math.NewInt(1000))
+				undelMsg := stakingtypes.NewMsgUndelegate(delAddr.String(), valAddr.String(), multiStakingAmount)
 				_, err := msgServer.Undelegate(ctx, undelMsg)
 
 				return multiStakingAmount, err
 			},
-			adjustAmount: sdk.NewInt(2000),
-			expAmount:    sdk.NewInt(1000),
+			adjustAmount: math.NewInt(2000),
+			expAmount:    math.NewInt(1000),
 			expErr:       false,
 		},
 		{
 			name: "not found delegation",
 			malleate: func(ctx sdk.Context, msgServer stakingtypes.MsgServer, msKeeper multistakingkeeper.Keeper) (sdk.Coin, error) {
-				multiStakingAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(1000))
+				multiStakingAmount := sdk.NewCoin(MultiStakingDenomA, math.NewInt(1000))
 				return multiStakingAmount, nil
 			},
 			expErr: true,
@@ -218,13 +222,14 @@ func (suite *KeeperTestSuite) TestAdjustCancelUnbondAmount() {
 		suite.Run(tc.name, func() {
 			suite.SetupTest()
 			newParam := stakingtypes.DefaultParams()
-			newParam.MinCommissionRate = sdk.MustNewDecFromStr("0.02")
+			newParam.MinCommissionRate = math.LegacyMustNewDecFromStr("0.02")
 			err := suite.app.StakingKeeper.SetParams(suite.ctx, newParam)
 			suite.Require().NoError(err)
-			suite.msKeeper.SetBondWeight(suite.ctx, MultiStakingDenomA, sdk.OneDec())
-			bondAmount := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(5000))
-			userBalance := sdk.NewCoin(MultiStakingDenomA, sdk.NewInt(10000))
+			suite.msKeeper.SetBondWeight(suite.ctx, MultiStakingDenomA, math.LegacyOneDec())
+			bondAmount := sdk.NewCoin(MultiStakingDenomA, math.NewInt(5000))
+			userBalance := sdk.NewCoin(MultiStakingDenomA, math.NewInt(10000))
 			suite.FundAccount(delAddr, sdk.NewCoins(userBalance))
+			suite.FundAccount(sdk.AccAddress(valAddr), sdk.NewCoins(userBalance))
 
 			createMsg := stakingtypes.MsgCreateValidator{
 				Description: stakingtypes.Description{
@@ -235,20 +240,27 @@ func (suite *KeeperTestSuite) TestAdjustCancelUnbondAmount() {
 					Details:         "test",
 				},
 				Commission: stakingtypes.CommissionRates{
-					Rate:          sdk.MustNewDecFromStr("0.05"),
-					MaxRate:       sdk.MustNewDecFromStr("0.1"),
-					MaxChangeRate: sdk.MustNewDecFromStr("0.05"),
+					Rate:          math.LegacyMustNewDecFromStr("0.05"),
+					MaxRate:       math.LegacyMustNewDecFromStr("0.1"),
+					MaxChangeRate: math.LegacyMustNewDecFromStr("0.05"),
 				},
-				MinSelfDelegation: sdk.NewInt(200),
-				DelegatorAddress:  delAddr.String(),
+				MinSelfDelegation: math.NewInt(200),
+				DelegatorAddress:  sdk.AccAddress(valAddr).String(),
 				ValidatorAddress:  valAddr.String(),
 				Pubkey:            codectypes.UnsafePackAny(valPubKey),
 				Value:             bondAmount,
 			}
 			_, err = suite.msgServer.CreateValidator(suite.ctx, &createMsg)
 			suite.Require().NoError(err)
+
+			delMsg := stakingtypes.NewMsgDelegate(delAddr.String(), valAddr.String(), bondAmount)
+			_, err = suite.msgServer.Delegate(suite.ctx, delMsg)
+			suite.Require().NoError(err)
+
 			_, err = tc.malleate(suite.ctx, suite.msgServer, *suite.msKeeper)
 			suite.Require().NoError(err)
+
+			suite.ctx = suite.ctx.WithBlockHeader(tmproto.Header{Time: time.Now()}).WithBlockHeight(1)
 
 			actualAmt, err := suite.msKeeper.AdjustCancelUnbondingAmount(suite.ctx, delAddr, valAddr, suite.ctx.BlockHeight(), tc.adjustAmount)
 
@@ -265,17 +277,23 @@ func (suite *KeeperTestSuite) TestAdjustCancelUnbondAmount() {
 // Todo: add CheckBalance; AddAccountWithCoin; FundAccount
 func (suite *KeeperTestSuite) NextBlock(jumpTime time.Duration) {
 	app := suite.app
-	app.EndBlock(abci.RequestEndBlock{Height: suite.ctx.BlockHeight()})
+	ctx := suite.ctx
+	_, err := app.FinalizeBlock(&abci.RequestFinalizeBlock{Height: ctx.BlockHeight(), Time: ctx.BlockTime()})
+	suite.Require().NoError(err)
+	_, err = app.Commit()
+	suite.Require().NoError(err)
+	newBlockTime := ctx.BlockTime().Add(jumpTime)
 
-	app.Commit()
+	header := ctx.BlockHeader()
+	header.Time = newBlockTime
+	header.Height++
 
-	newBlockTime := suite.ctx.BlockTime().Add(jumpTime)
-	nextHeight := suite.ctx.BlockHeight() + 1
-	newHeader := tmproto.Header{Height: nextHeight, Time: newBlockTime}
+	newCtx := app.BaseApp.NewUncachedContext(false, header).WithHeaderInfo(coreheader.Info{
+		Height: header.Height,
+		Time:   header.Time,
+	})
 
-	app.BeginBlock(abci.RequestBeginBlock{Header: newHeader})
-
-	suite.ctx = app.NewContext(false, newHeader)
+	suite.ctx = newCtx
 }
 
 // Todo: add CheckBalance; AddAccountWithCoin; FundAccount
