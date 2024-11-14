@@ -168,10 +168,9 @@ type SimApp struct {
 	memKeys map[string]*storetypes.MemoryStoreKey
 
 	// keepers
-	AccountKeeper    authkeeper.AccountKeeper
-	BankKeeper       bankkeeper.Keeper
-	CapabilityKeeper *capabilitykeeper.Keeper
-	// StakingKeeper      stakingkeeper.Keeper
+	AccountKeeper      authkeeper.AccountKeeper
+	BankKeeper         bankkeeper.Keeper
+	CapabilityKeeper   *capabilitykeeper.Keeper
 	MultiStakingKeeper multistakingkeeper.Keeper
 	SlashingKeeper     slashingkeeper.Keeper
 	MintKeeper         mintkeeper.Keeper

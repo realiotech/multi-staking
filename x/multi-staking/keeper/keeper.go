@@ -32,7 +32,6 @@ func NewKeeper(
 	key storetypes.StoreKey,
 	psStaking paramtypes.Subspace,
 ) *Keeper {
-
 	return &Keeper{
 		Keeper:        stakingkeeper.NewKeeper(cdc, key, accountKeeper, bankKeeper, psStaking),
 		cdc:           cdc,
