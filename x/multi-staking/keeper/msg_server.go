@@ -87,7 +87,6 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *stakingtypes.MsgC
 		Description:       msg.Description,
 		Commission:        msg.Commission,
 		MinSelfDelegation: msg.MinSelfDelegation,
-		DelegatorAddress:  msg.DelegatorAddress,
 		ValidatorAddress:  msg.ValidatorAddress,
 		Pubkey:            msg.Pubkey,
 		Value:             mintedBondCoin, // replace lock coin with bond coin

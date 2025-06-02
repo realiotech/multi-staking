@@ -189,17 +189,15 @@ func (am AppModule) EndBlock(ctx context.Context) ([]abci.ValidatorUpdate, error
 	}
 	// staking endblock
 	valUpdates, err := am.skAppModule.EndBlock(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	// update endblock multi-staking
 	am.keeper.EndBlocker(ctx, matureUnbondingDelegations)
 
 	return valUpdates, nil
 }
-
-// // EndBlock returns the end blocker for the staking module. It returns no validator
-// // updates.
-// func (am AppModule) EndBlock(ctx context.Context) ([]abci.ValidatorUpdate, error) {
-// 	return am.keeper.EndBlocker(ctx)
-// }
 
 // ConsensusVersion return module consensus version
 func (AppModule) ConsensusVersion() uint64 { return 3 }

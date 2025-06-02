@@ -180,12 +180,3 @@ func (k Keeper) AdjustCancelUnbondingAmount(ctx sdk.Context, delAcc sdk.AccAddre
 
 	return math.MinInt(totalUnbondingAmount, amount), nil
 }
-
-func (k Keeper) BondDenom(ctx sdk.Context) string {
-	bondDenom := k.GetParams(ctx).MainBondDenom
-	return bondDenom
-}
-
-func (k Keeper) IterateDelegations(ctx sdk.Context, delegator sdk.AccAddress, fn func(index int64, delegation stakingtypes.DelegationI) (stop bool)) {
-	k.stakingKeeper.IterateDelegations(ctx, delegator, fn)
-}

@@ -49,9 +49,10 @@ func (suite *KeeperTestSuite) TestMsUnlockEndBlocker() {
 			suite.SetupTest()
 
 			vals, err := suite.app.StakingKeeper.GetAllValidators(suite.ctx)
+			suite.NoError(err)
 			val := vals[0]
 			operatorAddr, err := sdk.ValAddressFromBech32(val.OperatorAddress)
-
+			suite.Require().NoError(err)
 			msDenom := suite.msKeeper.GetValidatorMultiStakingCoin(suite.ctx, operatorAddr)
 
 			msCoin := sdk.NewCoin(msDenom, tc.lockAmount)
@@ -80,7 +81,8 @@ func (suite *KeeperTestSuite) TestMsUnlockEndBlocker() {
 
 				// height 3
 				suite.ctx = suite.ctx.WithBlockHeight(3).WithBlockTime(suite.ctx.BlockTime().Add(time.Second))
-				suite.app.SlashingKeeper.Slash(suite.ctx, valConsAddr, tc.slashFactor, slashedPow, 2)
+				err = suite.app.SlashingKeeper.Slash(suite.ctx, valConsAddr, tc.slashFactor, slashedPow, 2)
+				require.NoError(suite.T(), err)
 			} else {
 				// height 3
 				suite.ctx = suite.ctx.WithBlockHeight(3).WithBlockTime(suite.ctx.BlockTime().Add(time.Second))
