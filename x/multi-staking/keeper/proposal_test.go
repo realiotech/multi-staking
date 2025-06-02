@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"cosmossdk.io/math"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -10,7 +11,7 @@ import (
 )
 
 func (suite *KeeperTestSuite) TestAddMultiStakingCoinProposal() {
-	bondWeight := sdk.NewDec(1)
+	bondWeight := math.LegacyNewDec(1)
 
 	for _, tc := range []struct {
 		desc      string
@@ -57,7 +58,7 @@ func (suite *KeeperTestSuite) TestAddMultiStakingCoinProposal() {
 
 			if !tc.shouldErr {
 				// store proposal
-				_, err = suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{legacyProposal}, "", tc.proposal.Title, tc.proposal.Description, proposer)
+				_, err = suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{legacyProposal}, "", tc.proposal.Title, tc.proposal.Description, proposer, false)
 				suite.Require().NoError(err)
 
 				// execute proposal
@@ -69,7 +70,7 @@ func (suite *KeeperTestSuite) TestAddMultiStakingCoinProposal() {
 				suite.Require().True(found)
 			} else {
 				// store proposal
-				_, err = suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{legacyProposal}, "", tc.proposal.Title, tc.proposal.Description, proposer)
+				_, err = suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{legacyProposal}, "", tc.proposal.Title, tc.proposal.Description, proposer, false)
 				suite.Require().Error(err)
 			}
 		})
@@ -77,7 +78,7 @@ func (suite *KeeperTestSuite) TestAddMultiStakingCoinProposal() {
 }
 
 func (suite *KeeperTestSuite) TestUpdateBondWeightProposal() {
-	bondWeight := sdk.NewDec(1)
+	bondWeight := math.LegacyNewDec(1)
 
 	for _, tc := range []struct {
 		desc      string
@@ -88,7 +89,7 @@ func (suite *KeeperTestSuite) TestUpdateBondWeightProposal() {
 		{
 			desc: "Success",
 			malleate: func(p *types.UpdateBondWeightProposal) {
-				oldBondWeight := sdk.NewDec(2)
+				oldBondWeight := math.LegacyNewDec(2)
 				suite.msKeeper.SetBondWeight(suite.ctx, p.Denom, oldBondWeight)
 			},
 			proposal: &types.UpdateBondWeightProposal{
@@ -122,7 +123,7 @@ func (suite *KeeperTestSuite) TestUpdateBondWeightProposal() {
 
 			if !tc.shouldErr {
 				// store proposal
-				_, err = suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{legacyProposal}, "", tc.proposal.Title, tc.proposal.Description, proposer)
+				_, err = suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{legacyProposal}, "", tc.proposal.Title, tc.proposal.Description, proposer, false)
 				suite.Require().NoError(err)
 
 				// execute proposal
@@ -135,7 +136,7 @@ func (suite *KeeperTestSuite) TestUpdateBondWeightProposal() {
 				suite.Require().True(weight.Equal(bondWeight))
 			} else {
 				// store proposal
-				_, err = suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{legacyProposal}, "", tc.proposal.Title, tc.proposal.Description, proposer)
+				_, err = suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{legacyProposal}, "", tc.proposal.Title, tc.proposal.Description, proposer, false)
 				suite.Require().Error(err)
 			}
 		})

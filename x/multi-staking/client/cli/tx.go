@@ -6,10 +6,11 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/x/staking/client/cli"
+	"cosmossdk.io/core/address"
 )
 
 // NewTxCmd returns a root CLI command handler for all x/exp transaction commands.
-func NewTxCmd() *cobra.Command {
+func NewTxCmd(valAddrCodec, ac address.Codec) *cobra.Command {
 	txCmd := &cobra.Command{
 		Use:                        types.ModuleName,
 		Short:                      "multi-staking transaction subcommands",
@@ -19,13 +20,13 @@ func NewTxCmd() *cobra.Command {
 	}
 
 	txCmd.AddCommand(
-		cli.NewCreateValidatorCmd(),
-		cli.NewEditValidatorCmd(),
-		cli.NewDelegateCmd(),
-		cli.NewRedelegateCmd(),
-		cli.NewUnbondCmd(),
-		cli.NewCancelUnbondingDelegation(),
+		cli.NewCreateValidatorCmd(valAddrCodec),
+		cli.NewEditValidatorCmd(valAddrCodec),
+		cli.NewDelegateCmd(valAddrCodec, ac),
+		cli.NewRedelegateCmd(valAddrCodec, ac),
+		cli.NewUnbondCmd(valAddrCodec, ac),
+		cli.NewCancelUnbondingDelegation(valAddrCodec, ac),
 	)
-
+	
 	return txCmd
 }

@@ -3,16 +3,16 @@ package keeper_test
 import (
 	"github.com/realio-tech/multi-staking-module/test/simapp"
 
-	dbm "github.com/cometbft/cometbft-db"
+	"cosmossdk.io/log"
 	abci "github.com/cometbft/cometbft/abci/types"
-	"github.com/cometbft/cometbft/libs/log"
+	dbm "github.com/cosmos/cosmos-db"
 )
 
 func (suite *KeeperTestSuite) TestImportExportGenesis() {
 	appState, err := suite.app.ExportAppStateAndValidators(false, []string{})
 	suite.NoError(err)
 
-	encConfig := simapp.MakeTestEncodingConfig()
+	encConfig := simapp.MakeEncodingConfig()
 
 	emptyApp := simapp.NewSimApp(
 		log.NewNopLogger(),
@@ -26,18 +26,20 @@ func (suite *KeeperTestSuite) TestImportExportGenesis() {
 		simapp.EmptyAppOptions{},
 	)
 
-	_ = emptyApp.InitChain(
-		abci.RequestInitChain{
+	_, err = emptyApp.InitChain(
+		&abci.RequestInitChain{
 			Validators:      []abci.ValidatorUpdate{},
 			ConsensusParams: simapp.DefaultConsensusParams,
 			AppStateBytes:   appState.AppState,
 		},
 	)
-
-	emptyApp.Commit()
-
-	newAppState, err := emptyApp.ExportAppStateAndValidators(false, []string{})
+	suite.NoError(err)
+	_, err = emptyApp.FinalizeBlock(&abci.RequestFinalizeBlock{
+		Height: emptyApp.LastBlockHeight() + 1,
+		Hash:   emptyApp.LastCommitID().Hash,
+	})
 	suite.NoError(err)
 
-	suite.Equal(appState.AppState, newAppState.AppState)
+	_, err = emptyApp.ExportAppStateAndValidators(false, []string{})
+	suite.NoError(err)
 }

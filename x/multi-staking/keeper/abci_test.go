@@ -9,6 +9,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	multistakingkeeper "github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
 )
 
 func (suite *KeeperTestSuite) TestMsUnlockEndBlocker() {
@@ -22,22 +24,22 @@ func (suite *KeeperTestSuite) TestMsUnlockEndBlocker() {
 	testCases := []struct {
 		name        string
 		lockAmount  math.Int
-		slashFactor sdk.Dec
+		slashFactor math.LegacyDec
 	}{
 		{
 			name:        "no slashing",
 			lockAmount:  math.NewInt(3788),
-			slashFactor: sdk.ZeroDec(),
+			slashFactor: math.LegacyZeroDec(),
 		},
 		{
 			name:        "slash half of lock coin",
 			lockAmount:  math.NewInt(123),
-			slashFactor: sdk.MustNewDecFromStr("0.5"),
+			slashFactor: math.LegacyMustNewDecFromStr("0.5"),
 		},
 		{
 			name:        "slash all of lock coin",
 			lockAmount:  math.NewInt(19090),
-			slashFactor: sdk.ZeroDec(),
+			slashFactor: math.LegacyZeroDec(),
 		},
 	}
 
@@ -47,10 +49,11 @@ func (suite *KeeperTestSuite) TestMsUnlockEndBlocker() {
 			// height 1
 			suite.SetupTest()
 
-			vals := suite.app.StakingKeeper.GetAllValidators(suite.ctx)
+			vals, err := suite.app.StakingKeeper.GetAllValidators(suite.ctx)
 			val := vals[0]
+			operatorAddr, err := sdk.ValAddressFromBech32(val.OperatorAddress)
 
-			msDenom := suite.msKeeper.GetValidatorMultiStakingCoin(suite.ctx, val.GetOperator())
+			msDenom := suite.msKeeper.GetValidatorMultiStakingCoin(suite.ctx, operatorAddr)
 
 			msCoin := sdk.NewCoin(msDenom, tc.lockAmount)
 
@@ -61,15 +64,15 @@ func (suite *KeeperTestSuite) TestMsUnlockEndBlocker() {
 				ValidatorAddress: val.OperatorAddress,
 				Amount:           msCoin,
 			}
-			_, err := suite.msgServer.Delegate(suite.ctx, delegateMsg)
+			_, err = suite.msgServer.Delegate(suite.ctx, delegateMsg)
 			suite.NoError(err)
 
 			// height 2
-			suite.NextBlock(time.Second)
+			suite.ctx = suite.ctx.WithBlockHeight(2).WithBlockTime(suite.ctx.BlockTime().Add(time.Second))
 
 			if !tc.slashFactor.IsZero() {
-				val, found := suite.app.StakingKeeper.GetValidator(suite.ctx, val.GetOperator())
-				require.True(suite.T(), found)
+				val, err := suite.app.StakingKeeper.GetValidator(suite.ctx, operatorAddr)
+				require.NoError(suite.T(), err)
 
 				slashedPow := suite.app.StakingKeeper.TokensToConsensusPower(suite.ctx, val.Tokens)
 
@@ -77,12 +80,11 @@ func (suite *KeeperTestSuite) TestMsUnlockEndBlocker() {
 				require.NoError(suite.T(), err)
 
 				// height 3
-				suite.NextBlock(time.Second)
-
+				suite.ctx = suite.ctx.WithBlockHeight(3).WithBlockTime(suite.ctx.BlockTime().Add(time.Second))
 				suite.app.SlashingKeeper.Slash(suite.ctx, valConsAddr, tc.slashFactor, slashedPow, 2)
 			} else {
 				// height 3
-				suite.NextBlock(time.Second)
+				suite.ctx = suite.ctx.WithBlockHeight(3).WithBlockTime(suite.ctx.BlockTime().Add(time.Second))
 			}
 
 			undelegateMsg := stakingtypes.MsgUndelegate{
@@ -91,17 +93,20 @@ func (suite *KeeperTestSuite) TestMsUnlockEndBlocker() {
 				Amount:           msCoin,
 			}
 
-			_, err = suite.msgServer.Undelegate(suite.ctx, &undelegateMsg)
+			msgServer := multistakingkeeper.NewMsgServerImpl(suite.app.MultiStakingKeeper)
+			_, err = msgServer.Undelegate(suite.ctx, &undelegateMsg)
+			suite.NoError(err)
+
+			ubds, err := suite.app.StakingKeeper.GetAllUnbondingDelegations(suite.ctx, msStaker)
 			suite.NoError(err)
 
 			// pass unbonding period
-			suite.NextBlock(time.Duration(1000000000000000000))
-			suite.NextBlock(time.Duration(1))
+			suite.ctx = suite.ctx.WithBlockTime(ubds[0].Entries[0].CompletionTime)
+			_, err = suite.app.EndBlocker(suite.ctx)
+			require.NoError(suite.T(), err)
 
 			unlockAmount := suite.app.BankKeeper.GetBalance(suite.ctx, msStaker, msDenom).Amount
-
-			expectedUnlockAmount := sdk.NewDecFromInt(tc.lockAmount).Mul(sdk.OneDec().Sub(tc.slashFactor)).TruncateInt()
-
+			expectedUnlockAmount := math.LegacyNewDecFromInt(tc.lockAmount).Mul(math.LegacyOneDec().Sub(tc.slashFactor)).TruncateInt()
 			suite.True(SoftEqualInt(unlockAmount, expectedUnlockAmount) || DiffLTEThanOne(unlockAmount, expectedUnlockAmount))
 		})
 	}

@@ -5,7 +5,7 @@ import (
 
 	sdkerrors "cosmossdk.io/errors"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/math"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
 
@@ -27,7 +27,7 @@ func init() {
 }
 
 // NewAddMultiStakingCoinProposal returns new instance of AddMultiStakingCoinProposal
-func NewAddMultiStakingCoinProposal(title, description, denom string, bondWeight sdk.Dec) govv1beta1.Content {
+func NewAddMultiStakingCoinProposal(title, description, denom string, bondWeight math.LegacyDec) govv1beta1.Content {
 	return &AddMultiStakingCoinProposal{
 		Title:       title,
 		Description: description,
@@ -74,7 +74,7 @@ func (abtp AddMultiStakingCoinProposal) String() string {
 }
 
 // NewUpdateBondWeightProposal returns new instance of UpdateBondWeightProposal
-func NewUpdateBondWeightProposal(title, description, denom string, bondWeight sdk.Dec) govv1beta1.Content {
+func NewUpdateBondWeightProposal(title, description, denom string, bondWeight math.LegacyDec) govv1beta1.Content {
 	return &UpdateBondWeightProposal{
 		Title:             title,
 		Description:       description,

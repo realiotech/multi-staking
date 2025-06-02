@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
@@ -11,12 +12,10 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-func (k Keeper) BeginBlocker(ctx sdk.Context) {
-}
-
 // need a way to better name this func
-func GetUnbondingHeightsAndUnbondedAmounts(ctx sdk.Context, unbondingDelegation stakingtypes.UnbondingDelegation) map[int64]math.Int {
-	ctxTime := ctx.BlockHeader().Time
+func GetUnbondingHeightsAndUnbondedAmounts(ctx context.Context, unbondingDelegation stakingtypes.UnbondingDelegation) map[int64]math.Int {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	ctxTime := sdkCtx.BlockHeader().Time
 
 	unbondingHeightsAndUnbondedAmounts := map[int64]math.Int{}
 	// loop through all the entries and complete unbonding mature entries
@@ -35,7 +34,7 @@ func GetUnbondingHeightsAndUnbondedAmounts(ctx sdk.Context, unbondingDelegation 
 	return unbondingHeightsAndUnbondedAmounts
 }
 
-func (k Keeper) EndBlocker(ctx sdk.Context, matureUnbondingDelegations []stakingtypes.UnbondingDelegation) {
+func (k Keeper) EndBlocker(ctx context.Context, matureUnbondingDelegations []stakingtypes.UnbondingDelegation) {
 	for _, unbond := range matureUnbondingDelegations {
 		multiStakerAddr, valAcc, err := types.AccAddrAndValAddrFromStrings(unbond.DelegatorAddress, unbond.ValidatorAddress)
 		if err != nil {
@@ -53,7 +52,7 @@ func (k Keeper) EndBlocker(ctx sdk.Context, matureUnbondingDelegations []staking
 }
 
 func (k Keeper) BurnUnbondedCoinAndUnlockedMultiStakingCoin(
-	ctx sdk.Context,
+	ctx context.Context,
 	multiStakerAddr sdk.AccAddress,
 	valAddr sdk.ValAddress,
 	unbondingHeight int64,
@@ -76,7 +75,11 @@ func (k Keeper) BurnUnbondedCoinAndUnlockedMultiStakingCoin(
 	}
 
 	// burn bonded coin
-	burnCoin := sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), unbondAmount)
+	bondDenom, err := k.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return sdk.Coin{}, err
+	}
+	burnCoin := sdk.NewCoin(bondDenom, unbondAmount)
 	err = k.BurnCoin(ctx, multiStakerAddr, burnCoin)
 	if err != nil {
 		return sdk.Coin{}, err

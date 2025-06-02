@@ -1,16 +1,16 @@
 package keeper
 
 import (
+	"context"
 	"fmt"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 
 	"cosmossdk.io/math"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func (k Keeper) GetUnlockEntryAtCreationHeight(ctx sdk.Context, unlockID types.UnlockID, creationHeight int64) (types.UnlockEntry, bool) {
+func (k Keeper) GetUnlockEntryAtCreationHeight(ctx context.Context, unlockID types.UnlockID, creationHeight int64) (types.UnlockEntry, bool) {
 	// get unbonded record
 	unlock, found := k.GetMultiStakingUnlock(ctx, unlockID)
 	if !found {
@@ -38,14 +38,15 @@ func (k Keeper) GetUnlockEntryAtCreationHeight(ctx sdk.Context, unlockID types.U
 // SetMultiStakingUnlockEntry adds an entry to the unbonding delegation at
 // the given addresses. It creates the unbonding delegation if it does not exist.
 func (k Keeper) SetMultiStakingUnlockEntry(
-	ctx sdk.Context, unlockID types.UnlockID,
+	ctx context.Context, unlockID types.UnlockID,
 	multistakingCoin types.MultiStakingCoin,
 ) types.MultiStakingUnlock {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	unlock, found := k.GetMultiStakingUnlock(ctx, unlockID)
 	if found {
-		unlock.AddEntry(ctx.BlockHeight(), multistakingCoin)
+		unlock.AddEntry(sdkCtx.BlockHeight(), multistakingCoin)
 	} else {
-		unlock = types.NewMultiStakingUnlock(unlockID, ctx.BlockHeight(), multistakingCoin)
+		unlock = types.NewMultiStakingUnlock(unlockID, sdkCtx.BlockHeight(), multistakingCoin)
 	}
 
 	k.SetMultiStakingUnlock(ctx, unlock)
@@ -53,7 +54,7 @@ func (k Keeper) SetMultiStakingUnlockEntry(
 }
 
 func (k Keeper) DeleteUnlockEntryAtCreationHeight(
-	ctx sdk.Context, unlockID types.UnlockID,
+	ctx context.Context, unlockID types.UnlockID,
 	creationHeight int64,
 ) error {
 	unlock, found := k.GetMultiStakingUnlock(ctx, unlockID)
@@ -73,7 +74,7 @@ func (k Keeper) DeleteUnlockEntryAtCreationHeight(
 }
 
 func (k Keeper) DecreaseUnlockEntryAmount(
-	ctx sdk.Context, unlockID types.UnlockID,
+	ctx context.Context, unlockID types.UnlockID,
 	amount math.Int, creationHeight int64,
 ) (types.MultiStakingCoin, error) {
 	unlockRecord, found := k.GetMultiStakingUnlock(ctx, unlockID)

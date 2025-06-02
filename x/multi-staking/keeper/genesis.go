@@ -5,6 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"cosmossdk.io/math"
 	abci "github.com/cometbft/cometbft/abci/types"
 )
 
@@ -48,7 +49,7 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 	})
 
 	var multiStakingCoinInfos []types.MultiStakingCoinInfo
-	k.BondWeightIterator(ctx, func(denom string, bondWeight sdk.Dec) bool {
+	k.BondWeightIterator(ctx, func(denom string, bondWeight math.LegacyDec) bool {
 		multiStakingCoinInfos = append(multiStakingCoinInfos, types.MultiStakingCoinInfo{
 			Denom:      denom,
 			BondWeight: bondWeight,

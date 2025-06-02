@@ -8,6 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	"cosmossdk.io/math"
 )
 
 func NewCmdSubmitAddMultiStakingCoinProposal() *cobra.Command {
@@ -21,7 +22,7 @@ func NewCmdSubmitAddMultiStakingCoinProposal() *cobra.Command {
 				return err
 			}
 
-			bondWeight, err := sdk.NewDecFromStr(args[3])
+			bondWeight, err := math.LegacyNewDecFromStr(args[3])
 			if err != nil {
 				return err
 			}
@@ -58,7 +59,7 @@ func NewCmdUpdateBondWeightProposal() *cobra.Command {
 				return err
 			}
 
-			bondWeight, err := sdk.NewDecFromStr(args[3])
+			bondWeight, err := math.LegacyNewDecFromStr(args[3])
 			if err != nil {
 				return err
 			}
