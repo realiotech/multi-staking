@@ -71,12 +71,12 @@ func (k msgServer) UpdateParams(goCtx context.Context, msg *stakingtypes.MsgUpda
 func (k msgServer) CreateValidator(goCtx context.Context, msg *stakingtypes.MsgCreateValidator) (*stakingtypes.MsgCreateValidatorResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	multiStakerAddr, valAcc, err := types.AccAddrAndValAddrFromStrings(msg.DelegatorAddress, msg.ValidatorAddress)
+	multiStakerAddr, err := k.keeper.validatorAddressCodec.StringToBytes(msg.ValidatorAddress)
 	if err != nil {
 		return nil, err
 	}
 
-	lockID := types.MultiStakingLockID(msg.DelegatorAddress, msg.ValidatorAddress)
+	lockID := types.MultiStakingLockID(sdk.AccAddress(multiStakerAddr).String(), msg.ValidatorAddress)
 
 	mintedBondCoin, err := k.keeper.LockCoinAndMintBondCoin(ctx, lockID, multiStakerAddr, multiStakerAddr, msg.Value)
 	if err != nil {
@@ -92,7 +92,7 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *stakingtypes.MsgC
 		Value:             mintedBondCoin, // replace lock coin with bond coin
 	}
 
-	k.keeper.SetValidatorMultiStakingCoin(ctx, valAcc, msg.Value.Denom)
+	k.keeper.SetValidatorMultiStakingCoin(ctx, sdk.ValAddress(multiStakerAddr), msg.Value.Denom)
 
 	return k.stakingMsgServer.CreateValidator(ctx, &sdkMsg)
 }
