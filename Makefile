@@ -77,7 +77,7 @@ proto-update-deps:
 ###############################################################################
 
 golangci_lint_cmd=golangci-lint
-golangci_version=v1.49.0
+golangci_version=v1.60.2
 
 lint:
 	@echo "--> Running linter"
