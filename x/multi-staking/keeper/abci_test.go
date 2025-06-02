@@ -3,14 +3,13 @@ package keeper_test
 import (
 	"time"
 
+	multistakingkeeper "github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
 	"github.com/stretchr/testify/require"
 
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-
-	multistakingkeeper "github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
 )
 
 func (suite *KeeperTestSuite) TestMsUnlockEndBlocker() {

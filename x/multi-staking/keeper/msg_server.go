@@ -16,8 +16,10 @@ type msgServer struct {
 	stakingMsgServer stakingtypes.MsgServer
 }
 
-var _ stakingtypes.MsgServer = msgServer{}
-var _ types.MsgServer = msgServer{}
+var (
+	_ stakingtypes.MsgServer = msgServer{}
+	_ types.MsgServer        = msgServer{}
+)
 
 func NewMultiStakingMsgServerImpl(keeper Keeper) types.MsgServer {
 	return &msgServer{

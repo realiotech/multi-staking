@@ -3,10 +3,11 @@ package types_test
 import (
 	"testing"
 
-	"cosmossdk.io/math"
 	"github.com/realio-tech/multi-staking-module/test"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	"github.com/stretchr/testify/require"
+
+	"cosmossdk.io/math"
 )
 
 func TestFindEntryIndexByHeight(t *testing.T) {

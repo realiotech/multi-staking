@@ -7,7 +7,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
 	v1beta1types "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	// v1types "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 )
 
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {

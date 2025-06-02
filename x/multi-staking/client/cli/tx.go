@@ -4,9 +4,10 @@ import (
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	"github.com/spf13/cobra"
 
+	"cosmossdk.io/core/address"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/x/staking/client/cli"
-	"cosmossdk.io/core/address"
 )
 
 // NewTxCmd returns a root CLI command handler for all x/exp transaction commands.
@@ -27,6 +28,6 @@ func NewTxCmd(valAddrCodec, ac address.Codec) *cobra.Command {
 		cli.NewUnbondCmd(valAddrCodec, ac),
 		cli.NewCancelUnbondingDelegation(valAddrCodec, ac),
 	)
-	
+
 	return txCmd
 }

@@ -8,25 +8,24 @@ import (
 
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 
+	addresscodec "cosmossdk.io/core/address"
+	corestore "cosmossdk.io/core/store"
+	"cosmossdk.io/log"
 	"cosmossdk.io/math"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-
-	corestore "cosmossdk.io/core/store"
-	"cosmossdk.io/log"
-	addresscodec "cosmossdk.io/core/address"
 )
 
 type Keeper struct {
-	storeService  corestore.KVStoreService
-	cdc           codec.BinaryCodec
-	accountKeeper types.AccountKeeper
-	stakingKeeper *stakingkeeper.Keeper
-	bankKeeper    types.BankKeeper
-	authority     string
+	storeService          corestore.KVStoreService
+	cdc                   codec.BinaryCodec
+	accountKeeper         types.AccountKeeper
+	stakingKeeper         *stakingkeeper.Keeper
+	bankKeeper            types.BankKeeper
+	authority             string
 	validatorAddressCodec addresscodec.Codec
 	consensusAddressCodec addresscodec.Codec
 }
@@ -42,12 +41,12 @@ func NewKeeper(
 	consensusAddressCodec addresscodec.Codec,
 ) *Keeper {
 	return &Keeper{
-		cdc:           cdc,
-		storeService:  storeService,
-		accountKeeper: accountKeeper,
-		stakingKeeper: stakingKeeper,
-		bankKeeper:    bankKeeper,
-		authority:     authority,
+		cdc:                   cdc,
+		storeService:          storeService,
+		accountKeeper:         accountKeeper,
+		stakingKeeper:         stakingKeeper,
+		bankKeeper:            bankKeeper,
+		authority:             authority,
 		validatorAddressCodec: validatorAddressCodec,
 		consensusAddressCodec: consensusAddressCodec,
 	}

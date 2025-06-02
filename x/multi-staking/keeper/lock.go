@@ -6,8 +6,8 @@ import (
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 
 	"cosmossdk.io/errors"
-
 	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )

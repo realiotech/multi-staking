@@ -5,8 +5,9 @@ import (
 
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"cosmossdk.io/math"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // AddMultiStakingCoinProposal handles the proposals to add a new bond token

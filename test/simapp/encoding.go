@@ -1,17 +1,18 @@
 package simapp
 
 import (
-	simappparams "cosmossdk.io/simapp/params"
+	"github.com/cosmos/gogoproto/proto"
+	"google.golang.org/protobuf/reflect/protoreflect"
 
+	simappparams "cosmossdk.io/simapp/params"
 	"cosmossdk.io/x/tx/signing"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/address"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/std"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
-	"github.com/cosmos/gogoproto/proto"
-	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
 // MakeEncodingConfig creates the EncodingConfig for realio network

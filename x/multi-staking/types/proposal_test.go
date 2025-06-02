@@ -3,9 +3,10 @@ package types_test
 import (
 	"testing"
 
-	"cosmossdk.io/math"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	"github.com/stretchr/testify/suite"
+
+	"cosmossdk.io/math"
 
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )

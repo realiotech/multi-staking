@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	sdkerrors "cosmossdk.io/errors"
-
 	"cosmossdk.io/math"
+
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
 
