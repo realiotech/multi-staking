@@ -17,6 +17,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	erc20keeper "github.com/cosmos/evm/x/erc20/keeper"
 )
 
 type Keeper struct {
@@ -25,6 +26,7 @@ type Keeper struct {
 	accountKeeper         types.AccountKeeper
 	stakingKeeper         *stakingkeeper.Keeper
 	bankKeeper            types.BankKeeper
+	erc20keeper           erc20keeper.Keeper
 	authority             string
 	validatorAddressCodec addresscodec.Codec
 	consensusAddressCodec addresscodec.Codec
@@ -35,6 +37,7 @@ func NewKeeper(
 	accountKeeper types.AccountKeeper,
 	stakingKeeper *stakingkeeper.Keeper,
 	bankKeeper types.BankKeeper,
+	erc20keeper erc20keeper.Keeper,
 	storeService corestore.KVStoreService,
 	authority string,
 	validatorAddressCodec addresscodec.Codec,
@@ -46,6 +49,7 @@ func NewKeeper(
 		accountKeeper:         accountKeeper,
 		stakingKeeper:         stakingKeeper,
 		bankKeeper:            bankKeeper,
+		erc20keeper:           erc20keeper,
 		authority:             authority,
 		validatorAddressCodec: validatorAddressCodec,
 		consensusAddressCodec: consensusAddressCodec,

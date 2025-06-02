@@ -24,6 +24,8 @@ func NewMultiStakingProposalHandler(k *keeper.Keeper) govv1beta1.Handler {
 		switch c := content.(type) {
 		case *types.AddMultiStakingCoinProposal:
 			return k.AddMultiStakingCoinProposal(ctx, c)
+		case *types.AddMultiStakingEVMCoinProposal:
+			return k.AddMultiStakingEVMCoinProposal(ctx, c)
 		case *types.UpdateBondWeightProposal:
 			return k.BondWeightProposal(ctx, c)
 		default:

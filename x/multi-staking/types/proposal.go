@@ -11,19 +11,22 @@ import (
 
 // Proposal types
 const (
-	ProposalTypeAddMultiStakingCoin string = "AddMultiStakingCoin"
-	ProposalTypeUpdateBondWeight    string = "UpdateBondWeight"
+	ProposalTypeAddMultiStakingCoin    string = "AddMultiStakingCoin"
+	ProposalTypeUpdateBondWeight       string = "UpdateBondWeight"
+	ProposalTypeAddMultiStakingEVMCoin string = "AddMultiStakingEVMCoin"
 )
 
 // Assert module proposals implement govtypes.Content at compile-time
 var (
 	_ govv1beta1.Content = &AddMultiStakingCoinProposal{}
 	_ govv1beta1.Content = &UpdateBondWeightProposal{}
+	_ govv1beta1.Content = &AddMultiStakingEVMCoinProposal{}
 )
 
 func init() {
 	govv1beta1.RegisterProposalType(ProposalTypeAddMultiStakingCoin)
 	govv1beta1.RegisterProposalType(ProposalTypeUpdateBondWeight)
+	govv1beta1.RegisterProposalType(ProposalTypeAddMultiStakingEVMCoin)
 }
 
 // NewAddMultiStakingCoinProposal returns new instance of AddMultiStakingCoinProposal
@@ -118,4 +121,51 @@ func (cbtp *UpdateBondWeightProposal) ValidateBasic() error {
 	}
 
 	return nil
+}
+
+// NewAddMultiStakingEVMCoinProposal returns new instance of AddMultiStakingEVMCoinProposal
+func NewAddMultiStakingEVMCoinProposal(title, description, contractAddr string, bondWeight math.LegacyDec) govv1beta1.Content {
+	return &AddMultiStakingEVMCoinProposal{
+		Title:           title,
+		Description:     description,
+		ContractAddress: contractAddr,
+		BondWeight:      &bondWeight,
+	}
+}
+
+// GetTitle returns the title of a AddMultiStakingCoinProposal
+func (abtp *AddMultiStakingEVMCoinProposal) GetTitle() string { return abtp.Title }
+
+// GetDescription returns the description of a AddMultiStakingCoinProposal
+func (abtp *AddMultiStakingEVMCoinProposal) GetDescription() string { return abtp.Description }
+
+// ProposalRoute returns router key for a AddMultiStakingCoinProposal
+func (*AddMultiStakingEVMCoinProposal) ProposalRoute() string { return RouterKey }
+
+// ProposalType returns proposal type for a AddMultiStakingCoinProposal
+func (*AddMultiStakingEVMCoinProposal) ProposalType() string {
+	return ProposalTypeAddMultiStakingCoin
+}
+
+// ValidateBasic runs basic stateless validity checks
+func (abtp *AddMultiStakingEVMCoinProposal) ValidateBasic() error {
+	err := govv1beta1.ValidateAbstract(abtp)
+	if err != nil {
+		return err
+	}
+
+	if abtp.ContractAddress == "" {
+		return sdkerrors.Wrap(ErrInvalidAddMultiStakingCoinProposal, "proposal bond token cannot be blank")
+	}
+
+	if !abtp.BondWeight.IsPositive() {
+		return sdkerrors.Wrap(ErrInvalidAddMultiStakingCoinProposal, "proposal bond token weight must be positive")
+	}
+
+	return nil
+}
+
+// String implements the Stringer interface.
+func (abtp AddMultiStakingEVMCoinProposal) String() string {
+	return fmt.Sprintf("AddMultiStakingEVMCoinProposal: Title: %s Description: %s Denom: %s TokenWeight: %s", abtp.Title, abtp.Description, abtp.ContractAddress, abtp.BondWeight)
 }
