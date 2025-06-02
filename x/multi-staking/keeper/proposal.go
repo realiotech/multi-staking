@@ -5,6 +5,8 @@ import (
 
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 
+	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -19,7 +21,7 @@ func (k Keeper) AddMultiStakingCoinProposal(
 	}
 
 	bondWeight := *p.BondWeight
-	if bondWeight.LTE(sdk.ZeroDec()) {
+	if bondWeight.LTE(math.LegacyZeroDec()) {
 		return fmt.Errorf("Error MultiStakingCoin BondWeight %s invalid", bondWeight) //nolint:stylecheck
 	}
 
@@ -45,7 +47,7 @@ func (k Keeper) BondWeightProposal(
 	}
 
 	bondWeight := *p.UpdatedBondWeight
-	if bondWeight.LTE(sdk.ZeroDec()) {
+	if bondWeight.LTE(math.LegacyZeroDec()) {
 		return fmt.Errorf("Error MultiStakingCoin BondWeight %s invalid", bondWeight) //nolint:stylecheck
 	}
 

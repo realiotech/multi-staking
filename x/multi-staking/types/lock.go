@@ -43,7 +43,7 @@ func (multiStakingLock *MultiStakingLock) AddCoinToMultiStakingLock(addedCoin Mu
 	return err
 }
 
-func (m MultiStakingLock) GetBondWeight() sdk.Dec {
+func (m MultiStakingLock) GetBondWeight() math.LegacyDec {
 	return m.LockedCoin.BondWeight
 }
 

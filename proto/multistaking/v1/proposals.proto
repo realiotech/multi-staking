@@ -19,7 +19,7 @@ message AddMultiStakingCoinProposal {
   string denom = 3;
   string bond_weight = 4 [
     (cosmos_proto.scalar) = "cosmos.Dec",
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec"
   ];
 }
 
@@ -35,6 +35,6 @@ message UpdateBondWeightProposal {
   string denom = 3;
   string updated_bond_weight = 4 [
     (cosmos_proto.scalar) = "cosmos.Dec",
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec"
   ];
 }

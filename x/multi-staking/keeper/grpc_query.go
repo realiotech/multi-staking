@@ -7,7 +7,10 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/cosmos/cosmos-sdk/store/prefix"
+	"cosmossdk.io/math"
+	"cosmossdk.io/store/prefix"
+
+	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
@@ -41,11 +44,11 @@ func (k queryServer) MultiStakingCoinInfos(c context.Context, req *types.QueryMu
 	ctx := sdk.UnwrapSDKContext(c)
 	var infos []*types.MultiStakingCoinInfo
 
-	store := ctx.KVStore(k.storeKey)
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 	coinInfoStore := prefix.NewStore(store, types.BondWeightKey)
 
 	pageRes, err := query.Paginate(coinInfoStore, req.Pagination, func(key []byte, value []byte) error {
-		bondCoinWeight := &sdk.Dec{}
+		bondCoinWeight := &math.LegacyDec{}
 		err := bondCoinWeight.Unmarshal(value)
 		if err != nil {
 			return err
@@ -107,7 +110,7 @@ func (k queryServer) MultiStakingLocks(c context.Context, req *types.QueryMultiS
 	ctx := sdk.UnwrapSDKContext(c)
 	var locks []*types.MultiStakingLock
 
-	store := ctx.KVStore(k.storeKey)
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 	lockStore := prefix.NewStore(store, types.MultiStakingLockPrefix)
 
 	pageRes, err := query.Paginate(lockStore, req.Pagination, func(key []byte, value []byte) error {
@@ -152,7 +155,7 @@ func (k queryServer) MultiStakingUnlocks(c context.Context, req *types.QueryMult
 	ctx := sdk.UnwrapSDKContext(c)
 	var unlocks []*types.MultiStakingUnlock
 
-	store := ctx.KVStore(k.storeKey)
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 	unlockStore := prefix.NewStore(store, types.MultiStakingUnlockPrefix)
 
 	pageRes, err := query.Paginate(unlockStore, req.Pagination, func(key []byte, value []byte) error {
@@ -245,8 +248,8 @@ func (k queryServer) Validator(c context.Context, req *types.QueryValidatorReque
 	}
 
 	ctx := sdk.UnwrapSDKContext(c)
-	validator, found := k.stakingKeeper.GetValidator(ctx, valAddr)
-	if !found {
+	validator, err := k.stakingKeeper.GetValidator(ctx, valAddr)
+	if err != nil {
 		return nil, status.Errorf(codes.NotFound, "validator %s not found", req.ValidatorAddr)
 	}
 

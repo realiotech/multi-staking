@@ -6,7 +6,8 @@ import (
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	"github.com/stretchr/testify/suite"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/math"
+
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
 
@@ -26,7 +27,7 @@ func (suite *ProposalTestSuite) TestKeysTypes() {
 }
 
 func (suite *ProposalTestSuite) TestProposalString() {
-	testTokenWeight := sdk.OneDec()
+	testTokenWeight := math.LegacyOneDec()
 	testCases := []struct {
 		msg           string
 		proposal      govv1beta1.Content
@@ -55,16 +56,16 @@ func (suite *ProposalTestSuite) TestAddMultiStakingCoinProposal() {
 		title       string
 		description string
 		denom       string
-		bondWeight  sdk.Dec
+		bondWeight  math.LegacyDec
 		expectPass  bool
 	}{
 		// Valid tests
-		{msg: "Add bond token", title: "test", description: "test desc", denom: "token", bondWeight: sdk.OneDec(), expectPass: true},
+		{msg: "Add bond token", title: "test", description: "test desc", denom: "token", bondWeight: math.LegacyOneDec(), expectPass: true},
 
 		// Invalid tests
-		{msg: "Add bond token - invalid token", title: "test", description: "test desc", denom: "", bondWeight: sdk.OneDec(), expectPass: false},
-		{msg: "Add bond token - negative weight", title: "test", description: "test desc", denom: "token", bondWeight: sdk.MustNewDecFromStr("-1"), expectPass: false},
-		{msg: "Add bond token - zero weight", title: "test", description: "test desc", denom: "token", bondWeight: sdk.ZeroDec(), expectPass: false},
+		{msg: "Add bond token - invalid token", title: "test", description: "test desc", denom: "", bondWeight: math.LegacyOneDec(), expectPass: false},
+		{msg: "Add bond token - negative weight", title: "test", description: "test desc", denom: "token", bondWeight: math.LegacyMustNewDecFromStr("-1"), expectPass: false},
+		{msg: "Add bond token - zero weight", title: "test", description: "test desc", denom: "token", bondWeight: math.LegacyZeroDec(), expectPass: false},
 	}
 
 	for i, tc := range testCases {
@@ -85,16 +86,16 @@ func (suite *ProposalTestSuite) TestUpdateBondWeightProposal() {
 		title       string
 		description string
 		denom       string
-		bondWeight  sdk.Dec
+		bondWeight  math.LegacyDec
 		expectPass  bool
 	}{
 		// Valid tests
-		{msg: "Change bond token weight", title: "test", description: "test desc", denom: "token", bondWeight: sdk.OneDec(), expectPass: true},
+		{msg: "Change bond token weight", title: "test", description: "test desc", denom: "token", bondWeight: math.LegacyOneDec(), expectPass: true},
 
 		// Invalid tests
-		{msg: "Change bond token weight - invalid token", title: "test", description: "test desc", denom: "", bondWeight: sdk.OneDec(), expectPass: false},
-		{msg: "Change bond token weight - negative weight", title: "test", description: "test desc", denom: "token", bondWeight: sdk.MustNewDecFromStr("-1"), expectPass: false},
-		{msg: "Change bond token weight - zero weight", title: "test", description: "test desc", denom: "token", bondWeight: sdk.ZeroDec(), expectPass: false},
+		{msg: "Change bond token weight - invalid token", title: "test", description: "test desc", denom: "", bondWeight: math.LegacyOneDec(), expectPass: false},
+		{msg: "Change bond token weight - negative weight", title: "test", description: "test desc", denom: "token", bondWeight: math.LegacyMustNewDecFromStr("-1"), expectPass: false},
+		{msg: "Change bond token weight - zero weight", title: "test", description: "test desc", denom: "token", bondWeight: math.LegacyZeroDec(), expectPass: false},
 	}
 
 	for i, tc := range testCases {

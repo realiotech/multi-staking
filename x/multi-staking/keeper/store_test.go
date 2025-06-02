@@ -5,6 +5,8 @@ import (
 	multistakingkeeper "github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 
+	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -16,8 +18,8 @@ var (
 func (suite *KeeperTestSuite) TestSetBondWeight() {
 	suite.SetupTest()
 
-	gasWeight := sdk.OneDec()
-	govWeight := sdk.NewDecWithPrec(2, 4)
+	gasWeight := math.LegacyOneDec()
+	govWeight := math.LegacyNewDecWithPrec(2, 4)
 
 	suite.msKeeper.SetBondWeight(suite.ctx, gasDenom, gasWeight)
 	suite.msKeeper.SetBondWeight(suite.ctx, govDenom, govWeight)
@@ -102,8 +104,8 @@ func (suite *KeeperTestSuite) TestSetMultiStakingLock() {
 		},
 		LockedCoin: types.MultiStakingCoin{
 			Denom:      gasDenom,
-			Amount:     sdk.NewIntFromUint64(1000000),
-			BondWeight: sdk.NewDec(1),
+			Amount:     math.NewIntFromUint64(1000000),
+			BondWeight: math.LegacyNewDec(1),
 		},
 	}
 
@@ -140,19 +142,19 @@ func (suite *KeeperTestSuite) TestMultiStakingLockIterator() {
 	sampleLocks := []types.MultiStakingLock{
 		types.NewMultiStakingLock(
 			types.MultiStakingLockID(delA.String(), valA.String()),
-			types.NewMultiStakingCoin(gasDenom, sdk.NewInt(1000), sdk.OneDec()),
+			types.NewMultiStakingCoin(gasDenom, math.NewInt(1000), math.LegacyOneDec()),
 		),
 		types.NewMultiStakingLock(
 			types.MultiStakingLockID(delA.String(), valB.String()),
-			types.NewMultiStakingCoin(govDenom, sdk.NewInt(1234), sdk.MustNewDecFromStr("0.3")),
+			types.NewMultiStakingCoin(govDenom, math.NewInt(1234), math.LegacyMustNewDecFromStr("0.3")),
 		),
 		types.NewMultiStakingLock(
 			types.MultiStakingLockID(delB.String(), valA.String()),
-			types.NewMultiStakingCoin(gasDenom, sdk.NewInt(5678), sdk.OneDec()),
+			types.NewMultiStakingCoin(gasDenom, math.NewInt(5678), math.LegacyOneDec()),
 		),
 		types.NewMultiStakingLock(
 			types.MultiStakingLockID(delB.String(), valB.String()),
-			types.NewMultiStakingCoin(govDenom, sdk.NewInt(3000), sdk.MustNewDecFromStr("0.3")),
+			types.NewMultiStakingCoin(govDenom, math.NewInt(3000), math.LegacyMustNewDecFromStr("0.3")),
 		),
 	}
 
@@ -188,22 +190,22 @@ func (suite *KeeperTestSuite) TestMultiStakingUnlockIterator() {
 		types.NewMultiStakingUnlock(
 			types.MultiStakingUnlockID(delA.String(), valA.String()),
 			1,
-			types.NewMultiStakingCoin(gasDenom, sdk.NewInt(1000), sdk.OneDec()),
+			types.NewMultiStakingCoin(gasDenom, math.NewInt(1000), math.LegacyOneDec()),
 		),
 		types.NewMultiStakingUnlock(
 			types.MultiStakingUnlockID(delA.String(), valB.String()),
 			2,
-			types.NewMultiStakingCoin(govDenom, sdk.NewInt(1234), sdk.MustNewDecFromStr("0.3")),
+			types.NewMultiStakingCoin(govDenom, math.NewInt(1234), math.LegacyMustNewDecFromStr("0.3")),
 		),
 		types.NewMultiStakingUnlock(
 			types.MultiStakingUnlockID(delB.String(), valA.String()),
 			3,
-			types.NewMultiStakingCoin(gasDenom, sdk.NewInt(5678), sdk.OneDec()),
+			types.NewMultiStakingCoin(gasDenom, math.NewInt(5678), math.LegacyOneDec()),
 		),
 		types.NewMultiStakingUnlock(
 			types.MultiStakingUnlockID(delB.String(), valB.String()),
 			4,
-			types.NewMultiStakingCoin(govDenom, sdk.NewInt(3000), sdk.MustNewDecFromStr("0.3")),
+			types.NewMultiStakingCoin(govDenom, math.NewInt(3000), math.LegacyMustNewDecFromStr("0.3")),
 		),
 	}
 

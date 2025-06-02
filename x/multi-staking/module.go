@@ -11,6 +11,8 @@ import (
 	multistakingtypes "github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	"github.com/spf13/cobra"
 
+	"cosmossdk.io/core/appmodule"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -25,14 +27,27 @@ import (
 )
 
 var (
-	_ module.AppModule      = AppModule{}
-	_ module.AppModuleBasic = AppModuleBasic{}
+	_ module.AppModule       = AppModule{}
+	_ module.AppModuleBasic  = AppModuleBasic{}
+	_ module.HasServices     = AppModule{}
+	_ module.HasInvariants   = AppModule{}
+	_ module.HasABCIGenesis  = AppModule{}
+	_ module.HasABCIEndBlock = AppModule{}
+
+	_ appmodule.AppModule       = AppModule{}
+	_ appmodule.HasBeginBlocker = AppModule{}
 )
 
 // AppModule embeds the Cosmos SDK's x/staking AppModuleBasic.
 type AppModuleBasic struct {
 	cdc codec.Codec
 }
+
+// IsOnePerModuleType implements the depinject.OnePerModuleType interface.
+func (am AppModule) IsOnePerModuleType() {}
+
+// IsAppModule implements the appmodule.AppModule interface.
+func (am AppModule) IsAppModule() {}
 
 // Name returns the staking module's name.
 func (AppModuleBasic) Name() string {
@@ -72,8 +87,8 @@ func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *g
 }
 
 // GetTxCmd returns the staking module's root tx command.
-func (AppModuleBasic) GetTxCmd() *cobra.Command {
-	return cli.NewTxCmd()
+func (amb AppModuleBasic) GetTxCmd() *cobra.Command {
+	return cli.NewTxCmd(amb.cdc.InterfaceRegistry().SigningContext().ValidatorAddressCodec(), amb.cdc.InterfaceRegistry().SigningContext().AddressCodec())
 }
 
 // GetQueryCmd returns the multi-staking and staking module's root query command.
@@ -160,22 +175,29 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 }
 
 // BeginBlock returns the begin blocker for the multi-staking module.
-func (am AppModule) BeginBlock(ctx sdk.Context, requestBeginBlock abci.RequestBeginBlock) {
-	am.skAppModule.BeginBlock(ctx, requestBeginBlock)
+func (am AppModule) BeginBlock(ctx context.Context) error {
+	return am.skAppModule.BeginBlock(ctx)
 }
 
 // EndBlock returns the end blocker for the multi-staking module. It returns no validator
 // updates.
-func (am AppModule) EndBlock(ctx sdk.Context, requestEndBlock abci.RequestEndBlock) []abci.ValidatorUpdate {
+func (am AppModule) EndBlock(ctx context.Context) ([]abci.ValidatorUpdate, error) {
 	// calculate the amount of coin
-	matureUnbondingDelegations := am.keeper.GetMatureUnbondingDelegations(ctx)
+	matureUnbondingDelegations, err := am.keeper.GetMatureUnbondingDelegations(ctx)
+	if err != nil {
+		return nil, err
+	}
 	// staking endblock
-	valUpdates := am.skAppModule.EndBlock(ctx, requestEndBlock)
+	valUpdates, err := am.skAppModule.EndBlock(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	// update endblock multi-staking
 	am.keeper.EndBlocker(ctx, matureUnbondingDelegations)
 
-	return valUpdates
+	return valUpdates, nil
 }
 
 // ConsensusVersion return module consensus version
-func (AppModule) ConsensusVersion() uint64 { return 2 }
+func (AppModule) ConsensusVersion() uint64 { return 3 }
