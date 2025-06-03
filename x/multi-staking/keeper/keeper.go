@@ -18,6 +18,7 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	erc20keeper "github.com/cosmos/evm/x/erc20/keeper"
+	"bytes"
 )
 
 type Keeper struct {
@@ -183,4 +184,16 @@ func (k Keeper) AdjustCancelUnbondingAmount(ctx sdk.Context, delAcc sdk.AccAddre
 	}
 
 	return math.MinInt(totalUnbondingAmount, amount), nil
+}
+
+func (k Keeper) GetCosmosDenomFromErc20(ctx sdk.Context, contractAddress string) (string, error) {
+	tokenId := k.erc20keeper.GetTokenPairID(ctx, contractAddress) 
+	if bytes.Equal(tokenId, []byte{}) {
+		return "", fmt.Errorf("tokenId %s not found", contractAddress)
+	}
+	tokenPair, found := k.erc20keeper.GetTokenPair(ctx, tokenId)
+	if !found {
+		return "", fmt.Errorf("token pair %s not found", contractAddress)
+	}
+	return tokenPair.Denom, nil
 }

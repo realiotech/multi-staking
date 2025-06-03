@@ -8,8 +8,12 @@ import (
 	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
 
+	"bytes"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	erc20types "github.com/cosmos/evm/x/erc20/types"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 func (k Keeper) GetOrCreateMultiStakingLock(ctx context.Context, lockID types.LockID) types.MultiStakingLock {
@@ -25,7 +29,25 @@ func (k Keeper) EscrowCoinFrom(ctx context.Context, fromAcc sdk.AccAddress, coin
 }
 
 func (k Keeper) UnescrowCoinTo(ctx context.Context, toAcc sdk.AccAddress, coin sdk.Coin) error {
-	return k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, toAcc, sdk.NewCoins(coin))
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, toAcc, sdk.NewCoins(coin))
+	if err != nil {
+		return err
+	}
+	toAccHex := common.BytesToAddress(toAcc.Bytes()).Hex()
+	// If coin denom is erc20 token pair, convert back to er20 token
+	tokenId := k.erc20keeper.GetTokenPairID(sdkCtx, coin.Denom)
+	if !bytes.Equal(tokenId, []byte{}) {
+		_, err := k.erc20keeper.ConvertCoin(ctx, &erc20types.MsgConvertCoin{
+			Coin:     coin,
+			Receiver: toAccHex,
+			Sender:   toAcc.String(),
+		})
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (k Keeper) MintCoin(ctx context.Context, toAcc sdk.AccAddress, coin sdk.Coin) error {
