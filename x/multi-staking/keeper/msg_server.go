@@ -9,6 +9,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	erc20types "github.com/cosmos/evm/x/erc20/types"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 type msgServer struct {
@@ -286,4 +288,150 @@ func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *staking
 	}
 
 	return k.stakingMsgServer.CancelUnbondingDelegation(ctx, sdkMsg)
+}
+
+// CreateEVMValidator defines a method for creating a new validator using ERC20 token
+func (k msgServer) CreateEVMValidator(goCtx context.Context, msg *types.MsgCreateEVMValidator) (*types.MsgCreateEVMValidatorResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	// Converting ERC20 to cosmos coin
+	multiStakerAddr, err := k.keeper.validatorAddressCodec.StringToBytes(msg.ValidatorAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	multiStakerHex := common.BytesToAddress(multiStakerAddr).Hex()
+
+	_, err = k.keeper.erc20keeper.ConvertERC20(goCtx, &erc20types.MsgConvertERC20{
+		Sender:          multiStakerHex,
+		ContractAddress: msg.ContractAddress,
+		Amount:          msg.Value,
+		Receiver:        sdk.AccAddress(multiStakerAddr).String(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	tokenDenom, err := k.keeper.GetCosmosDenomFromErc20(ctx, msg.ContractAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	createValMsg := &stakingtypes.MsgCreateValidator{
+		Description:       msg.Description,
+		Commission:        msg.Commission,
+		MinSelfDelegation: msg.MinSelfDelegation,
+		ValidatorAddress:  msg.ValidatorAddress,
+		Pubkey:            msg.Pubkey,
+		Value:             sdk.NewCoin(tokenDenom, msg.Value),
+	}
+
+	_, err = k.CreateValidator(goCtx, createValMsg)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.MsgCreateEVMValidatorResponse{}, nil
+}
+
+// Delegate defines a method for performing a delegation of coins from a delegator to a validator
+func (k msgServer) DelegateEVM(goCtx context.Context, msg *types.MsgDelegateEVM) (*types.MsgDelegateEVMResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	delAddr := sdk.MustAccAddressFromBech32(msg.DelegatorAddress)
+	delHex := common.BytesToAddress(delAddr).Hex()
+
+	_, err := k.keeper.erc20keeper.ConvertERC20(goCtx, &erc20types.MsgConvertERC20{
+		Sender:          delHex,
+		ContractAddress: msg.ContractAddress,
+		Amount:          msg.Amount,
+		Receiver:        msg.DelegatorAddress,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	tokenDenom, err := k.keeper.GetCosmosDenomFromErc20(ctx, msg.ContractAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	delMsg := &stakingtypes.MsgDelegate{
+		DelegatorAddress: msg.DelegatorAddress,
+		ValidatorAddress: msg.ValidatorAddress,
+		Amount:           sdk.NewCoin(tokenDenom, msg.Amount),
+	}
+
+	_, err = k.Delegate(goCtx, delMsg)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.MsgDelegateEVMResponse{}, nil
+}
+
+// BeginRedelegate defines a method for performing a redelegation of coins from a delegator and source validator to a destination validator
+func (k msgServer) BeginRedelegateEVM(goCtx context.Context, msg *types.MsgBeginRedelegateEVM) (*types.MsgBeginRedelegateEVMResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	tokenDenom, err := k.keeper.GetCosmosDenomFromErc20(ctx, msg.ContractAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	redelegateMsg := &stakingtypes.MsgBeginRedelegate{
+		DelegatorAddress:    msg.DelegatorAddress,
+		ValidatorSrcAddress: msg.ValidatorSrcAddress,
+		ValidatorDstAddress: msg.ValidatorDstAddress,
+		Amount:              sdk.NewCoin(tokenDenom, msg.Amount),
+	}
+
+	res, err := k.BeginRedelegate(goCtx, redelegateMsg)
+	if err != nil {
+		return nil, err
+	}
+	return &types.MsgBeginRedelegateEVMResponse{CompletionTime: res.CompletionTime}, nil
+}
+
+// Undelegate defines a method for performing an undelegation from a delegate and a validator
+func (k msgServer) UndelegateEVM(goCtx context.Context, msg *types.MsgUndelegateEVM) (*types.MsgUndelegateEVMResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	tokenDenom, err := k.keeper.GetCosmosDenomFromErc20(ctx, msg.ContractAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	undelegateMsg := &stakingtypes.MsgUndelegate{
+		DelegatorAddress: msg.DelegatorAddress,
+		ValidatorAddress: msg.ValidatorAddress,
+		Amount:           sdk.NewCoin(tokenDenom, msg.Amount),
+	}
+
+	res, err := k.Undelegate(goCtx, undelegateMsg)
+	if err != nil {
+		return nil, err
+	}
+	return &types.MsgUndelegateEVMResponse{CompletionTime: res.CompletionTime, ContractAddress: msg.ContractAddress, Amount: msg.Amount}, nil
+}
+
+// CancelUnbondingDelegation defines a method for canceling the unbonding delegation
+// and delegate back to the validator.
+func (k msgServer) CancelUnbondingEVMDelegation(goCtx context.Context, msg *types.MsgCancelUnbondingEVMDelegation) (*types.MsgCancelUnbondingEVMDelegationResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	tokenDenom, err := k.keeper.GetCosmosDenomFromErc20(ctx, msg.ContractAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	cancelUnbondingMsg := &stakingtypes.MsgCancelUnbondingDelegation{
+		DelegatorAddress: msg.DelegatorAddress,
+		ValidatorAddress: msg.ValidatorAddress,
+		Amount:           sdk.NewCoin(tokenDenom, msg.Amount),
+		CreationHeight:   msg.CreationHeight,
+	}
+
+	_, err = k.CancelUnbondingDelegation(goCtx, cancelUnbondingMsg)
+	if err != nil {
+		return nil, err
+	}
+	return &types.MsgCancelUnbondingEVMDelegationResponse{}, nil
 }
