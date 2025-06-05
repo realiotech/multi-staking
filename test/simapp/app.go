@@ -8,6 +8,16 @@ import (
 	"path/filepath"
 
 	dbm "github.com/cosmos/cosmos-db"
+	srvflags "github.com/cosmos/evm/server/flags"
+	"github.com/cosmos/evm/x/erc20"
+	erc20keeper "github.com/cosmos/evm/x/erc20/keeper"
+	erc20types "github.com/cosmos/evm/x/erc20/types"
+	"github.com/cosmos/evm/x/feemarket"
+	feemarketkeeper "github.com/cosmos/evm/x/feemarket/keeper"
+	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
+	"github.com/cosmos/evm/x/vm"
+	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
 	multistaking "github.com/realio-tech/multi-staking-module/x/multi-staking"
@@ -93,22 +103,9 @@ import (
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmos "github.com/cometbft/cometbft/libs/os"
 
-	erc20keeper "github.com/cosmos/evm/x/erc20/keeper"
-	erc20types "github.com/cosmos/evm/x/erc20/types"
-	feemarketkeeper "github.com/cosmos/evm/x/feemarket/keeper"
-	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
-	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
-	evmtypes "github.com/cosmos/evm/x/vm/types"
 	"github.com/cosmos/ibc-go/modules/capability"
 	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
-
-	// NOTE: override ICS20 keeper to support IBC transfers of ERC20 tokens
-
-	srvflags "github.com/cosmos/evm/server/flags"
-	"github.com/cosmos/evm/x/vm"
-	"github.com/cosmos/evm/x/erc20"
-	"github.com/cosmos/evm/x/feemarket"
 )
 
 const appName = "SimApp"
@@ -506,7 +503,7 @@ func NewSimApp(
 	app.mm.SetOrderBeginBlockers(
 		upgradetypes.ModuleName, capabilitytypes.ModuleName, feemarkettypes.ModuleName,
 		evmtypes.ModuleName,
-		erc20types.ModuleName,minttypes.ModuleName, distrtypes.ModuleName, slashingtypes.ModuleName,
+		erc20types.ModuleName, minttypes.ModuleName, distrtypes.ModuleName, slashingtypes.ModuleName,
 		multistakingtypes.ModuleName,
 		evidencetypes.ModuleName, authtypes.ModuleName,
 		banktypes.ModuleName, govtypes.ModuleName, crisistypes.ModuleName, genutiltypes.ModuleName, authz.ModuleName, feegrant.ModuleName,
@@ -534,7 +531,7 @@ func NewSimApp(
 		slashingtypes.ModuleName, govtypes.ModuleName, minttypes.ModuleName, crisistypes.ModuleName,
 		evmtypes.ModuleName,
 		erc20types.ModuleName,
-		feemarkettypes.ModuleName,genutiltypes.ModuleName, evidencetypes.ModuleName, authz.ModuleName,
+		feemarkettypes.ModuleName, genutiltypes.ModuleName, evidencetypes.ModuleName, authz.ModuleName,
 		feegrant.ModuleName, paramstypes.ModuleName, upgradetypes.ModuleName,
 		vestingtypes.ModuleName, group.ModuleName,
 	)

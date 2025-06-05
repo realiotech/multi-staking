@@ -1,19 +1,18 @@
 package keeper
 
 import (
+	"bytes"
 	"context"
 
+	erc20types "github.com/cosmos/evm/x/erc20/types"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 
 	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
 
-	"bytes"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	erc20types "github.com/cosmos/evm/x/erc20/types"
-	"github.com/ethereum/go-ethereum/common"
 )
 
 func (k Keeper) GetOrCreateMultiStakingLock(ctx context.Context, lockID types.LockID) types.MultiStakingLock {

@@ -4,12 +4,12 @@ import (
 	"bytes"
 	"fmt"
 
+	erc20types "github.com/cosmos/evm/x/erc20/types"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	erc20types "github.com/cosmos/evm/x/erc20/types"
 )
 
 // AddMultiStakingCoinProposal handles the proposals to add a new bond token
@@ -45,14 +45,14 @@ func (k Keeper) AddMultiStakingEVMCoinProposal(
 	p *types.AddMultiStakingEVMCoinProposal,
 ) error {
 	// Check if the contract address is already registered in erc20 module
-	tokenId := k.erc20keeper.GetTokenPairID(ctx, p.ContractAddress) 
+	tokenId := k.erc20keeper.GetTokenPairID(ctx, p.ContractAddress)
 	if !bytes.Equal(tokenId, []byte{}) {
 		return fmt.Errorf("Error ERC20 token %s already registered", p.ContractAddress) //nolint:stylecheck
 	}
 
 	// Register the erc20 token
 	_, err := k.erc20keeper.RegisterERC20(ctx, &erc20types.MsgRegisterERC20{
-		Signer: k.authority,
+		Signer:         k.authority,
 		Erc20Addresses: []string{p.ContractAddress},
 	})
 	if err != nil {
@@ -60,7 +60,7 @@ func (k Keeper) AddMultiStakingEVMCoinProposal(
 	}
 
 	// Get the denom of the registered erc20 token
-	tokenId = k.erc20keeper.GetTokenPairID(ctx, p.ContractAddress) 
+	tokenId = k.erc20keeper.GetTokenPairID(ctx, p.ContractAddress)
 	if bytes.Equal(tokenId, []byte{}) {
 		return fmt.Errorf("tokenId %s not found", p.ContractAddress)
 	}

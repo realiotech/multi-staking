@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 
+	erc20types "github.com/cosmos/evm/x/erc20/types"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	erc20types "github.com/cosmos/evm/x/erc20/types"
-	"github.com/ethereum/go-ethereum/common"
 )
 
 type msgServer struct {
