@@ -100,6 +100,18 @@ func (k Keeper) GetMatureUnbondingDelegations(ctx context.Context) ([]stakingtyp
 			continue
 		}
 
+		// If duplicate unbondingDelegation, no append
+		exist := false
+		for _, existUbd := range matureUnbondingDelegations {
+			if existUbd.DelegatorAddress == unbondingDelegation.DelegatorAddress && existUbd.ValidatorAddress == unbondingDelegation.ValidatorAddress {
+				exist = true
+				break
+			}
+		}
+		if exist {
+			continue
+		}
+
 		matureUnbondingDelegations = append(matureUnbondingDelegations, unbondingDelegation)
 	}
 	return matureUnbondingDelegations, nil
