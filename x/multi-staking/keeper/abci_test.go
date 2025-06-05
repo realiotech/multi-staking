@@ -8,6 +8,7 @@ import (
 
 	"cosmossdk.io/math"
 
+	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
@@ -102,7 +103,7 @@ func (suite *KeeperTestSuite) TestMsUnlockEndBlocker() {
 			suite.NoError(err)
 
 			// pass unbonding period
-			suite.ctx = suite.ctx.WithBlockTime(ubds[0].Entries[0].CompletionTime)
+			suite.ctx = suite.ctx.WithBlockTime(ubds[0].Entries[0].CompletionTime).WithBlockGasMeter(storetypes.NewInfiniteGasMeter())
 			_, err = suite.app.EndBlocker(suite.ctx)
 			require.NoError(suite.T(), err)
 
