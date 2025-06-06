@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -196,16 +195,4 @@ func (k Keeper) AdjustCancelUnbondingAmount(ctx sdk.Context, delAcc sdk.AccAddre
 	}
 
 	return math.MinInt(totalUnbondingAmount, amount), nil
-}
-
-func (k Keeper) GetCosmosDenomFromErc20(ctx sdk.Context, contractAddress string) (string, error) {
-	tokenId := k.erc20keeper.GetTokenPairID(ctx, contractAddress)
-	if bytes.Equal(tokenId, []byte{}) {
-		return "", fmt.Errorf("tokenId %s not found", contractAddress)
-	}
-	tokenPair, found := k.erc20keeper.GetTokenPair(ctx, tokenId)
-	if !found {
-		return "", fmt.Errorf("token pair %s not found", contractAddress)
-	}
-	return tokenPair.Denom, nil
 }

@@ -3,6 +3,8 @@ package types
 import (
 	"fmt"
 
+	"github.com/ethereum/go-ethereum/common"
+
 	sdkerrors "cosmossdk.io/errors"
 	"cosmossdk.io/math"
 
@@ -154,8 +156,8 @@ func (abtp *AddMultiStakingEVMCoinProposal) ValidateBasic() error {
 		return err
 	}
 
-	if abtp.ContractAddress == "" {
-		return sdkerrors.Wrap(ErrInvalidAddMultiStakingCoinProposal, "proposal bond token cannot be blank")
+	if !common.IsHexAddress(abtp.ContractAddress) {
+		return sdkerrors.Wrap(ErrInvalidAddMultiStakingCoinProposal, "invalid contract address")
 	}
 
 	if !abtp.BondWeight.IsPositive() {

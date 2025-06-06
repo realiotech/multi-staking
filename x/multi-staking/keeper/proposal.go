@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	erc20types "github.com/cosmos/evm/x/erc20/types"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 
 	"cosmossdk.io/math"
@@ -60,15 +61,10 @@ func (k Keeper) AddMultiStakingEVMCoinProposal(
 	}
 
 	// Get the denom of the registered erc20 token
-	tokenId = k.erc20keeper.GetTokenPairID(ctx, p.ContractAddress)
-	if bytes.Equal(tokenId, []byte{}) {
-		return fmt.Errorf("tokenId %s not found", p.ContractAddress)
+	tokenDenom, err := k.erc20keeper.GetTokenDenom(ctx, common.HexToAddress(p.ContractAddress))
+	if err != nil {
+		return err
 	}
-	tokenPair, found := k.erc20keeper.GetTokenPair(ctx, tokenId)
-	if !found {
-		return fmt.Errorf("token pair %s not found", p.ContractAddress)
-	}
-	tokenDenom := tokenPair.Denom
 
 	// Register the token as a multistaking coin
 	return k.AddMultiStakingCoinProposal(ctx, &types.AddMultiStakingCoinProposal{

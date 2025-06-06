@@ -311,7 +311,7 @@ func (k msgServer) CreateEVMValidator(goCtx context.Context, msg *types.MsgCreat
 		return nil, err
 	}
 
-	tokenDenom, err := k.keeper.GetCosmosDenomFromErc20(ctx, msg.ContractAddress)
+	tokenDenom, err := k.keeper.erc20keeper.GetTokenDenom(ctx, common.HexToAddress(msg.ContractAddress))
 	if err != nil {
 		return nil, err
 	}
@@ -349,7 +349,7 @@ func (k msgServer) DelegateEVM(goCtx context.Context, msg *types.MsgDelegateEVM)
 		return nil, err
 	}
 
-	tokenDenom, err := k.keeper.GetCosmosDenomFromErc20(ctx, msg.ContractAddress)
+	tokenDenom, err := k.keeper.erc20keeper.GetTokenDenom(ctx, common.HexToAddress(msg.ContractAddress))
 	if err != nil {
 		return nil, err
 	}
@@ -371,7 +371,7 @@ func (k msgServer) DelegateEVM(goCtx context.Context, msg *types.MsgDelegateEVM)
 // BeginRedelegate defines a method for performing a redelegation of coins from a delegator and source validator to a destination validator
 func (k msgServer) BeginRedelegateEVM(goCtx context.Context, msg *types.MsgBeginRedelegateEVM) (*types.MsgBeginRedelegateEVMResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	tokenDenom, err := k.keeper.GetCosmosDenomFromErc20(ctx, msg.ContractAddress)
+	tokenDenom, err := k.keeper.erc20keeper.GetTokenDenom(ctx, common.HexToAddress(msg.ContractAddress))
 	if err != nil {
 		return nil, err
 	}
@@ -394,7 +394,7 @@ func (k msgServer) BeginRedelegateEVM(goCtx context.Context, msg *types.MsgBegin
 func (k msgServer) UndelegateEVM(goCtx context.Context, msg *types.MsgUndelegateEVM) (*types.MsgUndelegateEVMResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	tokenDenom, err := k.keeper.GetCosmosDenomFromErc20(ctx, msg.ContractAddress)
+	tokenDenom, err := k.keeper.erc20keeper.GetTokenDenom(ctx, common.HexToAddress(msg.ContractAddress))
 	if err != nil {
 		return nil, err
 	}
@@ -417,7 +417,7 @@ func (k msgServer) UndelegateEVM(goCtx context.Context, msg *types.MsgUndelegate
 func (k msgServer) CancelUnbondingEVMDelegation(goCtx context.Context, msg *types.MsgCancelUnbondingEVMDelegation) (*types.MsgCancelUnbondingEVMDelegationResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	tokenDenom, err := k.keeper.GetCosmosDenomFromErc20(ctx, msg.ContractAddress)
+	tokenDenom, err := k.keeper.erc20keeper.GetTokenDenom(ctx, common.HexToAddress(msg.ContractAddress))
 	if err != nil {
 		return nil, err
 	}
