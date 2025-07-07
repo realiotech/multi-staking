@@ -45,7 +45,7 @@ func (k Keeper) BondWeightProposal(
 	}
 
 	bondWeight := *p.UpdatedBondWeight
-	if bondWeight.LTE(sdk.ZeroDec()) {
+	if bondWeight.LT(sdk.ZeroDec()) {
 		return fmt.Errorf("Error MultiStakingCoin BondWeight %s invalid", bondWeight) //nolint:stylecheck
 	}
 
