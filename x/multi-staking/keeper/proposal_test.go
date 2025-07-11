@@ -114,7 +114,7 @@ func (suite *KeeperTestSuite) TestUpdateBondWeightProposal() {
 			shouldErr: true,
 		},
 		{
-			desc:     "Accept zero value",
+			desc: "Accept zero value",
 			malleate: func(p *types.UpdateBondWeightProposal) {
 				oldBondWeight := math.LegacyNewDec(1)
 				suite.msKeeper.SetBondWeight(suite.ctx, p.Denom, oldBondWeight)
@@ -127,7 +127,6 @@ func (suite *KeeperTestSuite) TestUpdateBondWeightProposal() {
 			},
 			shouldErr: false,
 		},
-		
 	} {
 		tc := tc
 		suite.Run(tc.desc, func() {
