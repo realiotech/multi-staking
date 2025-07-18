@@ -33,10 +33,10 @@ func (k Keeper) UnescrowCoinTo(ctx context.Context, toAcc sdk.AccAddress, coin s
 	if err != nil {
 		return err
 	}
-	toAccHex := common.BytesToAddress(toAcc.Bytes()).Hex()
 	// If coin denom is erc20 token pair, convert back to er20 token
 	tokenId := k.erc20keeper.GetTokenPairID(sdkCtx, coin.Denom)
 	if !bytes.Equal(tokenId, []byte{}) {
+		toAccHex := common.BytesToAddress(toAcc.Bytes()).Hex()
 		_, err := k.erc20keeper.ConvertCoin(ctx, &erc20types.MsgConvertCoin{
 			Coin:     coin,
 			Receiver: toAccHex,
