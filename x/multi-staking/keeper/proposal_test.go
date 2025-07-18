@@ -80,6 +80,7 @@ func (suite *KeeperTestSuite) TestAddMultiStakingCoinProposal() {
 
 func (suite *KeeperTestSuite) TestUpdateBondWeightProposal() {
 	bondWeight := math.LegacyNewDec(1)
+	zeroWeight := math.LegacyZeroDec()
 
 	for _, tc := range []struct {
 		desc      string
@@ -112,6 +113,20 @@ func (suite *KeeperTestSuite) TestUpdateBondWeightProposal() {
 			},
 			shouldErr: true,
 		},
+		{
+			desc: "Accept zero value",
+			malleate: func(p *types.UpdateBondWeightProposal) {
+				oldBondWeight := math.LegacyNewDec(1)
+				suite.msKeeper.SetBondWeight(suite.ctx, p.Denom, oldBondWeight)
+			},
+			proposal: &types.UpdateBondWeightProposal{
+				Title:             "Add multistaking coin",
+				Description:       "Add new multistaking coin",
+				Denom:             "stake1",
+				UpdatedBondWeight: &zeroWeight,
+			},
+			shouldErr: false,
+		},
 	} {
 		tc := tc
 		suite.Run(tc.desc, func() {
@@ -134,7 +149,7 @@ func (suite *KeeperTestSuite) TestUpdateBondWeightProposal() {
 
 				weight, found := suite.msKeeper.GetBondWeight(suite.ctx, tc.proposal.Denom)
 				suite.Require().True(found)
-				suite.Require().True(weight.Equal(bondWeight))
+				suite.Require().True(weight.Equal(*tc.proposal.UpdatedBondWeight))
 			} else {
 				// store proposal
 				_, err = suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{legacyProposal}, "", tc.proposal.Title, tc.proposal.Description, proposer, false)
