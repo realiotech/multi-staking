@@ -14,6 +14,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 
 	cdc.RegisterConcrete(&AddMultiStakingCoinProposal{}, "multistaking/AddMultiStakingCoinProposal", nil)
 	cdc.RegisterConcrete(&UpdateBondWeightProposal{}, "multistaking/UpdateBondWeightProposal", nil)
+	cdc.RegisterConcrete(&AddMultiStakingEVMCoinProposal{}, "multistaking/AddMultiStakingEVMCoinProposal", nil)
 	// this line is used by starport scaffolding # 2
 }
 
@@ -22,17 +23,14 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgUpdateMultiStakingParams{},
 		&AddMultiStakingCoinProposal{},
 		&UpdateBondWeightProposal{},
+		&AddMultiStakingEVMCoinProposal{},
 	)
 	registry.RegisterImplementations(
 		(*v1beta1types.Content)(nil),
 		&AddMultiStakingCoinProposal{},
 		&UpdateBondWeightProposal{},
+		&AddMultiStakingEVMCoinProposal{},
 	)
-	// registry.RegisterImplementations(
-	// 	(*v1types.MsgExecLegacyContent)(nil),
-	// 	&AddMultiStakingCoinProposal{},
-	// 	&UpdateBondWeightProposal{},
-	// )
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }

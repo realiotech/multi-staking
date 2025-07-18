@@ -5,25 +5,33 @@ package types
 
 import (
 	context "context"
+	cosmossdk_io_math "cosmossdk.io/math"
 	fmt "fmt"
 	_ "github.com/cosmos/cosmos-proto"
+	types1 "github.com/cosmos/cosmos-sdk/codec/types"
 	_ "github.com/cosmos/cosmos-sdk/types/msgservice"
+	_ "github.com/cosmos/cosmos-sdk/types/tx/amino"
+	types "github.com/cosmos/cosmos-sdk/x/staking/types"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	grpc1 "github.com/cosmos/gogoproto/grpc"
 	proto "github.com/cosmos/gogoproto/proto"
+	github_com_cosmos_gogoproto_types "github.com/cosmos/gogoproto/types"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	_ "google.golang.org/protobuf/types/known/timestamppb"
 	io "io"
 	math "math"
 	math_bits "math/bits"
+	time "time"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
+var _ = time.Kitchen
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
@@ -122,37 +130,526 @@ func (m *MsgUpdateMultiStakingParamsResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgUpdateMultiStakingParamsResponse proto.InternalMessageInfo
 
+// MsgCreateEVMValidator defines a message for creating a new validator using
+// ERC20 token.
+type MsgCreateEVMValidator struct {
+	Description       types.Description     `protobuf:"bytes,1,opt,name=description,proto3" json:"description"`
+	Commission        types.CommissionRates `protobuf:"bytes,2,opt,name=commission,proto3" json:"commission"`
+	MinSelfDelegation cosmossdk_io_math.Int `protobuf:"bytes,3,opt,name=min_self_delegation,json=minSelfDelegation,proto3,customtype=cosmossdk.io/math.Int" json:"min_self_delegation"`
+	// Deprecated: Use of Delegator Address in MsgCreateValidator is deprecated.
+	// The validator address bytes and delegator address bytes refer to the same
+	// account while creating validator (defer only in bech32 notation).
+	DelegatorAddress string                `protobuf:"bytes,4,opt,name=delegator_address,json=delegatorAddress,proto3" json:"delegator_address,omitempty"` // Deprecated: Do not use.
+	ValidatorAddress string                `protobuf:"bytes,5,opt,name=validator_address,json=validatorAddress,proto3" json:"validator_address,omitempty"`
+	Pubkey           *types1.Any           `protobuf:"bytes,6,opt,name=pubkey,proto3" json:"pubkey,omitempty"`
+	ContractAddress  string                `protobuf:"bytes,7,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`
+	Value            cosmossdk_io_math.Int `protobuf:"bytes,8,opt,name=value,proto3,customtype=cosmossdk.io/math.Int" json:"value"`
+}
+
+func (m *MsgCreateEVMValidator) Reset()         { *m = MsgCreateEVMValidator{} }
+func (m *MsgCreateEVMValidator) String() string { return proto.CompactTextString(m) }
+func (*MsgCreateEVMValidator) ProtoMessage()    {}
+func (*MsgCreateEVMValidator) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c52c073cb95ae80e, []int{2}
+}
+func (m *MsgCreateEVMValidator) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgCreateEVMValidator) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgCreateEVMValidator.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgCreateEVMValidator) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgCreateEVMValidator.Merge(m, src)
+}
+func (m *MsgCreateEVMValidator) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgCreateEVMValidator) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgCreateEVMValidator.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgCreateEVMValidator proto.InternalMessageInfo
+
+// MsgCreateEVMValidatorResponse defines the Msg/CreateValidator response type.
+type MsgCreateEVMValidatorResponse struct {
+}
+
+func (m *MsgCreateEVMValidatorResponse) Reset()         { *m = MsgCreateEVMValidatorResponse{} }
+func (m *MsgCreateEVMValidatorResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgCreateEVMValidatorResponse) ProtoMessage()    {}
+func (*MsgCreateEVMValidatorResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c52c073cb95ae80e, []int{3}
+}
+func (m *MsgCreateEVMValidatorResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgCreateEVMValidatorResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgCreateEVMValidatorResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgCreateEVMValidatorResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgCreateEVMValidatorResponse.Merge(m, src)
+}
+func (m *MsgCreateEVMValidatorResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgCreateEVMValidatorResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgCreateEVMValidatorResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgCreateEVMValidatorResponse proto.InternalMessageInfo
+
+// MsgDelegate defines a SDK message for performing a delegation of coins
+// from a delegator to a validator.
+type MsgDelegateEVM struct {
+	DelegatorAddress string                `protobuf:"bytes,1,opt,name=delegator_address,json=delegatorAddress,proto3" json:"delegator_address,omitempty"`
+	ValidatorAddress string                `protobuf:"bytes,2,opt,name=validator_address,json=validatorAddress,proto3" json:"validator_address,omitempty"`
+	ContractAddress  string                `protobuf:"bytes,3,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`
+	Amount           cosmossdk_io_math.Int `protobuf:"bytes,4,opt,name=amount,proto3,customtype=cosmossdk.io/math.Int" json:"amount"`
+}
+
+func (m *MsgDelegateEVM) Reset()         { *m = MsgDelegateEVM{} }
+func (m *MsgDelegateEVM) String() string { return proto.CompactTextString(m) }
+func (*MsgDelegateEVM) ProtoMessage()    {}
+func (*MsgDelegateEVM) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c52c073cb95ae80e, []int{4}
+}
+func (m *MsgDelegateEVM) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgDelegateEVM) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgDelegateEVM.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgDelegateEVM) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgDelegateEVM.Merge(m, src)
+}
+func (m *MsgDelegateEVM) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgDelegateEVM) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgDelegateEVM.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgDelegateEVM proto.InternalMessageInfo
+
+// MsgDelegateResponse defines the Msg/Delegate response type.
+type MsgDelegateEVMResponse struct {
+}
+
+func (m *MsgDelegateEVMResponse) Reset()         { *m = MsgDelegateEVMResponse{} }
+func (m *MsgDelegateEVMResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgDelegateEVMResponse) ProtoMessage()    {}
+func (*MsgDelegateEVMResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c52c073cb95ae80e, []int{5}
+}
+func (m *MsgDelegateEVMResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgDelegateEVMResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgDelegateEVMResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgDelegateEVMResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgDelegateEVMResponse.Merge(m, src)
+}
+func (m *MsgDelegateEVMResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgDelegateEVMResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgDelegateEVMResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgDelegateEVMResponse proto.InternalMessageInfo
+
+// MsgBeginRedelegate defines a SDK message for performing a redelegation
+// of coins from a delegator and source validator to a destination validator.
+type MsgBeginRedelegateEVM struct {
+	DelegatorAddress    string                `protobuf:"bytes,1,opt,name=delegator_address,json=delegatorAddress,proto3" json:"delegator_address,omitempty"`
+	ValidatorSrcAddress string                `protobuf:"bytes,2,opt,name=validator_src_address,json=validatorSrcAddress,proto3" json:"validator_src_address,omitempty"`
+	ValidatorDstAddress string                `protobuf:"bytes,3,opt,name=validator_dst_address,json=validatorDstAddress,proto3" json:"validator_dst_address,omitempty"`
+	ContractAddress     string                `protobuf:"bytes,4,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`
+	Amount              cosmossdk_io_math.Int `protobuf:"bytes,5,opt,name=amount,proto3,customtype=cosmossdk.io/math.Int" json:"amount"`
+}
+
+func (m *MsgBeginRedelegateEVM) Reset()         { *m = MsgBeginRedelegateEVM{} }
+func (m *MsgBeginRedelegateEVM) String() string { return proto.CompactTextString(m) }
+func (*MsgBeginRedelegateEVM) ProtoMessage()    {}
+func (*MsgBeginRedelegateEVM) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c52c073cb95ae80e, []int{6}
+}
+func (m *MsgBeginRedelegateEVM) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgBeginRedelegateEVM) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgBeginRedelegateEVM.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgBeginRedelegateEVM) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgBeginRedelegateEVM.Merge(m, src)
+}
+func (m *MsgBeginRedelegateEVM) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgBeginRedelegateEVM) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgBeginRedelegateEVM.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgBeginRedelegateEVM proto.InternalMessageInfo
+
+// MsgBeginRedelegateResponse defines the Msg/BeginRedelegate response type.
+type MsgBeginRedelegateEVMResponse struct {
+	CompletionTime time.Time `protobuf:"bytes,1,opt,name=completion_time,json=completionTime,proto3,stdtime" json:"completion_time"`
+}
+
+func (m *MsgBeginRedelegateEVMResponse) Reset()         { *m = MsgBeginRedelegateEVMResponse{} }
+func (m *MsgBeginRedelegateEVMResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgBeginRedelegateEVMResponse) ProtoMessage()    {}
+func (*MsgBeginRedelegateEVMResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c52c073cb95ae80e, []int{7}
+}
+func (m *MsgBeginRedelegateEVMResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgBeginRedelegateEVMResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgBeginRedelegateEVMResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgBeginRedelegateEVMResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgBeginRedelegateEVMResponse.Merge(m, src)
+}
+func (m *MsgBeginRedelegateEVMResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgBeginRedelegateEVMResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgBeginRedelegateEVMResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgBeginRedelegateEVMResponse proto.InternalMessageInfo
+
+func (m *MsgBeginRedelegateEVMResponse) GetCompletionTime() time.Time {
+	if m != nil {
+		return m.CompletionTime
+	}
+	return time.Time{}
+}
+
+// MsgUndelegate defines a SDK message for performing an undelegation from a
+// delegate and a validator.
+type MsgUndelegateEVM struct {
+	DelegatorAddress string                `protobuf:"bytes,1,opt,name=delegator_address,json=delegatorAddress,proto3" json:"delegator_address,omitempty"`
+	ValidatorAddress string                `protobuf:"bytes,2,opt,name=validator_address,json=validatorAddress,proto3" json:"validator_address,omitempty"`
+	ContractAddress  string                `protobuf:"bytes,3,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`
+	Amount           cosmossdk_io_math.Int `protobuf:"bytes,4,opt,name=amount,proto3,customtype=cosmossdk.io/math.Int" json:"amount"`
+}
+
+func (m *MsgUndelegateEVM) Reset()         { *m = MsgUndelegateEVM{} }
+func (m *MsgUndelegateEVM) String() string { return proto.CompactTextString(m) }
+func (*MsgUndelegateEVM) ProtoMessage()    {}
+func (*MsgUndelegateEVM) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c52c073cb95ae80e, []int{8}
+}
+func (m *MsgUndelegateEVM) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgUndelegateEVM) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgUndelegateEVM.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgUndelegateEVM) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgUndelegateEVM.Merge(m, src)
+}
+func (m *MsgUndelegateEVM) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgUndelegateEVM) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgUndelegateEVM.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgUndelegateEVM proto.InternalMessageInfo
+
+// MsgUndelegateResponse defines the Msg/Undelegate response type.
+type MsgUndelegateEVMResponse struct {
+	CompletionTime time.Time `protobuf:"bytes,1,opt,name=completion_time,json=completionTime,proto3,stdtime" json:"completion_time"`
+	// amount returns the amount of undelegated coins
+	//
+	// Since: cosmos-sdk 0.50
+	ContractAddress string                `protobuf:"bytes,4,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`
+	Amount          cosmossdk_io_math.Int `protobuf:"bytes,5,opt,name=amount,proto3,customtype=cosmossdk.io/math.Int" json:"amount"`
+}
+
+func (m *MsgUndelegateEVMResponse) Reset()         { *m = MsgUndelegateEVMResponse{} }
+func (m *MsgUndelegateEVMResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgUndelegateEVMResponse) ProtoMessage()    {}
+func (*MsgUndelegateEVMResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c52c073cb95ae80e, []int{9}
+}
+func (m *MsgUndelegateEVMResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgUndelegateEVMResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgUndelegateEVMResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgUndelegateEVMResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgUndelegateEVMResponse.Merge(m, src)
+}
+func (m *MsgUndelegateEVMResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgUndelegateEVMResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgUndelegateEVMResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgUndelegateEVMResponse proto.InternalMessageInfo
+
+func (m *MsgUndelegateEVMResponse) GetCompletionTime() time.Time {
+	if m != nil {
+		return m.CompletionTime
+	}
+	return time.Time{}
+}
+
+func (m *MsgUndelegateEVMResponse) GetContractAddress() string {
+	if m != nil {
+		return m.ContractAddress
+	}
+	return ""
+}
+
+type MsgCancelUnbondingEVMDelegation struct {
+	DelegatorAddress string `protobuf:"bytes,1,opt,name=delegator_address,json=delegatorAddress,proto3" json:"delegator_address,omitempty"`
+	ValidatorAddress string `protobuf:"bytes,2,opt,name=validator_address,json=validatorAddress,proto3" json:"validator_address,omitempty"`
+	// amount is always less than or equal to unbonding delegation entry balance
+	ContractAddress string                `protobuf:"bytes,3,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`
+	Amount          cosmossdk_io_math.Int `protobuf:"bytes,4,opt,name=amount,proto3,customtype=cosmossdk.io/math.Int" json:"amount"`
+	// creation_height is the height which the unbonding took place.
+	CreationHeight int64 `protobuf:"varint,5,opt,name=creation_height,json=creationHeight,proto3" json:"creation_height,omitempty"`
+}
+
+func (m *MsgCancelUnbondingEVMDelegation) Reset()         { *m = MsgCancelUnbondingEVMDelegation{} }
+func (m *MsgCancelUnbondingEVMDelegation) String() string { return proto.CompactTextString(m) }
+func (*MsgCancelUnbondingEVMDelegation) ProtoMessage()    {}
+func (*MsgCancelUnbondingEVMDelegation) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c52c073cb95ae80e, []int{10}
+}
+func (m *MsgCancelUnbondingEVMDelegation) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgCancelUnbondingEVMDelegation) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgCancelUnbondingEVMDelegation.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgCancelUnbondingEVMDelegation) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgCancelUnbondingEVMDelegation.Merge(m, src)
+}
+func (m *MsgCancelUnbondingEVMDelegation) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgCancelUnbondingEVMDelegation) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgCancelUnbondingEVMDelegation.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgCancelUnbondingEVMDelegation proto.InternalMessageInfo
+
+// MsgCancelUnbondingDelegationResponse
+//
+// Since: cosmos-sdk 0.46
+type MsgCancelUnbondingEVMDelegationResponse struct {
+}
+
+func (m *MsgCancelUnbondingEVMDelegationResponse) Reset() {
+	*m = MsgCancelUnbondingEVMDelegationResponse{}
+}
+func (m *MsgCancelUnbondingEVMDelegationResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgCancelUnbondingEVMDelegationResponse) ProtoMessage()    {}
+func (*MsgCancelUnbondingEVMDelegationResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c52c073cb95ae80e, []int{11}
+}
+func (m *MsgCancelUnbondingEVMDelegationResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgCancelUnbondingEVMDelegationResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgCancelUnbondingEVMDelegationResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgCancelUnbondingEVMDelegationResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgCancelUnbondingEVMDelegationResponse.Merge(m, src)
+}
+func (m *MsgCancelUnbondingEVMDelegationResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgCancelUnbondingEVMDelegationResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgCancelUnbondingEVMDelegationResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgCancelUnbondingEVMDelegationResponse proto.InternalMessageInfo
+
 func init() {
 	proto.RegisterType((*MsgUpdateMultiStakingParams)(nil), "multistaking.v1.MsgUpdateMultiStakingParams")
 	proto.RegisterType((*MsgUpdateMultiStakingParamsResponse)(nil), "multistaking.v1.MsgUpdateMultiStakingParamsResponse")
+	proto.RegisterType((*MsgCreateEVMValidator)(nil), "multistaking.v1.MsgCreateEVMValidator")
+	proto.RegisterType((*MsgCreateEVMValidatorResponse)(nil), "multistaking.v1.MsgCreateEVMValidatorResponse")
+	proto.RegisterType((*MsgDelegateEVM)(nil), "multistaking.v1.MsgDelegateEVM")
+	proto.RegisterType((*MsgDelegateEVMResponse)(nil), "multistaking.v1.MsgDelegateEVMResponse")
+	proto.RegisterType((*MsgBeginRedelegateEVM)(nil), "multistaking.v1.MsgBeginRedelegateEVM")
+	proto.RegisterType((*MsgBeginRedelegateEVMResponse)(nil), "multistaking.v1.MsgBeginRedelegateEVMResponse")
+	proto.RegisterType((*MsgUndelegateEVM)(nil), "multistaking.v1.MsgUndelegateEVM")
+	proto.RegisterType((*MsgUndelegateEVMResponse)(nil), "multistaking.v1.MsgUndelegateEVMResponse")
+	proto.RegisterType((*MsgCancelUnbondingEVMDelegation)(nil), "multistaking.v1.MsgCancelUnbondingEVMDelegation")
+	proto.RegisterType((*MsgCancelUnbondingEVMDelegationResponse)(nil), "multistaking.v1.MsgCancelUnbondingEVMDelegationResponse")
 }
 
 func init() { proto.RegisterFile("multistaking/v1/tx.proto", fileDescriptor_c52c073cb95ae80e) }
 
 var fileDescriptor_c52c073cb95ae80e = []byte{
-	// 348 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x92, 0xc8, 0x2d, 0xcd, 0x29,
-	0xc9, 0x2c, 0x2e, 0x49, 0xcc, 0xce, 0xcc, 0x4b, 0xd7, 0x2f, 0x33, 0xd4, 0x2f, 0xa9, 0xd0, 0x2b,
-	0x28, 0xca, 0x2f, 0xc9, 0x17, 0xe2, 0x47, 0x96, 0xd1, 0x2b, 0x33, 0x94, 0x12, 0x49, 0xcf, 0x4f,
-	0xcf, 0x07, 0xcb, 0xe9, 0x83, 0x58, 0x10, 0x65, 0x52, 0x32, 0xe9, 0xf9, 0xf9, 0xe9, 0x39, 0xa9,
-	0xfa, 0x89, 0x05, 0x99, 0xfa, 0x89, 0x79, 0x79, 0xf9, 0x25, 0x89, 0x25, 0x99, 0xf9, 0x79, 0xc5,
-	0x30, 0x59, 0x74, 0xe3, 0x0b, 0x12, 0x8b, 0x12, 0x73, 0x61, 0xb2, 0xe2, 0xc9, 0xf9, 0xc5, 0xb9,
-	0xf9, 0xc5, 0xfa, 0xb9, 0xc5, 0x60, 0xb9, 0xdc, 0xe2, 0x74, 0xa8, 0x84, 0x24, 0x44, 0x22, 0x1e,
-	0x62, 0x1b, 0x84, 0x03, 0x91, 0x52, 0x9a, 0xc3, 0xc8, 0x25, 0xed, 0x5b, 0x9c, 0x1e, 0x5a, 0x90,
-	0x92, 0x58, 0x92, 0xea, 0x0b, 0x32, 0x3d, 0x18, 0x62, 0x7a, 0x00, 0xd8, 0x64, 0x21, 0x33, 0x2e,
-	0xce, 0xc4, 0xd2, 0x92, 0x8c, 0xfc, 0xa2, 0xcc, 0x92, 0x4a, 0x09, 0x46, 0x05, 0x46, 0x0d, 0x4e,
-	0x27, 0x89, 0x4b, 0x5b, 0x74, 0x45, 0xa0, 0x86, 0x38, 0xa6, 0xa4, 0x14, 0xa5, 0x16, 0x17, 0x07,
-	0x97, 0x14, 0x65, 0xe6, 0xa5, 0x07, 0x21, 0x94, 0x0a, 0x99, 0x72, 0xb1, 0x41, 0xdc, 0x26, 0xc1,
-	0xa4, 0xc0, 0xa8, 0xc1, 0x6d, 0x24, 0xae, 0x87, 0xe6, 0x7f, 0x3d, 0x88, 0x05, 0x4e, 0x2c, 0x27,
-	0xee, 0xc9, 0x33, 0x04, 0x41, 0x15, 0x5b, 0xf1, 0x35, 0x3d, 0xdf, 0xa0, 0x85, 0x30, 0x46, 0x49,
-	0x95, 0x4b, 0x19, 0x8f, 0xeb, 0x82, 0x52, 0x8b, 0x0b, 0xf2, 0xf3, 0x8a, 0x53, 0x8d, 0x5a, 0x19,
-	0xb9, 0x98, 0x7d, 0x8b, 0xd3, 0x85, 0xea, 0xb8, 0x24, 0x70, 0xfa, 0x44, 0x07, 0xc3, 0x05, 0x78,
-	0x4c, 0x96, 0x32, 0x21, 0x45, 0x35, 0xcc, 0x1d, 0x4e, 0xc1, 0x27, 0x1e, 0xc9, 0x31, 0x5e, 0x78,
-	0x24, 0xc7, 0xf8, 0xe0, 0x91, 0x1c, 0xe3, 0x84, 0xc7, 0x72, 0x0c, 0x17, 0x1e, 0xcb, 0x31, 0xdc,
-	0x78, 0x2c, 0xc7, 0x10, 0x65, 0x99, 0x9e, 0x59, 0x92, 0x51, 0x9a, 0xa4, 0x97, 0x9c, 0x9f, 0xab,
-	0x5f, 0x94, 0x9a, 0x98, 0x93, 0x99, 0x5f, 0x92, 0x9a, 0x9c, 0xa1, 0x0f, 0xb6, 0x44, 0x17, 0x16,
-	0xa1, 0x15, 0x68, 0xfc, 0x92, 0xca, 0x82, 0xd4, 0xe2, 0x24, 0x36, 0x70, 0x4c, 0x19, 0x03, 0x02,
-	0x00, 0x00, 0xff, 0xff, 0x40, 0x56, 0x39, 0xe7, 0x5c, 0x02, 0x00, 0x00,
+	// 1040 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xec, 0x57, 0xcf, 0x6f, 0x1b, 0x45,
+	0x14, 0xf6, 0xc6, 0xb1, 0x21, 0x13, 0x35, 0x3f, 0xb6, 0x09, 0x5d, 0x96, 0xd6, 0x6e, 0x5d, 0x20,
+	0x4d, 0x45, 0x76, 0x9b, 0xf0, 0x43, 0xd0, 0x5b, 0xdd, 0x04, 0x5a, 0x21, 0xa3, 0x68, 0x4d, 0x82,
+	0x84, 0x84, 0xcc, 0x78, 0x77, 0xb2, 0x1e, 0x65, 0x77, 0x66, 0xb5, 0x33, 0xb6, 0xea, 0x0b, 0x42,
+	0x9c, 0x10, 0xa7, 0x4a, 0x5c, 0x39, 0x94, 0x1b, 0x17, 0xa4, 0x1e, 0x72, 0x44, 0x9c, 0x2b, 0x4e,
+	0x55, 0x4e, 0x88, 0x43, 0x41, 0xc9, 0xa1, 0xfc, 0x05, 0x9c, 0xd1, 0xec, 0xce, 0xae, 0x1d, 0x7b,
+	0x63, 0xd7, 0x11, 0x15, 0x97, 0x5e, 0xa2, 0xec, 0xbc, 0xef, 0x7d, 0xf3, 0xe6, 0xfb, 0xde, 0xfc,
+	0x30, 0xd0, 0xfc, 0xb6, 0xc7, 0x31, 0xe3, 0x70, 0x1f, 0x13, 0xd7, 0xec, 0xac, 0x9b, 0xfc, 0x9e,
+	0x11, 0x84, 0x94, 0x53, 0x75, 0xbe, 0x3f, 0x62, 0x74, 0xd6, 0xf5, 0x25, 0x97, 0xba, 0x34, 0x8a,
+	0x99, 0xe2, 0xbf, 0x18, 0xa6, 0x5f, 0x74, 0x29, 0x75, 0x3d, 0x64, 0xc2, 0x00, 0x9b, 0x90, 0x10,
+	0xca, 0x21, 0xc7, 0x94, 0xb0, 0x24, 0x3a, 0x48, 0x1f, 0xc0, 0x10, 0xfa, 0x49, 0xf4, 0x82, 0x4d,
+	0x99, 0x4f, 0x99, 0xe9, 0xb3, 0x28, 0xe6, 0x33, 0x57, 0x06, 0x5e, 0x8d, 0x03, 0x8d, 0x78, 0xb6,
+	0xf8, 0x43, 0x86, 0x5e, 0x97, 0x39, 0x3d, 0xce, 0x26, 0xe2, 0x70, 0x3d, 0xf9, 0x96, 0xa8, 0x45,
+	0xe8, 0x63, 0x42, 0xcd, 0xe8, 0x6f, 0xc2, 0x29, 0x0b, 0x8d, 0xbe, 0x9a, 0xed, 0x3d, 0x13, 0x92,
+	0xae, 0x0c, 0x95, 0x07, 0x43, 0x1c, 0xfb, 0x88, 0x71, 0xe8, 0x07, 0x31, 0xa0, 0xf2, 0x83, 0x02,
+	0x5e, 0xab, 0x31, 0x77, 0x27, 0x70, 0x20, 0x47, 0x35, 0xb1, 0xa4, 0x7a, 0x3c, 0xdd, 0x76, 0xb4,
+	0x1c, 0xf5, 0x3d, 0x30, 0x03, 0xdb, 0xbc, 0x45, 0x43, 0xcc, 0xbb, 0x9a, 0x72, 0x59, 0xb9, 0x36,
+	0x53, 0xd5, 0x0e, 0x0f, 0xd6, 0x96, 0x64, 0xe5, 0xb7, 0x1c, 0x27, 0x44, 0x8c, 0xd5, 0x79, 0x88,
+	0x89, 0x6b, 0xf5, 0xa0, 0xea, 0xbb, 0xa0, 0x18, 0x0b, 0xa2, 0x4d, 0x5d, 0x56, 0xae, 0xcd, 0x6e,
+	0x5c, 0x30, 0x06, 0x44, 0x37, 0xe2, 0x09, 0xaa, 0xd3, 0x8f, 0x9e, 0x94, 0x73, 0x96, 0x04, 0xdf,
+	0x9c, 0xfb, 0xe6, 0xe9, 0xc3, 0xeb, 0x3d, 0x9a, 0xca, 0x1b, 0xe0, 0xea, 0x88, 0xea, 0x2c, 0xc4,
+	0x02, 0x4a, 0x18, 0xaa, 0x7c, 0x5f, 0x00, 0xcb, 0x35, 0xe6, 0xde, 0x0e, 0x11, 0xe4, 0x68, 0x6b,
+	0xb7, 0xb6, 0x0b, 0x3d, 0xec, 0x40, 0x4e, 0x43, 0x75, 0x1b, 0xcc, 0x3a, 0x88, 0xd9, 0x21, 0x0e,
+	0x84, 0x79, 0xd1, 0x0a, 0x66, 0x37, 0xae, 0x1a, 0xb2, 0xfc, 0x5e, 0x39, 0x91, 0xd4, 0xc6, 0x66,
+	0x0f, 0x5a, 0x9d, 0x11, 0x85, 0xfd, 0xf4, 0xf4, 0xe1, 0x75, 0xc5, 0xea, 0xa7, 0x50, 0x2d, 0x00,
+	0x6c, 0xea, 0xfb, 0x98, 0x31, 0x41, 0x18, 0xaf, 0x6e, 0xe5, 0x34, 0xc2, 0xdb, 0x29, 0xd2, 0x82,
+	0x1c, 0xb1, 0x7e, 0xd2, 0x3e, 0x16, 0xf5, 0x4b, 0x70, 0xde, 0xc7, 0xa4, 0xc1, 0x90, 0xb7, 0xd7,
+	0x70, 0x90, 0x87, 0xdc, 0xa8, 0xd5, 0xb4, 0x7c, 0xa4, 0xf7, 0x0d, 0x91, 0xf3, 0xc7, 0x93, 0xf2,
+	0x72, 0x3c, 0x07, 0x73, 0xf6, 0x0d, 0x4c, 0x4d, 0x1f, 0xf2, 0x96, 0x71, 0x97, 0xf0, 0xc3, 0x83,
+	0x35, 0x20, 0x27, 0xbf, 0x4b, 0x78, 0x4c, 0xbd, 0xe8, 0x63, 0x52, 0x47, 0xde, 0xde, 0x66, 0x4a,
+	0xa5, 0x7e, 0x04, 0x16, 0x25, 0x31, 0x0d, 0x1b, 0x30, 0x76, 0x4d, 0x9b, 0x8e, 0xf8, 0xf5, 0xd3,
+	0xfc, 0xd4, 0x14, 0x6b, 0x21, 0x4d, 0x92, 0x11, 0xf5, 0x13, 0xb0, 0xd8, 0x49, 0xd4, 0x4d, 0x89,
+	0x0a, 0x11, 0xd1, 0x95, 0xc3, 0x83, 0xb5, 0x4b, 0x92, 0x28, 0x75, 0xe0, 0x64, 0x87, 0x2c, 0x74,
+	0x06, 0xc6, 0xd5, 0x0f, 0x41, 0x31, 0x68, 0x37, 0xf7, 0x51, 0x57, 0x2b, 0x46, 0x52, 0x2e, 0x19,
+	0x71, 0xcb, 0x1a, 0x49, 0xcb, 0x1a, 0xb7, 0x48, 0xb7, 0xaa, 0xfd, 0xd6, 0xab, 0xd1, 0x0e, 0xbb,
+	0x01, 0xa7, 0xc6, 0x76, 0xbb, 0xf9, 0x31, 0xea, 0x5a, 0x32, 0x5b, 0x5d, 0x05, 0x0b, 0x36, 0x25,
+	0x3c, 0x84, 0x36, 0x4f, 0xcb, 0x7a, 0x49, 0x94, 0x65, 0xcd, 0x27, 0xe3, 0xbd, 0x29, 0x0b, 0x1d,
+	0xe8, 0xb5, 0x91, 0xf6, 0xf2, 0x19, 0xf5, 0x8d, 0xd3, 0x6f, 0x96, 0xbe, 0x7d, 0x50, 0xce, 0xfd,
+	0xfd, 0xa0, 0x9c, 0x13, 0x4d, 0x3b, 0xac, 0x4a, 0xa5, 0x0c, 0x2e, 0x65, 0x36, 0x65, 0xda, 0xb6,
+	0xbf, 0x4c, 0x81, 0xb9, 0x1a, 0x73, 0xa5, 0x4d, 0x02, 0xa3, 0x6e, 0x65, 0xf9, 0x34, 0x6e, 0xdf,
+	0x3d, 0xa3, 0x4b, 0x53, 0x67, 0x77, 0x29, 0x4b, 0xdd, 0x7c, 0xb6, 0xba, 0x77, 0x40, 0x11, 0xfa,
+	0xb4, 0x4d, 0xb8, 0x6c, 0xaf, 0xc9, 0xe5, 0x95, 0xf9, 0x03, 0xfa, 0x0e, 0xc9, 0x52, 0xd1, 0xc0,
+	0x2b, 0x27, 0xd5, 0x4b, 0x85, 0xfd, 0x31, 0x1f, 0x9d, 0x07, 0x55, 0xe4, 0x62, 0x62, 0x21, 0xe7,
+	0xbf, 0xd7, 0x77, 0x07, 0x2c, 0xf7, 0xf4, 0x65, 0xa1, 0x3d, 0xb9, 0xc6, 0xe7, 0xd3, 0xfc, 0x7a,
+	0x68, 0x67, 0xd2, 0x3a, 0x6c, 0x40, 0xeb, 0xc9, 0x68, 0x37, 0x19, 0x1f, 0xe5, 0xde, 0xf4, 0x38,
+	0xf7, 0x0a, 0xcf, 0xd9, 0x3d, 0x16, 0xed, 0x8e, 0x61, 0x8b, 0x12, 0x13, 0x55, 0x0b, 0xcc, 0xdb,
+	0xd4, 0x0f, 0x3c, 0x24, 0x0e, 0xb0, 0x86, 0xb8, 0xb8, 0xe4, 0xf1, 0xad, 0x0f, 0x1d, 0x11, 0x9f,
+	0x26, 0xb7, 0x5a, 0xf5, 0x9c, 0xa8, 0xf7, 0xfe, 0x9f, 0x65, 0x25, 0x2e, 0x66, 0xae, 0xc7, 0x20,
+	0x30, 0x95, 0x5f, 0xa7, 0xc0, 0x82, 0xb8, 0x50, 0x88, 0xf3, 0x62, 0xcf, 0x9d, 0xc9, 0xb5, 0x63,
+	0x05, 0x68, 0x83, 0x02, 0x3e, 0x4f, 0xc7, 0xfe, 0x97, 0xde, 0xad, 0xfc, 0x33, 0x05, 0xca, 0xe2,
+	0xe8, 0x86, 0xc4, 0x46, 0xde, 0x0e, 0x69, 0x52, 0xe2, 0x60, 0xe2, 0x6e, 0xed, 0xd6, 0xfa, 0x6e,
+	0xd4, 0x17, 0x5d, 0x93, 0xea, 0xa5, 0xae, 0x80, 0x79, 0x5b, 0x5c, 0x73, 0xc2, 0xf6, 0x16, 0xc2,
+	0x6e, 0x2b, 0xb6, 0x20, 0x6f, 0xcd, 0x25, 0xc3, 0x77, 0xa2, 0xd1, 0xb1, 0xed, 0xb5, 0x0a, 0x56,
+	0xc6, 0xe8, 0x9e, 0x34, 0xdb, 0xc6, 0xcf, 0x05, 0x90, 0xaf, 0x31, 0x57, 0xfd, 0x0a, 0x68, 0xa7,
+	0xbe, 0x5e, 0xdf, 0x1a, 0x7a, 0x75, 0x8e, 0x78, 0x4d, 0xea, 0xef, 0x4c, 0x82, 0x4e, 0x9b, 0xde,
+	0x03, 0x6a, 0xc6, 0xbb, 0xf3, 0xcd, 0x2c, 0xae, 0x61, 0x9c, 0x6e, 0x3c, 0x1b, 0x2e, 0x9d, 0xed,
+	0x33, 0x30, 0xdb, 0xff, 0x5c, 0x28, 0x67, 0xa5, 0xf7, 0x01, 0xf4, 0x95, 0x31, 0x80, 0xfe, 0x65,
+	0x64, 0x5c, 0x97, 0x99, 0xcb, 0x18, 0xc6, 0x65, 0x2f, 0x63, 0xc4, 0xd9, 0xfe, 0x05, 0x38, 0x77,
+	0xf2, 0x0c, 0xbe, 0x92, 0xa9, 0x7d, 0x3f, 0x44, 0x5f, 0x1d, 0x0b, 0x49, 0xe9, 0xbf, 0x53, 0xc0,
+	0xc5, 0x91, 0x9b, 0xf7, 0x46, 0xa6, 0xec, 0x23, 0x32, 0xf4, 0xf7, 0x27, 0xcd, 0x48, 0x8a, 0xd1,
+	0x0b, 0x5f, 0x8b, 0xbd, 0x52, 0xad, 0x3f, 0x3a, 0x2a, 0x29, 0x8f, 0x8f, 0x4a, 0xca, 0x5f, 0x47,
+	0x25, 0xe5, 0xfe, 0x71, 0x29, 0xf7, 0xf8, 0xb8, 0x94, 0xfb, 0xfd, 0xb8, 0x94, 0xfb, 0xfc, 0x03,
+	0x17, 0xf3, 0x56, 0xbb, 0x69, 0xd8, 0xd4, 0x37, 0x43, 0x04, 0x3d, 0x4c, 0x39, 0xb2, 0x5b, 0x66,
+	0x34, 0xdf, 0x5a, 0xf2, 0x6b, 0xf0, 0xde, 0xc0, 0x37, 0xef, 0x06, 0x88, 0x35, 0x8b, 0xd1, 0x81,
+	0xfa, 0xf6, 0xbf, 0x01, 0x00, 0x00, 0xff, 0xff, 0x18, 0xac, 0x50, 0xfc, 0xed, 0x0e, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -168,6 +665,11 @@ const _ = grpc.SupportPackageIsVersion4
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
 	UpdateMultiStakingParams(ctx context.Context, in *MsgUpdateMultiStakingParams, opts ...grpc.CallOption) (*MsgUpdateMultiStakingParamsResponse, error)
+	CreateEVMValidator(ctx context.Context, in *MsgCreateEVMValidator, opts ...grpc.CallOption) (*MsgCreateEVMValidatorResponse, error)
+	DelegateEVM(ctx context.Context, in *MsgDelegateEVM, opts ...grpc.CallOption) (*MsgDelegateEVMResponse, error)
+	BeginRedelegateEVM(ctx context.Context, in *MsgBeginRedelegateEVM, opts ...grpc.CallOption) (*MsgBeginRedelegateEVMResponse, error)
+	UndelegateEVM(ctx context.Context, in *MsgUndelegateEVM, opts ...grpc.CallOption) (*MsgUndelegateEVMResponse, error)
+	CancelUnbondingEVMDelegation(ctx context.Context, in *MsgCancelUnbondingEVMDelegation, opts ...grpc.CallOption) (*MsgCancelUnbondingEVMDelegationResponse, error)
 }
 
 type msgClient struct {
@@ -187,9 +689,59 @@ func (c *msgClient) UpdateMultiStakingParams(ctx context.Context, in *MsgUpdateM
 	return out, nil
 }
 
+func (c *msgClient) CreateEVMValidator(ctx context.Context, in *MsgCreateEVMValidator, opts ...grpc.CallOption) (*MsgCreateEVMValidatorResponse, error) {
+	out := new(MsgCreateEVMValidatorResponse)
+	err := c.cc.Invoke(ctx, "/multistaking.v1.Msg/CreateEVMValidator", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *msgClient) DelegateEVM(ctx context.Context, in *MsgDelegateEVM, opts ...grpc.CallOption) (*MsgDelegateEVMResponse, error) {
+	out := new(MsgDelegateEVMResponse)
+	err := c.cc.Invoke(ctx, "/multistaking.v1.Msg/DelegateEVM", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *msgClient) BeginRedelegateEVM(ctx context.Context, in *MsgBeginRedelegateEVM, opts ...grpc.CallOption) (*MsgBeginRedelegateEVMResponse, error) {
+	out := new(MsgBeginRedelegateEVMResponse)
+	err := c.cc.Invoke(ctx, "/multistaking.v1.Msg/BeginRedelegateEVM", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *msgClient) UndelegateEVM(ctx context.Context, in *MsgUndelegateEVM, opts ...grpc.CallOption) (*MsgUndelegateEVMResponse, error) {
+	out := new(MsgUndelegateEVMResponse)
+	err := c.cc.Invoke(ctx, "/multistaking.v1.Msg/UndelegateEVM", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *msgClient) CancelUnbondingEVMDelegation(ctx context.Context, in *MsgCancelUnbondingEVMDelegation, opts ...grpc.CallOption) (*MsgCancelUnbondingEVMDelegationResponse, error) {
+	out := new(MsgCancelUnbondingEVMDelegationResponse)
+	err := c.cc.Invoke(ctx, "/multistaking.v1.Msg/CancelUnbondingEVMDelegation", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
 	UpdateMultiStakingParams(context.Context, *MsgUpdateMultiStakingParams) (*MsgUpdateMultiStakingParamsResponse, error)
+	CreateEVMValidator(context.Context, *MsgCreateEVMValidator) (*MsgCreateEVMValidatorResponse, error)
+	DelegateEVM(context.Context, *MsgDelegateEVM) (*MsgDelegateEVMResponse, error)
+	BeginRedelegateEVM(context.Context, *MsgBeginRedelegateEVM) (*MsgBeginRedelegateEVMResponse, error)
+	UndelegateEVM(context.Context, *MsgUndelegateEVM) (*MsgUndelegateEVMResponse, error)
+	CancelUnbondingEVMDelegation(context.Context, *MsgCancelUnbondingEVMDelegation) (*MsgCancelUnbondingEVMDelegationResponse, error)
 }
 
 // UnimplementedMsgServer can be embedded to have forward compatible implementations.
@@ -198,6 +750,21 @@ type UnimplementedMsgServer struct {
 
 func (*UnimplementedMsgServer) UpdateMultiStakingParams(ctx context.Context, req *MsgUpdateMultiStakingParams) (*MsgUpdateMultiStakingParamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateMultiStakingParams not implemented")
+}
+func (*UnimplementedMsgServer) CreateEVMValidator(ctx context.Context, req *MsgCreateEVMValidator) (*MsgCreateEVMValidatorResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateEVMValidator not implemented")
+}
+func (*UnimplementedMsgServer) DelegateEVM(ctx context.Context, req *MsgDelegateEVM) (*MsgDelegateEVMResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DelegateEVM not implemented")
+}
+func (*UnimplementedMsgServer) BeginRedelegateEVM(ctx context.Context, req *MsgBeginRedelegateEVM) (*MsgBeginRedelegateEVMResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BeginRedelegateEVM not implemented")
+}
+func (*UnimplementedMsgServer) UndelegateEVM(ctx context.Context, req *MsgUndelegateEVM) (*MsgUndelegateEVMResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UndelegateEVM not implemented")
+}
+func (*UnimplementedMsgServer) CancelUnbondingEVMDelegation(ctx context.Context, req *MsgCancelUnbondingEVMDelegation) (*MsgCancelUnbondingEVMDelegationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelUnbondingEVMDelegation not implemented")
 }
 
 func RegisterMsgServer(s grpc1.Server, srv MsgServer) {
@@ -222,6 +789,96 @@ func _Msg_UpdateMultiStakingParams_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Msg_CreateEVMValidator_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgCreateEVMValidator)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).CreateEVMValidator(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/multistaking.v1.Msg/CreateEVMValidator",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).CreateEVMValidator(ctx, req.(*MsgCreateEVMValidator))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Msg_DelegateEVM_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgDelegateEVM)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).DelegateEVM(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/multistaking.v1.Msg/DelegateEVM",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).DelegateEVM(ctx, req.(*MsgDelegateEVM))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Msg_BeginRedelegateEVM_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgBeginRedelegateEVM)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).BeginRedelegateEVM(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/multistaking.v1.Msg/BeginRedelegateEVM",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).BeginRedelegateEVM(ctx, req.(*MsgBeginRedelegateEVM))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Msg_UndelegateEVM_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgUndelegateEVM)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).UndelegateEVM(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/multistaking.v1.Msg/UndelegateEVM",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).UndelegateEVM(ctx, req.(*MsgUndelegateEVM))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Msg_CancelUnbondingEVMDelegation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgCancelUnbondingEVMDelegation)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).CancelUnbondingEVMDelegation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/multistaking.v1.Msg/CancelUnbondingEVMDelegation",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).CancelUnbondingEVMDelegation(ctx, req.(*MsgCancelUnbondingEVMDelegation))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Msg_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "multistaking.v1.Msg",
 	HandlerType: (*MsgServer)(nil),
@@ -229,6 +886,26 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateMultiStakingParams",
 			Handler:    _Msg_UpdateMultiStakingParams_Handler,
+		},
+		{
+			MethodName: "CreateEVMValidator",
+			Handler:    _Msg_CreateEVMValidator_Handler,
+		},
+		{
+			MethodName: "DelegateEVM",
+			Handler:    _Msg_DelegateEVM_Handler,
+		},
+		{
+			MethodName: "BeginRedelegateEVM",
+			Handler:    _Msg_BeginRedelegateEVM_Handler,
+		},
+		{
+			MethodName: "UndelegateEVM",
+			Handler:    _Msg_UndelegateEVM_Handler,
+		},
+		{
+			MethodName: "CancelUnbondingEVMDelegation",
+			Handler:    _Msg_CancelUnbondingEVMDelegation_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -298,6 +975,478 @@ func (m *MsgUpdateMultiStakingParamsResponse) MarshalToSizedBuffer(dAtA []byte) 
 	return len(dAtA) - i, nil
 }
 
+func (m *MsgCreateEVMValidator) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgCreateEVMValidator) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgCreateEVMValidator) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size := m.Value.Size()
+		i -= size
+		if _, err := m.Value.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x42
+	if len(m.ContractAddress) > 0 {
+		i -= len(m.ContractAddress)
+		copy(dAtA[i:], m.ContractAddress)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.ContractAddress)))
+		i--
+		dAtA[i] = 0x3a
+	}
+	if m.Pubkey != nil {
+		{
+			size, err := m.Pubkey.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintTx(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x32
+	}
+	if len(m.ValidatorAddress) > 0 {
+		i -= len(m.ValidatorAddress)
+		copy(dAtA[i:], m.ValidatorAddress)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.ValidatorAddress)))
+		i--
+		dAtA[i] = 0x2a
+	}
+	if len(m.DelegatorAddress) > 0 {
+		i -= len(m.DelegatorAddress)
+		copy(dAtA[i:], m.DelegatorAddress)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.DelegatorAddress)))
+		i--
+		dAtA[i] = 0x22
+	}
+	{
+		size := m.MinSelfDelegation.Size()
+		i -= size
+		if _, err := m.MinSelfDelegation.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x1a
+	{
+		size, err := m.Commission.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintTx(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x12
+	{
+		size, err := m.Description.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintTx(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgCreateEVMValidatorResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgCreateEVMValidatorResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgCreateEVMValidatorResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgDelegateEVM) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgDelegateEVM) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgDelegateEVM) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size := m.Amount.Size()
+		i -= size
+		if _, err := m.Amount.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x22
+	if len(m.ContractAddress) > 0 {
+		i -= len(m.ContractAddress)
+		copy(dAtA[i:], m.ContractAddress)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.ContractAddress)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.ValidatorAddress) > 0 {
+		i -= len(m.ValidatorAddress)
+		copy(dAtA[i:], m.ValidatorAddress)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.ValidatorAddress)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.DelegatorAddress) > 0 {
+		i -= len(m.DelegatorAddress)
+		copy(dAtA[i:], m.DelegatorAddress)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.DelegatorAddress)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgDelegateEVMResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgDelegateEVMResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgDelegateEVMResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgBeginRedelegateEVM) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgBeginRedelegateEVM) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgBeginRedelegateEVM) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size := m.Amount.Size()
+		i -= size
+		if _, err := m.Amount.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x2a
+	if len(m.ContractAddress) > 0 {
+		i -= len(m.ContractAddress)
+		copy(dAtA[i:], m.ContractAddress)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.ContractAddress)))
+		i--
+		dAtA[i] = 0x22
+	}
+	if len(m.ValidatorDstAddress) > 0 {
+		i -= len(m.ValidatorDstAddress)
+		copy(dAtA[i:], m.ValidatorDstAddress)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.ValidatorDstAddress)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.ValidatorSrcAddress) > 0 {
+		i -= len(m.ValidatorSrcAddress)
+		copy(dAtA[i:], m.ValidatorSrcAddress)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.ValidatorSrcAddress)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.DelegatorAddress) > 0 {
+		i -= len(m.DelegatorAddress)
+		copy(dAtA[i:], m.DelegatorAddress)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.DelegatorAddress)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgBeginRedelegateEVMResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgBeginRedelegateEVMResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgBeginRedelegateEVMResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	n5, err5 := github_com_cosmos_gogoproto_types.StdTimeMarshalTo(m.CompletionTime, dAtA[i-github_com_cosmos_gogoproto_types.SizeOfStdTime(m.CompletionTime):])
+	if err5 != nil {
+		return 0, err5
+	}
+	i -= n5
+	i = encodeVarintTx(dAtA, i, uint64(n5))
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgUndelegateEVM) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgUndelegateEVM) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgUndelegateEVM) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size := m.Amount.Size()
+		i -= size
+		if _, err := m.Amount.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x22
+	if len(m.ContractAddress) > 0 {
+		i -= len(m.ContractAddress)
+		copy(dAtA[i:], m.ContractAddress)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.ContractAddress)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.ValidatorAddress) > 0 {
+		i -= len(m.ValidatorAddress)
+		copy(dAtA[i:], m.ValidatorAddress)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.ValidatorAddress)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.DelegatorAddress) > 0 {
+		i -= len(m.DelegatorAddress)
+		copy(dAtA[i:], m.DelegatorAddress)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.DelegatorAddress)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgUndelegateEVMResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgUndelegateEVMResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgUndelegateEVMResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size := m.Amount.Size()
+		i -= size
+		if _, err := m.Amount.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x2a
+	if len(m.ContractAddress) > 0 {
+		i -= len(m.ContractAddress)
+		copy(dAtA[i:], m.ContractAddress)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.ContractAddress)))
+		i--
+		dAtA[i] = 0x22
+	}
+	n6, err6 := github_com_cosmos_gogoproto_types.StdTimeMarshalTo(m.CompletionTime, dAtA[i-github_com_cosmos_gogoproto_types.SizeOfStdTime(m.CompletionTime):])
+	if err6 != nil {
+		return 0, err6
+	}
+	i -= n6
+	i = encodeVarintTx(dAtA, i, uint64(n6))
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgCancelUnbondingEVMDelegation) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgCancelUnbondingEVMDelegation) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgCancelUnbondingEVMDelegation) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.CreationHeight != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.CreationHeight))
+		i--
+		dAtA[i] = 0x28
+	}
+	{
+		size := m.Amount.Size()
+		i -= size
+		if _, err := m.Amount.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x22
+	if len(m.ContractAddress) > 0 {
+		i -= len(m.ContractAddress)
+		copy(dAtA[i:], m.ContractAddress)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.ContractAddress)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.ValidatorAddress) > 0 {
+		i -= len(m.ValidatorAddress)
+		copy(dAtA[i:], m.ValidatorAddress)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.ValidatorAddress)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.DelegatorAddress) > 0 {
+		i -= len(m.DelegatorAddress)
+		copy(dAtA[i:], m.DelegatorAddress)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.DelegatorAddress)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgCancelUnbondingEVMDelegationResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgCancelUnbondingEVMDelegationResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgCancelUnbondingEVMDelegationResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintTx(dAtA []byte, offset int, v uint64) int {
 	offset -= sovTx(v)
 	base := offset
@@ -325,6 +1474,193 @@ func (m *MsgUpdateMultiStakingParams) Size() (n int) {
 }
 
 func (m *MsgUpdateMultiStakingParamsResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *MsgCreateEVMValidator) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.Description.Size()
+	n += 1 + l + sovTx(uint64(l))
+	l = m.Commission.Size()
+	n += 1 + l + sovTx(uint64(l))
+	l = m.MinSelfDelegation.Size()
+	n += 1 + l + sovTx(uint64(l))
+	l = len(m.DelegatorAddress)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.ValidatorAddress)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	if m.Pubkey != nil {
+		l = m.Pubkey.Size()
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.ContractAddress)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = m.Value.Size()
+	n += 1 + l + sovTx(uint64(l))
+	return n
+}
+
+func (m *MsgCreateEVMValidatorResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *MsgDelegateEVM) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.DelegatorAddress)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.ValidatorAddress)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.ContractAddress)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = m.Amount.Size()
+	n += 1 + l + sovTx(uint64(l))
+	return n
+}
+
+func (m *MsgDelegateEVMResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *MsgBeginRedelegateEVM) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.DelegatorAddress)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.ValidatorSrcAddress)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.ValidatorDstAddress)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.ContractAddress)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = m.Amount.Size()
+	n += 1 + l + sovTx(uint64(l))
+	return n
+}
+
+func (m *MsgBeginRedelegateEVMResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = github_com_cosmos_gogoproto_types.SizeOfStdTime(m.CompletionTime)
+	n += 1 + l + sovTx(uint64(l))
+	return n
+}
+
+func (m *MsgUndelegateEVM) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.DelegatorAddress)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.ValidatorAddress)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.ContractAddress)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = m.Amount.Size()
+	n += 1 + l + sovTx(uint64(l))
+	return n
+}
+
+func (m *MsgUndelegateEVMResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = github_com_cosmos_gogoproto_types.SizeOfStdTime(m.CompletionTime)
+	n += 1 + l + sovTx(uint64(l))
+	l = len(m.ContractAddress)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = m.Amount.Size()
+	n += 1 + l + sovTx(uint64(l))
+	return n
+}
+
+func (m *MsgCancelUnbondingEVMDelegation) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.DelegatorAddress)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.ValidatorAddress)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.ContractAddress)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = m.Amount.Size()
+	n += 1 + l + sovTx(uint64(l))
+	if m.CreationHeight != 0 {
+		n += 1 + sovTx(uint64(m.CreationHeight))
+	}
+	return n
+}
+
+func (m *MsgCancelUnbondingEVMDelegationResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -481,6 +1817,1475 @@ func (m *MsgUpdateMultiStakingParamsResponse) Unmarshal(dAtA []byte) error {
 		}
 		if fieldNum <= 0 {
 			return fmt.Errorf("proto: MsgUpdateMultiStakingParamsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgCreateEVMValidator) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgCreateEVMValidator: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgCreateEVMValidator: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Description", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Description.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Commission", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Commission.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MinSelfDelegation", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MinSelfDelegation.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DelegatorAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.DelegatorAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ValidatorAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ValidatorAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 6:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Pubkey", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Pubkey == nil {
+				m.Pubkey = &types1.Any{}
+			}
+			if err := m.Pubkey.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 7:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ContractAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ContractAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 8:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Value", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Value.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgCreateEVMValidatorResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgCreateEVMValidatorResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgCreateEVMValidatorResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgDelegateEVM) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgDelegateEVM: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgDelegateEVM: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DelegatorAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.DelegatorAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ValidatorAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ValidatorAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ContractAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ContractAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Amount.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgDelegateEVMResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgDelegateEVMResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgDelegateEVMResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgBeginRedelegateEVM) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgBeginRedelegateEVM: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgBeginRedelegateEVM: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DelegatorAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.DelegatorAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ValidatorSrcAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ValidatorSrcAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ValidatorDstAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ValidatorDstAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ContractAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ContractAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Amount.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgBeginRedelegateEVMResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgBeginRedelegateEVMResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgBeginRedelegateEVMResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field CompletionTime", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := github_com_cosmos_gogoproto_types.StdTimeUnmarshal(&m.CompletionTime, dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgUndelegateEVM) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgUndelegateEVM: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgUndelegateEVM: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DelegatorAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.DelegatorAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ValidatorAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ValidatorAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ContractAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ContractAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Amount.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgUndelegateEVMResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgUndelegateEVMResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgUndelegateEVMResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field CompletionTime", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := github_com_cosmos_gogoproto_types.StdTimeUnmarshal(&m.CompletionTime, dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ContractAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ContractAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Amount.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgCancelUnbondingEVMDelegation) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgCancelUnbondingEVMDelegation: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgCancelUnbondingEVMDelegation: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DelegatorAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.DelegatorAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ValidatorAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ValidatorAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ContractAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ContractAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Amount.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 5:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field CreationHeight", wireType)
+			}
+			m.CreationHeight = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.CreationHeight |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgCancelUnbondingEVMDelegationResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgCancelUnbondingEVMDelegationResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgCancelUnbondingEVMDelegationResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:

@@ -38,3 +38,19 @@ message UpdateBondWeightProposal {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec"
   ];
 }
+
+// AddMultiStakingEVMCoinProposal is a gov v1beta1 Content type to add an erc20
+// token as a bond token
+message AddMultiStakingEVMCoinProposal {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (gogoproto.goproto_stringer) = false;
+  option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
+  string title = 1;
+  string description = 2;
+  string contract_address = 3;
+  string bond_weight = 4 [
+    (cosmos_proto.scalar) = "cosmos.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec"
+  ];
+}
