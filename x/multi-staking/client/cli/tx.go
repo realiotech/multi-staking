@@ -27,6 +27,11 @@ func NewTxCmd(valAddrCodec, ac address.Codec) *cobra.Command {
 		cli.NewRedelegateCmd(valAddrCodec, ac),
 		cli.NewUnbondCmd(valAddrCodec, ac),
 		cli.NewCancelUnbondingDelegation(valAddrCodec, ac),
+		NewCreateEVMValidatorCmd(valAddrCodec),
+		NewDelegateEVMCmd(valAddrCodec, ac),
+		NewRedelegateEVMCmd(valAddrCodec, ac),
+		NewUnbondEVMCmd(valAddrCodec, ac),
+		NewCancelUnbondingEVMDelegation(valAddrCodec, ac),
 	)
 
 	return txCmd
