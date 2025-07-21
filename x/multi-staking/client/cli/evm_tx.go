@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
+	multistakingtypes "github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
@@ -20,17 +21,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/staking/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
-	multistakingtypes "github.com/realio-tech/multi-staking-module/x/multi-staking/types"
-)
-
-// default values
-var (
-	DefaultTokens                  = sdk.TokensFromConsensusPower(100, sdk.DefaultPowerReduction)
-	defaultAmount                  = DefaultTokens.String() + sdk.DefaultBondDenom
-	defaultCommissionRate          = "0.1"
-	defaultCommissionMaxRate       = "0.2"
-	defaultCommissionMaxChangeRate = "0.01"
-	defaultMinSelfDelegation       = "1"
 )
 
 // NewCreateValidatorCmd returns a CLI command handler for creating a MsgCreateValidator transaction.
@@ -358,7 +348,6 @@ func newBuildCreateEVMValidatorMsg(clientCtx client.Context, txf tx.Factory, fs 
 	msg, err := multistakingtypes.NewMsgCreateEVMValidator(
 		valStr, val.PubKey, val.ContractAddress, val.Amount, description, val.CommissionRates, val.MinSelfDelegation,
 	)
-
 	if err != nil {
 		return txf, nil, err
 	}

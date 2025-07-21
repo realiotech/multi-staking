@@ -3,15 +3,17 @@ package types
 import (
 	fmt "fmt"
 
+	"github.com/ethereum/go-ethereum/common"
+
 	"cosmossdk.io/core/address"
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
+
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/ethereum/go-ethereum/common"
 )
 
 // staking message types
@@ -73,8 +75,8 @@ func (msg MsgCreateEVMValidator) Validate(ac address.Codec) error {
 	if !common.IsHexAddress(msg.ContractAddress) {
 		return fmt.Errorf("invalid contract address")
 	}
-	
-	if !!msg.Value.IsPositive() {
+
+	if !msg.Value.IsPositive() {
 		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "invalid delegation amount")
 	}
 
