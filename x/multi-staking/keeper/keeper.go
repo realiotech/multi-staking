@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	erc20keeper "github.com/cosmos/evm/x/erc20/keeper"
 	"github.com/realio-tech/multi-staking-module/x/multi-staking/types"
 
 	addresscodec "cosmossdk.io/core/address"
@@ -25,6 +26,7 @@ type Keeper struct {
 	accountKeeper         types.AccountKeeper
 	stakingKeeper         *stakingkeeper.Keeper
 	bankKeeper            types.BankKeeper
+	erc20keeper           erc20keeper.Keeper
 	authority             string
 	validatorAddressCodec addresscodec.Codec
 	consensusAddressCodec addresscodec.Codec
@@ -35,6 +37,7 @@ func NewKeeper(
 	accountKeeper types.AccountKeeper,
 	stakingKeeper *stakingkeeper.Keeper,
 	bankKeeper types.BankKeeper,
+	erc20keeper erc20keeper.Keeper,
 	storeService corestore.KVStoreService,
 	authority string,
 	validatorAddressCodec addresscodec.Codec,
@@ -46,6 +49,7 @@ func NewKeeper(
 		accountKeeper:         accountKeeper,
 		stakingKeeper:         stakingKeeper,
 		bankKeeper:            bankKeeper,
+		erc20keeper:           erc20keeper,
 		authority:             authority,
 		validatorAddressCodec: validatorAddressCodec,
 		consensusAddressCodec: consensusAddressCodec,
@@ -92,6 +96,18 @@ func (k Keeper) GetMatureUnbondingDelegations(ctx context.Context) ([]stakingtyp
 
 		unbondingDelegation, err := k.stakingKeeper.GetUnbondingDelegation(ctx, delAddr, valAddr) // ??
 		if err != nil && errors.Is(err, stakingtypes.ErrNoUnbondingDelegation) {
+			continue
+		}
+
+		// If duplicate unbondingDelegation, no append
+		exist := false
+		for _, existUbd := range matureUnbondingDelegations {
+			if existUbd.DelegatorAddress == unbondingDelegation.DelegatorAddress && existUbd.ValidatorAddress == unbondingDelegation.ValidatorAddress {
+				exist = true
+				break
+			}
+		}
+		if exist {
 			continue
 		}
 

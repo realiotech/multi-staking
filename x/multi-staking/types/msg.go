@@ -1,36 +1,107 @@
 package types
 
-// import (
-// 	sdkerrors "cosmossdk.io/errors"
-// 	sdk "github.com/cosmos/cosmos-sdk/types"
-// )
+import (
+	fmt "fmt"
 
-// // staking message types
-// const (
-// 	TypeMsgUpdateMultiStakingParams = "update_multistaking_params"
-// )
+	"github.com/ethereum/go-ethereum/common"
 
-// var (
-// 	_ sdk.Msg = &MsgUpdateMultiStakingParams{}
-// )
+	"cosmossdk.io/core/address"
+	errorsmod "cosmossdk.io/errors"
+	"cosmossdk.io/math"
 
-// // GetSignBytes returns the raw bytes for a MsgUpdateParams message that
-// // the expected signer needs to sign.
-// func (m *MsgUpdateMultiStakingParams) GetSignBytes() []byte {
-// 	bz := AminoCdc.MustMarshalJSON(m)
-// 	return sdk.MustSortJSON(bz)
-// }
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+)
 
-// // ValidateBasic executes sanity validation on the provided data
-// func (m *MsgUpdateMultiStakingParams) ValidateBasic() error {
-// 	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
-// 		return sdkerrors.Wrap(err, "invalid authority address")
-// 	}
-// 	return nil
-// }
+// staking message types
+const (
+	TypeMsgUpdateMultiStakingParams = "update_multistaking_params"
+)
 
-// // GetSigners returns the expected signers for a MsgUpdateParams message
-// func (m *MsgUpdateMultiStakingParams) GetSigners() []sdk.AccAddress {
-// 	addr, _ := sdk.AccAddressFromBech32(m.Authority)
-// 	return []sdk.AccAddress{addr}
-// }
+var (
+	_ sdk.Msg                            = &MsgUpdateMultiStakingParams{}
+	_ sdk.Msg                            = &MsgDelegateEVM{}
+	_ sdk.Msg                            = &MsgBeginRedelegateEVM{}
+	_ sdk.Msg                            = &MsgUndelegateEVM{}
+	_ sdk.Msg                            = &MsgCancelUnbondingEVMDelegation{}
+	_ codectypes.UnpackInterfacesMessage = (*MsgCreateEVMValidator)(nil)
+)
+
+// UnpackInterfaces implements UnpackInterfacesMessage.UnpackInterfaces
+func (msg MsgCreateEVMValidator) UnpackInterfaces(unpacker codectypes.AnyUnpacker) error {
+	var pubKey cryptotypes.PubKey
+	return unpacker.UnpackAny(msg.Pubkey, &pubKey)
+}
+
+// NewMsgCreateEVMValidator creates a new MsgCreateEVMValidator instance.
+// Delegator address and validator address are the same.
+func NewMsgCreateEVMValidator(
+	valAddr string, pubKey cryptotypes.PubKey, contractAddress string,
+	selfDelegation math.Int, description stakingtypes.Description, commission stakingtypes.CommissionRates, minSelfDelegation math.Int,
+) (*MsgCreateEVMValidator, error) {
+	var pkAny *codectypes.Any
+	if pubKey != nil {
+		var err error
+		if pkAny, err = codectypes.NewAnyWithValue(pubKey); err != nil {
+			return nil, err
+		}
+	}
+	return &MsgCreateEVMValidator{
+		ContractAddress:   contractAddress,
+		Description:       description,
+		ValidatorAddress:  valAddr,
+		Pubkey:            pkAny,
+		Value:             selfDelegation,
+		Commission:        commission,
+		MinSelfDelegation: minSelfDelegation,
+	}, nil
+}
+
+// Validate validates the MsgCreateEVMValidator sdk msg.
+func (msg MsgCreateEVMValidator) Validate(ac address.Codec) error {
+	// note that unmarshaling from bech32 ensures both non-empty and valid
+	_, err := ac.StringToBytes(msg.ValidatorAddress)
+	if err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid validator address: %s", err)
+	}
+
+	if msg.Pubkey == nil {
+		return stakingtypes.ErrEmptyValidatorPubKey
+	}
+
+	if !common.IsHexAddress(msg.ContractAddress) {
+		return fmt.Errorf("invalid contract address")
+	}
+
+	if !msg.Value.IsPositive() {
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "invalid delegation amount")
+	}
+
+	if msg.Description == (stakingtypes.Description{}) {
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "empty description")
+	}
+
+	if msg.Commission == (stakingtypes.CommissionRates{}) {
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "empty commission")
+	}
+
+	if err := msg.Commission.Validate(); err != nil {
+		return err
+	}
+
+	if !msg.MinSelfDelegation.IsPositive() {
+		return errorsmod.Wrap(
+			sdkerrors.ErrInvalidRequest,
+			"minimum self delegation must be a positive integer",
+		)
+	}
+
+	if msg.Value.LT(msg.MinSelfDelegation) {
+		return stakingtypes.ErrSelfDelegationBelowMinimum
+	}
+
+	return nil
+}
