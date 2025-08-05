@@ -118,7 +118,7 @@ func (cbtp *UpdateBondWeightProposal) ValidateBasic() error {
 		return sdkerrors.Wrap(ErrInvalidUpdateBondWeightProposal, "proposal bond token cannot be blank")
 	}
 
-	if !cbtp.UpdatedBondWeight.IsPositive() {
+	if cbtp.UpdatedBondWeight.LT(math.LegacyZeroDec()) {
 		return sdkerrors.Wrap(ErrInvalidUpdateBondWeightProposal, "proposal bond token weight must be positive")
 	}
 

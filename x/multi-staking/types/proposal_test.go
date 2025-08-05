@@ -91,11 +91,11 @@ func (suite *ProposalTestSuite) TestUpdateBondWeightProposal() {
 	}{
 		// Valid tests
 		{msg: "Change bond token weight", title: "test", description: "test desc", denom: "token", bondWeight: math.LegacyOneDec(), expectPass: true},
+		{msg: "Change bond token weight - zero weight", title: "test", description: "test desc", denom: "token", bondWeight: math.LegacyZeroDec(), expectPass: true},
 
 		// Invalid tests
 		{msg: "Change bond token weight - invalid token", title: "test", description: "test desc", denom: "", bondWeight: math.LegacyOneDec(), expectPass: false},
 		{msg: "Change bond token weight - negative weight", title: "test", description: "test desc", denom: "token", bondWeight: math.LegacyMustNewDecFromStr("-1"), expectPass: false},
-		{msg: "Change bond token weight - zero weight", title: "test", description: "test desc", denom: "token", bondWeight: math.LegacyZeroDec(), expectPass: false},
 	}
 
 	for i, tc := range testCases {
