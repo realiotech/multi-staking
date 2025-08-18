@@ -16,6 +16,16 @@ The multi-staking precompiles allow users to:
 - Cancel unbonding delegations
 - Query delegation, unbonding delegation, and validator information
 
+## Precompile Address
+
+The multi-staking precompile is deployed at the following address:
+
+```
+0x0000000000000000000000000000000000000900
+```
+
+This address can be used to interact with the multi-staking functionality from MetaMask, web3 applications, or any EVM-compatible wallet.
+
 ## Precompile Interface
 
 The precompiles implement the `IMultiStaking` interface defined in Solidity:
