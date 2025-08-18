@@ -4,7 +4,7 @@ The multi-staking-module is a module that allows the cosmos-sdk staking system t
 
 ## Features
 
-- Staking with many diffrent type of coins
+- Staking with many diffrent type of coins (both cosmos base coin and erc20)
 - Bond denom selection via Gov proposal
 - A validator can only be delegated using with one type of coin
 - All usecases of the sdk staking module

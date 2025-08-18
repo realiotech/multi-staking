@@ -20,6 +20,8 @@
 
     * Burn the `remainingCoin` that remain on the `Lock` after send `unlockedCoin` to user
 
+    * Check if `unlockedCoin` is registered as erc20 token pair. If yes, convert it back to erc20 token in evm state. If no, that mean it is cosmos native token already in user account, we will skip the conversion step.
+
     * Delete `UnlockEntry`.
 
     
