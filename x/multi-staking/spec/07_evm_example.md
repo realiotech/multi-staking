@@ -90,3 +90,9 @@ Example:
 ```bash
 realio-networkd tx multi-staking cancel-unbond-evm cosmosvaloper1... 0x9b81cFe34C25131DaE2248c5e508829a3b52518b 1000000000000000000 12345 --from $KEY_NAME
 ```
+
+## EVM queries
+
+We can call through precompiles to query delegation, unbonding delegation, and validator information from user ethereum address.
+
+![Query Example](./imgs/query.png)
