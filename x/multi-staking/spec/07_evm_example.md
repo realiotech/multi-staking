@@ -59,7 +59,7 @@ realio-networkd tx multi-staking delegate-evm cosmosvaloper1... 0x9b81cFe34C2513
 
 We can call through `undelegate` precompile to undelegate ERC20 tokens from a validator.
 
-![Undelegate Example](./undelegate.png)
+![Undelegate Example](./imgs/undelegate.png)
 
 Or through `unbond-evm` cli command.
 
@@ -77,7 +77,7 @@ realio-networkd tx multi-staking unbond-evm cosmosvaloper1... 0x9b81cFe34C25131D
 
 We can call through `cancelUnbondingDelegation` precompile to cancel unbonding delegation and re-delegate ERC20 tokens back to a validator.
 
-![Cancel Unbonding Example](./cancelUnbond.png)
+![Cancel Unbonding Example](./imgs/cancelUnbond.png)
 
 Or through `cancel-unbond-evm` cli command.
 
