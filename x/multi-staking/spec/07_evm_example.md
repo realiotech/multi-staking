@@ -10,7 +10,7 @@ In this section we provide an example of how to interact with the multi-staking 
 
 We can call through `createValidator` precompile to create a validator using ERC20 token.
 
-![Create Validator Example](./createVal.png)
+![Create Validator Example](./imgs/createVal.png)
 
 Or through `create-evm-validator` cli command.
 
@@ -41,7 +41,7 @@ Where `validator.json` look like:
 
 We can call through `delegate` precompile to delegate ERC20 tokens to a validator.
 
-![Delegate Example](./delegate.png)
+![Delegate Example](./imgs/delegate.png)
 
 Or through `delegate-evm` cli command.
 
