@@ -16,6 +16,7 @@ const (
 	ProposalTypeAddMultiStakingCoin    string = "AddMultiStakingCoin"
 	ProposalTypeUpdateBondWeight       string = "UpdateBondWeight"
 	ProposalTypeAddMultiStakingEVMCoin string = "AddMultiStakingEVMCoin"
+	ProposalTypeRemoveMultiStakingCoin string = "RemoveMultiStakingCoin"
 )
 
 // Assert module proposals implement govtypes.Content at compile-time
@@ -118,7 +119,7 @@ func (cbtp *UpdateBondWeightProposal) ValidateBasic() error {
 		return sdkerrors.Wrap(ErrInvalidUpdateBondWeightProposal, "proposal bond token cannot be blank")
 	}
 
-	if cbtp.UpdatedBondWeight.LT(math.LegacyZeroDec()) {
+	if cbtp.UpdatedBondWeight.LTE(math.LegacyZeroDec()) {
 		return sdkerrors.Wrap(ErrInvalidUpdateBondWeightProposal, "proposal bond token weight must be positive")
 	}
 
@@ -170,4 +171,46 @@ func (abtp *AddMultiStakingEVMCoinProposal) ValidateBasic() error {
 // String implements the Stringer interface.
 func (abtp AddMultiStakingEVMCoinProposal) String() string {
 	return fmt.Sprintf("AddMultiStakingEVMCoinProposal: Title: %s Description: %s Denom: %s TokenWeight: %s", abtp.Title, abtp.Description, abtp.ContractAddress, abtp.BondWeight)
+}
+
+// NewRemoveMultiStakingCoinProposal returns new instance of RemoveMultiStakingCoinProposal
+func NewRemoveMultiStakingCoinProposal(title, description, contractAddr string, bondWeight math.LegacyDec) govv1beta1.Content {
+	return &RemoveMultiStakingCoinProposal{
+		Title:           title,
+		Description:     description,
+		Denom: contractAddr,
+	}
+}
+
+// GetTitle returns the title of a AddMultiStakingCoinProposal
+func (abtp *RemoveMultiStakingCoinProposal) GetTitle() string { return abtp.Title }
+
+// GetDescription returns the description of a AddMultiStakingCoinProposal
+func (abtp *RemoveMultiStakingCoinProposal) GetDescription() string { return abtp.Description }
+
+// ProposalRoute returns router key for a AddMultiStakingCoinProposal
+func (*RemoveMultiStakingCoinProposal) ProposalRoute() string { return RouterKey }
+
+// ProposalType returns proposal type for a AddMultiStakingCoinProposal
+func (*RemoveMultiStakingCoinProposal) ProposalType() string {
+	return ProposalTypeAddMultiStakingCoin
+}
+
+// ValidateBasic runs basic stateless validity checks
+func (abtp *RemoveMultiStakingCoinProposal) ValidateBasic() error {
+	err := govv1beta1.ValidateAbstract(abtp)
+	if err != nil {
+		return err
+	}
+
+	if abtp.Denom == "" {
+		return fmt.Errorf("proposal bond token cannot be blank")
+	}
+
+	return nil
+}
+
+// String implements the Stringer interface.
+func (abtp RemoveMultiStakingCoinProposal) String() string {
+	return fmt.Sprintf("RemoveMultiStakingCoinProposal: Title: %s Description: %s Denom: %s", abtp.Title, abtp.Description, abtp.Denom)
 }
