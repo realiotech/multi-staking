@@ -117,6 +117,9 @@ func (k Keeper) RemoveMultiStakingCoinProposal(
 	msgServer := NewMsgServerImpl(k)
 	var ubdErr error
 	k.MultiStakingLockIterator(ctx, func(stakingLock types.MultiStakingLock) bool {
+		if stakingLock.LockedCoin.Denom != p.Denom {
+			return false
+		}
 		_, err := msgServer.Undelegate(ctx, &stakingtypes.MsgUndelegate{
 			DelegatorAddress: stakingLock.LockID.MultiStakerAddr,
 			ValidatorAddress: stakingLock.LockID.ValAddr,
