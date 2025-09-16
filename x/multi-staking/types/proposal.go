@@ -176,9 +176,9 @@ func (abtp AddMultiStakingEVMCoinProposal) String() string {
 // NewRemoveMultiStakingCoinProposal returns new instance of RemoveMultiStakingCoinProposal
 func NewRemoveMultiStakingCoinProposal(title, description, denom string) govv1beta1.Content {
 	return &RemoveMultiStakingCoinProposal{
-		Title:           title,
-		Description:     description,
-		Denom: denom,
+		Title:       title,
+		Description: description,
+		Denom:       denom,
 	}
 }
 

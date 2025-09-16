@@ -104,8 +104,7 @@ func (k Keeper) BondWeightProposal(
 
 // RemoveMultiStakingCoinProposal handles the proposals to remove a bond token
 // We will force undelegate all the delegation of the removed bond token
-// Set bond weight to 0 instead of remove it from store cause 
-// we still need to process undelegation at EndBlock when they mature
+// Remove bond token from store
 func (k Keeper) RemoveMultiStakingCoinProposal(
 	ctx sdk.Context,
 	p *types.RemoveMultiStakingCoinProposal,
@@ -125,7 +124,7 @@ func (k Keeper) RemoveMultiStakingCoinProposal(
 		})
 		if err != nil {
 			ubdErr = err
-			return true 
+			return true
 		}
 
 		return false
