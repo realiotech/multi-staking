@@ -16,3 +16,7 @@ The proposal performs the following actions:
 ### Change Bond Token Weight Proposals
 
 We can alter the `BondWeight` of a `multistaking coin` by submiting a `UpdateBondWeightProposal`. This proposal requires specifying `denom` of the `multistaking coin` and the new `BondWeight`, if the proposal is passed the specified `multistaking coin` have its `BondWeight` changed to new value that decleared by the proposal.
+
+### Remove Bond Token Proposals (for cosmos base coin)
+
+We can remove a `multistaking coin` boned token by submiting an `RemoveMultiStakingCoinProposal`. In this proposal, we specify the token's `denom`. If the proposal passes, we will force undelegate all the delegation of the removed bond token and remove the bond token from store.
