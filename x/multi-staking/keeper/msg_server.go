@@ -255,7 +255,7 @@ func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *staking
 	// incase denom was removed
 	_, found := k.keeper.GetBondWeight(ctx, msg.Amount.Denom)
 	if !found {
-		return nil, fmt.Errorf("Error MultiStakingCoin %s not found", msg.Amount.Denom)
+		return nil, fmt.Errorf("error MultiStakingCoin %s not found", msg.Amount.Denom)
 	}
 
 	if !k.keeper.isValMultiStakingCoin(ctx, valAcc, msg.Amount) {
