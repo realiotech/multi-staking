@@ -114,13 +114,13 @@ func (k Keeper) RemoveMultiStakingCoinProposal(
 		return fmt.Errorf("Error MultiStakingCoin %s not found", p.Denom) //nolint:stylecheck
 	}
 
-	msgServer := NewMsgServerImpl(k)
 	var ubdErr error
 	k.MultiStakingLockIterator(ctx, func(stakingLock types.MultiStakingLock) bool {
 		if stakingLock.LockedCoin.Denom != p.Denom {
 			return false
 		}
-		_, err := msgServer.Undelegate(ctx, &stakingtypes.MsgUndelegate{
+		// Call the Keeper method directly instead of going through MsgServer
+		_, err := k.Undelegate(ctx, &stakingtypes.MsgUndelegate{
 			DelegatorAddress: stakingLock.LockID.MultiStakerAddr,
 			ValidatorAddress: stakingLock.LockID.ValAddr,
 			Amount:           stakingLock.LockedCoin.ToCoin(),

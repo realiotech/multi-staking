@@ -196,3 +196,54 @@ func (k Keeper) AdjustCancelUnbondingAmount(ctx sdk.Context, delAcc sdk.AccAddre
 
 	return math.MinInt(totalUnbondingAmount, amount), nil
 }
+
+func (k Keeper) Undelegate(ctx sdk.Context, msg *stakingtypes.MsgUndelegate) (*stakingtypes.MsgUndelegateResponse, error) {
+	multiStakerAddr, valAcc, err := types.AccAddrAndValAddrFromStrings(msg.DelegatorAddress, msg.ValidatorAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	if !k.isValMultiStakingCoin(ctx, valAcc, msg.Amount) {
+		return nil, fmt.Errorf("not allowed coin")
+	}
+
+	lockID := types.MultiStakingLockID(msg.DelegatorAddress, msg.ValidatorAddress)
+	lock, found := k.GetMultiStakingLock(ctx, lockID)
+	if !found {
+		return nil, fmt.Errorf("can't find multi staking lock")
+	}
+
+	multiStakingCoin := lock.MultiStakingCoin(msg.Amount.Amount)
+	err = lock.RemoveCoinFromMultiStakingLock(multiStakingCoin)
+	if err != nil {
+		return nil, err
+	}
+	k.SetMultiStakingLock(ctx, lock)
+
+	unbondAmount := multiStakingCoin.BondValue()
+	unbondAmount, err = k.AdjustUnbondAmount(ctx, multiStakerAddr, valAcc, unbondAmount)
+	if err != nil {
+		return nil, err
+	}
+
+	bondDenom, err := k.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return nil, err
+	}
+	unbondCoin := sdk.NewCoin(bondDenom, unbondAmount)
+
+	k.SetMultiStakingUnlockEntry(ctx, types.MultiStakingUnlockID(msg.DelegatorAddress, msg.ValidatorAddress), multiStakingCoin)
+
+	// Create a stakingMsgServer instance to handle the undelegation with all proper events and telemetry
+	stakingMsgServer := stakingkeeper.NewMsgServerImpl(k.stakingKeeper)
+
+	// Prepare the message with the adjusted unbond amount
+	sdkMsg := &stakingtypes.MsgUndelegate{
+		DelegatorAddress: msg.DelegatorAddress,
+		ValidatorAddress: msg.ValidatorAddress,
+		Amount:           unbondCoin,
+	}
+
+	// Call the staking MsgServer to handle undelegation with all side effects
+	return stakingMsgServer.Undelegate(ctx, sdkMsg)
+}
