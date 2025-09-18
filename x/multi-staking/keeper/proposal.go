@@ -11,6 +11,7 @@ import (
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 // AddMultiStakingCoinProposal handles the proposals to add a new bond token
@@ -85,7 +86,7 @@ func (k Keeper) BondWeightProposal(
 	}
 
 	bondWeight := *p.UpdatedBondWeight
-	if bondWeight.LT(math.LegacyZeroDec()) {
+	if bondWeight.LTE(math.LegacyZeroDec()) {
 		return fmt.Errorf("Error MultiStakingCoin BondWeight %s invalid", bondWeight) //nolint:stylecheck
 	}
 
@@ -96,6 +97,51 @@ func (k Keeper) BondWeightProposal(
 			types.EventTypeAddMultiStakingCoin,
 			sdk.NewAttribute(types.AttributeKeyDenom, p.Denom),
 			sdk.NewAttribute(types.AttributeKeyBondWeight, p.UpdatedBondWeight.String()),
+		),
+	)
+	return nil
+}
+
+// RemoveMultiStakingCoinProposal handles the proposals to remove a bond token
+// We will force undelegate all the delegation of the removed bond token
+// Remove bond token from store
+func (k Keeper) RemoveMultiStakingCoinProposal(
+	ctx sdk.Context,
+	p *types.RemoveMultiStakingCoinProposal,
+) error {
+	_, found := k.GetBondWeight(ctx, p.Denom)
+	if !found {
+		return fmt.Errorf("Error MultiStakingCoin %s not found", p.Denom) //nolint:stylecheck
+	}
+
+	var ubdErr error
+	k.MultiStakingLockIterator(ctx, func(stakingLock types.MultiStakingLock) bool {
+		if stakingLock.LockedCoin.Denom != p.Denom {
+			return false
+		}
+		// Call the Keeper method directly instead of going through MsgServer
+		_, err := k.Undelegate(ctx, &stakingtypes.MsgUndelegate{
+			DelegatorAddress: stakingLock.LockID.MultiStakerAddr,
+			ValidatorAddress: stakingLock.LockID.ValAddr,
+			Amount:           stakingLock.LockedCoin.ToCoin(),
+		})
+		if err != nil {
+			ubdErr = err
+			return true
+		}
+
+		return false
+	})
+	if ubdErr != nil {
+		return ubdErr
+	}
+
+	k.RemoveBondWeight(ctx, p.Denom)
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeRemoveMultiStakingCoin,
+			sdk.NewAttribute(types.AttributeKeyDenom, p.Denom),
 		),
 	)
 	return nil

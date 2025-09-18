@@ -28,6 +28,8 @@ func NewMultiStakingProposalHandler(k *keeper.Keeper) govv1beta1.Handler {
 			return k.AddMultiStakingEVMCoinProposal(ctx, c)
 		case *types.UpdateBondWeightProposal:
 			return k.BondWeightProposal(ctx, c)
+		case *types.RemoveMultiStakingCoinProposal:
+			return k.RemoveMultiStakingCoinProposal(ctx, c)
 		default:
 			return sdkerrors.Wrapf(errortypes.ErrUnknownRequest, "unrecognized %s proposal content type: %T", types.ModuleName, c)
 		}
