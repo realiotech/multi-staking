@@ -149,6 +149,12 @@ func (k Keeper) RemoveMultiStakingCoinProposal(
 
 	k.RemoveBondWeight(ctx, p.Denom)
 
+	params.MaxEntries -= 1
+	err = k.stakingKeeper.SetParams(ctx, params)
+	if err != nil {
+		return err
+	}
+
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeRemoveMultiStakingCoin,
