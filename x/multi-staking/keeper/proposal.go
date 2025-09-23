@@ -114,6 +114,17 @@ func (k Keeper) RemoveMultiStakingCoinProposal(
 		return fmt.Errorf("Error MultiStakingCoin %s not found", p.Denom) //nolint:stylecheck
 	}
 
+	// Add defender to avoid MaxEntries condition
+	params, err := k.stakingKeeper.GetParams(ctx)
+	if err != nil {
+		return err
+	}
+	params.MaxEntries += 1
+	err = k.stakingKeeper.SetParams(ctx, params)
+	if err != nil {
+		return err
+	}
+
 	var ubdErr error
 	k.MultiStakingLockIterator(ctx, func(stakingLock types.MultiStakingLock) bool {
 		if stakingLock.LockedCoin.Denom != p.Denom {
@@ -137,6 +148,12 @@ func (k Keeper) RemoveMultiStakingCoinProposal(
 	}
 
 	k.RemoveBondWeight(ctx, p.Denom)
+
+	params.MaxEntries -= 1
+	err = k.stakingKeeper.SetParams(ctx, params)
+	if err != nil {
+		return err
+	}
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
