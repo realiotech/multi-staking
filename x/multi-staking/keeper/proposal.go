@@ -147,7 +147,11 @@ func (k Keeper) RemoveMultiStakingCoinProposal(
 		if unbondAmount.IsZero() {
 			// Remove multistaking-lock and burn corresponding amount
 			k.RemoveMultiStakingLock(ctx, stakingLock.LockID)
-			k.bankKeeper.BurnCoins(ctx, types.ModuleName, sdk.NewCoins(stakingLock.LockedCoin.ToCoin()))
+			err := k.bankKeeper.BurnCoins(ctx, types.ModuleName, sdk.NewCoins(stakingLock.LockedCoin.ToCoin()))
+			if err != nil {
+				ubdErr = err
+				return true
+			}
 			return false
 		}
 
