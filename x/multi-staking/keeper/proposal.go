@@ -130,8 +130,29 @@ func (k Keeper) RemoveMultiStakingCoinProposal(
 		if stakingLock.LockedCoin.Denom != p.Denom {
 			return false
 		}
+		// Check if lock have enough share to undelegate
+		unbondAmount := stakingLock.LockedCoin.BondValue()
+		valAcc, err := sdk.ValAddressFromBech32(stakingLock.LockID.ValAddr)
+		if err != nil {
+			return true
+		}
+		delAcc, err := sdk.AccAddressFromBech32(stakingLock.LockID.MultiStakerAddr)
+		if err != nil {
+			return true
+		}
+		unbondAmount, err = k.AdjustUnbondAmount(ctx, delAcc, valAcc, unbondAmount)
+		if err != nil {
+			return true
+		}
+		if unbondAmount.IsZero() {
+			// Remove multistaking-lock and burn corresponding amount
+			k.RemoveMultiStakingLock(ctx, stakingLock.LockID)
+			k.bankKeeper.BurnCoins(ctx, types.ModuleName, sdk.NewCoins(stakingLock.LockedCoin.ToCoin()))
+			return false
+		}
+
 		// Call the Keeper method directly instead of going through MsgServer
-		_, err := k.Undelegate(ctx, &stakingtypes.MsgUndelegate{
+		_, err = k.Undelegate(ctx, &stakingtypes.MsgUndelegate{
 			DelegatorAddress: stakingLock.LockID.MultiStakerAddr,
 			ValidatorAddress: stakingLock.LockID.ValAddr,
 			Amount:           stakingLock.LockedCoin.ToCoin(),
