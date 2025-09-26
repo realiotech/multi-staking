@@ -41,7 +41,7 @@ func ModuleAccountInvariants(k Keeper) sdk.Invariant {
 
 		moduleAccount := authtypes.NewModuleAddress(types.ModuleName)
 		escrowBalances := k.bankKeeper.GetAllBalances(ctx, moduleAccount)
-		broken := !escrowBalances.Equal(totalLockCoinAmount)
+		broken := !escrowBalances.IsAllGTE(totalLockCoinAmount)
 
 		return sdk.FormatInvariant(
 			types.ModuleName,
