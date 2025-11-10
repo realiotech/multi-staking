@@ -226,6 +226,7 @@ func NewSimApp(
 	homePath string, invCheckPeriod uint, encodingConfig simappparams.EncodingConfig,
 	appOpts servertypes.AppOptions, baseAppOptions ...func(*baseapp.BaseApp),
 ) *SimApp {
+	evmChainID := cast.ToUint64(appOpts.Get(srvflags.EVMChainID))
 	appCodec := encodingConfig.Codec
 	legacyAmino := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry
@@ -235,11 +236,6 @@ func NewSimApp(
 	bApp.SetVersion(version.Version)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
 	bApp.SetTxEncoder(encodingConfig.TxConfig.TxEncoder())
-
-	// initialize the Cosmos EVM application configuration
-	if err := EvmAppOptions(bApp.ChainID()); err != nil {
-		panic(err)
-	}
 
 	keys := storetypes.NewKVStoreKeys(
 		authtypes.StoreKey, banktypes.StoreKey, stakingtypes.StoreKey, multistakingtypes.StoreKey,
@@ -262,13 +258,6 @@ func NewSimApp(
 		tkeys:             tkeys,
 		memKeys:           memKeys,
 	}
-
-	app.ParamsKeeper = initParamsKeeper(
-		appCodec,
-		legacyAmino,
-		keys[paramstypes.StoreKey],
-		tkeys[paramstypes.TStoreKey],
-	)
 
 	// set the BaseApp's parameter store
 	app.ConsensusParamsKeeper = consensusparamkeeper.NewKeeper(
@@ -378,8 +367,18 @@ func NewSimApp(
 
 	var Erc20Keeper erc20keeper.Keeper
 	evmKeeper := evmkeeper.NewKeeper(
-		appCodec, keys[evmtypes.StoreKey], tkeys[evmtypes.TransientKey], authtypes.NewModuleAddress(govtypes.ModuleName),
-		app.AccountKeeper, app.BankKeeper, app.StakingKeeper, &FeeMarketKeeper, Erc20Keeper,
+		appCodec,
+		keys[evmtypes.StoreKey],
+		tkeys[evmtypes.TransientKey],
+		keys,
+		authtypes.NewModuleAddress(govtypes.ModuleName),
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.StakingKeeper,
+		FeeMarketKeeper,
+		&app.ConsensusParamsKeeper,
+		Erc20Keeper,
+		evmChainID,
 		tracer,
 	)
 
@@ -490,7 +489,7 @@ func NewSimApp(
 		authzmodule.NewAppModule(appCodec, app.AuthzKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
 		crisis.NewAppModule(&app.CrisisKeeper, skipGenesisInvariants, app.GetSubspace(crisistypes.ModuleName)), // always be last to make sure that it checks for all invariants and not only part of them
 
-		vm.NewAppModule(evmKeeper, app.AccountKeeper),
+		vm.NewAppModule(evmKeeper, app.AccountKeeper, app.BankKeeper, app.AccountKeeper.AddressCodec()),
 		feemarket.NewAppModule(FeeMarketKeeper),
 		erc20.NewAppModule(Erc20Keeper, app.AccountKeeper),
 	)
@@ -687,23 +686,4 @@ func GetMaccPerms() map[string][]string {
 		dupMaccPerms[k] = v
 	}
 	return dupMaccPerms
-}
-
-// initParamsKeeper init params keeper and its subspaces
-func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino, key, tkey storetypes.StoreKey) paramskeeper.Keeper {
-	paramsKeeper := paramskeeper.NewKeeper(appCodec, legacyAmino, key, tkey)
-
-	paramsKeeper.Subspace(authtypes.ModuleName)
-	paramsKeeper.Subspace(banktypes.ModuleName)
-	paramsKeeper.Subspace(multistakingtypes.ModuleName)
-	paramsKeeper.Subspace(stakingtypes.ModuleName)
-	paramsKeeper.Subspace(minttypes.ModuleName)
-	paramsKeeper.Subspace(distrtypes.ModuleName)
-	paramsKeeper.Subspace(slashingtypes.ModuleName)
-	paramsKeeper.Subspace(govtypes.ModuleName)
-	paramsKeeper.Subspace(crisistypes.ModuleName)
-	paramsKeeper.Subspace(evmtypes.ModuleName).WithKeyTable(evmtypes.ParamKeyTable()) //nolint: staticcheck // SA1019
-	paramsKeeper.Subspace(feemarkettypes.ModuleName).WithKeyTable(feemarkettypes.ParamKeyTable())
-	paramsKeeper.Subspace(erc20types.ModuleName)
-	return paramsKeeper
 }

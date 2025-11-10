@@ -27,30 +27,3 @@ var ChainsCoinInfo = evmtypes.EvmCoinInfo{
 	DisplayDenom:  "ustake",
 	Decimals:      6,
 }
-
-// EvmAppOptions allows to setup the global configuration
-// for the Cosmos EVM chain.
-func EvmAppOptions(chainID string) error {
-	if sealed {
-		return nil
-	}
-
-	// id := strings.Split(chainID, "-")[0]
-	// coinInfo, found := ChainsCoinInfo[id]
-	// if !found {
-	// 	return fmt.Errorf("unknown chain id: %s", id)
-	// }
-
-	ethCfg := evmtypes.DefaultChainConfig(chainID)
-
-	err := evmtypes.NewEVMConfigurator().
-		WithChainConfig(ethCfg).
-		WithEVMCoinInfo(ChainsCoinInfo).
-		Configure()
-	if err != nil {
-		return err
-	}
-
-	sealed = true
-	return nil
-}

@@ -55,6 +55,20 @@ var (
 		Amount:     math.NewIntFromUint64(100000000),
 		BondWeight: math.LegacyMustNewDecFromStr("0.12"),
 	}
+	evmCoinMetadata = banktypes.Metadata{
+		Description: "test evm coin denom",
+		DenomUnits: []*banktypes.DenomUnit{
+			{
+				Denom:    "aatom",
+				Exponent: 18,
+				Aliases:  []string{"aatom"},
+			},
+		},
+		Base:        "aatom",
+		Display:     "aatom",
+		Name:        "aatom",
+		Symbol:      "aatom",
+	}
 )
 
 // Setup initializes a new SimApp. A Nop logger is set in SimApp.
@@ -217,7 +231,7 @@ func genesisStateWithValSet(app *SimApp, genesisState GenesisState, valSet *tmty
 	}
 
 	// update total supply
-	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, totalSupply, []banktypes.Metadata{}, []banktypes.SendEnabled{})
+	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, totalSupply, []banktypes.Metadata{evmCoinMetadata}, []banktypes.SendEnabled{})
 	genesisState[banktypes.ModuleName] = app.AppCodec().MustMarshalJSON(bankGenesis)
 
 	return genesisState
