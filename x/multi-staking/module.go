@@ -134,7 +134,6 @@ func (AppModule) Name() string {
 
 // RegisterInvariants registers the staking module invariants.
 func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
-	am.skAppModule.RegisterInvariants(ir)
 	keeper.RegisterInvariants(ir, am.keeper)
 }
 
