@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -17,6 +18,12 @@ import (
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
+)
+
+var (
+	MultiStakingDenomA = "ario"
+	MultiStakingDenomB = "arst"
 )
 
 type KeeperTestSuite struct {
@@ -30,6 +37,9 @@ type KeeperTestSuite struct {
 }
 
 func (suite *KeeperTestSuite) SetupTest() {
+	fmt.Println("Run SetupTest")
+	configurator := evmtypes.NewEVMConfigurator()
+	configurator.ResetTestConfig()
 	app := simapp.Setup(suite.T(), false)
 	ctx := app.BaseApp.NewContext(false)
 	blockHeader := ctx.BlockHeader()
