@@ -139,7 +139,7 @@ func (suite *KeeperTestSuite) TestMultiStakingLockIterator() {
 	delA := test.GenAddress()
 	delB := test.GenAddress()
 
-	sampleLocks := []types.MultiStakingLock{
+	sampleLocks := []types.MultiStakingLock{ //nolint:staticcheck
 		types.NewMultiStakingLock(
 			types.MultiStakingLockID(delA.String(), valA.String()),
 			types.NewMultiStakingCoin(gasDenom, math.NewInt(1000), math.LegacyOneDec()),
@@ -186,7 +186,7 @@ func (suite *KeeperTestSuite) TestMultiStakingUnlockIterator() {
 	delA := test.GenAddress()
 	delB := test.GenAddress()
 
-	sampleUnlocks := []types.MultiStakingUnlock{
+	sampleUnlocks := []types.MultiStakingUnlock{ //nolint:staticcheck
 		types.NewMultiStakingUnlock(
 			types.MultiStakingUnlockID(delA.String(), valA.String()),
 			1,
@@ -236,7 +236,7 @@ func (suite *KeeperTestSuite) TestValidatorMultiStakingCoinIterator() {
 	valC := test.GenValAddress()
 	valD := test.GenValAddress()
 
-	sampleRecords := []types.ValidatorMultiStakingCoin{
+	sampleRecords := []types.ValidatorMultiStakingCoin{ //nolint:staticcheck
 		{
 			ValAddr:   valA.String(),
 			CoinDenom: gasDenom,

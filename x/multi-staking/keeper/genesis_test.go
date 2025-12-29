@@ -11,10 +11,10 @@ import (
 )
 
 func (suite *KeeperTestSuite) TestImportExportGenesis() {
-	appState, err := suite.app.ExportAppStateAndValidators(false, []string{})
+	appState, err := suite.app.ExportAppStateAndValidators(false, []string{}) //nolint:staticcheck
 	suite.NoError(err)
 
-	encConfig := simapp.MakeEncodingConfig()
+	encConfig := simapp.MakeEncodingConfig() //nolint:staticcheck
 
 	configurator := evmtypes.NewEVMConfigurator()
 	configurator.ResetTestConfig()
