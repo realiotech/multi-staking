@@ -64,10 +64,10 @@ var (
 				Aliases:  []string{"aatom"},
 			},
 		},
-		Base:        "aatom",
-		Display:     "aatom",
-		Name:        "aatom",
-		Symbol:      "aatom",
+		Base:    "aatom",
+		Display: "aatom",
+		Name:    "aatom",
+		Symbol:  "aatom",
 	}
 )
 
