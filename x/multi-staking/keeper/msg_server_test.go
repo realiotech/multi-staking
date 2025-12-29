@@ -16,11 +16,6 @@ import (
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 )
 
-var (
-	MultiStakingDenomA = "ario"
-	MultiStakingDenomB = "arst"
-)
-
 func (suite *KeeperTestSuite) TestCreateValidator() {
 	valPubKey := test.GenPubKey()
 	delAddr := sdk.AccAddress(valPubKey.Address())

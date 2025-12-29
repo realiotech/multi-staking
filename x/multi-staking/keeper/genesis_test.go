@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	dbm "github.com/cosmos/cosmos-db"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 	"github.com/realio-tech/multi-staking-module/test/simapp"
 
 	"cosmossdk.io/log"
@@ -10,10 +11,13 @@ import (
 )
 
 func (suite *KeeperTestSuite) TestImportExportGenesis() {
-	appState, err := suite.app.ExportAppStateAndValidators(false, []string{})
+	appState, err := suite.app.ExportAppStateAndValidators(false, []string{}) //nolint:staticcheck
 	suite.NoError(err)
 
-	encConfig := simapp.MakeEncodingConfig()
+	encConfig := simapp.MakeEncodingConfig() //nolint:staticcheck
+
+	configurator := evmtypes.NewEVMConfigurator()
+	configurator.ResetTestConfig()
 
 	emptyApp := simapp.NewSimApp(
 		log.NewNopLogger(),

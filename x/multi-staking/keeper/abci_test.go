@@ -47,8 +47,6 @@ func (suite *KeeperTestSuite) TestMsUnlockEndBlocker() {
 		tc := tc
 		suite.Run(tc.name, func() {
 			// height 1
-			suite.SetupTest()
-
 			vals, err := suite.app.StakingKeeper.GetAllValidators(suite.ctx)
 			suite.NoError(err)
 			val := vals[0]

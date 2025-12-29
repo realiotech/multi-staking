@@ -30,7 +30,6 @@ var (
 	_ module.AppModule       = AppModule{}
 	_ module.AppModuleBasic  = AppModuleBasic{}
 	_ module.HasServices     = AppModule{}
-	_ module.HasInvariants   = AppModule{}
 	_ module.HasABCIGenesis  = AppModule{}
 	_ module.HasABCIEndBlock = AppModule{}
 
@@ -130,12 +129,6 @@ func NewAppModule(cdc codec.Codec, keeper keeper.Keeper, sk *stakingkeeper.Keepe
 // Name returns the staking module's name.
 func (AppModule) Name() string {
 	return multistakingtypes.ModuleName
-}
-
-// RegisterInvariants registers the staking module invariants.
-func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
-	am.skAppModule.RegisterInvariants(ir)
-	keeper.RegisterInvariants(ir, am.keeper)
 }
 
 // QuerierRoute returns the staking module's querier route name.

@@ -1,9 +1,11 @@
 package keeper_test
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 	"github.com/realio-tech/multi-staking-module/test"
 	"github.com/realio-tech/multi-staking-module/test/simapp"
 	multistakingkeeper "github.com/realio-tech/multi-staking-module/x/multi-staking/keeper"
@@ -19,6 +21,11 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
+var (
+	MultiStakingDenomA = "ario"
+	MultiStakingDenomB = "arst"
+)
+
 type KeeperTestSuite struct {
 	suite.Suite
 
@@ -30,6 +37,9 @@ type KeeperTestSuite struct {
 }
 
 func (suite *KeeperTestSuite) SetupTest() {
+	fmt.Println("Run SetupTest")
+	configurator := evmtypes.NewEVMConfigurator()
+	configurator.ResetTestConfig()
 	app := simapp.Setup(suite.T(), false)
 	ctx := app.BaseApp.NewContext(false)
 	blockHeader := ctx.BlockHeader()
