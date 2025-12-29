@@ -69,9 +69,6 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	consensusparamkeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
 	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
-	"github.com/cosmos/cosmos-sdk/x/crisis"
-	crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
-	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	distr "github.com/cosmos/cosmos-sdk/x/distribution"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
@@ -135,7 +132,6 @@ var (
 		),
 		groupmodule.AppModuleBasic{},
 		params.AppModuleBasic{},
-		crisis.AppModuleBasic{},
 		slashing.AppModuleBasic{},
 		feegrantmodule.AppModuleBasic{},
 		upgrade.AppModuleBasic{},
@@ -193,9 +189,8 @@ type SimApp struct {
 	DistrKeeper           distrkeeper.Keeper
 	GovKeeper             govkeeper.Keeper
 	GroupKeeper           groupkeeper.Keeper
-	CrisisKeeper          crisiskeeper.Keeper
 	UpgradeKeeper         upgradekeeper.Keeper
-	ParamsKeeper          paramskeeper.Keeper
+	ParamsKeeper          paramskeeper.Keeper //nolint:staticcheck
 	AuthzKeeper           authzkeeper.Keeper
 	EvidenceKeeper        evidencekeeper.Keeper
 	FeeGrantKeeper        feegrantkeeper.Keeper
@@ -241,7 +236,7 @@ func NewSimApp(
 		authtypes.StoreKey, banktypes.StoreKey, stakingtypes.StoreKey, multistakingtypes.StoreKey,
 		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
 		govtypes.StoreKey, group.StoreKey, paramstypes.StoreKey, upgradetypes.StoreKey, feegrant.StoreKey,
-		evidencetypes.StoreKey, capabilitytypes.StoreKey, crisistypes.StoreKey,
+		evidencetypes.StoreKey, capabilitytypes.StoreKey,
 		authzkeeper.StoreKey, consensusparamtypes.StoreKey,
 		evmtypes.StoreKey, feemarkettypes.StoreKey, erc20types.StoreKey,
 	)
@@ -330,15 +325,6 @@ func NewSimApp(
 		runtime.NewKVStoreService(keys[slashingtypes.StoreKey]),
 		app.StakingKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-	)
-	app.CrisisKeeper = *crisiskeeper.NewKeeper(
-		appCodec,
-		runtime.NewKVStoreService(keys[crisistypes.StoreKey]),
-		invCheckPeriod,
-		app.BankKeeper,
-		authtypes.FeeCollectorName,
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-		app.AccountKeeper.AddressCodec(),
 	)
 	app.FeeGrantKeeper = feegrantkeeper.NewKeeper(
 		appCodec,
@@ -460,10 +446,6 @@ func NewSimApp(
 
 	/****  Module Options ****/
 
-	// NOTE: we may consider parsing `appOpts` inside module constructors. For the moment
-	// we prefer to be more strict in what arguments the modules expect.
-	skipGenesisInvariants := cast.ToBool(appOpts.Get(crisis.FlagSkipGenesisInvariants))
-
 	// NOTE: Any module instantiated in the module manager that is later modified
 	// must be passed by reference here.
 	app.mm = module.NewManager(
@@ -485,9 +467,8 @@ func NewSimApp(
 		multistaking.NewAppModule(appCodec, app.MultiStakingKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(stakingtypes.ModuleName)),
 		upgrade.NewAppModule(&app.UpgradeKeeper, app.AccountKeeper.AddressCodec()),
 		evidence.NewAppModule(app.EvidenceKeeper),
-		params.NewAppModule(app.ParamsKeeper),
+		params.NewAppModule(app.ParamsKeeper), //nolint:staticcheck
 		authzmodule.NewAppModule(appCodec, app.AuthzKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
-		crisis.NewAppModule(&app.CrisisKeeper, skipGenesisInvariants, app.GetSubspace(crisistypes.ModuleName)), // always be last to make sure that it checks for all invariants and not only part of them
 
 		vm.NewAppModule(evmKeeper, app.AccountKeeper, app.BankKeeper, app.AccountKeeper.AddressCodec()),
 		feemarket.NewAppModule(FeeMarketKeeper),
@@ -505,11 +486,11 @@ func NewSimApp(
 		erc20types.ModuleName, minttypes.ModuleName, distrtypes.ModuleName, slashingtypes.ModuleName,
 		multistakingtypes.ModuleName,
 		evidencetypes.ModuleName, authtypes.ModuleName,
-		banktypes.ModuleName, govtypes.ModuleName, crisistypes.ModuleName, genutiltypes.ModuleName, authz.ModuleName, feegrant.ModuleName,
+		banktypes.ModuleName, govtypes.ModuleName, genutiltypes.ModuleName, authz.ModuleName, feegrant.ModuleName,
 		paramstypes.ModuleName, vestingtypes.ModuleName, group.ModuleName,
 	)
 	app.mm.SetOrderEndBlockers(
-		crisistypes.ModuleName, govtypes.ModuleName,
+		govtypes.ModuleName,
 		multistakingtypes.ModuleName,
 		evmtypes.ModuleName,
 		erc20types.ModuleName,
@@ -527,7 +508,7 @@ func NewSimApp(
 	app.mm.SetOrderInitGenesis(
 		capabilitytypes.ModuleName, authtypes.ModuleName, banktypes.ModuleName, distrtypes.ModuleName,
 		multistakingtypes.ModuleName,
-		slashingtypes.ModuleName, govtypes.ModuleName, minttypes.ModuleName, crisistypes.ModuleName,
+		slashingtypes.ModuleName, govtypes.ModuleName, minttypes.ModuleName,
 		evmtypes.ModuleName,
 		erc20types.ModuleName,
 		feemarkettypes.ModuleName, genutiltypes.ModuleName, evidencetypes.ModuleName, authz.ModuleName,
@@ -535,7 +516,6 @@ func NewSimApp(
 		vestingtypes.ModuleName, group.ModuleName,
 	)
 
-	app.mm.RegisterInvariants(&app.CrisisKeeper)
 	app.configurator = module.NewConfigurator(app.appCodec, app.MsgServiceRouter(), app.GRPCQueryRouter())
 	err := app.mm.RegisterServices(app.configurator)
 	if err != nil {
@@ -558,7 +538,7 @@ func NewSimApp(
 		mint.NewAppModule(appCodec, app.MintKeeper, app.AccountKeeper, nil, app.GetSubspace(minttypes.ModuleName)),
 		distr.NewAppModule(appCodec, app.DistrKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.GetSubspace(distrtypes.ModuleName)),
 		slashing.NewAppModule(appCodec, app.SlashingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.GetSubspace(slashingtypes.ModuleName), app.interfaceRegistry),
-		params.NewAppModule(app.ParamsKeeper),
+		params.NewAppModule(app.ParamsKeeper), //nolint:staticcheck
 		evidence.NewAppModule(app.EvidenceKeeper),
 		authzmodule.NewAppModule(appCodec, app.AuthzKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
 	)
