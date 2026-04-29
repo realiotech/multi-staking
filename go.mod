@@ -1,8 +1,6 @@
 module github.com/realio-tech/multi-staking-module
 
-go 1.23.8
-
-toolchain go1.23.9
+go 1.24.0
 
 require (
 	cosmossdk.io/core v0.11.3
@@ -54,7 +52,7 @@ require (
 	github.com/ethereum/c-kzg-4844/v2 v2.1.0 // indirect
 	github.com/ethereum/go-verkle v0.2.2 // indirect
 	github.com/ferranbt/fastssz v0.1.4 // indirect
-	github.com/go-jose/go-jose/v4 v4.1.1 // indirect
+	github.com/go-jose/go-jose/v4 v4.1.4 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
 	github.com/gofrs/flock v0.12.1 // indirect
