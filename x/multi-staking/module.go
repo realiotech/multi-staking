@@ -27,7 +27,6 @@ import (
 )
 
 var (
-	_ module.AppModule       = AppModule{}
 	_ module.AppModuleBasic  = AppModuleBasic{}
 	_ module.HasServices     = AppModule{}
 	_ module.HasABCIGenesis  = AppModule{}
