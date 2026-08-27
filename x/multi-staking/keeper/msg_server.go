@@ -117,6 +117,20 @@ func (k msgServer) Delegate(goCtx context.Context, msg *stakingtypes.MsgDelegate
 		return nil, fmt.Errorf("not allowed coin")
 	}
 
+	// Check if delegation exist, withdraw reward first
+	_, err = k.keeper.stakingKeeper.GetDelegation(ctx, multiStakerAddr, valAcc)
+	if err == nil {
+		err = k.keeper.stakingKeeper.Hooks().BeforeDelegationSharesModified(ctx, multiStakerAddr, valAcc)
+		if err != nil {
+			return nil, err
+		}
+
+		err = k.keeper.stakingKeeper.Hooks().AfterDelegationModified(ctx, multiStakerAddr, valAcc)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	lockID := types.MultiStakingLockID(msg.DelegatorAddress, msg.ValidatorAddress)
 
 	mintedBondCoin, err := k.keeper.LockCoinAndMintBondCoin(ctx, lockID, multiStakerAddr, multiStakerAddr, msg.Amount)
@@ -150,6 +164,20 @@ func (k msgServer) BeginRedelegate(goCtx context.Context, msg *stakingtypes.MsgB
 
 	if !k.keeper.isValMultiStakingCoin(ctx, srcValAcc, msg.Amount) || !k.keeper.isValMultiStakingCoin(ctx, dstValAcc, msg.Amount) {
 		return nil, fmt.Errorf("not allowed Coin")
+	}
+
+	// Check if source delegation exist, withdraw reward first
+	_, err = k.keeper.stakingKeeper.GetDelegation(ctx, multiStakerAddr, srcValAcc)
+	if err == nil {
+		err = k.keeper.stakingKeeper.Hooks().BeforeDelegationSharesModified(ctx, multiStakerAddr, srcValAcc)
+		if err != nil {
+			return nil, err
+		}
+
+		err = k.keeper.stakingKeeper.Hooks().AfterDelegationModified(ctx, multiStakerAddr, srcValAcc)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	fromLockID := types.MultiStakingLockID(msg.DelegatorAddress, msg.ValidatorSrcAddress)
