@@ -264,7 +264,7 @@ require (
 replace (
 	// use cosmos fork of keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
-	github.com/cosmos/evm => github.com/realiotech/evm v0.6.1
+	github.com/cosmos/evm => github.com/realiotech/evm v0.6.2-0.20260825072434-a1a8ba73f500
 	// use Cosmos-SDK fork to enable Ledger functionality
 	// use Cosmos geth fork
 	github.com/ethereum/go-ethereum => github.com/cosmos/go-ethereum v1.16.2-cosmos-1
